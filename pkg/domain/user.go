@@ -13,7 +13,7 @@ type Users struct {
 
 // many to many join
 type UserAdress struct {
-	UserID    uint
+	UsersID   uint
 	Users     Users
 	AddressID uint
 	Address   Address
