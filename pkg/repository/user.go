@@ -16,29 +16,43 @@ func NewUserRepository(DB *gorm.DB) interfaces.UserRepository {
 	return &userDatabse{DB: DB}
 }
 
-func (c *userDatabse) FindAllUser(ctx context.Context) ([]domain.Users, error) {
-	var users []domain.Users
-	err := c.DB.Raw("SELECT * FROM users").Scan(&users).Error
+func (c *userDatabse) FindUser(ctx context.Context, user domain.Users) (domain.Users, any) {
 
-	return users, err
+	// check id,email,phone any of then match i db
+	c.DB.Raw("SELECT * FROM users where id=? OR email=? OR phone=?", user.ID, user.Email, user.Phone).Scan(&user)
+
+	// if given userid then check mail is stil there otherwise phone or id
+	if user.ID == 0 || user.Email == "" || user.Phone == "" {
+		return user, map[string]string{"Error": "Can't find the user"}
+	}
+	// if found the user then retur user with nil
+	return user, nil
 }
 
-func (c *userDatabse) FindUserByID(ctx context.Context, id uint) (domain.Users, error) {
+func (c *userDatabse) SaveUser(ctx context.Context, user domain.Users) (domain.Users, any) {
 
-	var user domain.Users
-	err := c.DB.Raw("SELECT * FROM user where id=?", id).Scan(user).Error
+	// check whether user is already exisist
+	c.DB.Raw("SELECT * FROM users WHERE email=? OR phone=?", user.Email, user.Phone).Scan(&user)
+	//if exist then return message as user exist
+	if user.ID != 0 {
+		return user, map[string]string{"msg": "User Already Exist"}
+	}
 
-	return user, err
+	// return user with save status
+	return user, c.DB.Save(&user).Error
 }
 
-func (c *userDatabse) SaveUser(ctx context.Context, user domain.Users) (domain.Users, error) {
+func (c *userDatabse) GetAllProducts(ctx context.Context) ([]domain.Product, any) {
 
-	err := c.DB.Save(&user).Error
+	var products []domain.Product
 
-	return user, err
+	return products, c.DB.Raw("SELECT * FROM products").Scan(&products).Error
+
 }
 
-func (c *userDatabse) DeleteUser(ctx context.Context, user domain.Users) error {
+func (c *userDatabse) GetProductItems(ctx context.Context, product domain.Product) ([]domain.ProductItem, any) {
 
-	return c.DB.Raw("DELETE users WHERE id=?", user.ID).Error
+	var productItems []domain.ProductItem
+
+	return productItems, c.DB.Raw("SELECT * FROM product_items WHERE product_id", product.ID).Scan(&productItems).Error
 }

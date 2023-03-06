@@ -7,8 +7,8 @@ import (
 )
 
 type UserUseCase interface {
-	FindAllUser(ctx context.Context) ([]domain.Users, error)
-	FindUserByID(ctx context.Context, id uint) (domain.Users, error)
-	SaveUser(ctx context.Context, user domain.Users) (domain.Users, error)
-	DeleteUser(ctx context.Context, user domain.Users) error
+	SaveUser(ctx context.Context, user domain.Users) (domain.Users, any)
+	Login(ctx context.Context, user domain.Users) (domain.Users, any)
+	ShowAllProducts(ctx context.Context) ([]domain.Product, any)                             // show all products
+	GetProductItems(ctx context.Context, product domain.Product) ([]domain.ProductItem, any) // to get all product items of a specific product
 }

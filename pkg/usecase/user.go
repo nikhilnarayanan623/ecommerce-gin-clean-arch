@@ -3,6 +3,7 @@ package usecase
 import (
 	"context"
 
+	"github.com/go-playground/validator/v10"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/domain"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/repository/interfaces"
 	service "github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/usecase/interfaces"
@@ -16,48 +17,59 @@ func NewUserUseCase(repo interfaces.UserRepository) service.UserUseCase {
 	return &userUserCase{userRepo: repo}
 }
 
-func (c *userUserCase) FindAllUser(ctx context.Context) ([]domain.Users, error) {
+func (c *userUserCase) Login(ctx context.Context, user domain.Users) (domain.Users, any) {
 
-	users, err := c.userRepo.FindAllUser(ctx)
+	user, err := c.userRepo.FindUser(ctx, user)
 
+	// check user found or not
 	if err != nil {
-		// do something
-	}
-	//logic
-
-	return users, err
-}
-
-func (c *userUserCase) FindUserByID(ctx context.Context, id uint) (domain.Users, error) {
-
-	user, err := c.userRepo.FindUserByID(ctx, id)
-
-	if err != nil {
-
+		return user, map[string]string{"Error": "Can't find the user"}
 	}
 
-	return user, err
+	// check user block_status user is blocked or not
+	if user.BlockStatus {
+		return user, map[string]string{"Error": "User Blocked By Admin"}
+	}
 
+	// everything is ok then return dbUser
+	return user, nil
 }
 
-func (c *userUserCase) SaveUser(ctx context.Context, user domain.Users) (domain.Users, error) {
+func (c *userUserCase) SaveUser(ctx context.Context, user domain.Users) (domain.Users, any) {
+
+	// validate user values
+	if err := validator.New().Struct(user); err != nil {
+
+		errorMap := map[string]string{}
+		for _, er := range err.(validator.ValidationErrors) {
+			errorMap[er.Field()] = "Enter This field Properly"
+		}
+
+		return user, errorMap
+	}
 
 	user, err := c.userRepo.SaveUser(ctx, user)
 
-	if err != nil {
-
-	}
-
 	return user, err
 }
 
-func (c *userUserCase) DeleteUser(ctx context.Context, user domain.Users) error {
+func (c *userUserCase) ShowAllProducts(ctx context.Context) ([]domain.Product, any) {
 
-	err := c.userRepo.DeleteUser(ctx, user)
+	products, err := c.userRepo.GetAllProducts(ctx)
 
 	if err != nil {
-
+		return nil, map[string]string{"Error": "Can't get the products"}
 	}
 
-	return err
+	return products, err
+}
+func (c *userUserCase) GetProductItems(ctx context.Context, product domain.Product) ([]domain.ProductItem, any) {
+
+	productsItem, err := c.userRepo.GetProductItems(ctx, product)
+
+	if err != nil {
+		return nil, map[string]string{"Error": "To get products item"}
+	}
+
+	return productsItem, nil
 }

@@ -7,8 +7,8 @@ import (
 )
 
 type UserRepository interface {
-	FindAllUser(ctx context.Context) ([]domain.Users, error)
-	FindUserByID(ctx context.Context, id uint) (domain.Users, error)
-	SaveUser(ctx context.Context, user domain.Users) (domain.Users, error)
-	DeleteUser(ctx context.Context, user domain.Users) error
+	FindUser(ctx context.Context, user domain.Users) (domain.Users, any)
+	SaveUser(ctx context.Context, user domain.Users) (domain.Users, any)
+	GetAllProducts(ctx context.Context) ([]domain.Product, any)
+	GetProductItems(ctx context.Context, product domain.Product) ([]domain.ProductItem, any)
 }
