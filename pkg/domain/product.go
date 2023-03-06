@@ -5,6 +5,7 @@ type Product struct {
 	ID          uint   `json:"id" gorm:"primaryKey;not null"`
 	ProductName string `json:"product_name" gorm:"not null" validate:"required,min=5,max50"`
 	Description string `json:"description" gorm:"not null" validate:"required,min=10,max=100"`
+	OutOfStock  bool   `json:"out_of_stock" gorm:"not null"`
 	Price       uint   `json:"price" gorm:"not null" validte:"required,numeric"`
 	Image       string `json:"image" gorm:"not null"`
 }
