@@ -12,7 +12,7 @@ type Product struct {
 // this for a specift variant of product like(Luis Philip->Shirt->Size->M)
 type ProductItem struct {
 	ID        uint `json:"id" gorm:"primaryKey;not null"`
-	ProductID uint
+	ProductID uint `json:"product_id" gorm:"not null"`
 	Product   Product
 	//images are stored in sperate table along with productItem Id
 	QtyInStock uint `json:"qty_in_stck" gorm:"not null"` // no need of stockAvailble column , because from this qty we can get it
@@ -30,9 +30,9 @@ type ProductCategory struct {
 // variation means size color etc..
 type Variation struct {
 	ID                uint `json:"id" gorm:"primaryKey;not null"`
-	ProductCategoryID uint
+	ProductCategoryID uint `json:"product_category_id" gorm:"not null"`
 	ProductCategory   *ProductCategory
-	Name              string `json:"name"`
+	Name              string `json:"name" gorm:"not null"`
 }
 
 // variation option means values are like s,m,xl for size and blue,white,black for Color
@@ -46,9 +46,9 @@ type VariationOption struct {
 // used to many to many join like multile product have same size or color and many color or size have same product
 // this configuraion means to connect a specifc product to Its variasionOption(jeans-size-m)
 type ProductConfiguraion struct {
-	ProductItemID     uint
+	ProductItemID     uint `json:"product_item_id" gorm:"not null"`
 	ProductItem       ProductItem
-	VariationOptionID uint
+	VariationOptionID uint `json:"variation_option_id" gorm:"not null"`
 	VariationOption   VariationOption
 }
 
