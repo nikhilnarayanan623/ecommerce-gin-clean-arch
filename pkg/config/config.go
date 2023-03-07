@@ -12,17 +12,18 @@ type Config struct {
 	DBUser     string `mapstructure:"DB_USER"`
 	DBPassword string `mapstructure:"DB_PASSWORD"`
 	DBPort     string `mapstructure:"DB_PORT"`
+	JWT        string `mapstructure:"JWT_CODE"`
 }
 
 // to hold all names of env variables
 var envsNames = []string{
-	"DB_HOST", "DB_NAME", "DB_USER", "DB_PASSWORD", "DB_PORT",
+	"DB_HOST", "DB_NAME", "DB_USER", "DB_PASSWORD", "DB_PORT", "JWT_CODE",
 }
+
+var config Config // create an instance of Config
 
 // func to get env variable and store it on struct Config and retuen it with error as nil or error
 func LoadConfig() (Config, error) {
-
-	var config Config // create an instance of Config
 
 	// set-up viper
 	viper.AddConfigPath("./")   // add the config path
@@ -49,4 +50,10 @@ func LoadConfig() (Config, error) {
 
 	//successfully loaded the env values into struct config
 	return config, nil
+}
+
+// to get the secred code for jwt
+func GetJWTCofig() string {
+
+	return config.JWT
 }

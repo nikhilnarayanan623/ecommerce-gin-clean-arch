@@ -2,6 +2,7 @@ package db
 
 import (
 	"fmt"
+	"log"
 
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/config"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/domain"
@@ -18,6 +19,11 @@ func ConnectDatbase(cfg config.Config) (*gorm.DB, error) {
 		SkipDefaultTransaction: true,
 	})
 
+	if err != nil {
+		log.Fatal("Faild to connect with database")
+		return nil, err
+	}
+
 	// migrate the database tables
 	db.AutoMigrate(
 		//user
@@ -30,13 +36,20 @@ func ConnectDatbase(cfg config.Config) (*gorm.DB, error) {
 		domain.Admin{},
 
 		//product
-		domain.ProductCategory{},
+		domain.Category{},
 		domain.Product{},
 		domain.Variation{},
 		domain.VariationOption{},
 		domain.ProductItem{},
 		domain.ProductConfiguraion{},
 		domain.ProductImage{},
+
+		//wish list
+		domain.WishList{},
+
+		//cart
+		domain.Cart{},
+		domain.CartItem{},
 	)
 
 	return db, err
