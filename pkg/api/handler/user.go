@@ -1,10 +1,12 @@
 package handler
 
 import (
-	"fmt"
 	"net/http"
+	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/golang-jwt/jwt"
+	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/config"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/domain"
 	service "github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/usecase/interfaces"
 )
@@ -33,10 +35,26 @@ func (u *UserHandler) Login(ctx *gin.Context) {
 
 		ctx.JSON(400, gin.H{
 			"StatusCode": 400,
-			"Error":      err,
+			"error":      err,
 		})
 		return
 	}
+	//create a new token
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, &jwt.StandardClaims{
+		ExpiresAt: time.Now().Add(10 * time.Minute).Unix(),
+	})
+
+	//sign the token
+	signedString, err := token.SignedString([]byte(config.GetJWTCofig()))
+
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{
+			"StatusCode": 500,
+			"msg":        "Error to Create JWT",
+		})
+	}
+
+	ctx.SetCookie("jwt-auth", signedString, 10*60, "", "", false, true)
 
 	// if there is no error then responce it
 	ctx.JSON(200, gin.H{
@@ -49,18 +67,18 @@ func (u *UserHandler) Login(ctx *gin.Context) {
 func (u *UserHandler) SignUp(ctx *gin.Context) {
 	var user domain.Users
 
-	if ctx.ShouldBindJSON(&user) != nil {
+	if ctx.BindJSON(&user) != nil {
 
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"StatusCode": 400,
 			"msg":        "Cant't Bind The Values",
+			"user":       user,
 		})
 
-		fmt.Println(user.FirstName, user.LastName)
 		return
 	}
 
-	user, err := u.userUseCase.SaveUser(ctx, user)
+	user, err := u.userUseCase.Signup(ctx, user)
 
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
@@ -92,6 +110,7 @@ func (u *UserHandler) Home(ctx *gin.Context) {
 
 	ctx.JSON(http.StatusOK, gin.H{
 		"StatusCode": 200,
+		"msg":        "Welcome Home",
 		"Products":   products,
 	})
 }
