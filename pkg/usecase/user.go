@@ -7,6 +7,7 @@ import (
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/domain"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/repository/interfaces"
 	service "github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/usecase/interfaces"
+	"golang.org/x/crypto/bcrypt"
 )
 
 type userUserCase struct {
@@ -19,11 +20,21 @@ func NewUserUseCase(repo interfaces.UserRepository) service.UserUseCase {
 
 func (c *userUserCase) Login(ctx context.Context, user domain.Users) (domain.Users, any) {
 
-	user, err := c.userRepo.FindUser(ctx, user)
+	// first validate the struct(user)
+	if err := validator.New().Struct(user); err != nil {
+		errMap := map[string]string{}
+
+		for _, er := range err.(validator.ValidationErrors) {
+			errMap[er.Field()] = "Enter this field properly"
+		}
+		return user, errMap
+	}
+
+	dbUser, dberr := c.userRepo.FindUser(ctx, user)
 
 	// check user found or not
-	if err != nil {
-		return user, map[string]string{"Error": "Can't find the user"}
+	if dberr != nil {
+		return user, dberr
 	}
 
 	// check user block_status user is blocked or not
@@ -31,11 +42,16 @@ func (c *userUserCase) Login(ctx context.Context, user domain.Users) (domain.Use
 		return user, map[string]string{"Error": "User Blocked By Admin"}
 	}
 
+	//check the user password with dbPassword
+	if bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(dbUser.Password)) != nil {
+		return user, map[string]string{"Error": "Entered Password is wrong"}
+	}
+
 	// everything is ok then return dbUser
-	return user, nil
+	return dbUser, nil
 }
 
-func (c *userUserCase) SaveUser(ctx context.Context, user domain.Users) (domain.Users, any) {
+func (c *userUserCase) Signup(ctx context.Context, user domain.Users) (domain.Users, any) {
 
 	// validate user values
 	if err := validator.New().Struct(user); err != nil {
