@@ -1,34 +1,61 @@
 package middleware
 
 import (
-	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt"
-	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/config"
+	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/auth"
 )
 
-func Authentication(ctx *gin.Context) {
+func AuthenticateUser(ctx *gin.Context) {
 
-	token, _ := ctx.Cookie("jwt-auth")
+	tokenString, _ := ctx.Cookie("user-auth")
 
-	if err := validteToken(token); err != nil {
+	token, err := auth.ValidateToken(tokenString)
+	if err != nil {
 		ctx.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
 			"StatusCode": 401,
-			"msg":        "Unauthorized user",
+			"msg":        "not an autherized user",
 		})
+		return
 	}
+
+	// if its a valid token then claim it
+	claims, ok := token.Claims.(*jwt.StandardClaims)
+
+	if !ok {
+		ctx.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
+			"StatusCode": 401,
+			"msg":        "can't claim the token",
+		})
+		return
+	}
+
+	// claim the userId and set it on context
+	ctx.Set("userId", claims.Id)
 }
 
-func validteToken(token string) error {
-	_, err := jwt.Parse(token, func(t *jwt.Token) (interface{}, error) {
-		if _, ok := t.Method.(*jwt.SigningMethodHMAC); !ok {
-			return nil, fmt.Errorf("unexpected signing method: %v", t.Header["alg"])
-		}
+func AuthenticateAdmin(ctx *gin.Context) {
+	tokenString, _ := ctx.Cookie("admin-auth")
 
-		return []byte(config.GetJWTCofig()), nil
-	})
+	_, err := auth.ValidateToken(tokenString)
+	if err != nil {
+		ctx.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
+			"StatusCode": 401,
+			"msg":        "not an autherized user",
+		})
+		return
+	}
 
-	return err
+	// // if its a valid token then claim it
+	// claims, ok := token.Claims.(*jwt.StandardClaims)
+
+	// if !ok {
+	// 	ctx.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
+	// 		"StatusCode": 401,
+	// 		"msg":        "can't claim the token",
+	// 	})
+	// 	return
+	// }
 }

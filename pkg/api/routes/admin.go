@@ -14,7 +14,7 @@ func AdminRoutes(router *gin.Engine, admin *handler.AdminHandler) {
 	router.GET("admin/signup", admin.SignUPGet)
 	router.POST("admin/signup", admin.SignUpPost)
 
-	api := router.Group("/admin", middleware.Authentication)
+	api := router.Group("/admin", middleware.AuthenticateAdmin)
 
 	api.GET("/alluser", admin.Allusers)
 	api.GET("/add-product", admin.AddCategoryGET)

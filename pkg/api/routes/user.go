@@ -8,10 +8,14 @@ import (
 
 func UserRoutes(router *gin.Engine, user *handler.UserHandler) {
 
-	router.POST("/login", user.Login)
-	router.POST("/signup", user.SignUp)
+	router.GET("/login", user.LoginGet)
+	router.POST("/login", user.LoginPost)
 
-	api := router.Group("/", middleware.Authentication)
+	router.GET("/signup", user.SignUpGet)
+	router.POST("/signup", user.SignUpPost)
+
+	api := router.Group("/", middleware.AuthenticateUser)
 
 	api.GET("/", user.Home)
+	api.GET("/cart", user.UserCart)
 }
