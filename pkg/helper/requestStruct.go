@@ -1,9 +1,11 @@
 package helper
 
+// user this for admin and user
 type LoginStruct struct {
-	Email    string `json:"email"`
-	Phone    string `json:"phone"`
-	Password string `json:"password"`
+	Email    string `json:"email" validate:"login"`
+	UserName string `json:"user_name" validate:"login"`
+	Phone    string `json:"phone" validate:"login"`
+	Password string `json:"password" validate:"required,min=3"`
 }
 
 type CategoryStruct struct {

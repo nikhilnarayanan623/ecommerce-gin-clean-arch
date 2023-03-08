@@ -23,7 +23,7 @@ build : ${BINARY_DIR}
 
  # to start the application
 run:
-	@echo "Welcome to my ecommerce"
+	@echo "Welcome To My Ecommerce Project"
 	$(GOCMD) run ./cmd/api
 
  # to test all tests in current and sub modlues
