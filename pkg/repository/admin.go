@@ -37,15 +37,14 @@ func (c *adminDatabase) SaveAdmin(ctx context.Context, admin domain.Admin) (doma
 
 	if dbAdmin.ID != 0 { // amdmin already exist
 
-		errMap := map[string]string{}
+		//errMap := map[string]string{}
 		// first check the email is already exist
 		if dbAdmin.Email == admin.Email {
-			errMap["email"] = "Email Already exist"
-		} else { // if email not then its user name is exist
-			errMap["user_name"] = "UserName Already exist"
-		}
-
-		return admin, errMap
+			// errMap["email"] = "Email Already exist"
+			return admin, helper.SingleRespStruct{Error: "Email Already exist"}
+		} // if email not then its user name is exist
+		//errMap["user_name"] = "UserName Already exist"
+		return admin, helper.SingleRespStruct{Error: "UserName Already exist"}
 	}
 
 	//if admin not exist then create it
@@ -75,10 +74,12 @@ func (c *adminDatabase) BlockUser(ctx context.Context, user domain.Users) (domai
 
 	// if user is blocked then unblock
 	if dbUser.BlockStatus {
-		c.DB.Raw("UPDATE users SET block_status='F' WHERE id=?", user.ID).Scan(&user)
+		c.DB.Raw("UPDATE users SET block_status='F' WHERE id=?", user.ID).Scan(&dbUser)
+		dbUser.BlockStatus = false
 		return dbUser, nil
 	}
-	c.DB.Raw("UPDATE users SET block_status='T' WHERE id=?", user.ID).Scan(&user)
+	c.DB.Raw("UPDATE users SET block_status='T' WHERE id=?", user.ID).Scan(&dbUser)
+	dbUser.BlockStatus = true
 	return dbUser, nil
 }
 

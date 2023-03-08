@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/domain"
+	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/helper"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/repository/interfaces"
 	"gorm.io/gorm"
 )
@@ -55,4 +56,40 @@ func (c *userDatabse) GetProductItems(ctx context.Context, product domain.Produc
 	var productItems []domain.ProductItem
 
 	return productItems, c.DB.Raw("SELECT * FROM product_items WHERE product_id", product.ID).Scan(&productItems).Error
+}
+
+func (c *userDatabse) GetCartItems(ctx context.Context, userId uint) (helper.ResCart, any) {
+
+	var (
+		user = domain.Users{ID: userId}
+		// resCart = helper.ResCart{CartItems: make([]helper.ResCartItem, 0)}
+		resCart helper.ResCart
+		cart    domain.Cart
+		//cartItems []domain.CartItem
+	)
+
+	//first find the user
+	user, err := c.FindUser(ctx, user)
+
+	if err != nil {
+		return resCart, err
+	}
+
+	// then get cart id of user
+	if c.DB.Raw("SELECT * FROM carts WHERE users_id=?", userId).Scan(&cart); cart.ID == 0 {
+		return resCart, helper.SingleRespStruct{Error: "User Have no cart"} // I think I want to delete it later
+	}
+
+	// add total price to response
+	resCart.TotalPrice = cart.TotalPrice
+
+	//then get all cart items of user
+	var resCartItem []helper.ResCartItem
+
+	c.DB.Raw("SELECT * FROM cart_items WHERE cart_id=?", cart.ID).Scan(&resCartItem)
+
+	// assign it to resCart
+	resCart.CartItems = resCartItem
+
+	return resCart, nil
 }

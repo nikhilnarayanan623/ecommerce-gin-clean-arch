@@ -1,13 +1,12 @@
 package handler
 
 import (
+	"fmt"
 	"net/http"
-	"time"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
-	"github.com/golang-jwt/jwt"
-	"github.com/jinzhu/copier"
-	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/config"
+	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/auth"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/domain"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/helper"
 	service "github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/usecase/interfaces"
@@ -17,11 +16,21 @@ type UserHandler struct {
 	userUseCase service.UserUseCase
 }
 
-func (u *UserHandler) Login(ctx *gin.Context) {
+func (u *UserHandler) LoginGet(ctx *gin.Context) {
 
-	var user domain.Users
+	ctx.JSON(http.StatusOK, gin.H{
+		"StatusCode": 200,
+		"msg":        "detail to enter",
+		"imp":        "no user_name ",
+		"user":       helper.LoginStruct{},
+	})
+}
 
-	if ctx.ShouldBindJSON(&user) != nil {
+func (u *UserHandler) LoginPost(ctx *gin.Context) {
+
+	var body helper.LoginStruct
+
+	if ctx.ShouldBindJSON(&body) != nil {
 
 		ctx.JSON(404, gin.H{
 			"StatusCode": 400,
@@ -31,7 +40,7 @@ func (u *UserHandler) Login(ctx *gin.Context) {
 		return
 	}
 
-	user, err := u.userUseCase.Login(ctx, user)
+	responce, err := u.userUseCase.Login(ctx, body)
 
 	if err != nil {
 
@@ -41,14 +50,24 @@ func (u *UserHandler) Login(ctx *gin.Context) {
 		})
 		return
 	}
-	//create a new token
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, &jwt.StandardClaims{
-		ExpiresAt: time.Now().Add(10 * time.Minute).Unix(),
-	})
 
-	//sign the token
-	signedString, err := token.SignedString([]byte(config.GetJWTCofig()))
+	// //create a new token
+	// token := jwt.NewWithClaims(jwt.SigningMethodHS256, &jwt.StandardClaims{
+	// 	ExpiresAt: time.Now().Add(10 * time.Minute).Unix(),
+	// 	Id:        fmt.Sprint(responce.ID),
+	// })
 
+	// //sign the token
+	// signedString, err := token.SignedString([]byte(config.GetJWTCofig()))
+
+	// if err != nil {
+	// 	ctx.JSON(http.StatusInternalServerError, gin.H{
+	// 		"StatusCode": 500,
+	// 		"msg":        "Error to Create JWT",
+	// 	})
+	// }
+
+	tokenString, err := auth.GenerateJWT(responce.ID)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{
 			"StatusCode": 500,
@@ -56,20 +75,24 @@ func (u *UserHandler) Login(ctx *gin.Context) {
 		})
 	}
 
-	ctx.SetCookie("jwt-auth", signedString, 10*60, "", "", false, true)
-
-	// everything ok then responce 200 with user details
-	var response helper.UserRespStrcut
-	copier.Copy(&response, &user) // copy required data only
+	ctx.SetCookie("user-auth", tokenString["accessToken"], 10*60, "", "", false, true)
 
 	ctx.JSON(http.StatusOK, gin.H{
 		"StatusCode": 200,
 		"Status":     "Successfully Loged In",
-		"user":       user,
+		"user":       responce,
 	})
 }
 
-func (u *UserHandler) SignUp(ctx *gin.Context) {
+func (u *UserHandler) SignUpGet(ctx *gin.Context) {
+
+	ctx.JSON(http.StatusOK, gin.H{
+		"StatusCode": 200,
+		"msg":        "enter detail for signup",
+		"user":       domain.Users{},
+	})
+}
+func (u *UserHandler) SignUpPost(ctx *gin.Context) {
 	var user domain.Users
 
 	if ctx.BindJSON(&user) != nil {
@@ -117,6 +140,32 @@ func (u *UserHandler) Home(ctx *gin.Context) {
 		"StatusCode": 200,
 		"msg":        "Welcome Home",
 		"Products":   products,
+	})
+}
+
+func (u *UserHandler) UserCart(ctx *gin.Context) {
+
+	userIdStr := ctx.GetString("userId")
+	userIdInt, _ := strconv.Atoi(userIdStr)
+	userId := uint(userIdInt)
+
+	fmt.Println(userId)
+
+	resCart, err := u.userUseCase.GetCartItems(ctx, userId)
+
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{
+			"StatusCode": 500,
+			"msg":        "Faild to get user cart",
+			"error":      err,
+		})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{
+		"StatusCode": 200,
+		"msg":        "User Cart",
+		"cart":       resCart,
 	})
 }
 

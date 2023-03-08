@@ -4,7 +4,9 @@ import (
 	"context"
 
 	"github.com/go-playground/validator/v10"
+	"github.com/jinzhu/copier"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/domain"
+	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/helper"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/repository/interfaces"
 	service "github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/usecase/interfaces"
 	"golang.org/x/crypto/bcrypt"
@@ -18,37 +20,50 @@ func NewUserUseCase(repo interfaces.UserRepository) service.UserUseCase {
 	return &userUserCase{userRepo: repo}
 }
 
-func (c *userUserCase) Login(ctx context.Context, user domain.Users) (domain.Users, any) {
+func (c *userUserCase) Login(ctx context.Context, body helper.LoginStruct) (helper.UserRespStrcut, any) {
 
 	// first validate the struct(user)
-	if err := validator.New().Struct(user); err != nil {
+	validate := validator.New()
+	validate.RegisterValidation("login", helper.CustomLoginValidator) // custom validator for login
+
+	if err := validate.Struct(body); err != nil {
 		errMap := map[string]string{}
 
 		for _, er := range err.(validator.ValidationErrors) {
 			errMap[er.Field()] = "Enter this field properly"
 		}
-		return user, errMap
+		helper.Reset() // for loing validatin reset count in that
+		return helper.UserRespStrcut{}, errMap
 	}
+	helper.Reset() // for loing validatin reset count in that
+
+	// if no error in validation then copy its field int users
+	var user domain.Users
+	copier.Copy(&user, &body)
 
 	dbUser, dberr := c.userRepo.FindUser(ctx, user)
 
 	// check user found or not
 	if dberr != nil {
-		return user, dberr
+		return helper.UserRespStrcut{}, dberr
 	}
 
 	// check user block_status user is blocked or not
-	if user.BlockStatus {
-		return user, map[string]string{"Error": "User Blocked By Admin"}
+	if dbUser.BlockStatus {
+		return helper.UserRespStrcut{}, map[string]string{"Error": "User Blocked By Admin"}
 	}
 
 	//check the user password with dbPassword
-	if bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(dbUser.Password)) != nil {
-		return user, map[string]string{"Error": "Entered Password is wrong"}
+	if bcrypt.CompareHashAndPassword([]byte(dbUser.Password), []byte(user.Password)) != nil {
+		return helper.UserRespStrcut{}, map[string]string{"Error": "Entered Password is wrong"}
 	}
 
+	// everything ok then responce 200 with user details
+	var response helper.UserRespStrcut
+	copier.Copy(&response, &dbUser) // copy required data only
+
 	// everything is ok then return dbUser
-	return dbUser, nil
+	return response, nil
 }
 
 func (c *userUserCase) Signup(ctx context.Context, user domain.Users) (domain.Users, any) {
@@ -93,4 +108,9 @@ func (c *userUserCase) GetProductItems(ctx context.Context, product domain.Produ
 	}
 
 	return productsItem, nil
+}
+
+func (c *userUserCase) GetCartItems(ctx context.Context, userId uint) (helper.ResCart, any) {
+
+	return c.userRepo.GetCartItems(ctx, userId)
 }

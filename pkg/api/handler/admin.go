@@ -3,11 +3,9 @@ package handler
 import (
 	"fmt"
 	"net/http"
-	"time"
 
 	"github.com/gin-gonic/gin"
-	"github.com/golang-jwt/jwt"
-	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/config"
+	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/auth"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/domain"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/helper"
 	service "github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/usecase/interfaces"
@@ -95,13 +93,15 @@ func (a *AdminHandler) LoginPost(ctx *gin.Context) {
 		return
 	}
 
-	//create a new token
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, &jwt.StandardClaims{
-		ExpiresAt: time.Now().Add(10 * time.Minute).Unix(),
-	})
+	// //create a new token
+	// token := jwt.NewWithClaims(jwt.SigningMethodHS256, &jwt.StandardClaims{
+	// 	ExpiresAt: time.Now().Add(10 * time.Minute).Unix(),
+	// })
 
-	//sign the token
-	signedString, err := token.SignedString([]byte(config.GetJWTCofig()))
+	// //sign the token
+	// signedString, err := token.SignedString([]byte(config.GetJWTCofig()))
+
+	tokenString, err := auth.GenerateJWT(admin.ID)
 
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{
@@ -110,7 +110,7 @@ func (a *AdminHandler) LoginPost(ctx *gin.Context) {
 		})
 	}
 
-	ctx.SetCookie("jwt-auth", signedString, 10*60, "", "", false, true)
+	ctx.SetCookie("admin-auth", tokenString["accessToken"], 10*60, "", "", false, true)
 
 	ctx.JSON(http.StatusOK, gin.H{
 		"StatusCode": 200,
@@ -122,7 +122,8 @@ func (a *AdminHandler) LoginPost(ctx *gin.Context) {
 func (a *AdminHandler) Home(ctx *gin.Context) {
 
 	ctx.JSON(http.StatusOK, gin.H{
-		"message": "Welcome to Admin Panel",
+		"StatusCode": 200,
+		"message":    "Welcome to Admin Panel",
 	})
 }
 func (a *AdminHandler) Allusers(ctx *gin.Context) {
@@ -131,7 +132,8 @@ func (a *AdminHandler) Allusers(ctx *gin.Context) {
 
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{
-			"Error ": err.Error(),
+			"StatusCode": 500,
+			"Error ":     err.Error(),
 		})
 		return
 	}
@@ -175,7 +177,7 @@ func (a *AdminHandler) BlockUser(ctx *gin.Context) {
 
 func (a *AdminHandler) AddCategoryGET(ctx *gin.Context) {
 
-	ctx.JSON(200, gin.H{
+	ctx.JSON(http.StatusOK, gin.H{
 		"StatsuCode":    200,
 		"msg":           "Add Product Page",
 		"category_id":   "int(if you providing a sub category)",
@@ -189,23 +191,26 @@ func (a *AdminHandler) AddCategoryPOST(ctx *gin.Context) {
 
 	if ctx.ShouldBindJSON(&productCategory) != nil {
 
-		ctx.JSON(400, gin.H{
-			"Error": "Error to bind the input",
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"StatsuCode": 400,
+			"Error":      "Error to bind the input",
 		})
 		return
 	}
 
 	category, err := a.adminUseCase.AddCategory(ctx, productCategory)
 	if err != nil {
-		ctx.JSON(500, gin.H{
-			"msg": "category can't add",
-			"err": err,
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"StatsuCode": 400,
+			"msg":        "category can't add",
+			"err":        err,
 		})
 		return
 	}
 
-	ctx.JSON(200, gin.H{
-		"msg":      "category added",
-		"categoty": category,
+	ctx.JSON(http.StatusOK, gin.H{
+		"StatsuCode": 200,
+		"msg":        "category added",
+		"categoty":   category,
 	})
 }
