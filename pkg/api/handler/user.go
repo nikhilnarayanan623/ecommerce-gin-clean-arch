@@ -6,8 +6,10 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt"
+	"github.com/jinzhu/copier"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/config"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/domain"
+	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/helper"
 	service "github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/usecase/interfaces"
 )
 
@@ -56,8 +58,11 @@ func (u *UserHandler) Login(ctx *gin.Context) {
 
 	ctx.SetCookie("jwt-auth", signedString, 10*60, "", "", false, true)
 
-	// if there is no error then responce it
-	ctx.JSON(200, gin.H{
+	// everything ok then responce 200 with user details
+	var response helper.UserRespStrcut
+	copier.Copy(&response, &user) // copy required data only
+
+	ctx.JSON(http.StatusOK, gin.H{
 		"StatusCode": 200,
 		"Status":     "Successfully Loged In",
 		"user":       user,

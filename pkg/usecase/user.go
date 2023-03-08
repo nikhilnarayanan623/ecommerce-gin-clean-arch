@@ -64,9 +64,14 @@ func (c *userUserCase) Signup(ctx context.Context, user domain.Users) (domain.Us
 		return user, errorMap
 	}
 
-	user, err := c.userRepo.SaveUser(ctx, user)
+	hashPass, err := bcrypt.GenerateFromPassword([]byte(user.Password), 10)
 
-	return user, err
+	if err != nil {
+		return user, map[string]string{"error": "error to hash the password"}
+	}
+	user.Password = string(hashPass)
+
+	return c.userRepo.SaveUser(ctx, user)
 }
 
 func (c *userUserCase) ShowAllProducts(ctx context.Context) ([]domain.Product, any) {

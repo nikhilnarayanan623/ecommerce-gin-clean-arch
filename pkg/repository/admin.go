@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/domain"
+	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/helper"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/repository/interfaces"
 	"gorm.io/gorm"
 )
@@ -28,12 +29,57 @@ func (c adminDatabase) FindAdmin(ctx context.Context, admin domain.Admin) (domai
 	return admin, nil
 }
 
+func (c *adminDatabase) SaveAdmin(ctx context.Context, admin domain.Admin) (domain.Admin, any) {
+
+	// first check the admin already exist or not
+	var dbAdmin domain.Admin
+	c.DB.Raw("SELECT * FROM admins WHERE email=? OR user_name=?", admin.Email, admin.UserName).Scan(&dbAdmin)
+
+	if dbAdmin.ID != 0 { // amdmin already exist
+
+		errMap := map[string]string{}
+		// first check the email is already exist
+		if dbAdmin.Email == admin.Email {
+			errMap["email"] = "Email Already exist"
+		} else { // if email not then its user name is exist
+			errMap["user_name"] = "UserName Already exist"
+		}
+
+		return admin, errMap
+	}
+
+	//if admin not exist then create it
+	querry := `INSERT INTO admins (user_name,email,password) VALUES ($1,$2,$3) RETURNING user_name,email,password`
+	c.DB.Raw(querry, admin.UserName, admin.Email, admin.Password).Scan(&admin)
+
+	return admin, nil // successfully admin added
+}
+
 func (c *adminDatabase) FindAllUser(ctx context.Context) ([]domain.Users, error) {
 
 	var users []domain.Users
 	err := c.DB.Raw("SELECT * FROM users").Scan(&users).Error
 
 	return users, err
+}
+
+func (c *adminDatabase) BlockUser(ctx context.Context, user domain.Users) (domain.Users, any) {
+
+	var dbUser domain.Users
+	// first check ther user valid or not
+	c.DB.Raw("SELECT * FROM users WHERE id=?", user.ID).Scan(&dbUser)
+
+	if dbUser.ID == 0 {
+		return user, helper.SingleRespStruct{Error: "Invalid user ID user doesn't exist"}
+	}
+
+	// if user is blocked then unblock
+	if dbUser.BlockStatus {
+		c.DB.Raw("UPDATE users SET block_status='F' WHERE id=?", user.ID).Scan(&user)
+		return dbUser, nil
+	}
+	c.DB.Raw("UPDATE users SET block_status='T' WHERE id=?", user.ID).Scan(&user)
+	return dbUser, nil
 }
 
 func (c adminDatabase) AddCategory(ctx context.Context, category domain.Category) (domain.Category, any) {

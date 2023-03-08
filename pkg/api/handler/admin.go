@@ -3,9 +3,13 @@ package handler
 import (
 	"fmt"
 	"net/http"
+	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/golang-jwt/jwt"
+	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/config"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/domain"
+	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/helper"
 	service "github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/usecase/interfaces"
 )
 
@@ -13,7 +17,62 @@ type AdminHandler struct {
 	adminUseCase service.AdminUseCase
 }
 
-func (a *AdminHandler) Login(ctx *gin.Context) {
+func (a *AdminHandler) SignUPGet(ctx *gin.Context) {
+
+	ctx.JSON(http.StatusOK, gin.H{
+		"StatusCode": 200,
+		"msg":        "admin signup details",
+		"user_name":  "string(user name of admin)",
+		"email":      "string(admin email)",
+		"password":   "string(enter a strong password)",
+	})
+}
+
+func (a *AdminHandler) SignUpPost(ctx *gin.Context) {
+
+	var admin domain.Admin
+
+	if ctx.ShouldBindJSON(&admin) != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"StatusCode": 500,
+			"msg":        "Can't signup admin",
+			"error":      "Invalid input can't bind JSON",
+		})
+		return
+	}
+
+	dbAdmin, err := a.adminUseCase.SignUp(ctx, admin)
+
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"StatusCode": 500,
+			"msg":        "Can't signup admin",
+			"error":      err,
+		})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{
+		"StatusCode": 200,
+		"msg":        "Successfully account creatd for admin",
+		"admin":      dbAdmin,
+	})
+
+	//ctx.Redirect(http.StatusSeeOther, "/admin/login")
+}
+
+func (a *AdminHandler) LoginGet(ctx *gin.Context) {
+
+	ctx.JSON(http.StatusOK, gin.H{
+		"StatusCode": 200,
+		"msg":        "admin login details",
+		"email":      "string(enter email)",
+		"user_name":  "string(enter user name)",
+		"password":   "string(enter password)",
+	})
+}
+
+func (a *AdminHandler) LoginPost(ctx *gin.Context) {
 
 	var admin domain.Admin
 
@@ -33,7 +92,25 @@ func (a *AdminHandler) Login(ctx *gin.Context) {
 			"msg":        "Can't login",
 			"err":        err,
 		})
+		return
 	}
+
+	//create a new token
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, &jwt.StandardClaims{
+		ExpiresAt: time.Now().Add(10 * time.Minute).Unix(),
+	})
+
+	//sign the token
+	signedString, err := token.SignedString([]byte(config.GetJWTCofig()))
+
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{
+			"StatusCode": 500,
+			"msg":        "Error to Create JWT",
+		})
+	}
+
+	ctx.SetCookie("jwt-auth", signedString, 10*60, "", "", false, true)
 
 	ctx.JSON(http.StatusOK, gin.H{
 		"StatusCode": 200,
@@ -41,8 +118,6 @@ func (a *AdminHandler) Login(ctx *gin.Context) {
 		"admin":      admin,
 	})
 }
-
-
 
 func (a *AdminHandler) Home(ctx *gin.Context) {
 
@@ -52,7 +127,7 @@ func (a *AdminHandler) Home(ctx *gin.Context) {
 }
 func (a *AdminHandler) Allusers(ctx *gin.Context) {
 
-	users, err := a.adminUseCase.FindAllUser(ctx)
+	usersResp, err := a.adminUseCase.FindAllUser(ctx)
 
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{
@@ -61,13 +136,41 @@ func (a *AdminHandler) Allusers(ctx *gin.Context) {
 		return
 	}
 
+	// if no error then response stats code 200 with usres
 	ctx.JSON(http.StatusOK, gin.H{
-		"users": users,
+		"StatusCode": 200,
+		"users":      usersResp,
 	})
 
 }
 func (a *AdminHandler) BlockUser(ctx *gin.Context) {
+	var body helper.BlockStruct
 
+	if err := ctx.ShouldBindJSON(&body); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"StatusCode": 400,
+			"msg":        "invalid input tag",
+			"err":        err,
+		})
+		return
+	}
+
+	user, err := a.adminUseCase.BlockUser(ctx, body)
+
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"StatusCode": 500,
+			"error":      err,
+		})
+		return
+	}
+	fmt.Println("last")
+	// if successfully blocked or unblock user then response 200
+	ctx.JSON(http.StatusOK, gin.H{
+		"StatusCode": 200,
+		"msg":        "Successfully bocked or unblocked user",
+		"user":       user,
+	})
 }
 
 func (a *AdminHandler) AddCategoryGET(ctx *gin.Context) {
