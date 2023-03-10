@@ -2,6 +2,7 @@ package usecase
 
 import (
 	"context"
+	"errors"
 
 	"github.com/go-playground/validator/v10"
 	"github.com/jinzhu/copier"
@@ -45,18 +46,8 @@ func (c *adminUseCase) SignUp(ctx context.Context, admin domain.Admin) (domain.A
 	return c.adminRepo.SaveAdmin(ctx, admin)
 }
 
-func (c *adminUseCase) Login(ctx context.Context, admin domain.Admin) (domain.Admin, any) {
+func (c *adminUseCase) Login(ctx context.Context, admin domain.Admin) (domain.Admin, error) {
 
-	//validte the  admin
-	err := validator.New().Struct(admin)
-
-	if err != nil {
-		errMap := map[string]string{}
-		for _, er := range err.(validator.ValidationErrors) {
-			errMap[er.Field()] = "Enter this field properly"
-		}
-		return admin, errMap
-	}
 	// get the admin from database
 	dbAdmin, dbErr := c.adminRepo.FindAdmin(ctx, admin)
 
@@ -66,7 +57,7 @@ func (c *adminUseCase) Login(ctx context.Context, admin domain.Admin) (domain.Ad
 
 	// check db password with given password
 	if bcrypt.CompareHashAndPassword([]byte(dbAdmin.Password), []byte(admin.Password)) != nil {
-		return admin, map[string]string{"msg": "Entered Passsword is incorrect"}
+		return admin, errors.New("entered passsword is incorrect")
 	}
 
 	return dbAdmin, nil
@@ -101,7 +92,12 @@ func (c *adminUseCase) BlockUser(ctx context.Context, request helper.BlockStruct
 	return c.adminRepo.BlockUser(ctx, user)
 }
 
-func (c *adminUseCase) AddCategory(ctx context.Context, category domain.Category) (domain.Category, any) {
+func (c *adminUseCase) GetCategory(ctx context.Context) ([]helper.RespCategory, any) {
+
+	return c.adminRepo.GetCategory(ctx)
+}
+
+func (c *adminUseCase) AddCategory(ctx context.Context, category domain.Category) (helper.RespCategory, any) {
 
 	//validate the given category name
 
@@ -114,10 +110,30 @@ func (c *adminUseCase) AddCategory(ctx context.Context, category domain.Category
 			errMap[er.Field()] = "Enter this field properly"
 		}
 
-		return category, errMap
+		return helper.RespCategory{}, errMap
 	}
 
-	productCategory, dbErr := c.adminRepo.AddCategory(ctx, category)
+	respose, dbErr := c.adminRepo.AddCategory(ctx, category)
 
-	return productCategory, dbErr
+	return respose, dbErr
+}
+
+func (c *adminUseCase) AddProducts(ctx context.Context, body helper.ProductRequest) (domain.Product, any) {
+	err := validator.New().Struct(body)
+
+	if err != nil {
+		errMap := map[string]string{}
+
+		for _, er := range err.(validator.ValidationErrors) {
+			errMap[er.Field()] = "Enter this field properly"
+		}
+
+		return domain.Product{}, errMap
+	}
+
+	var product domain.Product
+	copier.Copy(&product, &body)
+
+	return c.adminRepo.AddProducts(ctx, product)
+
 }

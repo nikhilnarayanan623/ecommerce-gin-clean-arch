@@ -8,9 +8,9 @@ import (
 )
 
 type UserRepository interface {
-	FindUser(ctx context.Context, user domain.Users) (domain.Users, any)
+	FindUser(ctx context.Context, user domain.Users) (domain.Users, error)
 	SaveUser(ctx context.Context, user domain.Users) (domain.Users, any)
-	GetAllProducts(ctx context.Context) ([]domain.Product, any)
+	GetAllProducts(ctx context.Context) ([]helper.ResponseProduct, any)
 	GetProductItems(ctx context.Context, product domain.Product) ([]domain.ProductItem, any)
 	GetCartItems(ctx context.Context, userId uint) (helper.ResCart, any)
 }

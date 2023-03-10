@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+	"errors"
 
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/domain"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/helper"
@@ -17,13 +18,13 @@ func NewAdminRepository(DB *gorm.DB) interfaces.AdminRepository {
 	return &adminDatabase{DB: DB}
 }
 
-func (c adminDatabase) FindAdmin(ctx context.Context, admin domain.Admin) (domain.Admin, any) {
+func (c *adminDatabase) FindAdmin(ctx context.Context, admin domain.Admin) (domain.Admin, error) {
 
 	c.DB.Raw("SELECT * FROM admins WHERE email=? OR user_name=?", admin.Email, admin.UserName).Scan(&admin)
 
 	//check the admin got or not
 	if admin.ID == 0 {
-		return admin, map[string]string{"msg": "Can't find the admin"}
+		return admin, errors.New("admin not exist")
 	}
 
 	return admin, nil
@@ -83,14 +84,23 @@ func (c *adminDatabase) BlockUser(ctx context.Context, user domain.Users) (domai
 	return dbUser, nil
 }
 
-func (c adminDatabase) AddCategory(ctx context.Context, category domain.Category) (domain.Category, any) {
+func (c *adminDatabase) GetCategory(ctx context.Context) ([]helper.RespCategory, any) {
+
+	var response []helper.RespCategory
+	// left join to get all category and main category
+	querry := `SELECT f.id, f.category_name,f.category_id, s.category_name as main_category_name FROM categories f LEFT JOIN categories s ON f.category_id=s.id`
+	err := c.DB.Raw(querry).Scan(&response).Error
+	return response, err
+}
+
+func (c *adminDatabase) AddCategory(ctx context.Context, category domain.Category) (helper.RespCategory, any) {
 
 	var checkCat domain.Category
 	//first check the categoryname already exisits or not
 	c.DB.Raw("SELECT * FROM categories WHERE category_name=?", category.CategoryName).Scan(&checkCat)
 
 	if checkCat.ID != 0 { // means category already exist
-		return checkCat, map[string]string{"error": "category already exist"}
+		return helper.RespCategory{}, map[string]string{"error": "category already exist"}
 	}
 
 	// check the given category is main or sub
@@ -101,12 +111,29 @@ func (c adminDatabase) AddCategory(ctx context.Context, category domain.Category
 		// first check the category id is valid or not
 		c.DB.Raw("SELECT * FROM categories WHERE id=?", category.CategoryID).Scan(&checkCat)
 		if checkCat.ID == 0 { // its not a valid category
-			return checkCat, map[string]string{"error": "category_id is not valid means provided main category is not valid"}
+			return helper.RespCategory{}, map[string]string{"error": "category_id is not valid means provided main category is not valid"}
 		}
 		//otherwise add its with main category
 		querry := `INSERT INTO categories (category_id,category_name)VALUES($1,$2) RETURNING category_id,category_name`
 		c.DB.Raw(querry, category.CategoryID, category.CategoryName).Scan(&category)
 	}
 
-	return category, nil
+	var response helper.RespCategory
+
+	return response, nil
+}
+
+func (c *adminDatabase) AddProducts(ctx context.Context, product domain.Product) (domain.Product, any) {
+
+	// first check the product already exist
+	var checkProduct domain.Product
+	c.DB.Raw("SELECT * FROM products WHERE product_name=?", product.ProductName).Scan(&checkProduct)
+
+	if checkProduct.ID != 0 {
+		return domain.Product{}, "Product already exist"
+	}
+	querry := `INSERT INTO products (product_name,description,category_id,price,image)VALUES($1,$2,$3,$4,$5) RETURNING product_name,description,category_id,price,image`
+	err := c.DB.Raw(querry, product.ProductName, product.Description, product.CategoryID, product.Price, product.Image).Scan(&product).Error
+
+	return product, err
 }

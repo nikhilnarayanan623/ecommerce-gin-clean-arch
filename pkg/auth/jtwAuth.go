@@ -1,6 +1,7 @@
 package auth
 
 import (
+	"errors"
 	"fmt"
 	"time"
 
@@ -38,9 +39,9 @@ func GenerateJWT(id uint) (map[string]string, error) {
 	return map[string]string{"accessToken": tokenString}, nil
 }
 
-func ValidateToken(tokenString string) (*jwt.Token, error) {
+func ValidateToken(tokenString string) (jwt.StandardClaims, error) {
 
-	return jwt.ParseWithClaims(tokenString, &jwt.StandardClaims{},
+	token, err := jwt.ParseWithClaims(tokenString, &jwt.StandardClaims{},
 		func(token *jwt.Token) (interface{}, error) {
 
 			if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
@@ -50,7 +51,15 @@ func ValidateToken(tokenString string) (*jwt.Token, error) {
 			return []byte(config.GetJWTCofig()), nil
 		},
 	)
-	// if err != nil || !token.Valid {
-	// 	return nil, errors.New("not valid token")
-	// }
+	if err != nil || !token.Valid {
+		return jwt.StandardClaims{}, errors.New("not valid token")
+	}
+
+	// then parse the token to claims
+	claims, ok := token.Claims.(*jwt.StandardClaims)
+	if !ok {
+		return jwt.StandardClaims{}, errors.New("Can't parse the claims")
+	}
+
+	return *claims, nil
 }

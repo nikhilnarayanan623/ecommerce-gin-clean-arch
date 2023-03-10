@@ -1,5 +1,7 @@
 package helper
 
+var ResoposeMap map[string]string
+
 type SingleRespStruct struct {
 	Error string `json:"error"`
 }
@@ -25,4 +27,27 @@ type ResCartItem struct {
 	ProductName   string `jsong:"product_name"`
 	Qty           uint   `json:"qty"`
 	OutOfStock    bool   `json:"out_of_stock"`
+}
+
+// admin side
+type RespCategory struct {
+	ID               uint   `json:"id"`
+	CategoryName     string `json:"category_name"`
+	CategoryID       uint   `json:"category_id"`
+	MainCategoryName string `json:"main_category_name"`
+}
+
+type ResponseProduct struct {
+	ProductName  string `json:"product_name" gorm:"not null" validate:"required,min=5,max=50"`
+	Description  string `json:"description" gorm:"not null" validate:"required,min=10,max=100"`
+	CategoryName string `json:"category_name"`
+	Price        uint   `json:"price" gorm:"not null" validate:"required,numeric"`
+	Image        string `json:"image" gorm:"not null"`
+}
+
+// admin
+type ResAdminLogin struct {
+	ID       uint   `json:"id" `
+	UserName string `json:"user_name"`
+	Email    string `json:"email"`
 }

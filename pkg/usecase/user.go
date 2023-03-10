@@ -2,8 +2,9 @@ package usecase
 
 import (
 	"context"
+	"errors"
+	"fmt"
 
-	"github.com/go-playground/validator/v10"
 	"github.com/jinzhu/copier"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/domain"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/helper"
@@ -20,65 +21,46 @@ func NewUserUseCase(repo interfaces.UserRepository) service.UserUseCase {
 	return &userUserCase{userRepo: repo}
 }
 
-func (c *userUserCase) Login(ctx context.Context, body helper.LoginStruct) (helper.UserRespStrcut, any) {
-
-	// first validate the struct(user)
-	validate := validator.New()
-	validate.RegisterValidation("login", helper.CustomLoginValidator) // custom validator for login
-
-	if err := validate.Struct(body); err != nil {
-		errMap := map[string]string{}
-
-		for _, er := range err.(validator.ValidationErrors) {
-			errMap[er.Field()] = "Enter this field properly"
-		}
-		helper.Reset() // for loing validatin reset count in that
-		return helper.UserRespStrcut{}, errMap
-	}
-	helper.Reset() // for loing validatin reset count in that
-
-	// if no error in validation then copy its field int users
-	var user domain.Users
-	copier.Copy(&user, &body)
+func (c *userUserCase) Login(ctx context.Context, user domain.Users) (domain.Users, error) {
 
 	dbUser, dberr := c.userRepo.FindUser(ctx, user)
 
 	// check user found or not
 	if dberr != nil {
-		return helper.UserRespStrcut{}, dberr
+		return user, dberr
 	}
 
 	// check user block_status user is blocked or not
-	if dbUser.BlockStatus {
-		return helper.UserRespStrcut{}, map[string]string{"Error": "User Blocked By Admin"}
+	if user.BlockStatus {
+		return user, errors.New("user blocked by admin")
 	}
 
 	//check the user password with dbPassword
 	if bcrypt.CompareHashAndPassword([]byte(dbUser.Password), []byte(user.Password)) != nil {
-		return helper.UserRespStrcut{}, map[string]string{"Error": "Entered Password is wrong"}
+		return user, errors.New("entered password is wrong")
 	}
 
-	// everything ok then responce 200 with user details
-	var response helper.UserRespStrcut
-	copier.Copy(&response, &dbUser) // copy required data only
+	return dbUser, nil
+}
 
-	// everything is ok then return dbUser
-	return response, nil
+func (c *userUserCase) LoginOtp(ctx context.Context, user domain.Users) (domain.Users, error) {
+
+	user, err := c.userRepo.FindUser(ctx, user)
+
+	if err != nil {
+		return user, errors.New("can't find the user")
+	}
+
+	// check user block_status user is blocked or not
+	if user.BlockStatus {
+		return user, errors.New("user blocked by admin")
+	}
+
+	return user, nil
 }
 
 func (c *userUserCase) Signup(ctx context.Context, user domain.Users) (domain.Users, any) {
-
-	// validate user values
-	if err := validator.New().Struct(user); err != nil {
-
-		errorMap := map[string]string{}
-		for _, er := range err.(validator.ValidationErrors) {
-			errorMap[er.Field()] = "Enter This field Properly"
-		}
-
-		return user, errorMap
-	}
-
+	//hash the password
 	hashPass, err := bcrypt.GenerateFromPassword([]byte(user.Password), 10)
 
 	if err != nil {
@@ -89,7 +71,7 @@ func (c *userUserCase) Signup(ctx context.Context, user domain.Users) (domain.Us
 	return c.userRepo.SaveUser(ctx, user)
 }
 
-func (c *userUserCase) ShowAllProducts(ctx context.Context) ([]domain.Product, any) {
+func (c *userUserCase) ShowAllProducts(ctx context.Context) ([]helper.ResponseProduct, any) {
 
 	products, err := c.userRepo.GetAllProducts(ctx)
 
@@ -113,4 +95,23 @@ func (c *userUserCase) GetProductItems(ctx context.Context, product domain.Produ
 func (c *userUserCase) GetCartItems(ctx context.Context, userId uint) (helper.ResCart, any) {
 
 	return c.userRepo.GetCartItems(ctx, userId)
+}
+
+func (c *userUserCase) Home(ctx context.Context, userId uint) (helper.UserRespStrcut, any) {
+
+	var user = domain.Users{ID: userId}
+	user, err := c.userRepo.FindUser(ctx, user)
+
+	if err != nil {
+		return helper.UserRespStrcut{}, err
+	}
+
+	// everything ok then responce 200 with user details
+	var response helper.UserRespStrcut
+	fmt.Println(user, "user")
+	copier.Copy(&response, &user) // copy required data only
+
+	// everything is ok then return dbUser
+	return response, nil
+
 }

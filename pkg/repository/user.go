@@ -2,6 +2,8 @@ package repository
 
 import (
 	"context"
+	"errors"
+	"fmt"
 
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/domain"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/helper"
@@ -17,16 +19,17 @@ func NewUserRepository(DB *gorm.DB) interfaces.UserRepository {
 	return &userDatabse{DB: DB}
 }
 
-func (c *userDatabse) FindUser(ctx context.Context, user domain.Users) (domain.Users, any) {
+func (c *userDatabse) FindUser(ctx context.Context, user domain.Users) (domain.Users, error) {
+	fmt.Println("user", user)
 
 	// check id,email,phone any of then match i db
 	c.DB.Raw("SELECT * FROM users where id=? OR email=? OR phone=?", user.ID, user.Email, user.Phone).Scan(&user)
 
 	// if given userid then check mail is stil there otherwise phone or id
 	if user.ID == 0 || user.Email == "" || user.Phone == "" {
-		return user, map[string]string{"Error": "Can't find the user"}
+		return user, errors.New("Can't find the user")
 	}
-	// if found the user then retur user with nil
+	// if found the user then return user with nil
 	return user, nil
 }
 
@@ -43,11 +46,15 @@ func (c *userDatabse) SaveUser(ctx context.Context, user domain.Users) (domain.U
 	return user, c.DB.Save(&user).Error
 }
 
-func (c *userDatabse) GetAllProducts(ctx context.Context) ([]domain.Product, any) {
+func (c *userDatabse) GetAllProducts(ctx context.Context) ([]helper.ResponseProduct, any) {
 
-	var products []domain.Product
+	var products []helper.ResponseProduct
 
-	return products, c.DB.Raw("SELECT * FROM products").Scan(&products).Error
+	querry := `SELECT f.product_name,f.description,f.price,s.category_name,f.image FROM products f LEFT JOIN categories s ON f.category_id=s.id`
+
+	err := c.DB.Raw(querry).Scan(&products).Error
+
+	return products, err
 
 }
 

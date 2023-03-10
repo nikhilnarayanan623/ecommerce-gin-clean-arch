@@ -2,12 +2,13 @@ package domain
 
 type Users struct {
 	ID          uint   `json:"id" gorm:"primaryKey;unique"`
-	FirstName   string `json:"first_name" gorm:"not null" validate:"required,min=2,max=50"`
-	LastName    string `json:"last_name" gorm:"not null" validate:"required,min=1,max=50"`
-	Age         uint   `json:"age" gorm:"not null" validate:"required,numeric"`
-	Email       string `json:"email" gorm:"unique;not null" validate:"required,email"`
-	Phone       string `json:"phone" gorm:"unique;not null" validate:"required,min=10,max=10"`
-	Password    string `json:"password" gorm:"not null" validate:"required"`
+	UserName    string `json:"user_name" gorm:"not null" binding:"required,min=3,max=15"`
+	FirstName   string `json:"first_name" gorm:"not null" binding:"required,min=2,max=50"`
+	LastName    string `json:"last_name" gorm:"not null" binding:"required,min=1,max=50"`
+	Age         uint   `json:"age" gorm:"not null" binding:"required,numeric"`
+	Email       string `json:"email" gorm:"unique;not null" binding:"required,email"`
+	Phone       string `json:"phone" gorm:"unique;not null" binding:"required,min=10,max=10"`
+	Password    string `json:"password" gorm:"not null" binding:"required"`
 	BlockStatus bool   `json:"block_status" gorm:"not null"`
 }
 
@@ -21,13 +22,13 @@ type UserAdress struct {
 
 type Address struct {
 	ID          uint   `json:"id" gorm:"primaryKey;unique"`
-	Name        string `json:"name" gorm:"not null" validate:"required,min=2,max=50"`
-	PhoneNumber string `json:"phone_number" gorm:"not null" validate:"required,min=10,max=10"`
-	House       string `json:"house" gorm:"not null" validate:"required"`
+	Name        string `json:"name" gorm:"not null" binding:"required,min=2,max=50"`
+	PhoneNumber string `json:"phone_number" gorm:"not null" binding:"required,min=10,max=10"`
+	House       string `json:"house" gorm:"not null" binding:"required"`
 	Area        string `json:"area" gorm:"not null"`
-	LandMark    string `json:"land_mark" gorm:"not null" validate:"required"`
+	LandMark    string `json:"land_mark" gorm:"not null" binding:"required"`
 	City        string `json:"city" gorm:"not null"`
-	Pincode     uint   `json:"pincode" gorm:"not null" validate:"required,numeric"`
+	Pincode     uint   `json:"pincode" gorm:"not null" binding:"required,numeric"`
 	CountryID   uint   `jsong:"country_id" gorm:"not null"`
 	Country     Country
 }

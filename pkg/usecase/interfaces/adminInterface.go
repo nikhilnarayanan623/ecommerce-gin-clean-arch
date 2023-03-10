@@ -8,9 +8,14 @@ import (
 )
 
 type AdminUseCase interface {
-	Login(ctx context.Context, admin domain.Admin) (domain.Admin, any)
+	Login(ctx context.Context, admin domain.Admin) (domain.Admin, error)
 	SignUp(ctx context.Context, admin domain.Admin) (domain.Admin, any)
 	FindAllUser(ctx context.Context) ([]helper.UserRespStrcut, error)
 	BlockUser(ctx context.Context, user helper.BlockStruct) (domain.Users, any)
-	AddCategory(ctx context.Context, productCategory domain.Category) (domain.Category, any)
+	GetCategory(ctx context.Context) ([]helper.RespCategory, any)
+	AddCategory(ctx context.Context, productCategory domain.Category) (helper.RespCategory, any)
+	AddProducts(ctx context.Context, body helper.ProductRequest) (domain.Product, any)
 }
+
+// GetCategory(ctx context.Context) (helper.ReqCategory, any)
+// 	SetCategory(ctx context.Context, body helper.ReqCategory)

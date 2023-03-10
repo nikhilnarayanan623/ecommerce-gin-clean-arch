@@ -13,11 +13,14 @@ type Config struct {
 	DBPassword string `mapstructure:"DB_PASSWORD"`
 	DBPort     string `mapstructure:"DB_PORT"`
 	JWT        string `mapstructure:"JWT_CODE"`
+	AUTHTOKEN  string `mapstructure:"AUTH_TOKEN"`
+	ACCOUNTSID string `mapstructure:"ACCOUNT_SID"`
+	SERVICESID string `mapstructure:"SERVICE_SID"`
 }
 
 // to hold all names of env variables
 var envsNames = []string{
-	"DB_HOST", "DB_NAME", "DB_USER", "DB_PASSWORD", "DB_PORT", "JWT_CODE",
+	"DB_HOST", "DB_NAME", "DB_USER", "DB_PASSWORD", "DB_PORT", "JWT_CODE", "AUTH_TOKEN", "ACCOUNT_SID", "SERVICE_SID",
 }
 
 var config Config // create an instance of Config
@@ -56,4 +59,8 @@ func LoadConfig() (Config, error) {
 func GetJWTCofig() string {
 
 	return config.JWT
+}
+
+func GetCofig() Config {
+	return config
 }

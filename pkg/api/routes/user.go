@@ -10,6 +10,8 @@ func UserRoutes(router *gin.Engine, user *handler.UserHandler) {
 
 	router.GET("/login", user.LoginGet)
 	router.POST("/login", user.LoginPost)
+	router.POST("/login-otp-send", user.LoginOtpSend)
+	router.POST("/login-otp-verify", user.LoginOtpVerify)
 
 	router.GET("/signup", user.SignUpGet)
 	router.POST("/signup", user.SignUpPost)
@@ -18,4 +20,5 @@ func UserRoutes(router *gin.Engine, user *handler.UserHandler) {
 
 	api.GET("/", user.Home)
 	api.GET("/cart", user.UserCart)
+	api.POST("/logout", user.Logout)
 }

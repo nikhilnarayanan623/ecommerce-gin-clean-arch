@@ -2,12 +2,13 @@ package domain
 
 // represent a model of product
 type Product struct {
-	ID          uint   `json:"id" gorm:"primaryKey;not null"`
-	ProductName string `json:"product_name" gorm:"not null" validate:"required,min=5,max50"`
-	Description string `json:"description" gorm:"not null" validate:"required,min=10,max=100"`
-	OutOfStock  bool   `json:"out_of_stock" gorm:"not null"`
-	Price       uint   `json:"price" gorm:"not null" validte:"required,numeric"`
-	Image       string `json:"image" gorm:"not null"`
+	ID          uint     `json:"id" gorm:"primaryKey;not null"`
+	ProductName string   `json:"product_name" gorm:"not null" binding:"required,min=5,max50"`
+	Description string   `json:"description" gorm:"not null" validate:"required,min=10,max=100"`
+	CategoryID  uint     `json:"category_id"`
+	Category    Category // self join for sub category
+	Price       uint     `json:"price" gorm:"not null" validte:"required,numeric"`
+	Image       string   `json:"image" gorm:"not null"`
 }
 
 // this for a specift variant of product like(Luis Philip->Shirt->Size->M)
@@ -25,7 +26,7 @@ type Category struct {
 	ID           uint      `json:"id" gorm:"primaryKey;not null"`
 	CategoryID   uint      `json:"category_id"`
 	Category     *Category // self join for sub category
-	CategoryName string    `json:"category_name" gorm:"unique;not null" validate:"required,min=1,max=10"`
+	CategoryName string    `json:"category_name" gorm:"unique;not null" validate:"required,min=1,max=30"`
 }
 
 // variation means size color etc..
