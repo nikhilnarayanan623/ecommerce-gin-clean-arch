@@ -198,11 +198,11 @@ func (u *UserHandler) SignUpGet(ctx *gin.Context) {
 }
 func (u *UserHandler) SignUpPost(ctx *gin.Context) {
 	var user domain.Users
-	if ctx.ShouldBindJSON(&user) != nil {
+	if err := ctx.ShouldBindJSON(&user); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"StatusCode": 400,
 			"msg":        "Cant't Bind The Values",
-			"user":       user,
+			"error":      err.Error(),
 		})
 
 		return
@@ -211,9 +211,9 @@ func (u *UserHandler) SignUpPost(ctx *gin.Context) {
 	user, err := u.userUseCase.Signup(ctx, user)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
-			"StatusCode": 500,
-			"msg":        "Invalid Inputs",
-			"error":      err,
+			"StatusCode": 400,
+			"msg":        "can't signup",
+			"error":      err.Error(),
 		})
 		return
 	}
@@ -233,29 +233,30 @@ func (u *UserHandler) Home(ctx *gin.Context) {
 
 	userId := helper.GetUserIdFromContext(ctx)
 
-	products, err := u.userUseCase.ShowAllProducts(ctx)
-	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{
-			"StatusCode": 500,
-			"error":      err,
-		})
-		return
-	}
-
-	//find user
 	response, err := u.userUseCase.Home(ctx, userId)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{
 			"StatusCode": 500,
-			"error":      err,
+			"error":      err.Error(),
 		})
 		return
 	}
+
+	if response.Products == nil {
+		ctx.JSON(http.StatusOK, gin.H{
+			"StatusCode": 200,
+			"msg":        "Welcome To User Home",
+			"user":       response.User,
+			"Products":   "there is no products availabel to show",
+		})
+		return
+	}
+
 	ctx.JSON(http.StatusOK, gin.H{
 		"StatusCode": 200,
 		"msg":        "Welcome Home",
-		"user":       response,
-		"Products":   products,
+		"user":       response.User,
+		"Products":   response.Products,
 	})
 }
 

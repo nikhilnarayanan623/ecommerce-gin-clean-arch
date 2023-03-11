@@ -22,23 +22,13 @@ func NewAdminUseCase(repo interfaces.AdminRepository) service.AdminUseCase {
 	return &adminUseCase{adminRepo: repo}
 }
 
-func (c *adminUseCase) SignUp(ctx context.Context, admin domain.Admin) (domain.Admin, any) {
+func (c *adminUseCase) SignUp(ctx context.Context, admin domain.Admin) (domain.Admin, error) {
 
-	//validate the struct
-	if err := validator.New().Struct(admin); err != nil {
-		errMap := map[string]string{}
-
-		for _, er := range err.(validator.ValidationErrors) {
-			errMap[er.Field()] = "Enter this field properly"
-		}
-		return admin, errMap
-	}
-
-	// then hash the password
+	// generate a hashed password for admin
 	hashPass, err := bcrypt.GenerateFromPassword([]byte(admin.Password), 10)
 
 	if err != nil {
-		return admin, map[string]string{"error": "Faild to hash the password"}
+		return admin, errors.New("faild to generate hashed password for admin")
 	}
 	// set the hashed password on the admin
 	admin.Password = string(hashPass)
@@ -97,27 +87,19 @@ func (c *adminUseCase) GetCategory(ctx context.Context) ([]helper.RespCategory, 
 	return c.adminRepo.GetCategory(ctx)
 }
 
-func (c *adminUseCase) AddCategory(ctx context.Context, category domain.Category) (helper.RespCategory, any) {
-
-	//validate the given category name
-
-	err := validator.New().Struct(category)
-
-	if err != nil {
-		errMap := map[string]string{}
-
-		for _, er := range err.(validator.ValidationErrors) {
-			errMap[er.Field()] = "Enter this field properly"
-		}
-
-		return helper.RespCategory{}, errMap
-	}
+// to add a new category
+func (c *adminUseCase) AddCategory(ctx context.Context, category domain.Category) (helper.RespCategory, error) {
 
 	respose, dbErr := c.adminRepo.AddCategory(ctx, category)
 
 	return respose, dbErr
 }
 
+// to add a variation
+func (c *adminUseCase) AddVariation(ctx context.Context, vartaion domain.Variation) (domain.Variation, error) {
+
+	return c.adminRepo.AddVariation(ctx, vartaion)
+}
 func (c *adminUseCase) AddProducts(ctx context.Context, body helper.ProductRequest) (domain.Product, any) {
 	err := validator.New().Struct(body)
 

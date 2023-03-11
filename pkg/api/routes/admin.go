@@ -18,8 +18,13 @@ func AdminRoutes(router *gin.Engine, admin *handler.AdminHandler) {
 
 	api.GET("/alluser", admin.Allusers)
 	api.POST("/block-user", admin.BlockUser)
+
 	api.GET("/category", admin.CategoryGET)
 	api.POST("/category", admin.CategoryPOST)
+
+	api.POST("/variation", admin.AddVariation)
+	api.POST("/variation-option")
+
 	api.POST("/product", admin.AddProducts)
 
 }

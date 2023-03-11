@@ -41,23 +41,25 @@ func (a *AdminHandler) SignUpPost(ctx *gin.Context) {
 		return
 	}
 
-	dbAdmin, err := a.adminUseCase.SignUp(ctx, admin)
+	admin, err := a.adminUseCase.SignUp(ctx, admin)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"StatusCode": 500,
 			"msg":        "Can't signup admin",
-			"error":      err,
+			"error":      err.Error(),
 		})
 		return
 	}
 
+	var response helper.ResAdminLogin
+
+	copier.Copy(&response, &admin)
+
 	ctx.JSON(http.StatusOK, gin.H{
 		"StatusCode": 200,
 		"msg":        "Successfully account creatd for admin",
-		"admin":      dbAdmin,
+		"admin":      response,
 	})
-
-	//ctx.Redirect(http.StatusSeeOther, "/admin/login")
 }
 
 func (a *AdminHandler) LoginGet(ctx *gin.Context) {
@@ -194,6 +196,8 @@ func (a *AdminHandler) CategoryGET(ctx *gin.Context) {
 		"categories": categories,
 	})
 }
+
+// add a category
 func (a *AdminHandler) CategoryPOST(ctx *gin.Context) {
 
 	var productCategory domain.Category
@@ -211,7 +215,7 @@ func (a *AdminHandler) CategoryPOST(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"StatsuCode": 400,
 			"msg":        "category can't be add",
-			"err":        err,
+			"err":        err.Error(),
 		})
 		return
 	}
@@ -221,6 +225,41 @@ func (a *AdminHandler) CategoryPOST(ctx *gin.Context) {
 		"msg":        "category added",
 		"categoty":   respose,
 	})
+}
+
+// for add a variation like size / color/ ram/ memory
+func (a *AdminHandler) AddVariation(ctx *gin.Context) {
+
+	var variation domain.Variation
+	if err := ctx.ShouldBindJSON(&variation); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"StatusCode": 400,
+			"msg":        "can't bind json",
+			"error":      err.Error(),
+		})
+		return
+	}
+
+	variation, err := a.adminUseCase.AddVariation(ctx, variation)
+
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"StatusCode": 400,
+			"msg":        "can't add variation",
+			"error":      err.Error(),
+		})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{
+		"StatusCode": 200,
+		"msg":        "variation added",
+	})
+}
+
+// for add a value for varaion color:blue,red; size:M,S,L; RAM:2gb,4gb;
+func (a *AdminHandler) AddVariationOption(ctx *gin.Context) {
+
 }
 
 func (a *AdminHandler) ShowAllProducts(ctx *gin.Context) {
@@ -254,4 +293,9 @@ func (a *AdminHandler) AddProducts(ctx *gin.Context) {
 		"msg":        "product added",
 		"product":    product,
 	})
+}
+
+// for add a specific product item
+func (a *AdminHandler) AddProductItem(ctx *gin.Context) {
+
 }

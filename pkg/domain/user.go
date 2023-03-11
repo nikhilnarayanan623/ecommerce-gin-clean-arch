@@ -62,3 +62,5 @@ type CartItem struct {
 	ProductItem   ProductItem
 	Qty           uint `json:"qty" gorm:"not null"`
 }
+
+

@@ -6,12 +6,12 @@ type Product struct {
 	ProductName string   `json:"product_name" gorm:"not null" binding:"required,min=5,max50"`
 	Description string   `json:"description" gorm:"not null" validate:"required,min=10,max=100"`
 	CategoryID  uint     `json:"category_id"`
-	Category    Category // self join for sub category
+	Category    Category // self join on category for sub category
 	Price       uint     `json:"price" gorm:"not null" validte:"required,numeric"`
 	Image       string   `json:"image" gorm:"not null"`
 }
 
-// this for a specift variant of product like(Luis Philip->Shirt->Size->M)
+// this for a specift variant of product
 type ProductItem struct {
 	ID        uint `json:"id" gorm:"primaryKey;not null"`
 	ProductID uint `json:"product_id" gorm:"not null"`
@@ -26,23 +26,23 @@ type Category struct {
 	ID           uint      `json:"id" gorm:"primaryKey;not null"`
 	CategoryID   uint      `json:"category_id"`
 	Category     *Category // self join for sub category
-	CategoryName string    `json:"category_name" gorm:"unique;not null" validate:"required,min=1,max=30"`
+	CategoryName string    `json:"category_name" gorm:"unique;not null" binding:"required,min=1,max=30"`
 }
 
 // variation means size color etc..
 type Variation struct {
-	ID         uint `json:"id" gorm:"primaryKey;not null"`
-	CategoryID uint `json:"category_id" gorm:"not null"`
-	Category   *Category
-	Name       string `json:"name" gorm:"not null" validate:"required"`
+	ID            uint `json:"id" gorm:"primaryKey;not null"`
+	CategoryID    uint `json:"category_id" gorm:"not null" binding:"required,numeric"`
+	Category      *Category
+	VariationName string `json:"variation_name" gorm:"not null" binding:"required"`
 }
 
 // variation option means values are like s,m,xl for size and blue,white,black for Color
 type VariationOption struct {
-	ID          uint `json:"id" gorm:"primaryKey;not null"`
-	VariationID uint `json:"varition_id" gorm:"not null"` // a specific field of variation like color/size
-	Variation   *Variation
-	Value       string `json:"value" gorm:"not null" validate:"required"` // the variations value like blue/XL
+	ID             uint `json:"id" gorm:"primaryKey;not null"`
+	VariationID    uint `json:"variation_id" gorm:"not null" binding:"required,numeric"` // a specific field of variation like color/size
+	Variation      *Variation
+	VariationValue string `json:"variation_value" gorm:"not null" binding:"required"` // the variations value like blue/XL
 }
 
 // used to many to many join like multile product have same size or color and many color or size have same product
