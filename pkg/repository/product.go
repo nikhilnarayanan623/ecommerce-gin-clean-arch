@@ -52,13 +52,21 @@ func (c *productDatabase) GetProductItems(ctx context.Context, product domain.Pr
 
 	var RespProductItems []helper.RespProductItems
 
+	// first check the given product id is valid or not
+	if c.DB.Raw("SELECT * FROM products WHERE id=?", product.ID).Scan(&product).Error != nil {
+		return RespProductItems, errors.New("faild to get the product")
+	} else if product.ProductName == "" {
+		return RespProductItems, errors.New("invalid product id there is no product with this id")
+	}
+
+	//then get all productItems of the product
 	querry := `SELECT pi.id,pi.product_id,pi.price,pi.qty_in_stock,p.product_name FROM product_items pi INNER JOIN products p ON pi.product_id=p.id AND p.id=?`
 
 	if c.DB.Raw(querry, product.ID).Scan(&RespProductItems).Error != nil {
 		return RespProductItems, errors.New("faild to get product_items for product given product id")
 	}
 
-	// then get each productItems variationId from productCofiguration using productItemId
+	// then get each productItems variationId and variation value
 	querry = `SELECT vo.id AS variation_option_id,vo.variation_value FROM product_configurations pc JOIN variation_options vo ON pc.variation_option_id=vo.id AND pc.product_item_id=?`
 	fmt.Println("herer")
 	for i, productItem := range RespProductItems {
