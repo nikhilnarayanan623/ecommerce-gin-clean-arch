@@ -12,14 +12,7 @@ type AdminUseCase interface {
 	SignUp(ctx context.Context, admin domain.Admin) (domain.Admin, error)
 
 	FindAllUser(ctx context.Context) ([]helper.UserRespStrcut, error)
-	BlockUser(ctx context.Context, user helper.BlockStruct) (domain.Users, any)
-
-	GetCategory(ctx context.Context) ([]helper.RespCategory, any)
-	AddCategory(ctx context.Context, productCategory domain.Category) (helper.RespCategory, error)
-
-	AddVariation(ctx context.Context, vartaion domain.Variation) (domain.Variation, error)
-
-	AddProducts(ctx context.Context, body helper.ProductRequest) (domain.Product, any)
+	BlockUser(ctx context.Context, user domain.Users) (domain.Users, error)
 }
 
 // GetCategory(ctx context.Context) (helper.ReqCategory, any)

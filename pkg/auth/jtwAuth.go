@@ -9,20 +9,10 @@ import (
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/config"
 )
 
-// type jwtClaims struct {
-// 	ID uint
-// 	jwt.StandardClaims
-// }
-
 func GenerateJWT(id uint) (map[string]string, error) {
-	expireTime := time.Now().Add(10 * time.Minute).Unix()
 
-	// claims := &jwtClaims{
-	// 	ID:             id,
-	// 	StandardClaims: jwt.StandardClaims{
+	expireTime := time.Now().Add(20 * time.Minute).Unix()
 
-	// 	},
-	// }
 	// create token with expire time and claims id as user id
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.StandardClaims{
 		ExpiresAt: expireTime,

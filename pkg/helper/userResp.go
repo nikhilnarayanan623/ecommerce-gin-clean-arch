@@ -11,14 +11,7 @@ type UserRespStrcut struct {
 	BlockStatus bool   `json:"block_status" copier:"must"`
 }
 
-// response for product
-type ResponseProduct struct {
-	ProductName  string `json:"product_name"`
-	Description  string `json:"description" `
-	CategoryName string `json:"category_name"`
-	Price        uint   `json:"price"`
-	Image        string `json:"image"`
-}
+
 
 // home page response
 type ResUserHome struct {

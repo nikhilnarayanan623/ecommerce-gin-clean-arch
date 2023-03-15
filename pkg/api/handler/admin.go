@@ -117,7 +117,7 @@ func (a *AdminHandler) LoginPost(ctx *gin.Context) {
 	var response helper.ResAdminLogin
 	copier.Copy(&response, &admin)
 
-	ctx.SetCookie("admin-auth", tokenString["accessToken"], 10*60, "", "", false, true)
+	ctx.SetCookie("admin-auth", tokenString["accessToken"], 20*60, "", "", false, true)
 	ctx.JSON(http.StatusOK, gin.H{
 		"StatusCode": 200,
 		"msg":        "Successfully loged in",
@@ -143,6 +143,15 @@ func (a *AdminHandler) Allusers(ctx *gin.Context) {
 		return
 	}
 
+	// frist check there is no user or not
+	if usersResp == nil {
+		ctx.JSON(http.StatusOK, gin.H{
+			"StatusCode": 200,
+			"msg":        "There is no user to show",
+		})
+		return
+	}
+
 	// if no error then response stats code 200 with usres
 	ctx.JSON(http.StatusOK, gin.H{
 		"StatusCode": 200,
@@ -151,151 +160,37 @@ func (a *AdminHandler) Allusers(ctx *gin.Context) {
 
 }
 func (a *AdminHandler) BlockUser(ctx *gin.Context) {
-	var body helper.BlockStruct
 
+	var body helper.BlockStruct
 	if err := ctx.ShouldBindJSON(&body); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"StatusCode": 400,
-			"msg":        "invalid input tag",
-			"err":        err,
-		})
-		return
-	}
-
-	user, err := a.adminUseCase.BlockUser(ctx, body)
-	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{
-			"StatusCode": 500,
-			"error":      err,
-		})
-		return
-	}
-	// if successfully blocked or unblock user then response 200
-	ctx.JSON(http.StatusOK, gin.H{
-		"StatusCode": 200,
-		"msg":        "Successfully bocked or unblocked user",
-		"user":       user,
-	})
-}
-
-func (a *AdminHandler) CategoryGET(ctx *gin.Context) {
-
-	categories, err := a.adminUseCase.GetCategory(ctx)
-
-	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{
-			"StatusCode": 500,
-			"msg":        "Faild to get categories",
-			"error":      err,
-		})
-		return
-	}
-	ctx.JSON(http.StatusOK, gin.H{
-		"StatsuCode": 200,
-		"msg":        "Category Page",
-		"categories": categories,
-	})
-}
-
-// add a category
-func (a *AdminHandler) CategoryPOST(ctx *gin.Context) {
-
-	var productCategory domain.Category
-
-	if ctx.ShouldBindJSON(&productCategory) != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{
-			"StatsuCode": 400,
-			"Error":      "Error to bind the input",
-		})
-		return
-	}
-
-	respose, err := a.adminUseCase.AddCategory(ctx, productCategory)
-	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{
-			"StatsuCode": 400,
-			"msg":        "category can't be add",
+			"msg":        "can't bind the user id",
 			"err":        err.Error(),
 		})
 		return
 	}
 
-	ctx.JSON(http.StatusOK, gin.H{
-		"StatsuCode": 200,
-		"msg":        "category added",
-		"categoty":   respose,
-	})
-}
+	// copy into user
+	var user domain.Users
+	copier.Copy(&user, body)
 
-// for add a variation like size / color/ ram/ memory
-func (a *AdminHandler) AddVariation(ctx *gin.Context) {
-
-	var variation domain.Variation
-	if err := ctx.ShouldBindJSON(&variation); err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{
-			"StatusCode": 400,
-			"msg":        "can't bind json",
-			"error":      err.Error(),
-		})
-		return
-	}
-
-	variation, err := a.adminUseCase.AddVariation(ctx, variation)
-
+	user, err := a.adminUseCase.BlockUser(ctx, user)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"StatusCode": 400,
-			"msg":        "can't add variation",
+			"msg":        "can't block user",
 			"error":      err.Error(),
 		})
 		return
 	}
 
+	var response helper.UserRespStrcut
+	copier.Copy(&response, &user)
+	// if successfully blocked or unblock user then response 200
 	ctx.JSON(http.StatusOK, gin.H{
 		"StatusCode": 200,
-		"msg":        "variation added",
+		"msg":        "Successfully blocked or unblocked user",
+		"user":       response,
 	})
-}
-
-// for add a value for varaion color:blue,red; size:M,S,L; RAM:2gb,4gb;
-func (a *AdminHandler) AddVariationOption(ctx *gin.Context) {
-
-}
-
-func (a *AdminHandler) ShowAllProducts(ctx *gin.Context) {
-
-}
-
-func (a *AdminHandler) AddProducts(ctx *gin.Context) {
-
-	var body helper.ProductRequest
-	if ctx.ShouldBindJSON(&body) != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{
-			"StatsuCode": 400,
-			"Error":      "Error to bind the input",
-		})
-		return
-	}
-
-	product, err := a.adminUseCase.AddProducts(ctx, body)
-
-	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{
-			"StatsuCode": 400,
-			"msg":        "product can't be add",
-			"err":        err,
-		})
-		return
-	}
-
-	ctx.JSON(http.StatusOK, gin.H{
-		"StatsuCode": 200,
-		"msg":        "product added",
-		"product":    product,
-	})
-}
-
-// for add a specific product item
-func (a *AdminHandler) AddProductItem(ctx *gin.Context) {
-
 }

@@ -11,8 +11,10 @@ type ResAdminLogin struct {
 
 // response of category for showing the category
 type RespCategory struct {
-	ID           uint   `json:"id"`
-	CategoryName string `json:"category_name"`
-	//CategoryID       uint   `json:"category_id"`
+	ID               uint   `json:"id"`
+	CategoryName     string `json:"category_name"`
+	CategoryID       uint   `json:"category_id"`
 	MainCategoryName string `json:"main_category_name"`
 }
+
+// reponse for get all variations with its respective category

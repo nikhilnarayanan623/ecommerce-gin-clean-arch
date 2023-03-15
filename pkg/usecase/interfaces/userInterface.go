@@ -12,7 +12,6 @@ type UserUseCase interface {
 	Login(ctx context.Context, user domain.Users) (domain.Users, error)
 	LoginOtp(ctx context.Context, user domain.Users) (domain.Users, error)
 
-	Home(ctx context.Context, id uint) (helper.ResUserHome, error)
-	GetProductItems(ctx context.Context, product domain.Product) ([]domain.ProductItem, any) // to get all product items of a specific product
+	Home(ctx context.Context, userId uint) (domain.Users, error)
 	GetCartItems(ctx context.Context, userId uint) (helper.ResponseCart, any)
 }

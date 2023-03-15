@@ -6,19 +6,23 @@ import (
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/api/middleware"
 )
 
-func UserRoutes(router *gin.Engine, user *handler.UserHandler) {
+func UserRoutes(api *gin.RouterGroup, user *handler.UserHandler, product *handler.ProductHandler) {
 
-	router.GET("/login", user.LoginGet)
-	router.POST("/login", user.LoginPost)
-	router.POST("/login-otp-send", user.LoginOtpSend)
-	router.POST("/login-otp-verify", user.LoginOtpVerify)
+	api.GET("/login", user.LoginGet)
+	api.POST("/login", user.LoginPost)
+	api.POST("/login-otp-send", user.LoginOtpSend)
+	api.POST("/login-otp-verify", user.LoginOtpVerify)
 
-	router.GET("/signup", user.SignUpGet)
-	router.POST("/signup", user.SignUpPost)
+	api.GET("/signup", user.SignUpGet)
+	api.POST("/signup", user.SignUpPost)
 
-	api := router.Group("/", middleware.AuthenticateUser)
+	api.Use(middleware.AuthenticateUser)
+	{
+		api.GET("/", user.Home)
+		api.GET("/product", product.ListProducts)         // show products
+		api.GET("/product-item", product.GetProductItems) // show product items of a product
+		api.GET("/cart", user.UserCart)
+		api.POST("/logout", user.Logout)
+	}
 
-	api.GET("/", user.Home)
-	api.GET("/cart", user.UserCart)
-	api.POST("/logout", user.Logout)
 }

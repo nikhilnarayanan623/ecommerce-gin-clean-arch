@@ -233,7 +233,7 @@ func (u *UserHandler) Home(ctx *gin.Context) {
 
 	userId := helper.GetUserIdFromContext(ctx)
 
-	response, err := u.userUseCase.Home(ctx, userId)
+	user, err := u.userUseCase.Home(ctx, userId)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{
 			"StatusCode": 500,
@@ -242,21 +242,13 @@ func (u *UserHandler) Home(ctx *gin.Context) {
 		return
 	}
 
-	if response.Products == nil {
-		ctx.JSON(http.StatusOK, gin.H{
-			"StatusCode": 200,
-			"msg":        "Welcome To User Home",
-			"user":       response.User,
-			"Products":   "there is no products availabel to show",
-		})
-		return
-	}
+	var response helper.UserRespStrcut
+	copier.Copy(&response, &user)
 
 	ctx.JSON(http.StatusOK, gin.H{
 		"StatusCode": 200,
 		"msg":        "Welcome Home",
-		"user":       response.User,
-		"Products":   response.Products,
+		"user":       response,
 	})
 }
 

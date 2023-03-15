@@ -26,19 +26,30 @@ type CategoryStruct struct {
 }
 
 type BlockStruct struct {
-	ID uint `json:"id" copier:"must"`
+	ID uint `json:"id" binding:"required,numeric"`
 }
 
-// admin side
+// product side
 type ReqCategory struct {
 	CategoryName string `json:"category_name"` // new category name
 	ID           uint   `json:"id"`            // id any of main category
 }
 
-type ProductRequest struct {
-	ProductName string `json:"product_name" gorm:"not null" validate:"required,min=5,max=50"`
-	Description string `json:"description" gorm:"not null" validate:"required,min=10,max=100"`
-	CategoryID  uint   `json:"category_id"`
-	Price       uint   `json:"price" gorm:"not null" validate:"required,numeric"`
-	Image       string `json:"image" gorm:"not null"`
+// for a new product
+type ReqProduct struct {
+	ProductName string `json:"product_name" gorm:"not null" binding:"required,min=5,max=50"`
+	Description string `json:"description" gorm:"not null" binding:"required,min=10,max=100"`
+	CategoryID  uint   `json:"category_id" binding:"required"`
+	Price       uint   `json:"price" gorm:"not null" binding:"required,numeric"`
+	Image       string `json:"image" gorm:"not null" binding:"required"`
+}
+
+// for a new prodctItem
+
+type ReqProductItem struct {
+	ProductID         uint     `json:"product_id" binding:"required"`
+	Price             uint     `json:"price" binding:"required,min=1"`
+	VariationOptionID uint     `json:"variation_option_id" binding:"required"`
+	QtyInStock        uint     `json:"qty_in_stock" binding:"required,min=1"`
+	Images            []string `json:"images" binding:"required"`
 }

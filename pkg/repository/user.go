@@ -23,13 +23,12 @@ func (c *userDatabse) FindUser(ctx context.Context, user domain.Users) (domain.U
 	fmt.Println("user", user)
 
 	// check id,email,phone any of then match i db
-	c.DB.Raw("SELECT * FROM users where id=? OR email=? OR phone=?", user.ID, user.Email, user.Phone).Scan(&user)
+	err := c.DB.Raw("SELECT * FROM users where id=? OR email=? OR phone=?", user.ID, user.Email, user.Phone).Scan(&user).Error
 
-	// if given userid then check mail is stil there otherwise phone or id
-	if user.ID == 0 || user.Email == "" || user.Phone == "" {
-		return user, errors.New("can't find the user with this")
+	if err != nil {
+		return user, errors.New("faild to get user")
 	}
-	// if found the user then return user with nil
+
 	return user, nil
 }
 
@@ -46,25 +45,6 @@ func (c *userDatabse) SaveUser(ctx context.Context, user domain.Users) (domain.U
 	err := c.DB.Save(&user).Error
 
 	return user, err
-}
-
-func (c *userDatabse) GetAllProducts(ctx context.Context) ([]helper.ResponseProduct, error) {
-
-	var products []helper.ResponseProduct
-
-	querry := `SELECT f.product_name,f.description,f.price,s.category_name,f.image FROM products f LEFT JOIN categories s ON f.category_id=s.id`
-
-	err := c.DB.Raw(querry).Scan(&products).Error
-
-	return products, err
-
-}
-
-func (c *userDatabse) GetProductItems(ctx context.Context, product domain.Product) ([]domain.ProductItem, any) {
-
-	var productItems []domain.ProductItem
-
-	return productItems, c.DB.Raw("SELECT * FROM product_items WHERE product_id", product.ID).Scan(&productItems).Error
 }
 
 func (c *userDatabse) GetCartItems(ctx context.Context, userId uint) (helper.ResponseCart, error) {

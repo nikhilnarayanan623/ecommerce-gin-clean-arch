@@ -41,7 +41,7 @@ func ConnectDatbase(cfg config.Config) (*gorm.DB, error) {
 		domain.Variation{},
 		domain.VariationOption{},
 		domain.ProductItem{},
-		domain.ProductConfiguraion{},
+		domain.ProductConfiguration{},
 		domain.ProductImage{},
 
 		//wish list

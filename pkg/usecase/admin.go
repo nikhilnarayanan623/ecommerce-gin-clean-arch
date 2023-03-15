@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 
-	"github.com/go-playground/validator/v10"
 	"github.com/jinzhu/copier"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/domain"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/helper"
@@ -68,54 +67,8 @@ func (c *adminUseCase) FindAllUser(ctx context.Context) ([]helper.UserRespStrcut
 	return responce, nil
 }
 
-func (c *adminUseCase) BlockUser(ctx context.Context, request helper.BlockStruct) (domain.Users, any) {
-
-	// validate the struct
-	if request.ID <= 0 {
-		return domain.Users{}, map[string]string{"Error": "Ivalid Id"}
-	}
-
-	//copy the id from req to user
-	var user domain.Users
-	copier.Copy(&user, &request)
+// to block or unblock a user
+func (c *adminUseCase) BlockUser(ctx context.Context, user domain.Users) (domain.Users, error) {
 
 	return c.adminRepo.BlockUser(ctx, user)
-}
-
-func (c *adminUseCase) GetCategory(ctx context.Context) ([]helper.RespCategory, any) {
-
-	return c.adminRepo.GetCategory(ctx)
-}
-
-// to add a new category
-func (c *adminUseCase) AddCategory(ctx context.Context, category domain.Category) (helper.RespCategory, error) {
-
-	respose, dbErr := c.adminRepo.AddCategory(ctx, category)
-
-	return respose, dbErr
-}
-
-// to add a variation
-func (c *adminUseCase) AddVariation(ctx context.Context, vartaion domain.Variation) (domain.Variation, error) {
-
-	return c.adminRepo.AddVariation(ctx, vartaion)
-}
-func (c *adminUseCase) AddProducts(ctx context.Context, body helper.ProductRequest) (domain.Product, any) {
-	err := validator.New().Struct(body)
-
-	if err != nil {
-		errMap := map[string]string{}
-
-		for _, er := range err.(validator.ValidationErrors) {
-			errMap[er.Field()] = "Enter this field properly"
-		}
-
-		return domain.Product{}, errMap
-	}
-
-	var product domain.Product
-	copier.Copy(&product, &body)
-
-	return c.adminRepo.AddProducts(ctx, product)
-
 }
