@@ -60,9 +60,6 @@ func AdminRoutes(api *gin.RouterGroup, admin *handler.AdminHandler, product *han
 		api.GET("/product-item", product.GetProductItems)
 		api.POST("/product-item", product.AddProductItem)
 
-		//test
-		api.POST("/test", product.Test)
-
 	}
 
 }

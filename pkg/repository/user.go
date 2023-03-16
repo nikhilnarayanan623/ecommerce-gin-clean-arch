@@ -19,7 +19,7 @@ func NewUserRepository(DB *gorm.DB) interfaces.UserRepository {
 	return &userDatabse{DB: DB}
 }
 
-func (c *userDatabse) FindUser(ctx context.Context, user domain.Users) (domain.Users, error) {
+func (c *userDatabse) FindUser(ctx context.Context, user domain.User) (domain.User, error) {
 	fmt.Println("user", user)
 
 	// check id,email,phone any of then match i db
@@ -32,7 +32,7 @@ func (c *userDatabse) FindUser(ctx context.Context, user domain.Users) (domain.U
 	return user, nil
 }
 
-func (c *userDatabse) SaveUser(ctx context.Context, user domain.Users) (domain.Users, error) {
+func (c *userDatabse) SaveUser(ctx context.Context, user domain.User) (domain.User, error) {
 
 	// check whether user is already exisist
 	c.DB.Raw("SELECT * FROM users WHERE email=? OR phone=?", user.Email, user.Phone).Scan(&user)
@@ -47,47 +47,78 @@ func (c *userDatabse) SaveUser(ctx context.Context, user domain.Users) (domain.U
 	return user, err
 }
 
-func (c *userDatabse) GetCartItems(ctx context.Context, userId uint) (helper.ResponseCart, error) {
+// to add a productItem to cart
+func (c *userDatabse) AddToCart(ctx context.Context, body helper.ReqCart) (domain.Cart, error) {
 
-	// var (
-	// 	user = domain.Users{ID: userId}
-	// 	// resCart = helper.ResCart{CartItems: make([]helper.ResCartItem, 0)}
-	// 	resCart helper.ResCart
-	// 	cart    domain.Cart
-	// 	//cartItems []domain.CartItem
-	// )
-
-	// //first find the user
-	// user, err := c.FindUser(ctx, user)
-
-	// if err != nil {
-	// 	return resCart, err
-	// }
-
-	// // then get cart id of user
-	// if c.DB.Raw("SELECT * FROM carts WHERE users_id=?", userId).Scan(&cart); cart.ID == 0 {
-	// 	return resCart, helper.SingleRespStruct{Error: "User Have no cart"} // I think I want to delete it later
-	// }
-
-	// // add total price to response
-	// resCart.TotalPrice = cart.TotalPrice
-
-	// //then get all cart items of user
-	// var resCartItem []helper.ResCartItem
-
-	// c.DB.Raw("SELECT * FROM cart_items WHERE cart_id=?", cart.ID).Scan(&resCartItem)
-
-	// // assign it to resCart
-	// resCart.CartItems = resCartItem
-
-	// return resCart, nil
-
-	// find the cartId of user using userId
-
-	var cart domain.Cart
-	if c.DB.Raw("SELECT * FROM carts WHERE users_id=?", userId).Scan(&cart).Error != nil {
-		return helper.ResponseCart{}, errors.New("faild to get the cart of user")
+	// first check the given productItem is valid or not
+	var productItem domain.ProductItem
+	if c.DB.Raw("SELECT * FROM product_items WHERE id=?", body.ProductItemID).Scan(&productItem).Error != nil {
+		return domain.Cart{}, errors.New("faild to get productItem from database")
+	} else if productItem.ID == 0 {
+		return domain.Cart{}, errors.New("invalid product_item id")
 	}
 
-	return helper.ResponseCart{}, nil
+	// then check user have cart already exist or not
+	var cart domain.Cart
+	if c.DB.Raw("SELECT * FROM carts WHERE user_id=?", body.UserID).Scan(&cart).Error != nil {
+		return cart, errors.New("faild to get cart of user from database")
+	}
+
+	// if user have no cart then create a new cart for user
+	if cart.ID == 0 {
+		querry := `INSERT INTO carts (user_id,total_price) VALUES ($1,$2) RETURNING id,user_id,total_price`
+		if c.DB.Raw(querry, body.UserID, 0).Scan(&cart).Error != nil {
+			return cart, errors.New("faild to create cart for user in database")
+		}
+	}
+
+	// last add productId on cartItems
+	// check cartItem already exist with this cartId
+	var cartItems domain.CartItem
+	if c.DB.Raw("SELECT * FROM cart_items WHERE cart_id=? AND product_item_id=?", cart.ID, productItem.ID).Scan(&cartItems).Error != nil {
+		return cart, errors.New("faild to get cartItem")
+	}
+
+	if cartItems.ID == 0 {
+		querry := `INSERT INTO cart_items (cart_id,product_item_id,qty) VALUES ($1,$2,$3) RETURNING id,cart_id,product_item_id`
+		c.DB.Raw(querry, cart.ID, productItem.ID, 1).Scan(&cartItems)
+	} else {
+		querry := `UPDATE cart_items SET qty=? WHERE product_item_id=?`
+		c.DB.Raw(querry, cartItems.Qty+1, productItem.ID).Scan(&cartItems)
+	}
+
+	// at last update total price of userCart
+	totalPrice := cart.TotalPrice + productItem.Price
+
+	if c.DB.Raw("UPDATE carts SET total_price=? WHERE id=? RETURNING id,user_id,total_price", totalPrice, cart.ID).Scan(&cart).Error != nil {
+		return cart, errors.New("faild to update cart total price")
+	}
+	return cart, nil
+}
+
+// get all itmes from cart
+func (c *userDatabse) GetCartItems(ctx context.Context, userId uint) (helper.ResponseCart, error) {
+
+	var (
+		cart     domain.Cart
+		response helper.ResponseCart
+	)
+	// get the cart of user
+	if c.DB.Raw("SELECT * FROM carts WHERE user_id=?", userId).Scan(&cart).Error != nil {
+		return response, errors.New("faild to get the cart of user")
+	}
+
+	// get the cartItem of all user with subtotal
+	query := `SELECT ci.product_item_id,p.product_name, ci.qty,pi.price,pi.price * ci.qty AS sub_total, (CASE WHEN pi.qty_in_stock=0 THEN 'T' ELSE 'F' END) AS out_of_stock  
+				FROM cart_items ci JOIN product_items pi ON ci.product_item_id = pi.id 
+				JOIN products p ON pi.product_id=p.id AND ci.cart_id=?`
+
+	if c.DB.Raw(query, cart.ID).Scan(&response.CartItems).Error != nil {
+		return response, errors.New("faild to get cartItems from database")
+	}
+
+	// atlast add the total price into response
+	response.TotalPrice = cart.TotalPrice
+
+	return response, nil
 }

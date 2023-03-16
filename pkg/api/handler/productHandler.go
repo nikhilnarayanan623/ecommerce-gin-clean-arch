@@ -1,7 +1,6 @@
 package handler
 
 import (
-	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -197,7 +196,7 @@ func (p *ProductHandler) AddProducts(ctx *gin.Context) {
 	var product domain.Product
 	copier.Copy(&product, &body)
 
-	product, err := p.productUseCase.AddProducts(ctx, product)
+	product, err := p.productUseCase.AddProduct(ctx, product)
 
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
@@ -292,21 +291,4 @@ func (p *ProductHandler) GetProductItems(ctx *gin.Context) {
 		"msg":           "Successfully product items got",
 		"productItems ": response,
 	})
-}
-
-func (p *ProductHandler) Test(ctx *gin.Context) {
-
-	var arr struct {
-		Url []string `json:"url"`
-	}
-
-	if err := ctx.ShouldBindJSON(&arr); err != nil {
-		ctx.JSON(400, gin.H{
-			"error": err.Error(),
-		})
-		return
-	}
-
-	fmt.Println(arr)
-
 }

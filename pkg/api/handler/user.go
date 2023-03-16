@@ -72,7 +72,7 @@ func (u *UserHandler) LoginPost(ctx *gin.Context) {
 		return
 	}
 	//copy the body values to user
-	var user domain.Users
+	var user domain.User
 	copier.Copy(&user, &body)
 
 	// get user from database and check password in usecase
@@ -139,7 +139,7 @@ func (u *UserHandler) LoginOtpSend(ctx *gin.Context) {
 		return
 	}
 
-	var user domain.Users
+	var user domain.User
 	copier.Copy(&user, body)
 
 	user, err := u.userUseCase.LoginOtp(ctx, user)
@@ -195,7 +195,7 @@ func (u *UserHandler) LoginOtpVerify(ctx *gin.Context) {
 		return
 	}
 
-	var user domain.Users
+	var user domain.User
 	copier.Copy(&user, &body)
 
 	// get the user using loginOtp useCase
@@ -247,17 +247,17 @@ func (u *UserHandler) LoginOtpVerify(ctx *gin.Context) {
 // @tags signup
 // @produce json
 // @Router /signup [get]
-// @Success 200 {object} domain.Users{} "OK"
+// @Success 200 {object} domain.User{} "OK"
 func (u *UserHandler) SignUpGet(ctx *gin.Context) {
 
 	ctx.JSON(http.StatusOK, gin.H{
 		"StatusCode": 200,
 		"msg":        "enter detail for signup",
-		"user":       domain.Users{},
+		"user":       domain.User{},
 	})
 }
 func (u *UserHandler) SignUpPost(ctx *gin.Context) {
-	var user domain.Users
+	var user domain.User
 	if err := ctx.ShouldBindJSON(&user); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"StatusCode": 400,
@@ -309,6 +309,39 @@ func (u *UserHandler) Home(ctx *gin.Context) {
 		"StatusCode": 200,
 		"msg":        "Welcome Home",
 		"user":       response,
+	})
+}
+
+func (u *UserHandler) AddToCart(ctx *gin.Context) {
+
+	var body helper.ReqCart
+	if err := ctx.ShouldBindJSON(&body); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"StatusCode": 400,
+			"msg":        "can't bind the json",
+			"error":      err.Error(),
+		})
+		return
+	}
+
+	// get userId and add to body
+	body.UserID = helper.GetUserIdFromContext(ctx)
+
+	cart, err := u.userUseCase.AddToCart(ctx, body)
+
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"StatusCode": 400,
+			"msg":        "can't add the product into cart",
+			"error":      err.Error(),
+		})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{
+		"StatusCode": 200,
+		"msg":        "Successfully productItem added to cart",
+		"cart":       cart,
 	})
 }
 

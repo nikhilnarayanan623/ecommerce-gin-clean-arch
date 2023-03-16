@@ -68,7 +68,7 @@ func (c *adminUseCase) FindAllUser(ctx context.Context) ([]helper.UserRespStrcut
 }
 
 // to block or unblock a user
-func (c *adminUseCase) BlockUser(ctx context.Context, user domain.Users) (domain.Users, error) {
+func (c *adminUseCase) BlockUser(ctx context.Context, user domain.User) (domain.User, error) {
 
 	return c.adminRepo.BlockUser(ctx, user)
 }

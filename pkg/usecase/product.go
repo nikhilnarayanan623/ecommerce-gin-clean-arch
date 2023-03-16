@@ -46,8 +46,8 @@ func (c *productUseCase) GetProducts(ctx context.Context) ([]helper.ResponseProd
 }
 
 // to add new product
-func (c *productUseCase) AddProducts(ctx context.Context, product domain.Product) (domain.Product, error) {
-	return c.productRepo.AddProducts(ctx, product)
+func (c *productUseCase) AddProduct(ctx context.Context, product domain.Product) (domain.Product, error) {
+	return c.productRepo.AddProduct(ctx, product)
 }
 
 // for add new productItem for a speicific product

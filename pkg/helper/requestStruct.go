@@ -1,6 +1,6 @@
 package helper
 
-// user this for admin and user
+// login struct for user and admin
 type LoginStruct struct {
 	UserName string `json:"user_name" binding:"omitempty,min=3,max=15"`
 	Phone    string `json:"phone" binding:"omitempty,min=10,max=10"`
@@ -18,13 +18,6 @@ type OTPVerifyStruct struct {
 	ID  uint   `json:"id" binding:"required,numeric"`
 }
 
-type CategoryStruct struct {
-	CategoryID     uint   `json:"category_id"`
-	CategoryName   string `json:"category_name"`
-	VariationName  string `json:"variation_name"`
-	VariationValue string `json:"variation_value"`
-}
-
 type BlockStruct struct {
 	ID uint `json:"id" binding:"required,numeric"`
 }
@@ -37,7 +30,7 @@ type ReqCategory struct {
 
 // for a new product
 type ReqProduct struct {
-	ProductName string `json:"product_name" gorm:"not null" binding:"required,min=5,max=50"`
+	ProductName string `json:"product_name" gorm:"not null" binding:"required,min=3,max=50"`
 	Description string `json:"description" gorm:"not null" binding:"required,min=10,max=100"`
 	CategoryID  uint   `json:"category_id" binding:"required"`
 	Price       uint   `json:"price" gorm:"not null" binding:"required,numeric"`
@@ -52,4 +45,10 @@ type ReqProductItem struct {
 	VariationOptionID uint     `json:"variation_option_id" binding:"required"`
 	QtyInStock        uint     `json:"qty_in_stock" binding:"required,min=1"`
 	Images            []string `json:"images" binding:"required"`
+}
+
+// user side
+type ReqCart struct {
+	UserID        uint `json:"user_id"`
+	ProductItemID uint `json:"product_item_id" binding:"required"`
 }

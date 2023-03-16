@@ -27,7 +27,7 @@ func ConnectDatbase(cfg config.Config) (*gorm.DB, error) {
 	// migrate the database tables
 	db.AutoMigrate(
 		//user
-		domain.Users{},
+		domain.User{},
 		domain.Country{},
 		domain.Address{},
 		domain.UserAdress{},

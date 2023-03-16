@@ -177,7 +177,7 @@ func (a *AdminHandler) BlockUser(ctx *gin.Context) {
 	}
 
 	// copy into user
-	var user domain.Users
+	var user domain.User
 	copier.Copy(&user, body)
 
 	user, err := a.adminUseCase.BlockUser(ctx, user)

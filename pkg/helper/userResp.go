@@ -11,37 +11,22 @@ type UserRespStrcut struct {
 	BlockStatus bool   `json:"block_status" copier:"must"`
 }
 
-
-
 // home page response
 type ResUserHome struct {
 	Products []ResponseProduct `json:"products"`
 	User     UserRespStrcut    `json:"user"`
 }
 
-/*
-	{ResposeCartItem
-
-		ProductItemId
-		ProductName
-		Qty
-		SubTotal
-	}
-	{ResponseCart
-
-		[]ResponseCartItem
-		TotalPrice
-	}
-
-*/
-
 type ResponseCartItem struct {
 	ProductItemId uint   `json:"product_item_id"`
 	ProductName   string `json:"product_name"`
+	Price         uint   `json:"price"`
+	OutOfStock    bool   `json:"out_of_stock"`
 	Qty           uint   `json:"qty"`
 	SubTotal      uint   `json:"sub_total"`
 }
+
 type ResponseCart struct {
-	CartItem   []ResponseCartItem
+	CartItems  []ResponseCartItem
 	TotalPrice uint `json:"total_price"`
 }

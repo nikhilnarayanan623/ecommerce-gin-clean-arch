@@ -12,7 +12,7 @@ type AdminUseCase interface {
 	SignUp(ctx context.Context, admin domain.Admin) (domain.Admin, error)
 
 	FindAllUser(ctx context.Context) ([]helper.UserRespStrcut, error)
-	BlockUser(ctx context.Context, user domain.Users) (domain.Users, error)
+	BlockUser(ctx context.Context, user domain.User) (domain.User, error)
 }
 
 // GetCategory(ctx context.Context) (helper.ReqCategory, any)

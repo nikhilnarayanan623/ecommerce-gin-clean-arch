@@ -19,7 +19,7 @@ func NewUserUseCase(repo interfaces.UserRepository) service.UserUseCase {
 	return &userUserCase{userRepo: repo}
 }
 
-func (c *userUserCase) Login(ctx context.Context, user domain.Users) (domain.Users, error) {
+func (c *userUserCase) Login(ctx context.Context, user domain.User) (domain.User, error) {
 
 	dbUser, dberr := c.userRepo.FindUser(ctx, user)
 
@@ -41,7 +41,7 @@ func (c *userUserCase) Login(ctx context.Context, user domain.Users) (domain.Use
 	return dbUser, nil
 }
 
-func (c *userUserCase) LoginOtp(ctx context.Context, user domain.Users) (domain.Users, error) {
+func (c *userUserCase) LoginOtp(ctx context.Context, user domain.User) (domain.User, error) {
 
 	user, err := c.userRepo.FindUser(ctx, user)
 
@@ -57,7 +57,7 @@ func (c *userUserCase) LoginOtp(ctx context.Context, user domain.Users) (domain.
 	return user, nil
 }
 
-func (c *userUserCase) Signup(ctx context.Context, user domain.Users) (domain.Users, error) {
+func (c *userUserCase) Signup(ctx context.Context, user domain.User) (domain.User, error) {
 	//hash the password
 	hashPass, err := bcrypt.GenerateFromPassword([]byte(user.Password), 10)
 
@@ -69,12 +69,16 @@ func (c *userUserCase) Signup(ctx context.Context, user domain.Users) (domain.Us
 	return c.userRepo.SaveUser(ctx, user)
 }
 
-func (c *userUserCase) Home(ctx context.Context, userId uint) (domain.Users, error) {
+func (c *userUserCase) Home(ctx context.Context, userId uint) (domain.User, error) {
 
-	var user = domain.Users{ID: userId}
+	var user = domain.User{ID: userId}
 
 	return c.userRepo.FindUser(ctx, user)
 
+}
+
+func (c *userUserCase) AddToCart(ctx context.Context, body helper.ReqCart) (domain.Cart, error) {
+	return c.userRepo.AddToCart(ctx, body)
 }
 
 func (c *userUserCase) GetCartItems(ctx context.Context, userId uint) (helper.ResponseCart, any) {

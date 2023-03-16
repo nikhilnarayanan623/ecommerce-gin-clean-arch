@@ -1,6 +1,6 @@
 package domain
 
-type Users struct {
+type User struct {
 	ID          uint   `json:"id" gorm:"primaryKey;unique"`
 	UserName    string `json:"user_name" gorm:"not null" binding:"required,min=3,max=15"`
 	FirstName   string `json:"first_name" gorm:"not null" binding:"required,min=2,max=50"`
@@ -14,8 +14,8 @@ type Users struct {
 
 // many to many join
 type UserAdress struct {
-	UsersID   uint `json:"user_id" gorm:"not null"`
-	Users     Users
+	UserID    uint `json:"user_id" gorm:"not null"`
+	User      User
 	AddressID uint `json:"address_id" gorm:"not null"`
 	Address   Address
 }
@@ -41,8 +41,8 @@ type Country struct {
 // Wish List
 type WishList struct {
 	ID            uint `json:"id" gorm:"primaryKey;not null"`
-	UsersID       uint `json:"user_id" gorm:"not null"`
-	Users         Users
+	UserID        uint `json:"user_id" gorm:"not null"`
+	User          User
 	ProductItemID uint `json:"product_item_id" gorm:"not null"`
 	ProductItem   ProductItem
 }
@@ -50,17 +50,16 @@ type WishList struct {
 // Cart
 type Cart struct {
 	ID         uint `json:"id" gorm:"primaryKey;not null"`
-	UsersID    uint `json:"user_id" gorm:"not null"`
-	Users      Users
+	UserID     uint `json:"user_id" gorm:"not null"`
+	User       User
 	TotalPrice uint `json:"total_price" gorm:"not null"`
 }
 
 type CartItem struct {
+	ID            uint `json:"id" gorm:"primaryKey;not null"`
 	CartID        uint `josn:"cart_id" gorm:"not null"`
 	Cart          Cart
 	ProductItemID uint `json:"product_item_id" gorm:"not null"`
 	ProductItem   ProductItem
 	Qty           uint `json:"qty" gorm:"not null"`
 }
-
-

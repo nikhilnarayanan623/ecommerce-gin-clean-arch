@@ -55,15 +55,15 @@ func (c *adminDatabase) SaveAdmin(ctx context.Context, admin domain.Admin) (doma
 	return admin, nil // successfully admin added
 }
 
-func (c *adminDatabase) FindAllUser(ctx context.Context) ([]domain.Users, error) {
+func (c *adminDatabase) FindAllUser(ctx context.Context) ([]domain.User, error) {
 
-	var users []domain.Users
+	var users []domain.User
 	err := c.DB.Raw("SELECT * FROM users").Scan(&users).Error
 
 	return users, err
 }
 
-func (c *adminDatabase) BlockUser(ctx context.Context, user domain.Users) (domain.Users, error) {
+func (c *adminDatabase) BlockUser(ctx context.Context, user domain.User) (domain.User, error) {
 
 	// first check ther user is valid or not
 	c.DB.Raw("SELECT * FROM users WHERE id=?", user.ID).Scan(&user)

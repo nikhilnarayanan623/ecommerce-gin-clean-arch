@@ -10,6 +10,6 @@ type AdminRepository interface {
 	FindAdmin(ctx context.Context, admin domain.Admin) (domain.Admin, error)
 	SaveAdmin(ctx context.Context, admin domain.Admin) (domain.Admin, error)
 
-	FindAllUser(ctx context.Context) ([]domain.Users, error)
-	BlockUser(ctx context.Context, user domain.Users) (domain.Users, error)
+	FindAllUser(ctx context.Context) ([]domain.User, error)
+	BlockUser(ctx context.Context, user domain.User) (domain.User, error)
 }

@@ -15,7 +15,7 @@ type ProductUseCase interface {
 	AddVariationOption(ctx context.Context, variationOption domain.VariationOption) (domain.VariationOption, error)
 
 	GetProducts(ctx context.Context) ([]helper.ResponseProduct, error)
-	AddProducts(ctx context.Context, product domain.Product) (domain.Product, error)
+	AddProduct(ctx context.Context, product domain.Product) (domain.Product, error)
 
 	AddProductItem(ctx context.Context, productItem helper.ReqProductItem) (domain.ProductItem, error)
 	GetProductItems(ctx context.Context, product domain.Product) ([]helper.RespProductItems, error)
