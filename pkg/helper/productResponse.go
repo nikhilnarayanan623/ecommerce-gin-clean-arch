@@ -5,6 +5,7 @@ type ResponseProduct struct {
 	ID           uint   `json:"id"`
 	ProductName  string `json:"product_name"`
 	Description  string `json:"description" `
+	CategoryID   uint   `json:"category_id"`
 	CategoryName string `json:"category_name"`
 	Price        uint   `json:"price"`
 	Image        string `json:"image"`
@@ -50,5 +51,5 @@ type RespProductItems struct {
 	QtyInStock  uint   `json:"qty_in_stock"`
 
 	VariationOptionID uint   `json:"variation_option_id"`
-	VariationValue     string `json:"variation_value"`
+	VariationValue    string `json:"variation_value"`
 }

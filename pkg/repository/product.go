@@ -93,7 +93,7 @@ func (c *productDatabase) AddProductItem(ctx context.Context, reqProductItem hel
 	// first check the product item already exist
 
 	querry := `SELECT * FROM product_items p JOIN product_configurations pc ON p.id=pc.product_item_id AND pc.variation_option_id=? AND p.product_id=?`
-	if c.DB.Raw(querry, reqProductItem.VariationOptionID).Scan(&productItem).Error != nil {
+	if c.DB.Raw(querry, reqProductItem.VariationOptionID, product.ID).Scan(&productItem).Error != nil {
 		return productItem, errors.New("faild to get product item")
 	}
 
