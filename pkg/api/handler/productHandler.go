@@ -8,11 +8,16 @@ import (
 	"github.com/jinzhu/copier"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/domain"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/helper"
+	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/usecase/interfaces"
 	service "github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/usecase/interfaces"
 )
 
 type ProductHandler struct {
 	productUseCase service.ProductUseCase
+}
+
+func NewProductHandler(productUsecase interfaces.ProductUseCase) *ProductHandler {
+	return &ProductHandler{productUseCase: productUsecase}
 }
 
 func (p *ProductHandler) AllCategories(ctx *gin.Context) {

@@ -51,9 +51,12 @@ dps-cleancache:
 wire:
 	cd pkg/di && wire
 
+# swag: ## Generate swagger docs
+# 	swag init --parseDependency --parseInternal --parseDepth 3 -g pkg/api/server.go -o ./cmd/api/docs
+
 ## Generate swagger docs
 swag: 
-	swag init -g pkg/http/handler/user.go -o ./cmd/api/docs
+	swag init -g pkg/api/handler/user.go -o ./cmd/api/docs
  
 ## Display this help screen
 help:

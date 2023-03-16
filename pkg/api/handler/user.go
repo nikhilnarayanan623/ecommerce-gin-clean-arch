@@ -8,6 +8,7 @@ import (
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/auth"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/domain"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/helper"
+	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/usecase/interfaces"
 	service "github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/usecase/interfaces"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/varify"
 )
@@ -16,6 +17,19 @@ type UserHandler struct {
 	userUseCase service.UserUseCase
 }
 
+func NewUserHandler(userUsecase interfaces.UserUseCase) *UserHandler {
+	return &UserHandler{userUseCase: userUsecase}
+}
+
+// LoginGet godoc
+// @summary to get the json format for login
+// @description Enter this fields on login page post
+// @tags login
+// @security ApiKeyAuth
+// @id LoginGet
+// @produce json
+// @Router /login [get]
+// @Success 200 {object} helper.LoginStruct "OK"
 func (u *UserHandler) LoginGet(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, gin.H{
 		"StatusCode": 200,
@@ -24,14 +38,26 @@ func (u *UserHandler) LoginGet(ctx *gin.Context) {
 	})
 }
 
+// LoginPost godoc
+// @summary api for user login
+// @description Enter user_name/phone/email with password
+// @security ApiKeyAuth
+// @tags login
+// @id LoginPost
+// @produce json
+// @Param        inputs   body     helper.LoginStruct{}   true  "Input Field"
+// @Router /login [post]
+// @Success 200 "Successfully Loged In"
+// @Failure 400 "faild to login"
+// @Failure 500 "faild to generat JWT"
 func (u *UserHandler) LoginPost(ctx *gin.Context) {
 
 	var body helper.LoginStruct
 	if err := ctx.ShouldBindJSON(&body); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
-			"StatusCode": 404,
+			"StatusCode": 400,
 			"msg":        "Cant't bind the json",
-			"error":      err,
+			"error":      err.Error(),
 		})
 		return
 	}
@@ -79,6 +105,18 @@ func (u *UserHandler) LoginPost(ctx *gin.Context) {
 	})
 }
 
+// LoginOtpSend godoc
+// @summary api for user login with otp
+// @description user can enter email/user_name/phone will send an otp to user phone
+// @security ApiKeyAuth
+// @id LoginOtpSend
+// @tags login-otp-send
+// @produce json
+// @Param inputs body helper.OTPLoginStruct true "Input Field"
+// @Router /login-otp-send [post]
+// @Success 200 "Successfully Otp Send to registered number"
+// @Failure 400 "Enter input properly"
+// @Failure 500 "Faild to send otp"
 func (u *UserHandler) LoginOtpSend(ctx *gin.Context) {
 
 	var body helper.OTPLoginStruct
@@ -127,11 +165,24 @@ func (u *UserHandler) LoginOtpSend(ctx *gin.Context) {
 
 	ctx.JSON(http.StatusOK, gin.H{
 		"StatusCode": 200,
-		"msg":        "OTP Successfully sented to your number",
+		"msg":        "Successfully Otp Send to registered number",
 		"userId":     user.ID,
 	})
 
 }
+
+// LoginOtpVerify godoc
+// @summary varify user login otp
+// @description enter your otp that send to your registered number
+// @security ApiKeyAuth
+// @id LoginOtpVerify
+// @tags login-otp-verify
+// @produce json
+// @param inputs body helper.OTPVerifyStruct true "Input Field"
+// @Router /login-otp-verify [post]
+// @Success 200 "Successfully Logged In"
+// @Failure 400 "Invalid Otp"
+// @Failure 500 "Faild to generate JWT"
 func (u *UserHandler) LoginOtpVerify(ctx *gin.Context) {
 
 	var body helper.OTPVerifyStruct
@@ -188,6 +239,15 @@ func (u *UserHandler) LoginOtpVerify(ctx *gin.Context) {
 	})
 }
 
+// SignUpGet godoc
+// @summary api for user to signup page
+// @description user can see what are the fields to enter to create a new account
+// @security ApiKeyAuth
+// @id SignUpGet
+// @tags signup
+// @produce json
+// @Router /signup [get]
+// @Success 200 {object} domain.Users{} "OK"
 func (u *UserHandler) SignUpGet(ctx *gin.Context) {
 
 	ctx.JSON(http.StatusOK, gin.H{

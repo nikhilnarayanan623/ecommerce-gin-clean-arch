@@ -8,11 +8,16 @@ import (
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/auth"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/domain"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/helper"
+	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/usecase/interfaces"
 	service "github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/usecase/interfaces"
 )
 
 type AdminHandler struct {
 	adminUseCase service.AdminUseCase
+}
+
+func NewAdminHandler(adminUsecase interfaces.AdminUseCase) *AdminHandler {
+	return &AdminHandler{adminUseCase: adminUsecase}
 }
 
 func (a *AdminHandler) SignUPGet(ctx *gin.Context) {

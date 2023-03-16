@@ -81,15 +81,25 @@ func (c *productDatabase) GetProductItems(ctx context.Context, product domain.Pr
 }
 
 func (c *productDatabase) AddProductItem(ctx context.Context, reqProductItem helper.ReqProductItem) (domain.ProductItem, error) {
+
+	// first check the given product id is valid or not
+	var product domain.Product
+	if c.DB.Raw("SELECT * FROM products WHERE id=?", reqProductItem.ProductID).Scan(&product).Error != nil {
+		return domain.ProductItem{}, errors.New("faild to get the product")
+	} else if product.ProductName == "" {
+		return domain.ProductItem{}, errors.New("invalid product id there is no product with this id")
+	}
 	var productItem domain.ProductItem
 	// first check the product item already exist
 
-	querry := `SELECT * FROM product_items p JOIN product_configurations pc ON p.id=pc.product_item_id AND pc.variation_option_id=?`
+	querry := `SELECT * FROM product_items p JOIN product_configurations pc ON p.id=pc.product_item_id AND pc.variation_option_id=? AND p.product_id=?`
 	if c.DB.Raw(querry, reqProductItem.VariationOptionID).Scan(&productItem).Error != nil {
-		return productItem, errors.New("faild to check product item")
+		return productItem, errors.New("faild to get product item")
 	}
 
-	if productItem.ID != 0 {
+	// if product item already exist with this productId
+	fmt.Println(productItem.ID != 0, productItem.ProductID == reqProductItem.ProductID)
+	if productItem.ID != 0 && productItem.ProductID == reqProductItem.ProductID {
 		return productItem, errors.New("this product configuration already exist")
 	}
 
