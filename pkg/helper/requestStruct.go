@@ -58,3 +58,18 @@ type ReqCartCount struct {
 	ProductItemID uint  `json:"product_item_id" binding:"required"`
 	Increment     *bool `json:"increment" binding:"required"`
 }
+
+// for address
+type ReqAddress struct {
+	ID          uint   `json:"id"`
+	Name        string `json:"name" binding:"required,min=2,max=50"`
+	PhoneNumber string `json:"phone_number" binding:"required,min=10,max=10"`
+	House       string `json:"house" binding:"required"`
+	Area        string `json:"area"`
+	LandMark    string `json:"land_mark" binding:"required"`
+	City        string `json:"city"`
+	Pincode     uint   `json:"pincode" binding:"required"`
+	CountryID   uint   `json:"country_id" binding:"required"`
+
+	IsDefault *bool `json:"is_default"`
+}

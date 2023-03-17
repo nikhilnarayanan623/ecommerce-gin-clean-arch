@@ -30,3 +30,19 @@ type ResponseCart struct {
 	CartItems  []ResponseCartItem
 	TotalPrice uint `json:"total_price"`
 }
+
+// address
+type ResAddress struct {
+	ID          uint   `json:"id"`
+	Name        string `json:"name"`
+	PhoneNumber string `json:"phone_number"`
+	House       string `json:"house"`
+	Area        string `json:"area"`
+	LandMark    string `json:"land_mark"`
+	City        string `json:"city"`
+	Pincode     uint   `json:"pincode"`
+	CountryID   uint   `json:"country_id"`
+	CountryName string `json:"country_name"`
+
+	IsDefault *bool `json:"is_default"`
+}

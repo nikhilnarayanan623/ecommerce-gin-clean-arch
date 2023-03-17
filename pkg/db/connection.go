@@ -30,7 +30,7 @@ func ConnectDatbase(cfg config.Config) (*gorm.DB, error) {
 		domain.User{},
 		domain.Country{},
 		domain.Address{},
-		domain.UserAdress{},
+		domain.UserAddress{},
 
 		//admin
 		domain.Admin{},

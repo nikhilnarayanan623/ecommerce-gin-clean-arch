@@ -472,12 +472,77 @@ func (u *UserHandler) UserCart(ctx *gin.Context) {
 
 // ***** for user profiler ***** //
 
+// AddAddress godoc
+// @summary api for adding a new address for user
+// @description get a new address from user to store the the database
+// @security ApiKeyAuth
+// @id AddAddress
+// @tags address
+// @produce json
+// @Param inputs body helper.ReqAddress{} true "Input Field"
+// @Router /profile/address [post]
+// @Success 200 "Successfully address added"
+// @Failure 400 "can't add the user addres"
 func (u *UserHandler) AddAddress(ctx *gin.Context) {
+	var body helper.ReqAddress
+	if err := ctx.ShouldBindJSON(&body); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"StatusCode": 400,
+			"msg":        "can't bind the json",
+			"error":      err.Error(),
+		})
+		return
+	}
+	userID := helper.GetUserIdFromContext(ctx)
 
+	var address domain.Address
+
+	copier.Copy(&address, &body)
+
+	address, err := u.userUseCase.SaveAddress(ctx, address, userID, *body.IsDefault)
+
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"StatusCode": 400,
+			"msg":        "can't add the user address",
+			"error":      err.Error(),
+		})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{
+		"StatusCode": 200,
+		"msg":        "Successfully addressed added",
+	})
 }
 
 func (u *UserHandler) GetAddresses(ctx *gin.Context) {
 
+	userID := helper.GetUserIdFromContext(ctx)
+
+	address, err := u.userUseCase.GetAddresses(ctx, userID)
+
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{
+			"StatusCode": 500,
+			"msg":        "can't show addresses of user",
+			"error":      err.Error(),
+		})
+		return
+	}
+
+	if address == nil {
+		ctx.JSON(http.StatusOK, gin.H{
+			"StatusCode": 200,
+			"msg":        "There is no address available to show",
+		})
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{
+		"StatusCode": 200,
+		"msg":        "Successfully addresses got",
+		"addresses":  address,
+	})
 }
 
 func (u *UserHandler) EditAddress(ctx *gin.Context) {

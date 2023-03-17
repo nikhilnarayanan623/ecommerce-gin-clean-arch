@@ -3,6 +3,7 @@ package usecase
 import (
 	"context"
 	"errors"
+	"fmt"
 
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/domain"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/helper"
@@ -211,6 +212,48 @@ func (c *userUserCase) GetCartItems(ctx context.Context, userId uint) (helper.Re
 }
 
 // adddress
-func (c *userUserCase) SaveAddress(ctx context.Context, address domain.Address) (domain.Address, error) {
+func (c *userUserCase) SaveAddress(ctx context.Context, address domain.Address, userID uint, isDefault bool) (domain.Address, error) {
+	//check the address is already exist for the user
+	fmt.Println("frst")
+	address, err := c.userRepo.FindAddressByUserID(ctx, address, userID)
+	if err != nil {
+		return address, err
+	} else if address.ID != 0 { // user have already this address exist
+		return address, errors.New("user have already this address exist with same details")
+	}
+
+	//this address not exist then create it
+	fmt.Println("second")
+	country, err := c.userRepo.FindCountryByID(ctx, address.CountryID)
+	if err != nil {
+		return address, err
+	} else if country.ID == 0 {
+		return address, errors.New("invalid country id")
+	}
+
+	// save the address on database
+	fmt.Println("third")
+	address, err = c.userRepo.SaveAddress(ctx, address)
+	if err != nil {
+		return address, err
+	}
+
+	//creating a user address with this given value
+	var userAdress = domain.UserAddress{
+		UserID:    userID,
+		AddressID: address.ID,
+		IsDefault: isDefault,
+	}
+	fmt.Println("fourth")
+	// then update the address with user
+	c.userRepo.SaveUserAddress(ctx, userAdress)
+
+	fmt.Println(address, "gggg", userAdress.ID, userAdress.AddressID, userAdress.IsDefault, userAdress.UserID)
 	return address, nil
+}
+
+// get all address
+func (c *userUserCase) GetAddresses(ctx context.Context, userID uint) ([]helper.ResAddress, error) {
+
+	return c.userRepo.FindAllAddressByUserID(ctx, userID)
 }
