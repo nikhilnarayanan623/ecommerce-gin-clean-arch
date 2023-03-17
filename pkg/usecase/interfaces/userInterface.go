@@ -14,6 +14,9 @@ type UserUseCase interface {
 
 	Home(ctx context.Context, userId uint) (domain.User, error)
 
-	AddToCart(ctx context.Context, body helper.ReqCart) (domain.Cart, error)
-	GetCartItems(ctx context.Context, userId uint) (helper.ResponseCart, any)
+	SaveToCart(ctx context.Context, body helper.ReqCart) (domain.CartItem, error)
+	RemoveCartItem(ctx context.Context, body helper.ReqCart) (domain.Cart, error)
+	UpdateCartItem(ctx context.Context, body helper.ReqCartCount) (domain.CartItem, error)
+
+	GetCartItems(ctx context.Context, userId uint) (helper.ResponseCart, error)
 }

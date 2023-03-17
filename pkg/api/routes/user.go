@@ -22,9 +22,11 @@ func UserRoutes(api *gin.RouterGroup, user *handler.UserHandler, product *handle
 		api.GET("/product", product.ListProducts)         // show products
 		api.GET("/product-item", product.GetProductItems) // show product items of a product
 
-		api.POST("/cart", user.AddToCart)
-		api.DELETE("/cart", user.RemoveFromCart)
 		api.GET("/cart", user.UserCart)
+		api.POST("/cart", user.AddToCart)
+		api.PATCH("/cart", user.UpdateCart)
+		api.DELETE("/cart", user.RemoveFromCart)
+
 		api.POST("/logout", user.Logout)
 	}
 

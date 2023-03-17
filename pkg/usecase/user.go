@@ -77,12 +77,128 @@ func (c *userUserCase) Home(ctx context.Context, userId uint) (domain.User, erro
 
 }
 
-func (c *userUserCase) AddToCart(ctx context.Context, body helper.ReqCart) (domain.Cart, error) {
-	return c.userRepo.AddToCart(ctx, body)
+func (c *userUserCase) SaveToCart(ctx context.Context, body helper.ReqCart) (domain.CartItem, error) {
+
+	// get the productitem to check product is valid
+	productItem, err := c.userRepo.FindProductItem(ctx, body.ProductItemID)
+	if err != nil {
+		return domain.CartItem{}, err
+	} else if productItem.ID == 0 {
+		return domain.CartItem{}, errors.New("invalid product_item id")
+	}
+
+	// check productItem is out of stock or not
+	if productItem.QtyInStock == 0 {
+		return domain.CartItem{}, errors.New("product is now out of stock")
+	}
+
+	// then Find the cart of user
+	cart, err := c.userRepo.FindCart(ctx, body.UserID)
+	if err != nil {
+		return domain.CartItem{}, err
+	}
+
+	// add productItem to cartItem
+	cartItem, err := c.userRepo.SaveCartItem(ctx, cart.ID, productItem.ID)
+	if err != nil {
+		return domain.CartItem{}, err
+	}
+
+	//update the cartTotal price
+	cart, err = c.userRepo.UpdateCartPrice(ctx, cart)
+
+	if err != nil {
+		return cartItem, err
+	}
+
+	return cartItem, nil
+
 }
 
-func (c *userUserCase) RemoveProductFromCart(ctx context.Context, body helper.ReqCart) (domain.Cart, error) {
-	return c.userRepo.RemoveProductFromCart(ctx, body)
+func (c *userUserCase) RemoveCartItem(ctx context.Context, body helper.ReqCart) (domain.Cart, error) {
+
+	// validate the product
+	productItem, err := c.userRepo.FindProductItem(ctx, body.ProductItemID)
+
+	if err != nil {
+		return domain.Cart{}, err
+	} else if productItem.ID == 0 {
+		return domain.Cart{}, errors.New("invalid product_id")
+	}
+
+	// Find cart of user
+	cart, err := c.userRepo.FindCart(ctx, body.UserID)
+	if err != nil {
+		return domain.Cart{}, err
+	} else if cart.TotalPrice == 0 {
+		return domain.Cart{}, errors.New("nothing to remove form cart")
+	}
+
+	// find the cartItem of user
+	cartItem, err := c.userRepo.FindCartItem(ctx, cart.ID, productItem.ID)
+	if err != nil {
+		return cart, err
+	} else if cartItem.ID == 0 {
+		return cart, errors.New("this product is not in the cart")
+	}
+
+	// delete the cart Item
+	cartItem, err = c.userRepo.RemoveCartItem(ctx, cartItem)
+	if err != nil {
+		return cart, err
+	}
+
+	//update the total price of cart
+	return c.userRepo.UpdateCartPrice(ctx, cart)
+}
+
+func (c *userUserCase) UpdateCartItem(ctx context.Context, body helper.ReqCartCount) (domain.CartItem, error) {
+
+	//validate the product
+	productItem, err := c.userRepo.FindProductItem(ctx, body.ProductItemID)
+	if err != nil {
+		return domain.CartItem{}, err
+	} else if productItem.ID == 0 {
+		return domain.CartItem{}, errors.New("invalid product_item_id")
+	}
+
+	// then get the cart of user
+	cart, err := c.userRepo.FindCart(ctx, body.UserID)
+	if err != nil {
+		return domain.CartItem{}, err
+	} else if cart.ID == 0 {
+		return domain.CartItem{}, errors.New("there is no cart for the user")
+	}
+
+	// get the cartitem of user
+	cartItem, err := c.userRepo.FindCartItem(ctx, cart.ID, productItem.ID)
+	if err != nil {
+		return domain.CartItem{}, err
+	} else if cartItem.ID == 0 {
+		return domain.CartItem{}, errors.New("this productItem not exist in the cart")
+	}
+
+	// update the cartItem quantity
+	//check the product count need to increment or not
+	if *body.Increment { // to increment
+		cartItem.Qty += 1
+	} else if cartItem.Qty == 1 { // decremtnet last product quantity
+		return cartItem, errors.New("can't decrement last count of productItem")
+	} else { // decrement quantity
+		cartItem.Qty -= 1
+	}
+
+	cartItem, err = c.userRepo.UpdateCartItem(ctx, cartItem)
+	if err != nil {
+		return cartItem, err
+	}
+
+	// update the total price of cart
+	if _, err := c.userRepo.UpdateCartPrice(ctx, cart); err != nil {
+		return cartItem, err
+	}
+
+	return cartItem, nil
 }
 
 func (c *userUserCase) GetCartItems(ctx context.Context, userId uint) (helper.ResponseCart, error) {

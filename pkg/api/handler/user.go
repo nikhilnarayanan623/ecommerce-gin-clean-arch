@@ -327,7 +327,7 @@ func (u *UserHandler) AddToCart(ctx *gin.Context) {
 	// get userId and add to body
 	body.UserID = helper.GetUserIdFromContext(ctx)
 
-	cart, err := u.userUseCase.AddToCart(ctx, body)
+	_, err := u.userUseCase.SaveToCart(ctx, body)
 
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
@@ -341,7 +341,7 @@ func (u *UserHandler) AddToCart(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, gin.H{
 		"StatusCode": 200,
 		"msg":        "Successfully productItem added to cart",
-		"cart":       cart,
+		"product_id": body.ProductItemID,
 	})
 }
 
@@ -360,7 +360,7 @@ func (u UserHandler) RemoveFromCart(ctx *gin.Context) {
 
 	body.UserID = helper.GetUserIdFromContext(ctx)
 
-	cart, err := u.userUseCase.RemoveProductFromCart(ctx, body)
+	_, err := u.userUseCase.RemoveCartItem(ctx, body)
 
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
@@ -374,9 +374,42 @@ func (u UserHandler) RemoveFromCart(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, gin.H{
 		"StatusCode": 200,
 		"msg":        "Successfully productItem removed from cart",
-		"cart":       cart,
+		"product_id": body.ProductItemID,
 	})
 
+}
+
+func (u *UserHandler) UpdateCart(ctx *gin.Context) {
+
+	var body helper.ReqCartCount
+
+	if err := ctx.ShouldBindJSON(&body); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"StatusCode": 400,
+			"msg":        "can't bind the json",
+			"error":      err.Error(),
+		})
+		return
+	}
+
+	body.UserID = helper.GetUserIdFromContext(ctx)
+
+	cartItem, err := u.userUseCase.UpdateCartItem(ctx, body)
+
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"StatusCode": 400,
+			"msg":        "cant update the count of productItem in cart",
+			"error":      err.Error(),
+		})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{
+		"StatusCode": 200,
+		"msg":        "Successfully ProductItem count changed in cart",
+		"product_id": cartItem.ProductItemID,
+	})
 }
 
 func (u *UserHandler) UserCart(ctx *gin.Context) {
