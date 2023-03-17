@@ -21,6 +21,90 @@ func NewUserHandler(userUsecase interfaces.UserUseCase) *UserHandler {
 	return &UserHandler{userUseCase: userUsecase}
 }
 
+// SignUpGet godoc
+// @summary api for user to signup page
+// @description user can see what are the fields to enter to create a new account
+// @security ApiKeyAuth
+// @id SignUpGet
+// @tags signup
+// @produce json
+// @Router /signup [get]
+// @Success 200 {object} domain.User{} "OK"
+func (u *UserHandler) SignUpGet(ctx *gin.Context) {
+
+	ctx.JSON(http.StatusOK, gin.H{
+		"StatusCode": 200,
+		"msg":        "enter detail for signup",
+		"user":       domain.User{},
+	})
+}
+
+// SignUpPost godoc
+// @summary api for user to post the user details
+// @description user can send user details and validate and create new account
+// @security ApiKeyAuth
+// @id SignUpPost
+// @tags signup
+// @produce json
+// @Router /signup [post]
+// @Success 200 "Successfully account created"
+// @Failure 400 "Faild to create account"
+func (u *UserHandler) SignUpPost(ctx *gin.Context) {
+	var user domain.User
+	if err := ctx.ShouldBindJSON(&user); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"StatusCode": 400,
+			"msg":        "Cant't Bind The Values",
+			"error":      err.Error(),
+		})
+
+		return
+	}
+
+	user, err := u.userUseCase.Signup(ctx, user)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"StatusCode": 400,
+			"msg":        "can't signup",
+			"error":      err.Error(),
+		})
+		return
+	}
+
+	var response helper.UserRespStrcut
+
+	copier.Copy(&response, &user)
+
+	ctx.JSON(200, gin.H{
+		"StatusCode": 200,
+		"msg":        "Successfully Account Created",
+		"user":       response,
+	})
+}
+
+func (u *UserHandler) Home(ctx *gin.Context) {
+
+	userId := helper.GetUserIdFromContext(ctx)
+
+	user, err := u.userUseCase.Home(ctx, userId)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{
+			"StatusCode": 500,
+			"error":      err.Error(),
+		})
+		return
+	}
+
+	var response helper.UserRespStrcut
+	copier.Copy(&response, &user)
+
+	ctx.JSON(http.StatusOK, gin.H{
+		"StatusCode": 200,
+		"msg":        "Welcome Home",
+		"user":       response,
+	})
+}
+
 // LoginGet godoc
 // @summary to get the json format for login
 // @description Enter this fields on login page post
@@ -110,7 +194,7 @@ func (u *UserHandler) LoginPost(ctx *gin.Context) {
 // @description user can enter email/user_name/phone will send an otp to user phone
 // @security ApiKeyAuth
 // @id LoginOtpSend
-// @tags login-otp-send
+// @tags login-otp
 // @produce json
 // @Param inputs body helper.OTPLoginStruct true "Input Field"
 // @Router /login-otp-send [post]
@@ -176,7 +260,7 @@ func (u *UserHandler) LoginOtpSend(ctx *gin.Context) {
 // @description enter your otp that send to your registered number
 // @security ApiKeyAuth
 // @id LoginOtpVerify
-// @tags login-otp-verify
+// @tags login-otp
 // @produce json
 // @param inputs body helper.OTPVerifyStruct true "Input Field"
 // @Router /login-otp-verify [post]
@@ -239,76 +323,20 @@ func (u *UserHandler) LoginOtpVerify(ctx *gin.Context) {
 	})
 }
 
-// SignUpGet godoc
-// @summary api for user to signup page
-// @description user can see what are the fields to enter to create a new account
+// Logout godoc
+// @summary api for user to lgout
+// @description user can logout
 // @security ApiKeyAuth
-// @id SignUpGet
-// @tags signup
+// @id Logout
+// @tags logout
 // @produce json
-// @Router /signup [get]
-// @Success 200 {object} domain.User{} "OK"
-func (u *UserHandler) SignUpGet(ctx *gin.Context) {
-
+// @Router /logout [post]
+// @Success 200 "Successfully logout"
+func (u *UserHandler) Logout(ctx *gin.Context) {
+	ctx.SetCookie("user-auth", "", -1, "", "", false, true)
 	ctx.JSON(http.StatusOK, gin.H{
 		"StatusCode": 200,
-		"msg":        "enter detail for signup",
-		"user":       domain.User{},
-	})
-}
-func (u *UserHandler) SignUpPost(ctx *gin.Context) {
-	var user domain.User
-	if err := ctx.ShouldBindJSON(&user); err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{
-			"StatusCode": 400,
-			"msg":        "Cant't Bind The Values",
-			"error":      err.Error(),
-		})
-
-		return
-	}
-
-	user, err := u.userUseCase.Signup(ctx, user)
-	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{
-			"StatusCode": 400,
-			"msg":        "can't signup",
-			"error":      err.Error(),
-		})
-		return
-	}
-
-	var response helper.UserRespStrcut
-
-	copier.Copy(&response, &user)
-
-	ctx.JSON(200, gin.H{
-		"StatusCode": 200,
-		"msg":        "Successfully Account Created",
-		"user":       response,
-	})
-}
-
-func (u *UserHandler) Home(ctx *gin.Context) {
-
-	userId := helper.GetUserIdFromContext(ctx)
-
-	user, err := u.userUseCase.Home(ctx, userId)
-	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{
-			"StatusCode": 500,
-			"error":      err.Error(),
-		})
-		return
-	}
-
-	var response helper.UserRespStrcut
-	copier.Copy(&response, &user)
-
-	ctx.JSON(http.StatusOK, gin.H{
-		"StatusCode": 200,
-		"msg":        "Welcome Home",
-		"user":       response,
+		"Status":     "Successfully Loged Out",
 	})
 }
 
@@ -412,6 +440,7 @@ func (u *UserHandler) UpdateCart(ctx *gin.Context) {
 	})
 }
 
+// to show cart
 func (u *UserHandler) UserCart(ctx *gin.Context) {
 
 	userId := helper.GetUserIdFromContext(ctx)
@@ -441,10 +470,20 @@ func (u *UserHandler) UserCart(ctx *gin.Context) {
 	})
 }
 
-func (u *UserHandler) Logout(ctx *gin.Context) {
-	ctx.SetCookie("user-auth", "", -1, "", "", false, true)
-	ctx.JSON(http.StatusOK, gin.H{
-		"StatusCode": 200,
-		"Status":     "Successfully Loged Out",
-	})
+// ***** for user profiler ***** //
+
+func (u *UserHandler) AddAddress(ctx *gin.Context) {
+
+}
+
+func (u *UserHandler) GetAddresses(ctx *gin.Context) {
+
+}
+
+func (u *UserHandler) EditAddress(ctx *gin.Context) {
+
+}
+
+func (u *UserHandler) DeleteAddress(ctx *gin.Context) {
+
 }

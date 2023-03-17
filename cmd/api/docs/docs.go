@@ -91,7 +91,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "login-otp-send"
+                    "login-otp"
                 ],
                 "summary": "api for user login with otp",
                 "operationId": "LoginOtpSend",
@@ -131,7 +131,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "login-otp-verify"
+                    "login-otp"
                 ],
                 "summary": "varify user login otp",
                 "operationId": "LoginOtpVerify",
@@ -159,6 +159,29 @@ const docTemplate = `{
                 }
             }
         },
+        "/logout": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "user can logout",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "logout"
+                ],
+                "summary": "api for user to lgout",
+                "operationId": "Logout",
+                "responses": {
+                    "200": {
+                        "description": "Successfully logout"
+                    }
+                }
+            }
+        },
         "/signup": {
             "get": {
                 "security": [
@@ -179,15 +202,39 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/domain.Users"
+                            "$ref": "#/definitions/domain.User"
                         }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "user can send user details and validate and create new account",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "signup"
+                ],
+                "summary": "api for user to post the user details",
+                "operationId": "SignUpPost",
+                "responses": {
+                    "200": {
+                        "description": "Successfully account created"
+                    },
+                    "400": {
+                        "description": "Faild to create account"
                     }
                 }
             }
         }
     },
     "definitions": {
-        "domain.Users": {
+        "domain.User": {
             "type": "object",
             "required": [
                 "age",

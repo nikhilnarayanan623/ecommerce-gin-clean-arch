@@ -14,9 +14,14 @@ type UserUseCase interface {
 
 	Home(ctx context.Context, userId uint) (domain.User, error)
 
-	SaveToCart(ctx context.Context, body helper.ReqCart) (domain.CartItem, error)
-	RemoveCartItem(ctx context.Context, body helper.ReqCart) (domain.Cart, error)
-	UpdateCartItem(ctx context.Context, body helper.ReqCartCount) (domain.CartItem, error)
+	//cart side
+	SaveToCart(ctx context.Context, body helper.ReqCart) (domain.CartItem, error)          // save product_item to cart
+	RemoveCartItem(ctx context.Context, body helper.ReqCart) (domain.Cart, error)          // remove product_item from cart
+	UpdateCartItem(ctx context.Context, body helper.ReqCartCount) (domain.CartItem, error) // edit cartItems( quantity change )
+	GetCartItems(ctx context.Context, userId uint) (helper.ResponseCart, error)            // show all cart_items
 
-	GetCartItems(ctx context.Context, userId uint) (helper.ResponseCart, error)
+	// profile side
+
+	//address side
+	SaveAddress(ctx context.Context, address domain.Address) (domain.Address, error) // save address
 }

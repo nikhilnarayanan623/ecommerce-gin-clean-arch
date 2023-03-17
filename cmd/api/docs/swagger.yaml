@@ -1,5 +1,5 @@
 definitions:
-  domain.Users:
+  domain.User:
     properties:
       age:
         type: integer
@@ -147,7 +147,7 @@ paths:
       - ApiKeyAuth: []
       summary: api for user login with otp
       tags:
-      - login-otp-send
+      - login-otp
   /login-otp-verify:
     post:
       description: enter your otp that send to your registered number
@@ -172,7 +172,21 @@ paths:
       - ApiKeyAuth: []
       summary: varify user login otp
       tags:
-      - login-otp-verify
+      - login-otp
+  /logout:
+    post:
+      description: user can logout
+      operationId: Logout
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully logout
+      security:
+      - ApiKeyAuth: []
+      summary: api for user to lgout
+      tags:
+      - logout
   /signup:
     get:
       description: user can see what are the fields to enter to create a new account
@@ -183,10 +197,25 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/domain.Users'
+            $ref: '#/definitions/domain.User'
       security:
       - ApiKeyAuth: []
       summary: api for user to signup page
+      tags:
+      - signup
+    post:
+      description: user can send user details and validate and create new account
+      operationId: SignUpPost
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully account created
+        "400":
+          description: Faild to create account
+      security:
+      - ApiKeyAuth: []
+      summary: api for user to post the user details
       tags:
       - signup
 swagger: "2.0"

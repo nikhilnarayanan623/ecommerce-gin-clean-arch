@@ -24,8 +24,14 @@ func UserRoutes(api *gin.RouterGroup, user *handler.UserHandler, product *handle
 
 		api.GET("/cart", user.UserCart)
 		api.POST("/cart", user.AddToCart)
-		api.PATCH("/cart", user.UpdateCart)
+		api.PUT("/cart", user.UpdateCart)
 		api.DELETE("/cart", user.RemoveFromCart)
+
+		//for show profile
+		api.GET("/profile/address", user.GetAddresses) // to show all address and // show countries
+		api.POST("/profile/address", user.AddAddress)  // to add a new address
+		api.PUT("/profile/address", user.EditAddress)  // to edit address
+		api.DELETE("profile/address", user.DeleteAddress)
 
 		api.POST("/logout", user.Logout)
 	}

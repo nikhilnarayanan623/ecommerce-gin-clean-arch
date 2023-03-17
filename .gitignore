@@ -4,3 +4,8 @@
 # Dependency directories (remove the comment below to include it)
 vendor/
 build/
+
+# remove build file and air auto reloading
+./cmd/api/tmp
+.air.toml
+./tmp

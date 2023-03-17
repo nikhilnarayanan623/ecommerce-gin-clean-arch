@@ -173,3 +173,9 @@ func (c *userDatabse) GetCartItems(ctx context.Context, userId uint) (helper.Res
 
 	return response, nil
 }
+
+// address
+func (c *userDatabse) FindAddress(ctx context.Context, address domain.Address) (domain.Address, error) {
+
+	return address, nil
+}

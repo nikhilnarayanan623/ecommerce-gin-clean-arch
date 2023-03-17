@@ -209,3 +209,8 @@ func (c *userUserCase) GetCartItems(ctx context.Context, userId uint) (helper.Re
 
 	return c.userRepo.GetCartItems(ctx, userId)
 }
+
+// adddress
+func (c *userUserCase) SaveAddress(ctx context.Context, address domain.Address) (domain.Address, error) {
+	return address, nil
+}

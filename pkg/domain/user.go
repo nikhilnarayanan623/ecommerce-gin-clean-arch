@@ -28,8 +28,8 @@ type Address struct {
 	Area        string `json:"area" gorm:"not null"`
 	LandMark    string `json:"land_mark" gorm:"not null" binding:"required"`
 	City        string `json:"city" gorm:"not null"`
-	Pincode     uint   `json:"pincode" gorm:"not null" binding:"required,numeric"`
-	CountryID   uint   `jsong:"country_id" gorm:"not null"`
+	Pincode     uint   `json:"pincode" gorm:"not null" binding:"required,numeric,min=6,max=6"`
+	CountryID   uint   `jsong:"country_id" gorm:"not null" binding:"required"`
 	Country     Country
 }
 
