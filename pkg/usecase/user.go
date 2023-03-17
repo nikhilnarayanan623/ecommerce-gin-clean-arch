@@ -81,7 +81,11 @@ func (c *userUserCase) AddToCart(ctx context.Context, body helper.ReqCart) (doma
 	return c.userRepo.AddToCart(ctx, body)
 }
 
-func (c *userUserCase) GetCartItems(ctx context.Context, userId uint) (helper.ResponseCart, any) {
+func (c *userUserCase) RemoveProductFromCart(ctx context.Context, body helper.ReqCart) (domain.Cart, error) {
+	return c.userRepo.RemoveProductFromCart(ctx, body)
+}
+
+func (c *userUserCase) GetCartItems(ctx context.Context, userId uint) (helper.ResponseCart, error) {
 
 	return c.userRepo.GetCartItems(ctx, userId)
 }

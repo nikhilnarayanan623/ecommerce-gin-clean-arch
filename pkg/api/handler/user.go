@@ -332,7 +332,7 @@ func (u *UserHandler) AddToCart(ctx *gin.Context) {
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"StatusCode": 400,
-			"msg":        "can't add the product into cart",
+			"msg":        "can't add the product item into cart",
 			"error":      err.Error(),
 		})
 		return
@@ -345,6 +345,40 @@ func (u *UserHandler) AddToCart(ctx *gin.Context) {
 	})
 }
 
+// to remove a productItem fom car
+func (u UserHandler) RemoveFromCart(ctx *gin.Context) {
+
+	var body helper.ReqCart
+	if err := ctx.ShouldBindJSON(&body); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"StatusCode": 400,
+			"msg":        "can't add the product into cart",
+			"error":      err.Error(),
+		})
+		return
+	}
+
+	body.UserID = helper.GetUserIdFromContext(ctx)
+
+	cart, err := u.userUseCase.RemoveProductFromCart(ctx, body)
+
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"StatusCode": 400,
+			"msg":        "can't remove product item into cart",
+			"error":      err.Error(),
+		})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{
+		"StatusCode": 200,
+		"msg":        "Successfully productItem removed from cart",
+		"cart":       cart,
+	})
+
+}
+
 func (u *UserHandler) UserCart(ctx *gin.Context) {
 
 	userId := helper.GetUserIdFromContext(ctx)
@@ -354,7 +388,15 @@ func (u *UserHandler) UserCart(ctx *gin.Context) {
 		ctx.JSON(http.StatusInternalServerError, gin.H{
 			"StatusCode": 500,
 			"msg":        "Faild to get user cart",
-			"error":      err,
+			"error":      err.Error(),
+		})
+		return
+	}
+
+	if resCart.CartItems == nil {
+		ctx.JSON(http.StatusOK, gin.H{
+			"StatusCode": 200,
+			"msg":        "there is no productItems in the cart",
 		})
 		return
 	}

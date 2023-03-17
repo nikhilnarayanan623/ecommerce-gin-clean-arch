@@ -23,6 +23,7 @@ func UserRoutes(api *gin.RouterGroup, user *handler.UserHandler, product *handle
 		api.GET("/product-item", product.GetProductItems) // show product items of a product
 
 		api.POST("/cart", user.AddToCart)
+		api.DELETE("/cart", user.RemoveFromCart)
 		api.GET("/cart", user.UserCart)
 		api.POST("/logout", user.Logout)
 	}
