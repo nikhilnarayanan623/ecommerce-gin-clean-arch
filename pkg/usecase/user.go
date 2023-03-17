@@ -26,6 +26,8 @@ func (c *userUserCase) Login(ctx context.Context, user domain.User) (domain.User
 	// check user found or not
 	if dberr != nil {
 		return user, dberr
+	} else if dbUser.ID == 0 {
+		return user, errors.New("user not exist with this details")
 	}
 
 	// check user block_status user is blocked or not
@@ -47,6 +49,8 @@ func (c *userUserCase) LoginOtp(ctx context.Context, user domain.User) (domain.U
 
 	if err != nil {
 		return user, errors.New("can't find the user")
+	} else if user.ID == 0 {
+		return user, errors.New("user not exist with this details")
 	}
 
 	// check user block_status user is blocked or not
