@@ -21,13 +21,16 @@ func UserRoutes(api *gin.RouterGroup, user *handler.UserHandler, product *handle
 		api.GET("/", user.Home)
 		api.GET("/product", product.ListProducts)         // show products
 		api.GET("/product-item", product.GetProductItems) // show product items of a product
-
+		// cart
 		api.GET("/cart", user.UserCart)
 		api.POST("/cart", user.AddToCart)
 		api.PUT("/cart", user.UpdateCart)
 		api.DELETE("/cart", user.RemoveFromCart)
 
-		//for show profile
+		//wishlist
+		api.GET("/wishlist")
+
+		//profile address
 		api.GET("/profile/address", user.GetAddresses) // to show all address and // show countries
 		api.POST("/profile/address", user.AddAddress)  // to add a new address
 		api.PUT("/profile/address", user.EditAddress)  // to edit address

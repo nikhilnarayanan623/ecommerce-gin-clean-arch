@@ -114,9 +114,173 @@ definitions:
     - phone_number
     - pincode
     type: object
+  helper.ReqCart:
+    properties:
+      product_item_id:
+        type: integer
+      user_id:
+        type: integer
+    required:
+    - product_item_id
+    type: object
+  helper.ReqCartCount:
+    properties:
+      increment:
+        type: boolean
+      product_item_id:
+        type: integer
+      user_id:
+        type: integer
+    required:
+    - increment
+    - product_item_id
+    type: object
+  helper.ReqEditAddress:
+    properties:
+      area:
+        type: string
+      city:
+        type: string
+      country_id:
+        type: integer
+      house:
+        type: string
+      id:
+        type: integer
+      is_default:
+        type: boolean
+      land_mark:
+        type: string
+      name:
+        maxLength: 50
+        minLength: 2
+        type: string
+      phone_number:
+        maxLength: 10
+        minLength: 10
+        type: string
+      pincode:
+        type: integer
+    required:
+    - country_id
+    - house
+    - id
+    - land_mark
+    - name
+    - phone_number
+    - pincode
+    type: object
+  helper.ResponseCart:
+    properties:
+      cartItems:
+        items:
+          $ref: '#/definitions/helper.ResponseCartItem'
+        type: array
+      total_price:
+        type: integer
+    type: object
+  helper.ResponseCartItem:
+    properties:
+      out_of_stock:
+        type: boolean
+      price:
+        type: integer
+      product_item_id:
+        type: integer
+      product_name:
+        type: string
+      qty:
+        type: integer
+      sub_total:
+        type: integer
+    type: object
 info:
   contact: {}
 paths:
+  /cart:
+    delete:
+      description: user can remove a signle productItem full quantity from cart
+      operationId: RemoveFromCart
+      parameters:
+      - description: Input Field
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/helper.ReqCart'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully productItem removed from cart
+        "400":
+          description: can't remove product item into cart
+      security:
+      - ApiKeyAuth: []
+      summary: api for remove a product from cart
+      tags:
+      - cart
+    get:
+      description: user can see all productItem that stored in cart
+      operationId: UserCart
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: there is no productItems in the cart
+          schema:
+            $ref: '#/definitions/helper.ResponseCart'
+        "500":
+          description: Faild to get user cart
+      security:
+      - ApiKeyAuth: []
+      summary: api for get all cart item of user
+      tags:
+      - cart
+    post:
+      description: user can add a stock in product to user cart
+      operationId: AddToCart
+      parameters:
+      - description: Input Field
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/helper.ReqCart'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully productItem added to cart
+        "400":
+          description: can't add the product item into cart
+      security:
+      - ApiKeyAuth: []
+      summary: api for add productItem to user cart
+      tags:
+      - cart
+    put:
+      description: user can inrement or drement count of a productItem in cart (min=1)
+      operationId: UpdateCart
+      parameters:
+      - description: Input Field
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/helper.ReqCartCount'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully productItem count change on cart
+        "400":
+          description: can't change count of product item on cart
+      security:
+      - ApiKeyAuth: []
+      summary: api for updte productItem count
+      tags:
+      - cart
   /login:
     get:
       description: Enter this fields on login page post
@@ -181,7 +345,7 @@ paths:
       - ApiKeyAuth: []
       summary: api for user login with otp
       tags:
-      - login-otp
+      - login
   /login-otp-verify:
     post:
       description: enter your otp that send to your registered number
@@ -206,7 +370,7 @@ paths:
       - ApiKeyAuth: []
       summary: varify user login otp
       tags:
-      - login-otp
+      - login
   /logout:
     post:
       description: user can logout
@@ -222,6 +386,21 @@ paths:
       tags:
       - logout
   /profile/address:
+    get:
+      description: user can show all adderss
+      operationId: GetAddresses
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully address got
+        "500":
+          description: Faild to get address of user
+      security:
+      - ApiKeyAuth: []
+      summary: api for get all address of user
+      tags:
+      - address
     post:
       description: get a new address from user to store the the database
       operationId: AddAddress
@@ -242,6 +421,28 @@ paths:
       security:
       - ApiKeyAuth: []
       summary: api for adding a new address for user
+      tags:
+      - address
+    put:
+      description: user can change existing address
+      operationId: EditAddress
+      parameters:
+      - description: Input Field
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/helper.ReqEditAddress'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully addresses updated
+        "400":
+          description: can't update the address
+      security:
+      - ApiKeyAuth: []
+      summary: api for edit user address
       tags:
       - address
   /signup:

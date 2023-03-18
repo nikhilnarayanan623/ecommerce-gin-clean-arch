@@ -8,6 +8,8 @@ import (
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/auth"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/domain"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/helper"
+	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/helper/request"
+	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/helper/response"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/usecase/interfaces"
 	service "github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/usecase/interfaces"
 )
@@ -56,7 +58,7 @@ func (a *AdminHandler) SignUpPost(ctx *gin.Context) {
 		return
 	}
 
-	var response helper.ResAdminLogin
+	var response response.ResAdminLogin
 
 	copier.Copy(&response, &admin)
 
@@ -119,7 +121,7 @@ func (a *AdminHandler) LoginPost(ctx *gin.Context) {
 	}
 
 	// if no error then copy the admin details to response
-	var response helper.ResAdminLogin
+	var response response.ResAdminLogin
 	copier.Copy(&response, &admin)
 
 	ctx.SetCookie("admin-auth", tokenString["accessToken"], 20*60, "", "", false, true)
@@ -166,7 +168,7 @@ func (a *AdminHandler) Allusers(ctx *gin.Context) {
 }
 func (a *AdminHandler) BlockUser(ctx *gin.Context) {
 
-	var body helper.BlockStruct
+	var body request.BlockStruct
 	if err := ctx.ShouldBindJSON(&body); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"StatusCode": 400,

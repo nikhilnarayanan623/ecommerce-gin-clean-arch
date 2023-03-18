@@ -15,6 +15,140 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/cart": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "user can see all productItem that stored in cart",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "cart"
+                ],
+                "summary": "api for get all cart item of user",
+                "operationId": "UserCart",
+                "responses": {
+                    "200": {
+                        "description": "there is no productItems in the cart",
+                        "schema": {
+                            "$ref": "#/definitions/helper.ResponseCart"
+                        }
+                    },
+                    "500": {
+                        "description": "Faild to get user cart"
+                    }
+                }
+            },
+            "put": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "user can inrement or drement count of a productItem in cart (min=1)",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "cart"
+                ],
+                "summary": "api for updte productItem count",
+                "operationId": "UpdateCart",
+                "parameters": [
+                    {
+                        "description": "Input Field",
+                        "name": "input",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/helper.ReqCartCount"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successfully productItem count change on cart"
+                    },
+                    "400": {
+                        "description": "can't change count of product item on cart"
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "user can add a stock in product to user cart",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "cart"
+                ],
+                "summary": "api for add productItem to user cart",
+                "operationId": "AddToCart",
+                "parameters": [
+                    {
+                        "description": "Input Field",
+                        "name": "input",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/helper.ReqCart"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successfully productItem added to cart"
+                    },
+                    "400": {
+                        "description": "can't add the product item into cart"
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "user can remove a signle productItem full quantity from cart",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "cart"
+                ],
+                "summary": "api for remove a product from cart",
+                "operationId": "RemoveFromCart",
+                "parameters": [
+                    {
+                        "description": "Input Field",
+                        "name": "input",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/helper.ReqCart"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successfully productItem removed from cart"
+                    },
+                    "400": {
+                        "description": "can't remove product item into cart"
+                    }
+                }
+            }
+        },
         "/login": {
             "get": {
                 "security": [
@@ -91,7 +225,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "login-otp"
+                    "login"
                 ],
                 "summary": "api for user login with otp",
                 "operationId": "LoginOtpSend",
@@ -131,7 +265,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "login-otp"
+                    "login"
                 ],
                 "summary": "varify user login otp",
                 "operationId": "LoginOtpVerify",
@@ -183,6 +317,65 @@ const docTemplate = `{
             }
         },
         "/profile/address": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "user can show all adderss",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "address"
+                ],
+                "summary": "api for get all address of user",
+                "operationId": "GetAddresses",
+                "responses": {
+                    "200": {
+                        "description": "Successfully address got"
+                    },
+                    "500": {
+                        "description": "Faild to get address of user"
+                    }
+                }
+            },
+            "put": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "user can change existing address",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "address"
+                ],
+                "summary": "api for edit user address",
+                "operationId": "EditAddress",
+                "parameters": [
+                    {
+                        "description": "Input Field",
+                        "name": "input",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/helper.ReqEditAddress"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successfully addresses updated"
+                    },
+                    "400": {
+                        "description": "can't update the address"
+                    }
+                }
+            },
             "post": {
                 "security": [
                     {
@@ -424,6 +617,123 @@ const docTemplate = `{
                     "minLength": 10
                 },
                 "pincode": {
+                    "type": "integer"
+                }
+            }
+        },
+        "helper.ReqCart": {
+            "type": "object",
+            "required": [
+                "product_item_id"
+            ],
+            "properties": {
+                "product_item_id": {
+                    "type": "integer"
+                },
+                "user_id": {
+                    "type": "integer"
+                }
+            }
+        },
+        "helper.ReqCartCount": {
+            "type": "object",
+            "required": [
+                "increment",
+                "product_item_id"
+            ],
+            "properties": {
+                "increment": {
+                    "type": "boolean"
+                },
+                "product_item_id": {
+                    "type": "integer"
+                },
+                "user_id": {
+                    "type": "integer"
+                }
+            }
+        },
+        "helper.ReqEditAddress": {
+            "type": "object",
+            "required": [
+                "country_id",
+                "house",
+                "id",
+                "land_mark",
+                "name",
+                "phone_number",
+                "pincode"
+            ],
+            "properties": {
+                "area": {
+                    "type": "string"
+                },
+                "city": {
+                    "type": "string"
+                },
+                "country_id": {
+                    "type": "integer"
+                },
+                "house": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "is_default": {
+                    "type": "boolean"
+                },
+                "land_mark": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string",
+                    "maxLength": 50,
+                    "minLength": 2
+                },
+                "phone_number": {
+                    "type": "string",
+                    "maxLength": 10,
+                    "minLength": 10
+                },
+                "pincode": {
+                    "type": "integer"
+                }
+            }
+        },
+        "helper.ResponseCart": {
+            "type": "object",
+            "properties": {
+                "cartItems": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/helper.ResponseCartItem"
+                    }
+                },
+                "total_price": {
+                    "type": "integer"
+                }
+            }
+        },
+        "helper.ResponseCartItem": {
+            "type": "object",
+            "properties": {
+                "out_of_stock": {
+                    "type": "boolean"
+                },
+                "price": {
+                    "type": "integer"
+                },
+                "product_item_id": {
+                    "type": "integer"
+                },
+                "product_name": {
+                    "type": "string"
+                },
+                "qty": {
+                    "type": "integer"
+                },
+                "sub_total": {
                     "type": "integer"
                 }
             }

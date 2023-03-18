@@ -194,7 +194,7 @@ func (u *UserHandler) LoginPost(ctx *gin.Context) {
 // @description user can enter email/user_name/phone will send an otp to user phone
 // @security ApiKeyAuth
 // @id LoginOtpSend
-// @tags login-otp
+// @tags login
 // @produce json
 // @Param inputs body helper.OTPLoginStruct true "Input Field"
 // @Router /login-otp-send [post]
@@ -260,7 +260,7 @@ func (u *UserHandler) LoginOtpSend(ctx *gin.Context) {
 // @description enter your otp that send to your registered number
 // @security ApiKeyAuth
 // @id LoginOtpVerify
-// @tags login-otp
+// @tags login
 // @produce json
 // @param inputs body helper.OTPVerifyStruct true "Input Field"
 // @Router /login-otp-verify [post]
@@ -340,6 +340,17 @@ func (u *UserHandler) Logout(ctx *gin.Context) {
 	})
 }
 
+// AddToCart godoc
+// @summary api for add productItem to user cart
+// @description user can add a stock in product to user cart
+// @security ApiKeyAuth
+// @id AddToCart
+// @tags cart
+// @produce json
+// @Param input body helper.ReqCart true "Input Field"
+// @Router /cart [post]
+// @Success 200 "Successfully productItem added to cart"
+// @Failure 400 "can't add the product item into cart"
 func (u *UserHandler) AddToCart(ctx *gin.Context) {
 
 	var body helper.ReqCart
@@ -373,7 +384,17 @@ func (u *UserHandler) AddToCart(ctx *gin.Context) {
 	})
 }
 
-// to remove a productItem fom car
+// RemoveFromCart godoc
+// @summary api for remove a product from cart
+// @description user can remove a signle productItem full quantity from cart
+// @security ApiKeyAuth
+// @id RemoveFromCart
+// @tags cart
+// @produce json
+// @Param input body helper.ReqCart true "Input Field"
+// @Router /cart [delete]
+// @Success 200 "Successfully productItem removed from cart"
+// @Failure 400  "can't remove product item into cart"
 func (u UserHandler) RemoveFromCart(ctx *gin.Context) {
 
 	var body helper.ReqCart
@@ -407,6 +428,17 @@ func (u UserHandler) RemoveFromCart(ctx *gin.Context) {
 
 }
 
+// UpdateCart godoc
+// @summary api for updte productItem count
+// @description user can inrement or drement count of a productItem in cart (min=1)
+// @security ApiKeyAuth
+// @id UpdateCart
+// @tags cart
+// @produce json
+// @Param input body helper.ReqCartCount true "Input Field"
+// @Router /cart [put]
+// @Success 200 "Successfully productItem count change on cart"
+// @Failure 400  "can't change count of product item on cart"
 func (u *UserHandler) UpdateCart(ctx *gin.Context) {
 
 	var body helper.ReqCartCount
@@ -440,7 +472,17 @@ func (u *UserHandler) UpdateCart(ctx *gin.Context) {
 	})
 }
 
-// to show cart
+// UserCart godoc
+// @summary api for get all cart item of user
+// @description user can see all productItem that stored in cart
+// @security ApiKeyAuth
+// @id UserCart
+// @tags cart
+// @produce json
+// @Router /cart [get]
+// @Success 200 "there is no productItems in the cart"
+// @Success 200 {object} helper.ResponseCart{} "there is no productItems in the cart"
+// @Failure 500 "Faild to get user cart"
 func (u *UserHandler) UserCart(ctx *gin.Context) {
 
 	userId := helper.GetUserIdFromContext(ctx)
@@ -516,6 +558,16 @@ func (u *UserHandler) AddAddress(ctx *gin.Context) {
 	})
 }
 
+// GetAddreses godoc
+// @summary api for get all address of user
+// @description user can show all adderss
+// @security ApiKeyAuth
+// @id GetAddresses
+// @tags address
+// @produce json
+// @Router /profile/address [get]
+// @Success 200 "Successfully address got"
+// @Failure 500 "Faild to get address of user"
 func (u *UserHandler) GetAddresses(ctx *gin.Context) {
 
 	userID := helper.GetUserIdFromContext(ctx)
@@ -546,6 +598,17 @@ func (u *UserHandler) GetAddresses(ctx *gin.Context) {
 	})
 }
 
+// EditAddress godoc
+// @summary api for edit user address
+// @description user can change existing address
+// @security ApiKeyAuth
+// @id EditAddress
+// @tags address
+// @produce json
+// @Param input body helper.ReqEditAddress true "Input Field"
+// @Router /profile/address [put]
+// @Success 200 "Successfully addresses updated"
+// @Failure 400 "can't update the address"
 func (u *UserHandler) EditAddress(ctx *gin.Context) {
 
 	var body helper.ReqEditAddress
@@ -578,4 +641,15 @@ func (u *UserHandler) EditAddress(ctx *gin.Context) {
 
 func (u *UserHandler) DeleteAddress(ctx *gin.Context) {
 
+}
+
+
+// ** wishList **
+
+func (u *UserHandler)AddToWishList(ctx *gin.Context){
+
+}
+
+func (u *UserHandler)RemoveFromWishList(ctx *gin.Context){
+	
 }
