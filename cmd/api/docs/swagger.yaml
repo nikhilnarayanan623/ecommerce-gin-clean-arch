@@ -80,6 +80,40 @@ definitions:
     - id
     - otp
     type: object
+  helper.ReqAddress:
+    properties:
+      area:
+        type: string
+      city:
+        type: string
+      country_id:
+        type: integer
+      house:
+        type: string
+      id:
+        type: integer
+      is_default:
+        type: boolean
+      land_mark:
+        type: string
+      name:
+        maxLength: 50
+        minLength: 2
+        type: string
+      phone_number:
+        maxLength: 10
+        minLength: 10
+        type: string
+      pincode:
+        type: integer
+    required:
+    - country_id
+    - house
+    - land_mark
+    - name
+    - phone_number
+    - pincode
+    type: object
 info:
   contact: {}
 paths:
@@ -187,6 +221,29 @@ paths:
       summary: api for user to lgout
       tags:
       - logout
+  /profile/address:
+    post:
+      description: get a new address from user to store the the database
+      operationId: AddAddress
+      parameters:
+      - description: Input Field
+        in: body
+        name: inputs
+        required: true
+        schema:
+          $ref: '#/definitions/helper.ReqAddress'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully address added
+        "400":
+          description: can't add the user addres
+      security:
+      - ApiKeyAuth: []
+      summary: api for adding a new address for user
+      tags:
+      - address
   /signup:
     get:
       description: user can see what are the fields to enter to create a new account

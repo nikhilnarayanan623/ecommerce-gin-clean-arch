@@ -13,11 +13,13 @@ type User struct {
 }
 
 // many to many join
-type UserAdress struct {
+type UserAddress struct {
+	ID        uint `json:"id" gorm:"primaryKey;unique"`
 	UserID    uint `json:"user_id" gorm:"not null"`
 	User      User
 	AddressID uint `json:"address_id" gorm:"not null"`
 	Address   Address
+	IsDefault bool `json:"is_default"`
 }
 
 type Address struct {

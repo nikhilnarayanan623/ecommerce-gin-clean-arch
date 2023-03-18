@@ -6,34 +6,6 @@ import (
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/api/middleware"
 )
 
-// func AdminRoutes(router *gin.Engine, admin *handler.AdminHandler) {
-
-// 	router.GET("/admin/login", admin.LoginGet)
-// 	router.POST("admin/login", admin.LoginPost)
-
-// 	router.GET("admin/signup", admin.SignUPGet)
-// 	router.POST("admin/signup", admin.SignUpPost)
-
-// 	router := router.Group("/admin", middleware.AuthenticateAdmin)
-
-// 	router.GET("/alluser", admin.Allusers)
-// 	router.POST("/block-user", admin.BlockUser)
-
-// 	router.GET("/category", admin.CategoryGet)
-// 	router.POST("/category", admin.CategoryPost)
-
-// 	// get all variations and add new variations
-// 	router.GET("/variation")
-// 	router.POST("/variation", admin.VariationPost)
-
-// 	// get all variation values and add new variation value
-// 	router.GET("/variation-option")
-// 	router.POST("/variation-option", admin.VariationOptionPost)
-
-// 	router.POST("/product", admin.AddProducts)
-
-// }
-
 func AdminRoutes(api *gin.RouterGroup, admin *handler.AdminHandler, product *handler.ProductHandler) {
 
 	api.GET("/login", admin.LoginGet)

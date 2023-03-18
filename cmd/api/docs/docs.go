@@ -182,6 +182,43 @@ const docTemplate = `{
                 }
             }
         },
+        "/profile/address": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "get a new address from user to store the the database",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "address"
+                ],
+                "summary": "api for adding a new address for user",
+                "operationId": "AddAddress",
+                "parameters": [
+                    {
+                        "description": "Input Field",
+                        "name": "inputs",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/helper.ReqAddress"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successfully address added"
+                    },
+                    "400": {
+                        "description": "can't add the user addres"
+                    }
+                }
+            }
+        },
         "/signup": {
             "get": {
                 "security": [
@@ -341,6 +378,53 @@ const docTemplate = `{
                     "type": "string",
                     "maxLength": 8,
                     "minLength": 4
+                }
+            }
+        },
+        "helper.ReqAddress": {
+            "type": "object",
+            "required": [
+                "country_id",
+                "house",
+                "land_mark",
+                "name",
+                "phone_number",
+                "pincode"
+            ],
+            "properties": {
+                "area": {
+                    "type": "string"
+                },
+                "city": {
+                    "type": "string"
+                },
+                "country_id": {
+                    "type": "integer"
+                },
+                "house": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "is_default": {
+                    "type": "boolean"
+                },
+                "land_mark": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string",
+                    "maxLength": 50,
+                    "minLength": 2
+                },
+                "phone_number": {
+                    "type": "string",
+                    "maxLength": 10,
+                    "minLength": 10
+                },
+                "pincode": {
+                    "type": "integer"
                 }
             }
         }
