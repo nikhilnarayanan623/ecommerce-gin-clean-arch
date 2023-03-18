@@ -59,9 +59,24 @@ type ReqCartCount struct {
 	Increment     *bool `json:"increment" binding:"required"`
 }
 
-// for address
+// for address add address
 type ReqAddress struct {
 	ID          uint   `json:"id"`
+	Name        string `json:"name" binding:"required,min=2,max=50"`
+	PhoneNumber string `json:"phone_number" binding:"required,min=10,max=10"`
+	House       string `json:"house" binding:"required"`
+	Area        string `json:"area"`
+	LandMark    string `json:"land_mark" binding:"required"`
+	City        string `json:"city"`
+	Pincode     uint   `json:"pincode" binding:"required"`
+	CountryID   uint   `json:"country_id" binding:"required"`
+
+	IsDefault *bool `json:"is_default"`
+}
+
+// for address
+type ReqEditAddress struct {
+	ID          uint   `json:"id" binding:"required"`
 	Name        string `json:"name" binding:"required,min=2,max=50"`
 	PhoneNumber string `json:"phone_number" binding:"required,min=10,max=10"`
 	House       string `json:"house" binding:"required"`

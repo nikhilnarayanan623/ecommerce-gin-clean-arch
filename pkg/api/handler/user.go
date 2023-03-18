@@ -536,6 +536,7 @@ func (u *UserHandler) GetAddresses(ctx *gin.Context) {
 			"StatusCode": 200,
 			"msg":        "There is no address available to show",
 		})
+		return
 	}
 
 	ctx.JSON(http.StatusOK, gin.H{
@@ -546,6 +547,32 @@ func (u *UserHandler) GetAddresses(ctx *gin.Context) {
 }
 
 func (u *UserHandler) EditAddress(ctx *gin.Context) {
+
+	var body helper.ReqEditAddress
+
+	if err := ctx.ShouldBindJSON(&body); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"StatusCode": 400,
+			"msg":        "can't bind the json",
+			"error":      err.Error(),
+		})
+		return
+	}
+	userID := helper.GetUserIdFromContext(ctx)
+
+	if err := u.userUseCase.EditAddress(ctx, body, userID); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"StatusCode": 400,
+			"msg":        "can't update the address",
+			"error":      err.Error(),
+		})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{
+		"StatusCode": 200,
+		"msg":        "Successfully addresses updated",
+	})
 
 }
 

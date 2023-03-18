@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 
+	"github.com/jinzhu/copier"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/domain"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/helper"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/repository/interfaces"
@@ -214,7 +215,6 @@ func (c *userUserCase) GetCartItems(ctx context.Context, userId uint) (helper.Re
 // adddress
 func (c *userUserCase) SaveAddress(ctx context.Context, address domain.Address, userID uint, isDefault bool) (domain.Address, error) {
 	//check the address is already exist for the user
-	fmt.Println("frst")
 	address, err := c.userRepo.FindAddressByUserID(ctx, address, userID)
 	if err != nil {
 		return address, err
@@ -223,7 +223,6 @@ func (c *userUserCase) SaveAddress(ctx context.Context, address domain.Address, 
 	}
 
 	//this address not exist then create it
-	fmt.Println("second")
 	country, err := c.userRepo.FindCountryByID(ctx, address.CountryID)
 	if err != nil {
 		return address, err
@@ -232,7 +231,6 @@ func (c *userUserCase) SaveAddress(ctx context.Context, address domain.Address, 
 	}
 
 	// save the address on database
-	fmt.Println("third")
 	address, err = c.userRepo.SaveAddress(ctx, address)
 	if err != nil {
 		return address, err
@@ -244,12 +242,52 @@ func (c *userUserCase) SaveAddress(ctx context.Context, address domain.Address, 
 		AddressID: address.ID,
 		IsDefault: isDefault,
 	}
-	fmt.Println("fourth")
+
 	// then update the address with user
 	c.userRepo.SaveUserAddress(ctx, userAdress)
 
-	fmt.Println(address, "gggg", userAdress.ID, userAdress.AddressID, userAdress.IsDefault, userAdress.UserID)
 	return address, nil
+}
+
+func (c *userUserCase) EditAddress(ctx context.Context, addressBody helper.ReqEditAddress, userID uint) error {
+
+	// first validate the addessId is valid or not
+	address, err := c.userRepo.FindAddressByID(ctx, addressBody.ID)
+	if err != nil {
+		return err
+	} else if address.ID == 0 {
+		return errors.New("invalid address id")
+	}
+
+	// validate the country id
+	country, err := c.userRepo.FindCountryByID(ctx, addressBody.CountryID)
+	if err != nil {
+		return err
+	} else if country.ID == 0 {
+		return errors.New("invalid country id")
+	}
+
+	copier.Copy(&address, &addressBody)
+
+	fmt.Println("before ", address)
+	// update the address
+	fmt.Println("after ", address)
+
+	if c.userRepo.UpdateAddress(ctx, address) != nil {
+		return err
+	}
+
+	//update the addres with user default or not with user
+	if *addressBody.IsDefault {
+		userAddress := domain.UserAddress{
+			UserID:    userID,
+			AddressID: address.ID,
+			IsDefault: *addressBody.IsDefault,
+		}
+		return c.userRepo.UpdateUserAddress(ctx, userAddress)
+	}
+
+	return nil
 }
 
 // get all address

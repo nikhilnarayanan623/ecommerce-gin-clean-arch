@@ -24,5 +24,6 @@ type UserUseCase interface {
 
 	//address side
 	SaveAddress(ctx context.Context, address domain.Address, userID uint, isDefault bool) (domain.Address, error) // save address
-	GetAddresses(ctx context.Context, userID uint) ([]helper.ResAddress, error)                                   // to get all address of a user
+	EditAddress(ctx context.Context, addressBody helper.ReqEditAddress, userID uint) error
+	GetAddresses(ctx context.Context, userID uint) ([]helper.ResAddress, error) // to get all address of a user
 }

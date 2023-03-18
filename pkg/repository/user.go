@@ -174,7 +174,18 @@ func (c *userDatabse) GetCartItems(ctx context.Context, userId uint) (helper.Res
 	return response, nil
 }
 
-// address and country
+func (c *userDatabse) FindAddressByID(ctx context.Context, addressID uint) (domain.Address, error) {
+
+	var address domain.Address
+	query := `SELECT * FROM addresses WHERE id=?`
+	if c.DB.Raw(query, addressID).Scan(&address).Error != nil {
+		return address, errors.New("faild to find address")
+	}
+
+	return address, nil
+}
+
+// find address with userId and addressess
 func (c *userDatabse) FindAddressByUserID(ctx context.Context, address domain.Address, userID uint) (domain.Address, error) {
 
 	// find the address with house,land_mark,pincode,coutry_id
@@ -185,6 +196,26 @@ func (c *userDatabse) FindAddressByUserID(ctx context.Context, address domain.Ad
 		return address, errors.New("faild to find the address")
 	}
 	return address, nil
+}
+
+func (c *userDatabse) FindAllAddressByUserID(ctx context.Context, userID uint) ([]helper.ResAddress, error) {
+
+	var addresses []helper.ResAddress
+	// query := `SELECT usr_adrs.address_id AS id,adrs.name,adrs.phone_number,adrs.house,adrs.area,
+	// adrs.land_mark,adrs.city,adrs.pincode,cntry.id,cntry.country_name,usr_adrs.is_default
+	// FROM addresses adrs INNER JOIN user_addresses usr_adrs ON
+	// adrs.id=usr_adrs.address_id AND usr_adrs.user_id=? JOIN countries cntry ON adrs.country_id=cntry.id`
+
+	query := `SELECT a.id,a.house,a.name,a.phone_number,a.area,a.land_mark,a.city,a.pincode,a.country_id,c.country_name,ua.is_default
+	 FROM user_addresses ua JOIN addresses a ON ua.address_id=a.id 
+	 LEFT JOIN countries c ON a.country_id=c.id AND ua.user_id=?`
+	if c.DB.Raw(query, userID).Scan(&addresses).Error != nil {
+		return addresses, errors.New("faild to get address of user")
+	}
+
+	fmt.Println("address ", addresses)
+
+	return addresses, nil
 }
 
 func (c *userDatabse) FindCountryByID(ctx context.Context, countryID uint) (domain.Country, error) {
@@ -201,7 +232,8 @@ func (c *userDatabse) FindCountryByID(ctx context.Context, countryID uint) (doma
 // save address
 func (c *userDatabse) SaveAddress(ctx context.Context, address domain.Address) (domain.Address, error) {
 
-	query := `INSERT INTO addresses (name,phone_number,house,area,land_mark,city,pincode,country_id) VALUES ($1,$2,$3,$4,$5,$6,$7,$8) RETURNING id`
+	query := `INSERT INTO addresses (name,phone_number,house,area,land_mark,city,pincode,country_id) 
+	VALUES ($1,$2,$3,$4,$5,$6,$7,$8) RETURNING id`
 	if c.DB.Raw(query, address.Name, address.PhoneNumber,
 		address.House, address.Area, address.LandMark, address.City,
 		address.Pincode, address.CountryID,
@@ -211,34 +243,52 @@ func (c *userDatabse) SaveAddress(ctx context.Context, address domain.Address) (
 	return address, nil
 }
 
-func (c *userDatabse) SaveUserAddress(ctx context.Context, userAdress domain.UserAddress) (domain.UserAddress, error) {
+// update address
+func (c *userDatabse) UpdateAddress(ctx context.Context, address domain.Address) error {
+
+	query := `UPDATE addresses SET name=$1, phone_number=$2, house=$3, area=$4, land_mark=$5, city=$6, pincode=$7,country_id=$8 WHERE id=$9`
+	if c.DB.Raw(query, address.Name, address.PhoneNumber, address.House,
+		address.Area, address.LandMark, address.City, address.Pincode,
+		address.CountryID, address.ID).Scan(&address).Error != nil {
+		return errors.New("faild to update the address for edit address")
+	}
+	return nil
+}
+
+func (c *userDatabse) SaveUserAddress(ctx context.Context, userAddress domain.UserAddress) (domain.UserAddress, error) {
 
 	// if not exist then save it
 	//if this address is user need to default then change old default addres to normal
-	if userAdress.IsDefault {
+	if userAddress.IsDefault {
 
 		query := `UPDATE user_addresses SET is_default = 'f' WHERE user_id = ?`
-		if c.DB.Raw(query, userAdress.UserID).Scan(&userAdress).Error != nil {
-			return userAdress, errors.New("faild to remove default status of address")
+		if c.DB.Raw(query, userAddress.UserID).Scan(&userAddress).Error != nil {
+			return userAddress, errors.New("faild to remove default status of address")
 		}
 	}
 
 	query := `INSERT INTO user_addresses (user_id,address_id,is_default) VALUES ($1,$2,$3) RETURNING user_id,address_id,is_default`
-	if c.DB.Raw(query, userAdress.UserID, userAdress.AddressID, userAdress.IsDefault).Scan(&userAdress).Error != nil {
-		return userAdress, errors.New("faild to inser userAddress on database")
+	if c.DB.Raw(query, userAddress.UserID, userAddress.AddressID, userAddress.IsDefault).Scan(&userAddress).Error != nil {
+		return userAddress, errors.New("faild to inser userAddress on database")
 	}
-	return userAdress, nil
+	return userAddress, nil
 }
 
-func (c *userDatabse) FindAllAddressByUserID(ctx context.Context, userID uint) ([]helper.ResAddress, error) {
+func (c *userDatabse) UpdateUserAddress(ctx context.Context, userAddress domain.UserAddress) error {
 
-	var addresses []helper.ResAddress
-	query := `SELECT * FROM addresses adrs INNER JOIN user_addresses usr_adrs
-	ON adrs.id=usr_adrs.address_id AND usr_adrs.user_id=? JOIN countries cntry ON adrs.country_id=cntry.id`
+	// if it need to set default the change the old default
+	if userAddress.IsDefault {
 
-	if c.DB.Raw(query, userID).Scan(&addresses).Error != nil {
-		return addresses, errors.New("faild to get address of user")
+		query := `UPDATE user_addresses SET is_default = 'f' WHERE user_id = ?`
+		if c.DB.Raw(query, userAddress.UserID).Scan(&userAddress).Error != nil {
+			return errors.New("faild to remove default status of address")
+		}
 	}
 
-	return addresses, nil
+	// update the user address
+	query := `UPDATE user_addresses SET is_default = ? WHERE address_id=? AND user_id=?`
+	if c.DB.Raw(query, userAddress.IsDefault, userAddress.AddressID, userAddress.UserID).Scan(&userAddress).Error != nil {
+		return errors.New("faild to update user address")
+	}
+	return nil
 }
