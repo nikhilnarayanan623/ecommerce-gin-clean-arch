@@ -7,7 +7,8 @@ import (
 
 	"github.com/jinzhu/copier"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/domain"
-	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/helper"
+	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/helper/req"
+	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/helper/res"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/repository/interfaces"
 	service "github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/usecase/interfaces"
 	"golang.org/x/crypto/bcrypt"
@@ -83,7 +84,7 @@ func (c *userUserCase) Home(ctx context.Context, userId uint) (domain.User, erro
 
 }
 
-func (c *userUserCase) SaveToCart(ctx context.Context, body helper.ReqCart) (domain.CartItem, error) {
+func (c *userUserCase) SaveToCart(ctx context.Context, body req.ReqCart) (domain.CartItem, error) {
 
 	// get the productitem to check product is valid
 	productItem, err := c.userRepo.FindProductItem(ctx, body.ProductItemID)
@@ -121,7 +122,7 @@ func (c *userUserCase) SaveToCart(ctx context.Context, body helper.ReqCart) (dom
 
 }
 
-func (c *userUserCase) RemoveCartItem(ctx context.Context, body helper.ReqCart) (domain.Cart, error) {
+func (c *userUserCase) RemoveCartItem(ctx context.Context, body req.ReqCart) (domain.Cart, error) {
 
 	// validate the product
 	productItem, err := c.userRepo.FindProductItem(ctx, body.ProductItemID)
@@ -158,7 +159,7 @@ func (c *userUserCase) RemoveCartItem(ctx context.Context, body helper.ReqCart) 
 	return c.userRepo.UpdateCartPrice(ctx, cart)
 }
 
-func (c *userUserCase) UpdateCartItem(ctx context.Context, body helper.ReqCartCount) (domain.CartItem, error) {
+func (c *userUserCase) UpdateCartItem(ctx context.Context, body req.ReqCartCount) (domain.CartItem, error) {
 
 	//validate the product
 	productItem, err := c.userRepo.FindProductItem(ctx, body.ProductItemID)
@@ -207,7 +208,7 @@ func (c *userUserCase) UpdateCartItem(ctx context.Context, body helper.ReqCartCo
 	return cartItem, nil
 }
 
-func (c *userUserCase) GetCartItems(ctx context.Context, userId uint) (helper.ResponseCart, error) {
+func (c *userUserCase) GetCartItems(ctx context.Context, userId uint) (res.ResponseCart, error) {
 
 	return c.userRepo.GetCartItems(ctx, userId)
 }
@@ -249,7 +250,7 @@ func (c *userUserCase) SaveAddress(ctx context.Context, address domain.Address, 
 	return address, nil
 }
 
-func (c *userUserCase) EditAddress(ctx context.Context, addressBody helper.ReqEditAddress, userID uint) error {
+func (c *userUserCase) EditAddress(ctx context.Context, addressBody req.ReqEditAddress, userID uint) error {
 
 	// first validate the addessId is valid or not
 	address, err := c.userRepo.FindAddressByID(ctx, addressBody.ID)
@@ -291,7 +292,57 @@ func (c *userUserCase) EditAddress(ctx context.Context, addressBody helper.ReqEd
 }
 
 // get all address
-func (c *userUserCase) GetAddresses(ctx context.Context, userID uint) ([]helper.ResAddress, error) {
+func (c *userUserCase) GetAddresses(ctx context.Context, userID uint) ([]res.ResAddress, error) {
 
 	return c.userRepo.FindAllAddressByUserID(ctx, userID)
+}
+
+// to add new productItem to wishlist
+func (c *userUserCase) AddToWishList(ctx context.Context, wishList domain.WishList) error {
+
+	// first check the producItemID is valid or not
+	productItem, err := c.userRepo.FindProductItem(ctx, wishList.ProductItemID)
+	if err != nil {
+		return err
+	} else if productItem.ID == 0 {
+		return errors.New("invalid product_id")
+	}
+
+	// check the productItem already exist on wishlist for user
+	checkWishList, err := c.userRepo.FindWishListItem(ctx, wishList.ProductItemID, wishList.UserID)
+	if err != nil {
+		return err
+	} else if checkWishList.ID != 0 {
+		return errors.New("productItem already exist on wishlist")
+	}
+
+	// save productItem wishlist
+	return c.userRepo.SaveWishListItem(ctx, wishList)
+}
+
+// remove from wishlist
+func (c *userUserCase) RemoveFromWishList(ctx context.Context, wishList domain.WishList) error {
+
+	// first check the producItemID is valid or not
+	productItem, err := c.userRepo.FindProductItem(ctx, wishList.ProductItemID)
+	if err != nil {
+		return err
+	} else if productItem.ID == 0 {
+		return errors.New("invalid product_id")
+	}
+
+	// check the productItem already exist on wishlist for user
+	wishList, err = c.userRepo.FindWishListItem(ctx, wishList.ProductItemID, wishList.UserID)
+	if err != nil {
+		return err
+	} else if wishList.ID == 0 {
+		return errors.New("productItem not exist exist in wishlist")
+	}
+
+	// remove the productItem from user wihsList
+	return c.userRepo.RemoveWishListItem(ctx, wishList)
+}
+
+func (c *userUserCase) GetWishListItems(ctx context.Context, userID uint) ([]res.ResWishList, error) {
+	return c.userRepo.FindAllWishListItemsByUserID(ctx, userID)
 }

@@ -38,3 +38,8 @@ func GetUserIdFromContext(ctx *gin.Context) uint {
 	userIdInt, _ := strconv.Atoi(userIdStr)
 	return uint(userIdInt)
 }
+
+func StringToUint(str string) (uint, error) {
+	val, err := strconv.Atoi(str)
+	return uint(val), err
+}

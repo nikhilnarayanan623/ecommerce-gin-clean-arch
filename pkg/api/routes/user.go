@@ -28,7 +28,9 @@ func UserRoutes(api *gin.RouterGroup, user *handler.UserHandler, product *handle
 		api.DELETE("/cart", user.RemoveFromCart)
 
 		//wishlist
-		api.GET("/wishlist")
+		api.GET("/wishlist", user.GetWishListI)
+		api.POST("/wishlist/:id", user.AddToWishList)
+		api.DELETE("/wishlist/:id", user.RemoveFromWishList)
 
 		//profile address
 		api.GET("/profile/address", user.GetAddresses) // to show all address and // show countries

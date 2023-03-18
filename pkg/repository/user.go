@@ -6,7 +6,7 @@ import (
 	"fmt"
 
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/domain"
-	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/helper"
+	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/helper/res"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/repository/interfaces"
 	"gorm.io/gorm"
 )
@@ -149,10 +149,10 @@ func (c *userDatabse) UpdateCartItem(ctx context.Context, cartItem domain.CartIt
 }
 
 // get all itmes from cart
-func (c *userDatabse) GetCartItems(ctx context.Context, userId uint) (helper.ResponseCart, error) {
+func (c *userDatabse) GetCartItems(ctx context.Context, userId uint) (res.ResponseCart, error) {
 
 	var (
-		response helper.ResponseCart
+		response res.ResponseCart
 	)
 	// get the cart of user
 	cart, err := c.FindCart(ctx, userId)
@@ -198,13 +198,9 @@ func (c *userDatabse) FindAddressByUserID(ctx context.Context, address domain.Ad
 	return address, nil
 }
 
-func (c *userDatabse) FindAllAddressByUserID(ctx context.Context, userID uint) ([]helper.ResAddress, error) {
+func (c *userDatabse) FindAllAddressByUserID(ctx context.Context, userID uint) ([]res.ResAddress, error) {
 
-	var addresses []helper.ResAddress
-	// query := `SELECT usr_adrs.address_id AS id,adrs.name,adrs.phone_number,adrs.house,adrs.area,
-	// adrs.land_mark,adrs.city,adrs.pincode,cntry.id,cntry.country_name,usr_adrs.is_default
-	// FROM addresses adrs INNER JOIN user_addresses usr_adrs ON
-	// adrs.id=usr_adrs.address_id AND usr_adrs.user_id=? JOIN countries cntry ON adrs.country_id=cntry.id`
+	var addresses []res.ResAddress
 
 	query := `SELECT a.id,a.house,a.name,a.phone_number,a.area,a.land_mark,a.city,a.pincode,a.country_id,c.country_name,ua.is_default
 	 FROM user_addresses ua JOIN addresses a ON ua.address_id=a.id 
@@ -289,6 +285,48 @@ func (c *userDatabse) UpdateUserAddress(ctx context.Context, userAddress domain.
 	query := `UPDATE user_addresses SET is_default = ? WHERE address_id=? AND user_id=?`
 	if c.DB.Raw(query, userAddress.IsDefault, userAddress.AddressID, userAddress.UserID).Scan(&userAddress).Error != nil {
 		return errors.New("faild to update user address")
+	}
+	return nil
+}
+
+// wish list
+
+func (c *userDatabse) FindWishListItem(ctx context.Context, productID, userID uint) (domain.WishList, error) {
+
+	var wishList domain.WishList
+	query := `SELECT * FROM wish_lists WHERE user_id=? AND product_item_id=?`
+	if c.DB.Raw(query, userID, productID).Scan(&wishList).Error != nil {
+		return wishList, errors.New("faild to find wishlist item")
+	}
+	return wishList, nil
+}
+
+func (c *userDatabse) FindAllWishListItemsByUserID(ctx context.Context, userID uint) ([]res.ResWishList, error) {
+
+	var wishLists []res.ResWishList
+
+	query := `SELECT * FROM product_items pi JOIN products p ON pi.product_id=p.id JOIN wish_lists w ON w.product_item_id=pi.id AND w.user_id=?`
+	if c.DB.Raw(query, userID).Scan(&wishLists).Error != nil {
+		return wishLists, errors.New("faild to get wish_list items")
+	}
+	return wishLists, nil
+}
+
+func (c *userDatabse) SaveWishListItem(ctx context.Context, wishList domain.WishList) error {
+
+	query := `INSERT INTO wish_lists (user_id,product_item_id) VALUES ($1,$2) RETURNING *`
+
+	if c.DB.Raw(query, wishList.UserID, wishList.ProductItemID).Scan(&wishList).Error != nil {
+		return errors.New("faild to insert new wishlist on database")
+	}
+	return nil
+}
+
+func (c *userDatabse) RemoveWishListItem(ctx context.Context, wishList domain.WishList) error {
+
+	query := `DELETE FROM wish_lists WHERE id=?`
+	if c.DB.Raw(query, wishList.ID).Scan(&wishList).Error != nil {
+		return errors.New("faild to delete productItem from database")
 	}
 	return nil
 }

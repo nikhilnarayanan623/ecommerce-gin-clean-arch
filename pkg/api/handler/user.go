@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -8,6 +9,8 @@ import (
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/auth"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/domain"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/helper"
+	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/helper/req"
+	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/helper/res"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/usecase/interfaces"
 	service "github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/usecase/interfaces"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/varify"
@@ -71,7 +74,7 @@ func (u *UserHandler) SignUpPost(ctx *gin.Context) {
 		return
 	}
 
-	var response helper.UserRespStrcut
+	var response res.UserRespStrcut
 
 	copier.Copy(&response, &user)
 
@@ -95,7 +98,7 @@ func (u *UserHandler) Home(ctx *gin.Context) {
 		return
 	}
 
-	var response helper.UserRespStrcut
+	var response res.UserRespStrcut
 	copier.Copy(&response, &user)
 
 	ctx.JSON(http.StatusOK, gin.H{
@@ -118,7 +121,7 @@ func (u *UserHandler) LoginGet(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, gin.H{
 		"StatusCode": 200,
 		"msg":        "detail to enter",
-		"user":       helper.LoginStruct{},
+		"user":       req.LoginStruct{},
 	})
 }
 
@@ -136,7 +139,7 @@ func (u *UserHandler) LoginGet(ctx *gin.Context) {
 // @Failure 500 "faild to generat JWT"
 func (u *UserHandler) LoginPost(ctx *gin.Context) {
 
-	var body helper.LoginStruct
+	var body req.LoginStruct
 	if err := ctx.ShouldBindJSON(&body); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"StatusCode": 400,
@@ -203,7 +206,7 @@ func (u *UserHandler) LoginPost(ctx *gin.Context) {
 // @Failure 500 "Faild to send otp"
 func (u *UserHandler) LoginOtpSend(ctx *gin.Context) {
 
-	var body helper.OTPLoginStruct
+	var body req.OTPLoginStruct
 	if err := ctx.ShouldBindJSON(&body); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"StatusCode": 400,
@@ -269,7 +272,7 @@ func (u *UserHandler) LoginOtpSend(ctx *gin.Context) {
 // @Failure 500 "Faild to generate JWT"
 func (u *UserHandler) LoginOtpVerify(ctx *gin.Context) {
 
-	var body helper.OTPVerifyStruct
+	var body req.OTPVerifyStruct
 	if err := ctx.ShouldBindJSON(&body); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"StatusCode": 400,
@@ -353,7 +356,7 @@ func (u *UserHandler) Logout(ctx *gin.Context) {
 // @Failure 400 "can't add the product item into cart"
 func (u *UserHandler) AddToCart(ctx *gin.Context) {
 
-	var body helper.ReqCart
+	var body req.ReqCart
 	if err := ctx.ShouldBindJSON(&body); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"StatusCode": 400,
@@ -397,7 +400,7 @@ func (u *UserHandler) AddToCart(ctx *gin.Context) {
 // @Failure 400  "can't remove product item into cart"
 func (u UserHandler) RemoveFromCart(ctx *gin.Context) {
 
-	var body helper.ReqCart
+	var body req.ReqCart
 	if err := ctx.ShouldBindJSON(&body); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"StatusCode": 400,
@@ -441,7 +444,7 @@ func (u UserHandler) RemoveFromCart(ctx *gin.Context) {
 // @Failure 400  "can't change count of product item on cart"
 func (u *UserHandler) UpdateCart(ctx *gin.Context) {
 
-	var body helper.ReqCartCount
+	var body req.ReqCartCount
 
 	if err := ctx.ShouldBindJSON(&body); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
@@ -526,7 +529,7 @@ func (u *UserHandler) UserCart(ctx *gin.Context) {
 // @Success 200 "Successfully address added"
 // @Failure 400 "can't add the user addres"
 func (u *UserHandler) AddAddress(ctx *gin.Context) {
-	var body helper.ReqAddress
+	var body req.ReqAddress
 	if err := ctx.ShouldBindJSON(&body); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"StatusCode": 400,
@@ -611,7 +614,7 @@ func (u *UserHandler) GetAddresses(ctx *gin.Context) {
 // @Failure 400 "can't update the address"
 func (u *UserHandler) EditAddress(ctx *gin.Context) {
 
-	var body helper.ReqEditAddress
+	var body req.ReqEditAddress
 
 	if err := ctx.ShouldBindJSON(&body); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
@@ -643,13 +646,138 @@ func (u *UserHandler) DeleteAddress(ctx *gin.Context) {
 
 }
 
-
 // ** wishList **
 
-func (u *UserHandler)AddToWishList(ctx *gin.Context){
+// AddToWishList godoc
+// @summary api to add a productItem to wish list
+// @descritpion user can add productItem to wish list
+// @security ApiKeyAuth
+// @id AddToWishList
+// @tags wishlist
+// @produce json
+// @Param product_id body int true "product_id"
+// @Router /wishlist [post]
+// @Success 200 "Successfully product_item added to wishlist"
+// @Failure 400 "Faild to add product_item to wishlist"
+func (u *UserHandler) AddToWishList(ctx *gin.Context) {
+	// get productItemID using parmas
+	productItemID, err := helper.StringToUint(ctx.Param("id"))
 
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"StatusCode": 400,
+			"msg":        "invalid input",
+		})
+		return
+	}
+
+	userID := helper.GetUserIdFromContext(ctx)
+
+	var wishList = domain.WishList{
+		ProductItemID: productItemID,
+		UserID:        userID,
+	}
+	fmt.Println(wishList.UserID, wishList.ProductItemID)
+
+	// add to wishlist
+	if err := u.userUseCase.AddToWishList(ctx, wishList); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"StatusCode": 400,
+			"msg":        "can't add product_item to wishlist",
+			"error":      err.Error(),
+		})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{
+		"StatusCode": 200,
+		"msg":        "Successfully product_item added to wishlist",
+	})
 }
 
-func (u *UserHandler)RemoveFromWishList(ctx *gin.Context){
-	
+// RemoveFromWishList godoc
+// @summary api to remove a productItem from wish list
+// @descritpion user can remove a productItem from wish list
+// @security ApiKeyAuth
+// @id RemoveFromWishList
+// @tags wishlist
+// @produce json
+// @Param product_id body int true "product_id"
+// @Router /wishlist [post]
+// @Success 200 "Successfully product_item remvoed from wishlist"
+// @Failure 400 "Faild to remove product_item from wishlist"
+func (u *UserHandler) RemoveFromWishList(ctx *gin.Context) {
+
+	// get productItemID using parmas
+	productItemID, err := helper.StringToUint(ctx.Param("id"))
+	fmt.Println(productItemID)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"StatusCode": 400,
+			"msg":        "invalid input",
+		})
+		return
+	}
+
+	userID := helper.GetUserIdFromContext(ctx)
+
+	var wishList = domain.WishList{
+		ProductItemID: productItemID,
+		UserID:        userID,
+	}
+
+	// remove form wishlist
+	if err := u.userUseCase.RemoveFromWishList(ctx, wishList); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"StatusCode": 400,
+			"msg":        "can't remove product_item from wishlist",
+			"error":      err.Error(),
+		})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{
+		"StatusCode": 200,
+		"msg":        "Successfully product_item renoved from wishlist",
+	})
+}
+
+// GetWishListI godoc
+// @summary api get all wish list items of user
+// @descritpion user get all wish list items
+// @security ApiKeyAuth
+// @id GetWishListI
+// @tags wishlist
+// @produce json
+// @Router /wishlist [get]
+// @Success 200 "Successfully wish list items got"
+// @Success 200 "Wish list is empty"
+// @Failure 400  "faild to get user wish list items"
+func (u *UserHandler) GetWishListI(ctx *gin.Context) {
+
+	userID := helper.GetUserIdFromContext(ctx)
+	wishlists, err := u.userUseCase.GetWishListItems(ctx, userID)
+
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{
+			"StatusCode": 500,
+			"msg":        "faild to get user wish list items",
+			"error":      err.Error(),
+		})
+		return
+	}
+
+	if wishlists == nil {
+		ctx.JSON(http.StatusOK, gin.H{
+			"StatusCode": 200,
+			"msg":        "Wish list is empty",
+		})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{
+		"StatusCode": 200,
+		"msg":        "Successfully wish list items got",
+		"wishLists":  wishlists,
+	})
 }
