@@ -4,7 +4,8 @@ import (
 	"context"
 
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/domain"
-	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/helper"
+	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/helper/req"
+	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/helper/res"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/repository/interfaces"
 	service "github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/usecase/interfaces"
 )
@@ -19,7 +20,7 @@ func NewProductUseCase(productRepo interfaces.ProductRepository) service.Product
 }
 
 // to get all Category , all variation , all variation value
-func (c *productUseCase) GetCategory(ctx context.Context) (helper.RespFullCategory, error) {
+func (c *productUseCase) GetCategory(ctx context.Context) (res.RespFullCategory, error) {
 	return c.productRepo.GetCategory(ctx)
 }
 
@@ -41,7 +42,7 @@ func (c *productUseCase) AddVariationOption(ctx context.Context, variationOption
 }
 
 // to get all product
-func (c *productUseCase) GetProducts(ctx context.Context) ([]helper.ResponseProduct, error) {
+func (c *productUseCase) GetProducts(ctx context.Context) ([]res.ResponseProduct, error) {
 	return c.productRepo.GetProducts(ctx)
 }
 
@@ -51,11 +52,11 @@ func (c *productUseCase) AddProduct(ctx context.Context, product domain.Product)
 }
 
 // for add new productItem for a speicific product
-func (c *productUseCase) AddProductItem(ctx context.Context, productItem helper.ReqProductItem) (domain.ProductItem, error) {
+func (c *productUseCase) AddProductItem(ctx context.Context, productItem req.ReqProductItem) (domain.ProductItem, error) {
 	return c.productRepo.AddProductItem(ctx, productItem)
 }
 
 // for get all productItem for a specific product
-func (c *productUseCase) GetProductItems(ctx context.Context, product domain.Product) ([]helper.RespProductItems, error) {
+func (c *productUseCase) GetProductItems(ctx context.Context, product domain.Product) ([]res.RespProductItems, error) {
 	return c.productRepo.GetProductItems(ctx, product)
 }

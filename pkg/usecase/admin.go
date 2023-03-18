@@ -6,7 +6,7 @@ import (
 
 	"github.com/jinzhu/copier"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/domain"
-	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/helper"
+	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/helper/res"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/repository/interfaces"
 	service "github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/usecase/interfaces"
 	"golang.org/x/crypto/bcrypt"
@@ -52,7 +52,7 @@ func (c *adminUseCase) Login(ctx context.Context, admin domain.Admin) (domain.Ad
 	return dbAdmin, nil
 }
 
-func (c *adminUseCase) FindAllUser(ctx context.Context) ([]helper.UserRespStrcut, error) {
+func (c *adminUseCase) FindAllUser(ctx context.Context) ([]res.UserRespStrcut, error) {
 
 	users, err := c.adminRepo.FindAllUser(ctx)
 
@@ -61,7 +61,7 @@ func (c *adminUseCase) FindAllUser(ctx context.Context) ([]helper.UserRespStrcut
 	}
 
 	// if no error then copy users details to an array responce struct
-	var responce []helper.UserRespStrcut
+	var responce []res.UserRespStrcut
 	copier.Copy(&responce, &users)
 
 	return responce, nil

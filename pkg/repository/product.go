@@ -6,7 +6,8 @@ import (
 	"fmt"
 
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/domain"
-	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/helper"
+	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/helper/req"
+	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/helper/res"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/repository/interfaces"
 	"gorm.io/gorm"
 )
@@ -49,9 +50,9 @@ func (c *productDatabase) AddCategory(ctx context.Context, category domain.Categ
 }
 
 // to get all categories, all variations and all variation value
-func (c *productDatabase) GetCategory(ctx context.Context) (helper.RespFullCategory, error) {
+func (c *productDatabase) GetCategory(ctx context.Context) (res.RespFullCategory, error) {
 
-	var response helper.RespFullCategory
+	var response res.RespFullCategory
 
 	// first find all categories (aliase :: s:= category(means sub category); m:= category (main category) )
 	querry := `SELECT s.id,s.category_name,s.category_id,m.category_name AS main_category_name FROM categories s LEFT JOIN categories m ON s.category_id = m.id`
@@ -143,9 +144,9 @@ func (c *productDatabase) AddProduct(ctx context.Context, product domain.Product
 }
 
 // get all products from database
-func (c *productDatabase) GetProducts(ctx context.Context) ([]helper.ResponseProduct, error) {
+func (c *productDatabase) GetProducts(ctx context.Context) ([]res.ResponseProduct, error) {
 
-	var products []helper.ResponseProduct
+	var products []res.ResponseProduct
 	// aliase :: p := product; c := category
 	querry := `SELECT p.id,p.product_name,p.description,p.price,p.image,p.category_id,p.image,c.category_name FROM products p LEFT JOIN categories c ON p.category_id=c.id`
 
@@ -157,7 +158,7 @@ func (c *productDatabase) GetProducts(ctx context.Context) ([]helper.ResponsePro
 }
 
 // add a new product Items on database
-func (c *productDatabase) AddProductItem(ctx context.Context, reqProductItem helper.ReqProductItem) (domain.ProductItem, error) {
+func (c *productDatabase) AddProductItem(ctx context.Context, reqProductItem req.ReqProductItem) (domain.ProductItem, error) {
 
 	// first check the given product id is valid or not
 	var product domain.Product
@@ -209,9 +210,9 @@ func (c *productDatabase) AddProductItem(ctx context.Context, reqProductItem hel
 }
 
 // for get all products items for a product
-func (c *productDatabase) GetProductItems(ctx context.Context, product domain.Product) ([]helper.RespProductItems, error) {
+func (c *productDatabase) GetProductItems(ctx context.Context, product domain.Product) ([]res.RespProductItems, error) {
 
-	var RespProductItems []helper.RespProductItems
+	var RespProductItems []res.RespProductItems
 
 	// first check the given product id is valid or not
 	if c.DB.Raw("SELECT * FROM products WHERE id=?", product.ID).Scan(&product).Error != nil {

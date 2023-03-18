@@ -6,7 +6,8 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/copier"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/domain"
-	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/helper"
+	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/helper/req"
+	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/helper/res"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/usecase/interfaces"
 	service "github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/usecase/interfaces"
 )
@@ -74,7 +75,7 @@ func (p *ProductHandler) AddCategory(ctx *gin.Context) {
 		return
 	}
 
-	var response helper.RespCategory
+	var response res.RespCategory
 	copier.Copy(&response, &category)
 
 	ctx.JSON(http.StatusOK, gin.H{
@@ -182,7 +183,7 @@ func (p *ProductHandler) ListProducts(ctx *gin.Context) {
 // to add a new product
 func (p *ProductHandler) AddProducts(ctx *gin.Context) {
 
-	var body helper.ReqProduct
+	var body req.ReqProduct
 
 	if err := ctx.ShouldBindJSON(&body); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
@@ -217,7 +218,7 @@ func (p *ProductHandler) AddProducts(ctx *gin.Context) {
 // for add a specific product item
 func (p *ProductHandler) AddProductItem(ctx *gin.Context) {
 	// signle variation_value multiple images
-	var reqProductItem helper.ReqProductItem
+	var reqProductItem req.ReqProductItem
 
 	if err := ctx.ShouldBindJSON(&reqProductItem); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{

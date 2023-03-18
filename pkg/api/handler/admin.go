@@ -7,9 +7,8 @@ import (
 	"github.com/jinzhu/copier"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/auth"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/domain"
-	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/helper"
-	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/helper/request"
-	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/helper/response"
+	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/helper/req"
+	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/helper/res"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/usecase/interfaces"
 	service "github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/usecase/interfaces"
 )
@@ -58,7 +57,7 @@ func (a *AdminHandler) SignUpPost(ctx *gin.Context) {
 		return
 	}
 
-	var response response.ResAdminLogin
+	var response res.ResAdminLogin
 
 	copier.Copy(&response, &admin)
 
@@ -121,7 +120,7 @@ func (a *AdminHandler) LoginPost(ctx *gin.Context) {
 	}
 
 	// if no error then copy the admin details to response
-	var response response.ResAdminLogin
+	var response res.ResAdminLogin
 	copier.Copy(&response, &admin)
 
 	ctx.SetCookie("admin-auth", tokenString["accessToken"], 20*60, "", "", false, true)
@@ -168,7 +167,7 @@ func (a *AdminHandler) Allusers(ctx *gin.Context) {
 }
 func (a *AdminHandler) BlockUser(ctx *gin.Context) {
 
-	var body request.BlockStruct
+	var body req.BlockStruct
 	if err := ctx.ShouldBindJSON(&body); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"StatusCode": 400,
@@ -192,7 +191,7 @@ func (a *AdminHandler) BlockUser(ctx *gin.Context) {
 		return
 	}
 
-	var response helper.UserRespStrcut
+	var response res.UserRespStrcut
 	copier.Copy(&response, &user)
 	// if successfully blocked or unblock user then response 200
 	ctx.JSON(http.StatusOK, gin.H{
