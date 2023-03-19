@@ -24,7 +24,7 @@
                     "200": {
                         "description": "there is no productItems in the cart",
                         "schema": {
-                            "$ref": "#/definitions/helper.ResponseCart"
+                            "$ref": "#/definitions/res.ResponseCart"
                         }
                     },
                     "500": {
@@ -54,7 +54,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/helper.ReqCartCount"
+                            "$ref": "#/definitions/req.ReqCartCount"
                         }
                     }
                 ],
@@ -89,7 +89,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/helper.ReqCart"
+                            "$ref": "#/definitions/req.ReqCart"
                         }
                     }
                 ],
@@ -124,7 +124,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/helper.ReqCart"
+                            "$ref": "#/definitions/req.ReqCart"
                         }
                     }
                 ],
@@ -158,7 +158,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/helper.LoginStruct"
+                            "$ref": "#/definitions/req.LoginStruct"
                         }
                     }
                 }
@@ -185,7 +185,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/helper.LoginStruct"
+                            "$ref": "#/definitions/req.LoginStruct"
                         }
                     }
                 ],
@@ -225,7 +225,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/helper.OTPLoginStruct"
+                            "$ref": "#/definitions/req.OTPLoginStruct"
                         }
                     }
                 ],
@@ -265,7 +265,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/helper.OTPVerifyStruct"
+                            "$ref": "#/definitions/req.OTPVerifyStruct"
                         }
                     }
                 ],
@@ -352,7 +352,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/helper.ReqEditAddress"
+                            "$ref": "#/definitions/req.ReqEditAddress"
                         }
                     }
                 ],
@@ -387,7 +387,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/helper.ReqAddress"
+                            "$ref": "#/definitions/req.ReqAddress"
                         }
                     }
                 ],
@@ -450,6 +450,54 @@
                     }
                 }
             }
+        },
+        "/wishlist": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "wishlist"
+                ],
+                "summary": "api get all wish list items of user",
+                "operationId": "GetWishListI",
+                "responses": {
+                    "200": {
+                        "description": "Wish list is empty"
+                    },
+                    "400": {
+                        "description": "faild to get user wish list items"
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "wishlist"
+                ],
+                "summary": "api to remove a productItem from wish list",
+                "operationId": "RemoveFromWishList",
+                "responses": {
+                    "200": {
+                        "description": "Successfully product_item remvoed from wishlist"
+                    },
+                    "400": {
+                        "description": "Faild to remove product_item from wishlist"
+                    }
+                }
+            }
         }
     },
     "definitions": {
@@ -502,7 +550,7 @@
                 }
             }
         },
-        "helper.LoginStruct": {
+        "req.LoginStruct": {
             "type": "object",
             "required": [
                 "password"
@@ -528,7 +576,7 @@
                 }
             }
         },
-        "helper.OTPLoginStruct": {
+        "req.OTPLoginStruct": {
             "type": "object",
             "properties": {
                 "email": {
@@ -546,7 +594,7 @@
                 }
             }
         },
-        "helper.OTPVerifyStruct": {
+        "req.OTPVerifyStruct": {
             "type": "object",
             "required": [
                 "id",
@@ -563,7 +611,7 @@
                 }
             }
         },
-        "helper.ReqAddress": {
+        "req.ReqAddress": {
             "type": "object",
             "required": [
                 "country_id",
@@ -610,7 +658,7 @@
                 }
             }
         },
-        "helper.ReqCart": {
+        "req.ReqCart": {
             "type": "object",
             "required": [
                 "product_item_id"
@@ -624,7 +672,7 @@
                 }
             }
         },
-        "helper.ReqCartCount": {
+        "req.ReqCartCount": {
             "type": "object",
             "required": [
                 "increment",
@@ -642,7 +690,7 @@
                 }
             }
         },
-        "helper.ReqEditAddress": {
+        "req.ReqEditAddress": {
             "type": "object",
             "required": [
                 "country_id",
@@ -690,13 +738,13 @@
                 }
             }
         },
-        "helper.ResponseCart": {
+        "res.ResponseCart": {
             "type": "object",
             "properties": {
                 "cartItems": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/helper.ResponseCartItem"
+                        "$ref": "#/definitions/res.ResponseCartItem"
                     }
                 },
                 "total_price": {
@@ -704,7 +752,7 @@
                 }
             }
         },
-        "helper.ResponseCartItem": {
+        "res.ResponseCartItem": {
             "type": "object",
             "properties": {
                 "out_of_stock": {

@@ -36,7 +36,7 @@ definitions:
     - phone
     - user_name
     type: object
-  helper.LoginStruct:
+  req.LoginStruct:
     properties:
       email:
         type: string
@@ -55,7 +55,7 @@ definitions:
     required:
     - password
     type: object
-  helper.OTPLoginStruct:
+  req.OTPLoginStruct:
     properties:
       email:
         type: string
@@ -68,7 +68,7 @@ definitions:
         minLength: 3
         type: string
     type: object
-  helper.OTPVerifyStruct:
+  req.OTPVerifyStruct:
     properties:
       id:
         type: integer
@@ -80,7 +80,7 @@ definitions:
     - id
     - otp
     type: object
-  helper.ReqAddress:
+  req.ReqAddress:
     properties:
       area:
         type: string
@@ -114,7 +114,7 @@ definitions:
     - phone_number
     - pincode
     type: object
-  helper.ReqCart:
+  req.ReqCart:
     properties:
       product_item_id:
         type: integer
@@ -123,7 +123,7 @@ definitions:
     required:
     - product_item_id
     type: object
-  helper.ReqCartCount:
+  req.ReqCartCount:
     properties:
       increment:
         type: boolean
@@ -135,7 +135,7 @@ definitions:
     - increment
     - product_item_id
     type: object
-  helper.ReqEditAddress:
+  req.ReqEditAddress:
     properties:
       area:
         type: string
@@ -170,16 +170,16 @@ definitions:
     - phone_number
     - pincode
     type: object
-  helper.ResponseCart:
+  res.ResponseCart:
     properties:
       cartItems:
         items:
-          $ref: '#/definitions/helper.ResponseCartItem'
+          $ref: '#/definitions/res.ResponseCartItem'
         type: array
       total_price:
         type: integer
     type: object
-  helper.ResponseCartItem:
+  res.ResponseCartItem:
     properties:
       out_of_stock:
         type: boolean
@@ -207,7 +207,7 @@ paths:
         name: input
         required: true
         schema:
-          $ref: '#/definitions/helper.ReqCart'
+          $ref: '#/definitions/req.ReqCart'
       produces:
       - application/json
       responses:
@@ -229,7 +229,7 @@ paths:
         "200":
           description: there is no productItems in the cart
           schema:
-            $ref: '#/definitions/helper.ResponseCart'
+            $ref: '#/definitions/res.ResponseCart'
         "500":
           description: Faild to get user cart
       security:
@@ -246,7 +246,7 @@ paths:
         name: input
         required: true
         schema:
-          $ref: '#/definitions/helper.ReqCart'
+          $ref: '#/definitions/req.ReqCart'
       produces:
       - application/json
       responses:
@@ -268,7 +268,7 @@ paths:
         name: input
         required: true
         schema:
-          $ref: '#/definitions/helper.ReqCartCount'
+          $ref: '#/definitions/req.ReqCartCount'
       produces:
       - application/json
       responses:
@@ -291,7 +291,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/helper.LoginStruct'
+            $ref: '#/definitions/req.LoginStruct'
       security:
       - ApiKeyAuth: []
       summary: to get the json format for login
@@ -306,7 +306,7 @@ paths:
         name: inputs
         required: true
         schema:
-          $ref: '#/definitions/helper.LoginStruct'
+          $ref: '#/definitions/req.LoginStruct'
       produces:
       - application/json
       responses:
@@ -331,7 +331,7 @@ paths:
         name: inputs
         required: true
         schema:
-          $ref: '#/definitions/helper.OTPLoginStruct'
+          $ref: '#/definitions/req.OTPLoginStruct'
       produces:
       - application/json
       responses:
@@ -356,7 +356,7 @@ paths:
         name: inputs
         required: true
         schema:
-          $ref: '#/definitions/helper.OTPVerifyStruct'
+          $ref: '#/definitions/req.OTPVerifyStruct'
       produces:
       - application/json
       responses:
@@ -410,7 +410,7 @@ paths:
         name: inputs
         required: true
         schema:
-          $ref: '#/definitions/helper.ReqAddress'
+          $ref: '#/definitions/req.ReqAddress'
       produces:
       - application/json
       responses:
@@ -432,7 +432,7 @@ paths:
         name: input
         required: true
         schema:
-          $ref: '#/definitions/helper.ReqEditAddress'
+          $ref: '#/definitions/req.ReqEditAddress'
       produces:
       - application/json
       responses:
@@ -476,4 +476,33 @@ paths:
       summary: api for user to post the user details
       tags:
       - signup
+  /wishlist:
+    get:
+      operationId: GetWishListI
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Wish list is empty
+        "400":
+          description: faild to get user wish list items
+      security:
+      - ApiKeyAuth: []
+      summary: api get all wish list items of user
+      tags:
+      - wishlist
+    post:
+      operationId: RemoveFromWishList
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully product_item remvoed from wishlist
+        "400":
+          description: Faild to remove product_item from wishlist
+      security:
+      - ApiKeyAuth: []
+      summary: api to remove a productItem from wish list
+      tags:
+      - wishlist
 swagger: "2.0"

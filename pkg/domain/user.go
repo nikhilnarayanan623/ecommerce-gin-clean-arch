@@ -20,6 +20,8 @@ type UserAddress struct {
 	AddressID uint `json:"address_id" gorm:"not null"`
 	Address   Address
 	IsDefault bool `json:"is_default"`
+	// Order bool
+	// Delete bool
 }
 
 type Address struct {
