@@ -88,14 +88,13 @@ func (c *userDatabse) UpdateCartPrice(ctx context.Context, cart domain.Cart) (do
 	if c.DB.Raw(query, cart.ID).Scan(&TotalPrice).Error != nil {
 		return cart, errors.New("faild to calculate total price of cartItems")
 	}
-	fmt.Println(TotalPrice, "total price")
-
 	//update the total price on cart
-	if c.DB.Raw("UPDATE carts SET total_price = ? WHERE id=? RETURNING total_price", TotalPrice, cart.ID).Scan(&cart).Error != nil {
+	if c.DB.Raw("UPDATE carts SET total_price = ? WHERE id=? RETURNING *", TotalPrice, cart.ID).Scan(&cart).Error != nil {
 		return cart, errors.New("faild to update the total price of cart")
 	}
 
 	return cart, nil
+
 }
 
 // find a cartItem
@@ -151,9 +150,7 @@ func (c *userDatabse) UpdateCartItem(ctx context.Context, cartItem domain.CartIt
 // get all itmes from cart
 func (c *userDatabse) GetCartItems(ctx context.Context, userId uint) (res.ResponseCart, error) {
 
-	var (
-		response res.ResponseCart
-	)
+	var response res.ResponseCart
 	// get the cart of user
 	cart, err := c.FindCart(ctx, userId)
 	if err != nil {
@@ -167,6 +164,11 @@ func (c *userDatabse) GetCartItems(ctx context.Context, userId uint) (res.Respon
 
 	if c.DB.Raw(query, cart.ID).Scan(&response.CartItems).Error != nil {
 		return response, errors.New("faild to get cartItems from database")
+	}
+
+	//update the cart price
+	if cart, err = c.UpdateCartPrice(ctx, cart); err != nil {
+		return response, err
 	}
 
 	response.TotalPrice = cart.TotalPrice
