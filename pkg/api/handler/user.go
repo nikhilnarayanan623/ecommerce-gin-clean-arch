@@ -116,7 +116,7 @@ func (u *UserHandler) Home(ctx *gin.Context) {
 // @id LoginGet
 // @produce json
 // @Router /login [get]
-// @Success 200 {object} helper.LoginStruct "OK"
+// @Success 200 {object} req.LoginStruct "OK"
 func (u *UserHandler) LoginGet(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, gin.H{
 		"StatusCode": 200,
@@ -132,7 +132,7 @@ func (u *UserHandler) LoginGet(ctx *gin.Context) {
 // @tags login
 // @id LoginPost
 // @produce json
-// @Param        inputs   body     helper.LoginStruct{}   true  "Input Field"
+// @Param        inputs   body     req.LoginStruct{}   true  "Input Field"
 // @Router /login [post]
 // @Success 200 "Successfully Loged In"
 // @Failure 400 "faild to login"
@@ -199,7 +199,7 @@ func (u *UserHandler) LoginPost(ctx *gin.Context) {
 // @id LoginOtpSend
 // @tags login
 // @produce json
-// @Param inputs body helper.OTPLoginStruct true "Input Field"
+// @Param inputs body req.OTPLoginStruct true "Input Field"
 // @Router /login-otp-send [post]
 // @Success 200 "Successfully Otp Send to registered number"
 // @Failure 400 "Enter input properly"
@@ -265,7 +265,7 @@ func (u *UserHandler) LoginOtpSend(ctx *gin.Context) {
 // @id LoginOtpVerify
 // @tags login
 // @produce json
-// @param inputs body helper.OTPVerifyStruct true "Input Field"
+// @param inputs body req.OTPVerifyStruct{} true "Input Field"
 // @Router /login-otp-verify [post]
 // @Success 200 "Successfully Logged In"
 // @Failure 400 "Invalid Otp"
@@ -350,7 +350,7 @@ func (u *UserHandler) Logout(ctx *gin.Context) {
 // @id AddToCart
 // @tags cart
 // @produce json
-// @Param input body helper.ReqCart true "Input Field"
+// @Param input body req.ReqCart true "Input Field"
 // @Router /cart [post]
 // @Success 200 "Successfully productItem added to cart"
 // @Failure 400 "can't add the product item into cart"
@@ -394,7 +394,7 @@ func (u *UserHandler) AddToCart(ctx *gin.Context) {
 // @id RemoveFromCart
 // @tags cart
 // @produce json
-// @Param input body helper.ReqCart true "Input Field"
+// @Param input body req.ReqCart{} true "Input Field"
 // @Router /cart [delete]
 // @Success 200 "Successfully productItem removed from cart"
 // @Failure 400  "can't remove product item into cart"
@@ -438,7 +438,7 @@ func (u UserHandler) RemoveFromCart(ctx *gin.Context) {
 // @id UpdateCart
 // @tags cart
 // @produce json
-// @Param input body helper.ReqCartCount true "Input Field"
+// @Param input body req.ReqCartCount{} true "Input Field"
 // @Router /cart [put]
 // @Success 200 "Successfully productItem count change on cart"
 // @Failure 400  "can't change count of product item on cart"
@@ -484,7 +484,7 @@ func (u *UserHandler) UpdateCart(ctx *gin.Context) {
 // @produce json
 // @Router /cart [get]
 // @Success 200 "there is no productItems in the cart"
-// @Success 200 {object} helper.ResponseCart{} "there is no productItems in the cart"
+// @Success 200 {object} res.ResponseCart{} "there is no productItems in the cart"
 // @Failure 500 "Faild to get user cart"
 func (u *UserHandler) UserCart(ctx *gin.Context) {
 
@@ -524,7 +524,7 @@ func (u *UserHandler) UserCart(ctx *gin.Context) {
 // @id AddAddress
 // @tags address
 // @produce json
-// @Param inputs body helper.ReqAddress{} true "Input Field"
+// @Param inputs body req.ReqAddress{} true "Input Field"
 // @Router /profile/address [post]
 // @Success 200 "Successfully address added"
 // @Failure 400 "can't add the user addres"
@@ -608,7 +608,7 @@ func (u *UserHandler) GetAddresses(ctx *gin.Context) {
 // @id EditAddress
 // @tags address
 // @produce json
-// @Param input body helper.ReqEditAddress true "Input Field"
+// @Param input body req.ReqEditAddress true "Input Field"
 // @Router /profile/address [put]
 // @Success 200 "Successfully addresses updated"
 // @Failure 400 "can't update the address"
@@ -702,7 +702,7 @@ func (u *UserHandler) AddToWishList(ctx *gin.Context) {
 // @id RemoveFromWishList
 // @tags wishlist
 // @produce json
-// @Param product_id body int true "product_id"
+// @Params product_item_id path int true "product_item_id"
 // @Router /wishlist [post]
 // @Success 200 "Successfully product_item remvoed from wishlist"
 // @Failure 400 "Faild to remove product_item from wishlist"
