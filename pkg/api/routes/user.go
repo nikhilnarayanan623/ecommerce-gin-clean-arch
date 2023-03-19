@@ -6,7 +6,9 @@ import (
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/api/middleware"
 )
 
-func UserRoutes(api *gin.RouterGroup, user *handler.UserHandler, product *handler.ProductHandler) {
+func UserRoutes(api *gin.RouterGroup, user *handler.UserHandler, product *handler.ProductHandler,
+	orderHandler *handler.OrderHandler,
+) {
 
 	api.GET("/login", user.LoginGet)
 	api.POST("/login", user.LoginPost)
@@ -19,6 +21,8 @@ func UserRoutes(api *gin.RouterGroup, user *handler.UserHandler, product *handle
 	api.Use(middleware.AuthenticateUser)
 	{
 		api.GET("/", user.Home)
+		api.POST("/logout", user.Logout)
+
 		api.GET("/product", product.ListProducts)         // show products
 		api.GET("/product-item", product.GetProductItems) // show product items of a product
 		// cart
@@ -38,7 +42,9 @@ func UserRoutes(api *gin.RouterGroup, user *handler.UserHandler, product *handle
 		api.PUT("/profile/address", user.EditAddress)  // to edit address
 		api.DELETE("profile/address", user.DeleteAddress)
 
-		api.POST("/logout", user.Logout)
+		// order
+		api.POST("/orders/:address_id", orderHandler.PlaceOrderByCart)
+		api.GET("/orders", orderHandler.ListUserOrder)
 	}
 
 }
