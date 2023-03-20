@@ -17,7 +17,7 @@ type ShopOrder struct {
 	AddressID       uint      `json:"address_id" gorm:"not null"`
 	Address         Address
 	OrderTotalPrice uint `json:"order_total_price" gorm:"not null"`
-	OrderStatusID   uint `json:"order_status_id" gorm:"not nulll"`
+	OrderStatusID   uint `json:"order_status_id" gorm:"not null"`
 	COD             bool `json:"cod"`
 }
 

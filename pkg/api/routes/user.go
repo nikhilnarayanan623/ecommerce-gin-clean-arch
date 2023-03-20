@@ -44,7 +44,11 @@ func UserRoutes(api *gin.RouterGroup, user *handler.UserHandler, product *handle
 
 		// order
 		api.POST("/orders/:address_id", orderHandler.PlaceOrderByCart)
-		api.GET("/orders", orderHandler.ListUserOrder)
+		api.DELETE("/orders/:shop_order_id", orderHandler.CancellOrder)
+
+		api.GET("/orders", orderHandler.GetOrdersOfUser)
+		api.GET("/orders/items/:shop_order_id", orderHandler.GetOrderItemsForUser)
+
 	}
 
 }

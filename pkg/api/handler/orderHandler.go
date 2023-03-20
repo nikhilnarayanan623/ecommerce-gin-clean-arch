@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -55,10 +56,12 @@ func (c *OrderHandler) PlaceOrderByCart(ctx *gin.Context) {
 
 }
 
-func (c *OrderHandler) ListUserOrder(ctx *gin.Context) {
-	userId := helper.GetUserIdFromContext(ctx)
+func (c *OrderHandler) GetOrderItemsForUser(ctx *gin.Context) {
 
-	orders, err := c.orderUseCase.GetOrdersListByUserID(ctx, userId)
+	shopOrderID, err := helper.StringToUint(ctx.Param("shop_order_id"))
+	fmt.Println("hererererererere", shopOrderID)
+
+	orderItems, err := c.orderUseCase.GetOrderItemsByShopOrderID(ctx, shopOrderID)
 
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{
@@ -69,7 +72,7 @@ func (c *OrderHandler) ListUserOrder(ctx *gin.Context) {
 		return
 	}
 
-	if orders == nil {
+	if orderItems == nil {
 		ctx.JSON(http.StatusOK, gin.H{
 			"StatusCode": 200,
 			"msg":        "User Order list is empty",
@@ -78,8 +81,105 @@ func (c *OrderHandler) ListUserOrder(ctx *gin.Context) {
 	}
 
 	ctx.JSON(http.StatusOK, gin.H{
+		"StatusCode":  200,
+		"msg":         "Successfully Order list got",
+		"order items": orderItems,
+	})
+}
+
+func (c *OrderHandler) GetOrdersOfUser(ctx *gin.Context) {
+
+	userId := helper.GetUserIdFromContext(ctx)
+
+	orders, err := c.orderUseCase.GetUserShopOrder(ctx, userId)
+
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{
+			"StatusCode": 500,
+			"msg":        "faild to get user shop order",
+			"error":      err.Error(),
+		})
+		return
+	}
+
+	if orders == nil {
+		ctx.JSON(http.StatusOK, gin.H{
+			"StatusCode": 200,
+			"msg":        "User Have no order history",
+		})
+		return
+	}
+	// // copy to response
+	// var respose []res.ResShopOrder
+	// copier.Copy(&respose, orders)
+
+	// for i, time := range orders {
+
+	// 	respose[i].OrderDate = time.OrderDate.Format("2006-January-02 15:04")
+	// }
+
+	ctx.JSON(http.StatusOK, gin.H{
 		"StatusCode": 200,
-		"msg":        "Successfully Order list got",
+		"msg":        "Successfully Shop Order List got",
 		"orderList":  orders,
+	})
+
+}
+
+func (c *OrderHandler) UdateOrderStatus(ctx *gin.Context) {
+
+	var body struct {
+		ShopOrderID   uint `json:"shop_order_id" binding:"required"`
+		OrderStatusID uint `json:"order_status_id"`
+	}
+
+	if err := ctx.ShouldBindJSON(&body); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"StatusCode": 200,
+			"msg":        "faild to bind json",
+			"error":      err.Error(),
+		})
+		return
+	}
+
+	//update the order
+	if err := c.orderUseCase.ChangeOrderStatus(ctx, body.ShopOrderID, body.OrderStatusID); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"StatusCode": 400,
+			"msg":        "faild to upate order status",
+			"error":      err.Error(),
+		})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{
+		"StatusCode": 200,
+		"msg":        "Successfully order status updated",
+	})
+}
+
+func (c *OrderHandler) CancellOrder(ctx *gin.Context) {
+
+	shopOrderID, err := helper.StringToUint(ctx.Param("shop_order_id"))
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"StatusCode": 400,
+			"msg":        "faild on params",
+		})
+		return
+	}
+
+	if err := c.orderUseCase.CancellOrder(ctx, shopOrderID); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"StatusCode": 400,
+			"msg":        "faild to cancell order",
+			"error":      err.Error(),
+		})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{
+		"StatusCode": 200,
+		"msg":        "Successfully order cancelled",
 	})
 }

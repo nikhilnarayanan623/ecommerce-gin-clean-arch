@@ -8,6 +8,10 @@ import (
 )
 
 type OrderUseCase interface {
-	PlaceOrderByCart(ctx context.Context, shopOrder domain.ShopOrder) error
-	GetOrdersListByUserID(ctx context.Context, userID uint) ([]res.ResOrder, error)
+	PlaceOrderByCart(ctx context.Context, userID domain.ShopOrder) error
+	GetUserShopOrder(ctx context.Context, userID uint) ([]res.ResShopOrder, error)
+	GetOrderItemsByShopOrderID(ctx context.Context, shopOrderID uint) ([]res.ResOrder, error)
+
+	ChangeOrderStatus(ctx context.Context, shopOrderID, changeStatusID uint) error
+	CancellOrder(ctx context.Context, shopOrderID uint) error
 }

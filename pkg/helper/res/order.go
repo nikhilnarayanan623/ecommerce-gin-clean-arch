@@ -1,6 +1,8 @@
 package res
 
-import "time"
+import (
+	"time"
+)
 
 type ResOrder struct {
 	ProductItemID uint   `json:"product_item_id"`
@@ -8,12 +10,18 @@ type ResOrder struct {
 	Image         string `json:""`
 	Price         uint   `json:"price"`
 	Qty           uint   `json:"qty"`
-	TotalPrice    uint   `json:"total_price"`
-	OrderDate     time.Time
+	SubTotal      uint   `json:"sub_total"`
+	OrderDate     string `json:"order_date" `
 	Status        string `json:"status"`
 }
 
-type ResOrderItem struct {
-	ResOrder ResOrder
-	Address  ResAddress
+type ResShopOrder struct {
+	ShopOrderID     uint `json:"shop_order_id"`
+	OrderDate       time.Time
+	AddressID       uint       `json:"address_id" `
+	Address         ResAddress `json:"address"`
+	OrderTotalPrice uint       `json:"order_total_price" `
+	OrderStatusID   uint       `json:"order_status_id"`
+	OrderStatus     string     `json:"order_status"`
+	COD             bool       `json:"cod"`
 }
