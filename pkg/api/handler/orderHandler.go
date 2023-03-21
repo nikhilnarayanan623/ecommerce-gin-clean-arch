@@ -18,10 +18,40 @@ func NewOrderHandler(orderUseCase interfaces.OrderUseCase) *OrderHandler {
 	return &OrderHandler{orderUseCase: orderUseCase}
 }
 
-// in herer sho address of user and products items if it cart or not
 func (c *OrderHandler) CheckOutCart(ctx *gin.Context) {
-	userID := helper.GetUserIdFromContext(ctx)
+
+	userId := helper.GetUserIdFromContext(ctx)
+
+	resCheckOut, err := c.orderUseCase.CheckOutCart(ctx, userId)
+
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{
+			"StatusCode": 500,
+			"msg":        "can't show checkout",
+			"error":      err.Error(),
+		})
+		return
+	}
+
+	if resCheckOut.ProductItems == nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{
+			"StatusCode": 500,
+			"msg":        "cart is empty so can't place order",
+		})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{
+		"StatusCode": 200,
+		"msg":        "Successfully data got for checkout",
+		"data":       resCheckOut,
+	})
 }
+
+// in herer sho address of user and products items if it cart or not
+// func (c *OrderHandler) CheckOutCart(ctx *gin.Context) {
+// 	userID := helper.GetUserIdFromContext(ctx)
+// }
 
 // PlaceOrderByCart godoc
 // @summary api for place order for all cartItem

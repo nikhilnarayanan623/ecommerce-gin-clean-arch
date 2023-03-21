@@ -35,15 +35,15 @@ func (c *OrderDatabase) FindShopOrderByShopOrderID(ctx context.Context, shopOrde
 func (c *OrderDatabase) FindAllShopOrdersByUserID(ctx context.Context, userID uint) ([]res.ResShopOrder, error) {
 
 	var shopOrders []res.ResShopOrder
-
+	fmt.Println("\n\n\n jjjjjjjjjjjjjj")
 	query := `SELECT so.id AS shop_order_id, so.order_date, so.order_total_price,so.order_status_id,os.status AS order_status,so.address_id,so.cod FROM shop_orders so 
 	JOIN order_statuses os ON so.order_status_id = os.id  WHERE user_id = ?`
 	if c.DB.Raw(query, userID).Scan(&shopOrders).Error != nil {
 		return shopOrders, errors.New("faild to get user shop order")
 	}
-
+	fmt.Println("\n\n\nstetestewsts")
 	// take full address and add to it
-	query = `SELECT adrs.id AS id, adrs.name,adrs.phone_number,adrs.house,adrs.area, adrs.land_mark,adrs.city,adrs.pincode,adrs.country_id,c.country_name 
+	query = `SELECT adrs.id AS address_id, adrs.name,adrs.phone_number,adrs.house,adrs.area, adrs.land_mark,adrs.city,adrs.pincode,adrs.country_id,c.country_name 
 	FROM addresses adrs JOIN countries c ON adrs.country_id = c.id  WHERE adrs.id= ?`
 	var address res.ResAddress
 	for i, order := range shopOrders {
@@ -68,7 +68,7 @@ func (c *OrderDatabase) FindAllShopOrders(ctx context.Context) ([]res.ResShopOrd
 	}
 
 	var address res.ResAddress
-	query = `SELECT adrs.id AS id, adrs.name,adrs.phone_number,adrs.house,adrs.area, adrs.land_mark,adrs.city,adrs.pincode,adrs.country_id,c.country_name 
+	query = `SELECT adrs.id, adrs.name,adrs.phone_number,adrs.house,adrs.area, adrs.land_mark,adrs.city,adrs.pincode,adrs.country_id,c.country_name 
 	FROM addresses adrs JOIN countries c ON adrs.country_id = c.id  WHERE adrs.id= ?`
 	for i, order := range shopOrders {
 
@@ -217,6 +217,27 @@ func (c *OrderDatabase) UpdateOrderStatus(ctx context.Context, shopOrder domain.
 	return nil
 }
 
-
 // checkout page
-func (c *OrderDatabase) 
+func (c *OrderDatabase) CheckOutCart(ctx context.Context, userId uint) (res.ResCheckOut, error) {
+
+	var resCheckOut res.ResCheckOut
+	// get all cartItems of user which are not out of stock
+	query := `SELECT ci.product_item_id, p.product_name,pi.price, pi.qty_in_stock, ci.qty, (pi.price * ci.qty) AS sub_total  FROM cart_items ci JOIN carts c ON ci.cart_id = c.id JOIN product_items pi ON ci.product_item_id = pi.id 
+	JOIN products p ON pi.product_id = p.id AND c.user_id = ?`
+	if c.DB.Raw(query, userId).Scan(&resCheckOut.ProductItems).Error != nil {
+		return resCheckOut, errors.New("faild to get cartItems for checkout")
+	}
+
+	// get user addresses
+	query = `SELECT * FROM addresses adrs JOIN user_addresses uadrs ON uadrs.address_id = adrs.id AND uadrs.user_id = ?`
+	if c.DB.Raw(query, userId).Scan(&resCheckOut.Addresses).Error != nil {
+		return resCheckOut, errors.New("faild to get user addrss for checkout")
+	}
+
+	// find total price
+	query = `SELECT total_price FROM carts WHERE user_id = ?`
+	if c.DB.Raw(query, userId).Scan(&resCheckOut.TotalPrice).Error != nil {
+		return resCheckOut, errors.New("faild to ge total price for user cart")
+	}
+	return resCheckOut, nil
+}

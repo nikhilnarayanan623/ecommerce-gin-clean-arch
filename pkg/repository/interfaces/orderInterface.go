@@ -8,6 +8,9 @@ import (
 )
 
 type OrderRepository interface {
+
+	// checkout for order
+	CheckOutCart(ctx context.Context, userId uint) (res.ResCheckOut, error)
 	//save order and update
 	SaveOrderByCart(ctx context.Context, shopOrder domain.ShopOrder) error
 	UpdateOrderStatus(ctx context.Context, shopOrder domain.ShopOrder, changeStatusID uint) error

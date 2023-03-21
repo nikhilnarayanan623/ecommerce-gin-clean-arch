@@ -112,5 +112,5 @@ func (c *OrderUseCase) CancellOrder(ctx context.Context, shopOrderID uint) error
 
 // checkout section
 func (c *OrderUseCase) CheckOutCart(ctx context.Context, userID uint) (res.ResCheckOut, error) {
-	
+	return c.orderRepo.CheckOutCart(ctx, userID)
 }

@@ -27,17 +27,8 @@ type ResShopOrder struct {
 	COD             bool       `json:"cod"`
 }
 
-// checkout response
-type ProductItemsCheckout struct {
-	ProductItemID uint   `json:"product_items_id"`
-	ProductID     uint   `json:"product_id"`
-	ProductName   string `json:"product_name"`
-	Price         uint   `json:"price"`
-
-	VariationOptionID uint   `json:"variation_option_id"`
-	VariationValue    string `json:"variation_value"`
-}
 type ResCheckOut struct {
-	Adress       []ResAddress
-	ProductItems []ProductItemsCheckout
+	Addresses    []ResAddress       `json:"addresses"`
+	ProductItems []ResponseCartItem `json:"product_items"`
+	TotalPrice   uint               `json:"total_price"`
 }
