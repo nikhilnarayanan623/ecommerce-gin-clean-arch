@@ -201,7 +201,7 @@ func (c *userDatabse) FindAllAddressByUserID(ctx context.Context, userID uint) (
 
 	var addresses []res.ResAddress
 
-	query := `SELECT a.id,a.house,a.name,a.phone_number,a.area,a.land_mark,a.city,a.pincode,a.country_id,c.country_name,ua.is_default
+	query := `SELECT a.id, a.house,a.name,a.phone_number,a.area,a.land_mark,a.city,a.pincode,a.country_id,c.country_name,ua.is_default
 	 FROM user_addresses ua JOIN addresses a ON ua.address_id=a.id 
 	 LEFT JOIN countries c ON a.country_id=c.id AND ua.user_id=?`
 	if c.DB.Raw(query, userID).Scan(&addresses).Error != nil {

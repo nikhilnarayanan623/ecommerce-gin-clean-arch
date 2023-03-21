@@ -57,6 +57,7 @@ type ReqCartCount struct {
 	UserID        uint  `json:"user_id"`
 	ProductItemID uint  `json:"product_item_id" binding:"required"`
 	Increment     *bool `json:"increment" binding:"required"`
+	Count         uint  `json:"count" binding:"omitempty,gte=1"`
 }
 
 // for address add address

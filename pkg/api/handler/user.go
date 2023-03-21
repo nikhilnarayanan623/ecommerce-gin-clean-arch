@@ -194,7 +194,7 @@ func (u *UserHandler) LoginPost(ctx *gin.Context) {
 		return
 	}
 
-	ctx.SetCookie("user-auth", tokenString["accessToken"], 10*60, "", "", false, true)
+	ctx.SetCookie("user-auth", tokenString["accessToken"], 20*60, "", "", false, true)
 	ctx.JSON(http.StatusOK, gin.H{
 		"StatusCode": 200,
 		"msg":        "Successfully Loged In",

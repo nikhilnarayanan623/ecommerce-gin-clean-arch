@@ -33,7 +33,7 @@ type ResponseCart struct {
 
 // address
 type ResAddress struct {
-	ID          uint   `json:"id"`
+	ID          uint   `json:"address_id"`
 	Name        string `json:"name"`
 	PhoneNumber string `json:"phone_number"`
 	House       string `json:"house"`

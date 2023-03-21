@@ -3,6 +3,7 @@ package usecase
 import (
 	"context"
 	"errors"
+	"fmt"
 
 	"github.com/jinzhu/copier"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/domain"
@@ -186,7 +187,10 @@ func (c *userUserCase) UpdateCartItem(ctx context.Context, body req.ReqCartCount
 
 	// update the cartItem quantity
 	//check the product count need to increment or not
-	if *body.Increment { // to increment
+	if body.Count > 0 {
+		cartItem.Qty = body.Count
+	} else if *body.Increment { // to increment
+		fmt.Println("here", cartItem.Qty)
 		cartItem.Qty += 1
 	} else if cartItem.Qty == 1 { // decremtnet last product quantity
 		return cartItem, errors.New("can't decrement last count of productItem")
