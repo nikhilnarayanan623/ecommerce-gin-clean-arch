@@ -18,6 +18,11 @@ func NewOrderHandler(orderUseCase interfaces.OrderUseCase) *OrderHandler {
 	return &OrderHandler{orderUseCase: orderUseCase}
 }
 
+// in herer sho address of user and products items if it cart or not
+func (c *OrderHandler) CheckOutCart(ctx *gin.Context) {
+	userID := helper.GetUserIdFromContext(ctx)
+}
+
 // PlaceOrderByCart godoc
 // @summary api for place order for all cartItem
 func (c *OrderHandler) PlaceOrderByCart(ctx *gin.Context) {
@@ -109,14 +114,6 @@ func (c *OrderHandler) GetOrdersOfUser(ctx *gin.Context) {
 		})
 		return
 	}
-	// // copy to response
-	// var respose []res.ResShopOrder
-	// copier.Copy(&respose, orders)
-
-	// for i, time := range orders {
-
-	// 	respose[i].OrderDate = time.OrderDate.Format("2006-January-02 15:04")
-	// }
 
 	ctx.JSON(http.StatusOK, gin.H{
 		"StatusCode": 200,
@@ -181,5 +178,25 @@ func (c *OrderHandler) CancellOrder(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, gin.H{
 		"StatusCode": 200,
 		"msg":        "Successfully order cancelled",
+	})
+}
+
+// get all order list
+func (c *OrderHandler) GetAllShopOrders(ctx *gin.Context) {
+
+	orders, err := c.orderUseCase.GetAllShopOrders(ctx)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{
+			"StatusCode": 500,
+			"msg":        "faild to get all order list",
+			"error":      err.Error(),
+		})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{
+		"StatusCode": 200,
+		"msg":        "Successfully order list got",
+		"order list": orders,
 	})
 }

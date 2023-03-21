@@ -6,35 +6,55 @@ import (
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/api/middleware"
 )
 
-func AdminRoutes(api *gin.RouterGroup, admin *handler.AdminHandler, product *handler.ProductHandler,
-	orderHandler *handler.OrderHandler,
+func AdminRoutes(api *gin.RouterGroup, adminHandler *handler.AdminHandler,
+	productHandler *handler.ProductHandler, orderHandler *handler.OrderHandler,
 
 ) {
-
-	api.GET("/login", admin.LoginGet)
-	api.POST("/login", admin.LoginPost)
-
-	api.GET("/signup", admin.SignUPGet)
-	api.POST("/signup", admin.SignUpPost)
+	// login
+	login := api.Group("/login")
+	{
+		login.GET("/", adminHandler.LoginGet)
+		login.POST("/", adminHandler.LoginPost)
+	}
+	// signup
+	signup := api.Group("/signup")
+	{
+		signup.GET("/", adminHandler.SignUPGet)
+		signup.POST("/", adminHandler.SignUpPost)
+	}
 
 	api.Use(middleware.AuthenticateAdmin)
 	{
-		api.GET("/users", admin.Allusers)
-		api.POST("/block-user", admin.BlockUser)
+		// user side
+		user := api.Group("/user")
+		{
+			user.GET("/", adminHandler.Allusers)
+			user.POST("/block", adminHandler.BlockUser)
+		}
+		// category
+		category := api.Group("/category")
+		{
+			category.GET("/", productHandler.AllCategories)
+			category.POST("/", productHandler.AddCategory)
 
-		api.GET("/category", product.AllCategories)
-		api.POST("/category", product.AddCategory)
+			category.POST("/variation", productHandler.VariationPost)
+			category.POST("/variation-option", productHandler.VariationOptionPost)
+		}
+		// product
+		product := api.Group("/product")
+		{
+			product.GET("/product", productHandler.ListProducts)
+			product.POST("/product", productHandler.AddProducts)
+			product.GET("/product-item", productHandler.GetProductItems)
+			product.POST("/product-item", productHandler.AddProductItem)
 
-		api.POST("/variation", product.VariationPost)
-		api.POST("/variation-option", product.VariationOptionPost)
-
-		api.GET("/product", product.ListProducts)
-		api.POST("/product", product.AddProducts)
-		api.GET("/product-item", product.GetProductItems)
-		api.POST("/product-item", product.AddProductItem)
-
-		//order
-		api.PUT("/orders", orderHandler.UdateOrderStatus)
+		}
+		// order
+		order := api.Group("/order")
+		{
+			order.GET("/orders", orderHandler.GetAllShopOrders)
+			order.PUT("/orders", orderHandler.UdateOrderStatus)
+		}
 
 	}
 

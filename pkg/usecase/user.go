@@ -3,7 +3,6 @@ package usecase
 import (
 	"context"
 	"errors"
-	"fmt"
 
 	"github.com/jinzhu/copier"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/domain"
@@ -269,10 +268,6 @@ func (c *userUserCase) EditAddress(ctx context.Context, addressBody req.ReqEditA
 	}
 
 	copier.Copy(&address, &addressBody)
-
-	fmt.Println("before ", address)
-	// update the address
-	fmt.Println("after ", address)
 
 	if c.userRepo.UpdateAddress(ctx, address) != nil {
 		return err

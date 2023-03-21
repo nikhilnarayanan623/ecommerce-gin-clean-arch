@@ -6,48 +6,74 @@ import (
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/api/middleware"
 )
 
-func UserRoutes(api *gin.RouterGroup, user *handler.UserHandler, product *handler.ProductHandler,
+func UserRoutes(api *gin.RouterGroup, userHandler *handler.UserHandler, ProductHandler *handler.ProductHandler,
 	orderHandler *handler.OrderHandler,
 ) {
 
-	api.GET("/login", user.LoginGet)
-	api.POST("/login", user.LoginPost)
-	api.POST("/login-otp-send", user.LoginOtpSend)
-	api.POST("/login-otp-verify", user.LoginOtpVerify)
-
-	api.GET("/signup", user.SignUpGet)
-	api.POST("/signup", user.SignUpPost)
+	// login
+	login := api.Group("/login")
+	{
+		login.GET("/", userHandler.LoginGet)
+		login.POST("/", userHandler.LoginPost)
+		login.POST("/otp-send", userHandler.LoginOtpSend)
+		login.POST("/verify", userHandler.LoginOtpVerify)
+	}
+	//signup
+	signup := api.Group("/signup")
+	{
+		signup.GET("/", userHandler.SignUpGet)
+		signup.POST("/", userHandler.SignUpPost)
+	}
 
 	api.Use(middleware.AuthenticateUser)
 	{
-		api.GET("/", user.Home)
-		api.POST("/logout", user.Logout)
+		api.GET("/", userHandler.Home)
+		api.POST("/logout", userHandler.Logout)
+		// products
+		products := api.Group("/products")
+		{
+			products.GET("/", ProductHandler.ListProducts)        // show products
+			products.GET("/item", ProductHandler.GetProductItems) // show product items of a product
+		}
 
-		api.GET("/product", product.ListProducts)         // show products
-		api.GET("/product-item", product.GetProductItems) // show product items of a product
 		// cart
-		api.GET("/cart", user.UserCart)
-		api.POST("/cart", user.AddToCart)
-		api.PUT("/cart", user.UpdateCart)
-		api.DELETE("/cart", user.RemoveFromCart)
+		cart := api.Group("/carts")
+		{
+			cart.GET("/", userHandler.UserCart)
+			cart.POST("/", userHandler.AddToCart)
+			cart.PUT("/", userHandler.UpdateCart)
+			cart.DELETE("/", userHandler.RemoveFromCart)
+
+			// place order by cart
+			cart.GET("/place-order")
+			cart.POST("/place-order/:address_id", orderHandler.PlaceOrderByCart) // place an order
+		}
 
 		//wishlist
-		api.GET("/wishlist", user.GetWishListI)
-		api.POST("/wishlist/:id", user.AddToWishList)
-		api.DELETE("/wishlist/:id", user.RemoveFromWishList)
+		wishList := api.Group("/wishlist")
+		{
+			wishList.GET("/", userHandler.GetWishListI)
+			wishList.POST("/:id", userHandler.AddToWishList)
+			wishList.DELETE("/:id", userHandler.RemoveFromWishList)
+		}
 
-		//profile address
-		api.GET("/profile/address", user.GetAddresses) // to show all address and // show countries
-		api.POST("/profile/address", user.AddAddress)  // to add a new address
-		api.PUT("/profile/address", user.EditAddress)  // to edit address
-		api.DELETE("profile/address", user.DeleteAddress)
+		// profile
+		profile := api.Group("/profile")
+		{
+			profile.GET("/address", userHandler.GetAddresses) // to show all address and // show countries
+			profile.POST("/address", userHandler.AddAddress)  // to add a new address
+			profile.PUT("/address", userHandler.EditAddress)  // to edit address
+			profile.DELETE("/address", userHandler.DeleteAddress)
+		}
 
 		// order
-		api.POST("/orders/:address_id", orderHandler.PlaceOrderByCart)
-		api.DELETE("/orders/:shop_order_id", orderHandler.CancellOrder)
+		orders := api.Group("/orders")
+		{
+			orders.GET("/", orderHandler.GetOrdersOfUser)                          // get all order list for user
+			orders.GET("/items/:shop_order_id", orderHandler.GetOrderItemsForUser) //get order items for specific order
 
-		api.GET("/orders", orderHandler.GetOrdersOfUser)
-		api.GET("/orders/items/:shop_order_id", orderHandler.GetOrderItemsForUser)
+			orders.DELETE("/:shop_order_id", orderHandler.CancellOrder) // cancell an order
+		}
 
 	}
 

@@ -12,11 +12,12 @@ type OrderRepository interface {
 	SaveOrderByCart(ctx context.Context, shopOrder domain.ShopOrder) error
 	UpdateOrderStatus(ctx context.Context, shopOrder domain.ShopOrder, changeStatusID uint) error
 
-	//find order
+	//find shop order order
+	FindAllShopOrders(ctx context.Context) ([]res.ResShopOrder, error)
 	FindShopOrderByShopOrderID(ctx context.Context, shopOrderID uint) (domain.ShopOrder, error)
-
-	// find all order an order items
 	FindAllShopOrdersByUserID(ctx context.Context, userID uint) ([]res.ResShopOrder, error)
+
+	// find shop order items
 	FindAllOrdersItemsByShopOrderID(ctx context.Context, shopOrderID uint) ([]res.ResOrder, error)
 	// order status
 	FindOrderStatus(ctx context.Context, orderStatus domain.OrderStatus) (domain.OrderStatus, error)

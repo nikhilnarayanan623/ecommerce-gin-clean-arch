@@ -18,6 +18,11 @@ func NewOrderUseCase(orderRepo interfaces.OrderRepository) service.OrderUseCase 
 	return &OrderUseCase{orderRepo: orderRepo}
 }
 
+// func to get all shop order
+func (c *OrderUseCase) GetAllShopOrders(ctx context.Context) ([]res.ResShopOrder, error) {
+	return c.orderRepo.FindAllShopOrders(ctx)
+}
+
 // get order items of a spicific order
 func (c *OrderUseCase) GetOrderItemsByShopOrderID(ctx context.Context, shopOrderID uint) ([]res.ResOrder, error) {
 	//validate the shopOrderId
@@ -103,4 +108,9 @@ func (c *OrderUseCase) CancellOrder(ctx context.Context, shopOrderID uint) error
 	}
 
 	return c.orderRepo.UpdateOrderStatus(ctx, shopOrder, orderStatus.ID)
+}
+
+// checkout section
+func (c *OrderUseCase) CheckOutCart(ctx context.Context, userID uint) (res.ResCheckOut, error) {
+	
 }

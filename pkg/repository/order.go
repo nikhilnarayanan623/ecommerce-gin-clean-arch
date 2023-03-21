@@ -36,15 +36,40 @@ func (c *OrderDatabase) FindAllShopOrdersByUserID(ctx context.Context, userID ui
 
 	var shopOrders []res.ResShopOrder
 
-	query := `SELECT so.id AS shop_order_id, so.order_date, so.order_total_price,so.order_status_id,os.status AS order_status,so.address_id FROM shop_orders so 
+	query := `SELECT so.id AS shop_order_id, so.order_date, so.order_total_price,so.order_status_id,os.status AS order_status,so.address_id,so.cod FROM shop_orders so 
 	JOIN order_statuses os ON so.order_status_id = os.id  WHERE user_id = ?`
 	if c.DB.Raw(query, userID).Scan(&shopOrders).Error != nil {
 		return shopOrders, errors.New("faild to get user shop order")
 	}
 
 	// take full address and add to it
-	query = `SELECT adrs.id AS id, adrs.name,adrs.phone_number,adrs.house,adrs.area, adrs.land_mark,adrs.city,adrs.pincode,adrs.country_id,c.country_name FROM addresses adrs JOIN countries c ON adrs.country_id = c.id  WHERE adrs.id= ?`
+	query = `SELECT adrs.id AS id, adrs.name,adrs.phone_number,adrs.house,adrs.area, adrs.land_mark,adrs.city,adrs.pincode,adrs.country_id,c.country_name 
+	FROM addresses adrs JOIN countries c ON adrs.country_id = c.id  WHERE adrs.id= ?`
 	var address res.ResAddress
+	for i, order := range shopOrders {
+
+		if c.DB.Raw(query, order.AddressID).Scan(&address).Error != nil {
+			return shopOrders, errors.New("faild to get addresses")
+		}
+		fmt.Println(address, order.AddressID)
+		shopOrders[i].Address = address
+	}
+	return shopOrders, nil
+}
+
+// find all shop orders with user
+func (c *OrderDatabase) FindAllShopOrders(ctx context.Context) ([]res.ResShopOrder, error) {
+
+	var shopOrders []res.ResShopOrder
+	query := `SELECT so.user_id, so.id AS shop_order_id, so.order_date, so.order_total_price,so.order_status_id,os.status AS order_status,so.address_id, so.cod FROM shop_orders so 
+	JOIN order_statuses os ON so.order_status_id = os.id `
+	if c.DB.Raw(query).Scan(&shopOrders).Error != nil {
+		return shopOrders, errors.New("faild to get order list")
+	}
+
+	var address res.ResAddress
+	query = `SELECT adrs.id AS id, adrs.name,adrs.phone_number,adrs.house,adrs.area, adrs.land_mark,adrs.city,adrs.pincode,adrs.country_id,c.country_name 
+	FROM addresses adrs JOIN countries c ON adrs.country_id = c.id  WHERE adrs.id= ?`
 	for i, order := range shopOrders {
 
 		if c.DB.Raw(query, order.AddressID).Scan(&address).Error != nil {
@@ -141,7 +166,6 @@ func (c *OrderDatabase) SaveOrderByCart(ctx context.Context, shopOrder domain.Sh
 		orderLine       domain.OrderLine
 	)
 	for _, cartItem := range cartItems {
-		fmt.Println("\n cart item ", cartItem.ProductItemID, cartItem.Qty)
 		// get productitem price
 		if trx.Raw("SELECT price FROM product_items WHERE id = ?", cartItem.ProductItemID).Scan(&price).Error != nil {
 			trx.Rollback()
@@ -192,3 +216,7 @@ func (c *OrderDatabase) UpdateOrderStatus(ctx context.Context, shopOrder domain.
 
 	return nil
 }
+
+
+// checkout page
+func (c *OrderDatabase) 

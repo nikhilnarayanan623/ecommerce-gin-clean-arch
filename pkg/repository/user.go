@@ -3,7 +3,6 @@ package repository
 import (
 	"context"
 	"errors"
-	"fmt"
 
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/domain"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/helper/res"
@@ -20,8 +19,6 @@ func NewUserRepository(DB *gorm.DB) interfaces.UserRepository {
 }
 
 func (c *userDatabse) FindUser(ctx context.Context, user domain.User) (domain.User, error) {
-	fmt.Println("user", user)
-
 	// check id,email,phone any of then match i db
 	err := c.DB.Raw("SELECT * FROM users where id=? OR email=? OR phone=?", user.ID, user.Email, user.Phone).Scan(&user).Error
 
@@ -210,8 +207,6 @@ func (c *userDatabse) FindAllAddressByUserID(ctx context.Context, userID uint) (
 	if c.DB.Raw(query, userID).Scan(&addresses).Error != nil {
 		return addresses, errors.New("faild to get address of user")
 	}
-
-	fmt.Println("address ", addresses)
 
 	return addresses, nil
 }

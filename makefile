@@ -24,8 +24,8 @@ build : ${BINARY_DIR}
  # to start the application
 run:
 	@echo "Welcome To My Ecommerce Project"
-	air
-#$(GOCMD) run ./cmd/api
+#air
+	$(GOCMD) run ./cmd/api
 
  # to test all tests in current and sub modlues
 test:

@@ -85,6 +85,15 @@ func (u *UserHandler) SignUpPost(ctx *gin.Context) {
 	})
 }
 
+// Home godoc
+// @summary api for showing home page of user
+// @description after user login user will seen this page with user informations
+// @id Home
+// @tags home
+// @response json
+// @Router / [get]
+// @Success 200 "Welcome Home"
+// @Failure 400 "Faild to load user home page"
 func (u *UserHandler) Home(ctx *gin.Context) {
 
 	userId := helper.GetUserIdFromContext(ctx)
@@ -200,7 +209,7 @@ func (u *UserHandler) LoginPost(ctx *gin.Context) {
 // @tags login
 // @produce json
 // @Param inputs body req.OTPLoginStruct true "Input Field"
-// @Router /login-otp-send [post]
+// @Router /login/otp-send [post]
 // @Success 200 "Successfully Otp Send to registered number"
 // @Failure 400 "Enter input properly"
 // @Failure 500 "Faild to send otp"
@@ -266,7 +275,7 @@ func (u *UserHandler) LoginOtpSend(ctx *gin.Context) {
 // @tags login
 // @produce json
 // @param inputs body req.OTPVerifyStruct{} true "Input Field"
-// @Router /login-otp-verify [post]
+// @Router /login/otp-verify [post]
 // @Success 200 "Successfully Logged In"
 // @Failure 400 "Invalid Otp"
 // @Failure 500 "Faild to generate JWT"
