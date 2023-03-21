@@ -155,7 +155,7 @@ func (c *userDatabse) GetCartItems(ctx context.Context, userId uint) (res.Respon
 	}
 
 	// get the cartItem of all user with subtotal
-	query := `SELECT ci.product_item_id,p.product_name, ci.qty,pi.price,pi.price * ci.qty AS sub_total, (CASE WHEN pi.qty_in_stock=0 THEN 'T' ELSE 'F' END) AS out_of_stock  
+	query := `SELECT ci.product_item_id,p.product_name, ci.qty,pi.price,pi.price * ci.qty AS sub_total, pi.qty_in_stock 
 				FROM cart_items ci JOIN product_items pi ON ci.product_item_id = pi.id 
 				JOIN products p ON pi.product_id=p.id AND ci.cart_id=?`
 

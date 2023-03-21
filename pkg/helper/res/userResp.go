@@ -21,7 +21,7 @@ type ResponseCartItem struct {
 	ProductItemId uint   `json:"product_item_id"`
 	ProductName   string `json:"product_name"`
 	Price         uint   `json:"price"`
-	OutOfStock    bool   `json:"out_of_stock"`
+	QtyInStock    uint   `json:"qty_in_stock"`
 	Qty           uint   `json:"qty"`
 	SubTotal      uint   `json:"sub_total"`
 }
