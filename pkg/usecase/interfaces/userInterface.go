@@ -9,11 +9,12 @@ import (
 )
 
 type UserUseCase interface {
-	Signup(ctx context.Context, user domain.User) (domain.User, error)
+	Signup(ctx context.Context, user domain.User) error
 	Login(ctx context.Context, user domain.User) (domain.User, error)
 	LoginOtp(ctx context.Context, user domain.User) (domain.User, error)
 
-	Home(ctx context.Context, userId uint) (domain.User, error)
+	Account(ctx context.Context, userId uint) (domain.User, error)
+	EditAccount(ctx context.Context, user domain.User) error
 
 	//cart side
 	SaveToCart(ctx context.Context, body req.ReqCart) (domain.CartItem, error)          // save product_item to cart

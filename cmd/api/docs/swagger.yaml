@@ -1,41 +1,4 @@
 definitions:
-  domain.User:
-    properties:
-      age:
-        type: integer
-      block_status:
-        type: boolean
-      email:
-        type: string
-      first_name:
-        maxLength: 50
-        minLength: 2
-        type: string
-      id:
-        type: integer
-      last_name:
-        maxLength: 50
-        minLength: 1
-        type: string
-      password:
-        type: string
-      phone:
-        maxLength: 10
-        minLength: 10
-        type: string
-      user_name:
-        maxLength: 15
-        minLength: 3
-        type: string
-    required:
-    - age
-    - email
-    - first_name
-    - last_name
-    - password
-    - phone
-    - user_name
-    type: object
   req.LoginStruct:
     properties:
       email:
@@ -125,6 +88,9 @@ definitions:
     type: object
   req.ReqCartCount:
     properties:
+      count:
+        minimum: 1
+        type: integer
       increment:
         type: boolean
       product_item_id:
@@ -170,34 +136,65 @@ definitions:
     - phone_number
     - pincode
     type: object
-  res.ResponseCart:
+  req.ReqUpdateOrder:
     properties:
-      cartItems:
-        items:
-          $ref: '#/definitions/res.ResponseCartItem'
-        type: array
-      total_price:
+      order_status_id:
         type: integer
+      shop_order_id:
+        type: integer
+    required:
+    - shop_order_id
     type: object
-  res.ResponseCartItem:
+  req.ReqUser:
     properties:
-      out_of_stock:
-        type: boolean
-      price:
+      age:
         type: integer
-      product_item_id:
-        type: integer
-      product_name:
+      email:
         type: string
-      qty:
-        type: integer
-      sub_total:
+      first_name:
+        maxLength: 50
+        minLength: 2
+        type: string
+      last_name:
+        maxLength: 50
+        minLength: 1
+        type: string
+      phone:
+        maxLength: 10
+        minLength: 10
+        type: string
+      user_name:
+        maxLength: 15
+        minLength: 3
+        type: string
+    type: object
+  res.Response:
+    properties:
+      data: {}
+      errors: {}
+      message:
+        type: string
+      status:
         type: integer
     type: object
 info:
   contact: {}
 paths:
-  /cart:
+  /:
+    get:
+      description: after user login user will seen this page with user informations
+      operationId: Home
+      responses:
+        "200":
+          description: Welcome Home
+        "400":
+          description: Faild to load user home page
+      security:
+      - ApiKeyAuth: []
+      summary: api for showing home page of user
+      tags:
+      - Home
+  /carts:
     delete:
       description: user can remove a signle productItem full quantity from cart
       operationId: RemoveFromCart
@@ -208,35 +205,41 @@ paths:
         required: true
         schema:
           $ref: '#/definitions/req.ReqCart'
-      produces:
-      - application/json
       responses:
         "200":
           description: Successfully productItem removed from cart
+          schema:
+            $ref: '#/definitions/res.Response'
         "400":
-          description: can't remove product item into cart
+          description: invalid input
+          schema:
+            $ref: '#/definitions/res.Response'
+        "500":
+          description: can't remove product item from cart
+          schema:
+            $ref: '#/definitions/res.Response'
       security:
       - ApiKeyAuth: []
       summary: api for remove a product from cart
       tags:
-      - cart
+      - Carts
     get:
       description: user can see all productItem that stored in cart
       operationId: UserCart
-      produces:
-      - application/json
       responses:
         "200":
-          description: there is no productItems in the cart
+          description: successfully got user cart items
           schema:
-            $ref: '#/definitions/res.ResponseCart'
+            $ref: '#/definitions/res.Response'
         "500":
-          description: Faild to get user cart
+          description: faild to get cart items
+          schema:
+            $ref: '#/definitions/res.Response'
       security:
       - ApiKeyAuth: []
       summary: api for get all cart item of user
       tags:
-      - cart
+      - Carts
     post:
       description: user can add a stock in product to user cart
       operationId: AddToCart
@@ -247,8 +250,6 @@ paths:
         required: true
         schema:
           $ref: '#/definitions/req.ReqCart'
-      produces:
-      - application/json
       responses:
         "200":
           description: Successfully productItem added to cart
@@ -258,7 +259,7 @@ paths:
       - ApiKeyAuth: []
       summary: api for add productItem to user cart
       tags:
-      - cart
+      - Carts
     put:
       description: user can inrement or drement count of a productItem in cart (min=1)
       operationId: UpdateCart
@@ -269,34 +270,70 @@ paths:
         required: true
         schema:
           $ref: '#/definitions/req.ReqCartCount'
-      produces:
-      - application/json
       responses:
         "200":
           description: Successfully productItem count change on cart
         "400":
-          description: can't change count of product item on cart
+          description: invalid input
+        "500":
+          description: can't update the count of product item on cart
       security:
       - ApiKeyAuth: []
       summary: api for updte productItem count
       tags:
-      - cart
+      - Carts
+  /carts/checkout:
+    get:
+      description: user can checkout user cart items
+      operationId: CheckOutCart
+      responses:
+        "200":
+          description: successfully got checkout data
+          schema:
+            $ref: '#/definitions/res.Response'
+        "401":
+          description: cart is empty so user can't call this api
+          schema:
+            $ref: '#/definitions/res.Response'
+        "500":
+          description: faild to get checkout items
+          schema:
+            $ref: '#/definitions/res.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: api for cart checkout
+      tags:
+      - Carts
+  /carts/place-order/:address_id:
+    post:
+      description: user can place after checkout
+      operationId: PlaceOrderByCart
+      responses:
+        "200":
+          description: successfully placed your order for COD
+          schema:
+            $ref: '#/definitions/res.Response'
+        "400":
+          description: faild to place to order
+          schema:
+            $ref: '#/definitions/res.Response'
+      summary: api for place order of all items in user cart
+      tags:
+      - Carts
   /login:
     get:
       description: Enter this fields on login page post
       operationId: LoginGet
-      produces:
-      - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/req.LoginStruct'
+            $ref: '#/definitions/res.Response'
       security:
       - ApiKeyAuth: []
       summary: to get the json format for login
       tags:
-      - login
+      - Login
     post:
       description: Enter user_name/phone/email with password
       operationId: LoginPost
@@ -307,21 +344,25 @@ paths:
         required: true
         schema:
           $ref: '#/definitions/req.LoginStruct'
-      produces:
-      - application/json
       responses:
         "200":
-          description: Successfully Loged In
+          description: successfully logged in
+          schema:
+            $ref: '#/definitions/res.Response'
         "400":
           description: faild to login
+          schema:
+            $ref: '#/definitions/res.Response'
         "500":
           description: faild to generat JWT
+          schema:
+            $ref: '#/definitions/res.Response'
       security:
       - ApiKeyAuth: []
       summary: api for user login
       tags:
-      - login
-  /login-otp-send:
+      - Login
+  /login/otp-send:
     post:
       description: user can enter email/user_name/phone will send an otp to user phone
       operationId: LoginOtpSend
@@ -332,21 +373,25 @@ paths:
         required: true
         schema:
           $ref: '#/definitions/req.OTPLoginStruct'
-      produces:
-      - application/json
       responses:
         "200":
           description: Successfully Otp Send to registered number
+          schema:
+            $ref: '#/definitions/res.Response'
         "400":
           description: Enter input properly
+          schema:
+            $ref: '#/definitions/res.Response'
         "500":
           description: Faild to send otp
+          schema:
+            $ref: '#/definitions/res.Response'
       security:
       - ApiKeyAuth: []
       summary: api for user login with otp
       tags:
-      - login
-  /login-otp-verify:
+      - Login
+  /login/otp-verify:
     post:
       description: enter your otp that send to your registered number
       operationId: LoginOtpVerify
@@ -357,50 +402,137 @@ paths:
         required: true
         schema:
           $ref: '#/definitions/req.OTPVerifyStruct'
-      produces:
-      - application/json
       responses:
         "200":
-          description: Successfully Logged In
+          description: successfully logged in uing otp
         "400":
-          description: Invalid Otp
+          description: invalid input otp
         "500":
           description: Faild to generate JWT
       security:
       - ApiKeyAuth: []
       summary: varify user login otp
       tags:
-      - login
+      - Login
   /logout:
     post:
       description: user can logout
       operationId: Logout
-      produces:
-      - application/json
       responses:
         "200":
-          description: Successfully logout
+          description: successfully logged out
       security:
       - ApiKeyAuth: []
       summary: api for user to lgout
       tags:
-      - logout
+      - Logout
+  /orders:
+    get:
+      description: user can see all user order history
+      operationId: GetOrdersOfUser
+      responses:
+        "200":
+          description: successfully got shop order list of user
+          schema:
+            $ref: '#/definitions/res.Response'
+        "500":
+          description: faild to get user shop order list
+          schema:
+            $ref: '#/definitions/res.Response'
+      summary: api for showing user order list
+      tags:
+      - Orders
+  /orders/:
+    put:
+      description: admin can change user order status
+      operationId: GetAllShopOrders
+      responses:
+        "200":
+          description: Successfully order cancelled
+          schema:
+            $ref: '#/definitions/res.Response'
+        "400":
+          description: invalid input
+          schema:
+            $ref: '#/definitions/res.Response'
+      summary: api for admin to change the status of order
+      tags:
+      - Orders
+  /orders/items:
+    get:
+      description: user can place after checkout
+      operationId: GetOrderItemsForUser
+      responses:
+        "200":
+          description: successfully got order items
+          schema:
+            $ref: '#/definitions/res.Response'
+        "500":
+          description: faild to get order list of user
+          schema:
+            $ref: '#/definitions/res.Response'
+      summary: api for show order items of a specific order
+      tags:
+      - Orders
+  /profile:
+    put:
+      description: user can edit user details
+      operationId: EditAccount
+      parameters:
+      - description: input field
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/req.ReqUser'
+      responses:
+        "200":
+          description: successfully edited user details
+          schema:
+            $ref: '#/definitions/res.Response'
+        "400":
+          description: invalid input
+          schema:
+            $ref: '#/definitions/res.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: api for edit user details
+      tags:
+      - Profile
+  /profile/:
+    get:
+      description: user can see user details
+      operationId: Account
+      responses:
+        "200":
+          description: Successfully user account details found
+        "500":
+          description: faild to show user details
+          schema:
+            $ref: '#/definitions/res.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: api for showing user details
+      tags:
+      - Profile
   /profile/address:
     get:
       description: user can show all adderss
       operationId: GetAddresses
-      produces:
-      - application/json
       responses:
         "200":
-          description: Successfully address got
+          description: successfully got user addresses
+          schema:
+            $ref: '#/definitions/res.Response'
         "500":
-          description: Faild to get address of user
+          description: faild to show user addresses
+          schema:
+            $ref: '#/definitions/res.Response'
       security:
       - ApiKeyAuth: []
       summary: api for get all address of user
       tags:
-      - address
+      - Address
     post:
       description: get a new address from user to store the the database
       operationId: AddAddress
@@ -411,18 +543,20 @@ paths:
         required: true
         schema:
           $ref: '#/definitions/req.ReqAddress'
-      produces:
-      - application/json
       responses:
         "200":
           description: Successfully address added
+          schema:
+            $ref: '#/definitions/res.Response'
         "400":
-          description: can't add the user addres
+          description: inavlid input
+          schema:
+            $ref: '#/definitions/res.Response'
       security:
       - ApiKeyAuth: []
       summary: api for adding a new address for user
       tags:
-      - address
+      - Address
     put:
       description: user can change existing address
       operationId: EditAddress
@@ -433,39 +567,37 @@ paths:
         required: true
         schema:
           $ref: '#/definitions/req.ReqEditAddress'
-      produces:
-      - application/json
       responses:
         "200":
-          description: Successfully addresses updated
+          description: successfully addresses updated
+          schema:
+            $ref: '#/definitions/res.Response'
         "400":
           description: can't update the address
+          schema:
+            $ref: '#/definitions/res.Response'
       security:
       - ApiKeyAuth: []
       summary: api for edit user address
       tags:
-      - address
+      - Address
   /signup:
     get:
       description: user can see what are the fields to enter to create a new account
       operationId: SignUpGet
-      produces:
-      - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/domain.User'
+            $ref: '#/definitions/res.Response'
       security:
       - ApiKeyAuth: []
       summary: api for user to signup page
       tags:
-      - signup
+      - Signup
     post:
       description: user can send user details and validate and create new account
       operationId: SignUpPost
-      produces:
-      - application/json
       responses:
         "200":
           description: Successfully account created
@@ -475,12 +607,26 @@ paths:
       - ApiKeyAuth: []
       summary: api for user to post the user details
       tags:
-      - signup
+      - Signup
   /wishlist:
+    delete:
+      operationId: RemoveFromWishList
+      responses:
+        "200":
+          description: successfully removed product item from wishlist
+          schema:
+            $ref: '#/definitions/res.Response'
+        "400":
+          description: invalid input
+          schema:
+            $ref: '#/definitions/res.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: api to remove a productItem from wish list
+      tags:
+      - Wishlist
     get:
       operationId: GetWishListI
-      produces:
-      - application/json
       responses:
         "200":
           description: Wish list is empty
@@ -490,19 +636,28 @@ paths:
       - ApiKeyAuth: []
       summary: api get all wish list items of user
       tags:
-      - wishlist
+      - Wishlist
     post:
-      operationId: RemoveFromWishList
-      produces:
-      - application/json
+      operationId: AddToWishList
+      parameters:
+      - description: product_id
+        in: body
+        name: product_id
+        required: true
+        schema:
+          type: integer
       responses:
         "200":
-          description: Successfully product_item remvoed from wishlist
+          description: successfully added product item to wishlist
+          schema:
+            $ref: '#/definitions/res.Response'
         "400":
-          description: Faild to remove product_item from wishlist
+          description: invalid input
+          schema:
+            $ref: '#/definitions/res.Response'
       security:
       - ApiKeyAuth: []
-      summary: api to remove a productItem from wish list
+      summary: api to add a productItem to wish list
       tags:
-      - wishlist
+      - Wishlist
 swagger: "2.0"

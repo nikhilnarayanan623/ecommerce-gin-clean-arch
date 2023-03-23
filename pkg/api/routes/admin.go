@@ -26,7 +26,7 @@ func AdminRoutes(api *gin.RouterGroup, adminHandler *handler.AdminHandler,
 	api.Use(middleware.AuthenticateAdmin)
 	{
 		// user side
-		user := api.Group("/user")
+		user := api.Group("/users")
 		{
 			user.GET("/", adminHandler.Allusers)
 			user.POST("/block", adminHandler.BlockUser)

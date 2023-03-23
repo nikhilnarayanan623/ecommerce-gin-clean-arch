@@ -60,19 +60,22 @@ func UserRoutes(api *gin.RouterGroup, userHandler *handler.UserHandler, ProductH
 		// profile
 		profile := api.Group("/profile")
 		{
+			profile.GET("/", userHandler.Account)
+			profile.PUT("/", userHandler.EditAccount)
+
 			profile.GET("/address", userHandler.GetAddresses) // to show all address and // show countries
 			profile.POST("/address", userHandler.AddAddress)  // to add a new address
 			profile.PUT("/address", userHandler.EditAddress)  // to edit address
 			profile.DELETE("/address", userHandler.DeleteAddress)
 		}
 
-		// order
+		//& order
 		orders := api.Group("/orders")
 		{
 			orders.GET("/", orderHandler.GetOrdersOfUser)                          // get all order list for user
 			orders.GET("/items/:shop_order_id", orderHandler.GetOrderItemsForUser) //get order items for specific order
 
-			orders.DELETE("/:shop_order_id", orderHandler.CancellOrder) // cancell an order
+			orders.PUT("/:shop_order_id", orderHandler.CancellOrder) // cancell an order
 		}
 
 	}

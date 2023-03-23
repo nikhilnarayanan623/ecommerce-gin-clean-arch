@@ -41,8 +41,8 @@ deps:
 	$(GOCMD) get -u -t -d -v ./...
 	#remove un used dependencies
 	$(GOCMD) mod tidy # 
-	# create a vendor file in local 
-	$(GOCMD) mod vendor
+# create a vendor file in local 
+#$(GOCMD) mod vendor
 
  # to clean cache in the module
 dps-cleancache:

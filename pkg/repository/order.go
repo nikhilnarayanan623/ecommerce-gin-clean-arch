@@ -35,13 +35,12 @@ func (c *OrderDatabase) FindShopOrderByShopOrderID(ctx context.Context, shopOrde
 func (c *OrderDatabase) FindAllShopOrdersByUserID(ctx context.Context, userID uint) ([]res.ResShopOrder, error) {
 
 	var shopOrders []res.ResShopOrder
-	fmt.Println("\n\n\n jjjjjjjjjjjjjj")
 	query := `SELECT so.id AS shop_order_id, so.order_date, so.order_total_price,so.order_status_id,os.status AS order_status,so.address_id,so.cod FROM shop_orders so 
 	JOIN order_statuses os ON so.order_status_id = os.id  WHERE user_id = ?`
 	if c.DB.Raw(query, userID).Scan(&shopOrders).Error != nil {
 		return shopOrders, errors.New("faild to get user shop order")
 	}
-	fmt.Println("\n\n\nstetestewsts")
+	
 	// take full address and add to it
 	query = `SELECT adrs.id AS address_id, adrs.name,adrs.phone_number,adrs.house,adrs.area, adrs.land_mark,adrs.city,adrs.pincode,adrs.country_id,c.country_name 
 	FROM addresses adrs JOIN countries c ON adrs.country_id = c.id  WHERE adrs.id= ?`

@@ -3,6 +3,7 @@ package repository
 import (
 	"context"
 	"errors"
+	"fmt"
 
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/domain"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/helper/res"
@@ -20,28 +21,38 @@ func NewUserRepository(DB *gorm.DB) interfaces.UserRepository {
 
 func (c *userDatabse) FindUser(ctx context.Context, user domain.User) (domain.User, error) {
 	// check id,email,phone any of then match i db
-	err := c.DB.Raw("SELECT * FROM users where id=? OR email=? OR phone=?", user.ID, user.Email, user.Phone).Scan(&user).Error
-
-	if err != nil {
+	query := `SELECT * FROM users WHERE id = ? OR email = ? OR phone = ? OR user_name = ?`
+	if err := c.DB.Raw(query, user.ID, user.Email, user.Phone, user.UserName).Scan(&user).Error; err != nil {
 		return user, errors.New("faild to get user")
 	}
-
 	return user, nil
 }
 
-func (c *userDatabse) SaveUser(ctx context.Context, user domain.User) (domain.User, error) {
-
-	// check whether user is already exisist
-	c.DB.Raw("SELECT * FROM users WHERE email=? OR phone=?", user.Email, user.Phone).Scan(&user)
-	//if exist then return message as user exist
-	if user.ID != 0 {
-		return user, errors.New("user already exist with this details")
+func (c *userDatabse) FindUserExceptID(ctx context.Context, user domain.User) (domain.User, error) {
+	var checkUser domain.User
+	query := `SELECT * FROM users WHERE id != ? AND email = ? OR id != ? AND phone = ? OR id != ? AND user_name = ?`
+	if c.DB.Raw(query, user.ID, user.Email, user.ID, user.Phone, user.ID, user.UserName).Scan(&checkUser).Error != nil {
+		return checkUser, errors.New("faild to check user details")
 	}
+
+	return checkUser, nil
+}
+
+func (c *userDatabse) SaveUser(ctx context.Context, user domain.User) error {
 
 	//save the user details
 	err := c.DB.Save(&user).Error
 
-	return user, err
+	return err
+}
+
+func (c *userDatabse) EditUser(ctx context.Context, user domain.User) error {
+	fmt.Println(user)
+	query := `UPDATE users SET user_name = $1, first_name = $2, last_name = $3,age = $4,email = $5, phone = $6 WHERE id = $7`
+	if c.DB.Raw(query, user.UserName, user.FirstName, user.LastName, user.Age, user.Email, user.Phone, user.ID).Scan(&user).Error != nil {
+		return errors.New("faild to update user")
+	}
+	return nil
 }
 
 // to get productItem id

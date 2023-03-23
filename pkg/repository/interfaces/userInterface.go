@@ -9,7 +9,9 @@ import (
 
 type UserRepository interface {
 	FindUser(ctx context.Context, user domain.User) (domain.User, error)
-	SaveUser(ctx context.Context, user domain.User) (domain.User, error)
+	FindUserExceptID(ctx context.Context, user domain.User) (domain.User, error) // find user exept this id
+	SaveUser(ctx context.Context, user domain.User) error
+	EditUser(ctx context.Context, user domain.User) error
 	// cart
 	FindProductItem(ctx context.Context, productItemID uint) (domain.ProductItem, error)
 	FindCart(ctx context.Context, userId uint) (domain.Cart, error)

@@ -4,7 +4,30 @@
         "contact": {}
     },
     "paths": {
-        "/cart": {
+        "/": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "after user login user will seen this page with user informations",
+                "tags": [
+                    "Home"
+                ],
+                "summary": "api for showing home page of user",
+                "operationId": "Home",
+                "responses": {
+                    "200": {
+                        "description": "Welcome Home"
+                    },
+                    "400": {
+                        "description": "Faild to load user home page"
+                    }
+                }
+            }
+        },
+        "/carts": {
             "get": {
                 "security": [
                     {
@@ -12,23 +35,23 @@
                     }
                 ],
                 "description": "user can see all productItem that stored in cart",
-                "produces": [
-                    "application/json"
-                ],
                 "tags": [
-                    "cart"
+                    "Carts"
                 ],
                 "summary": "api for get all cart item of user",
                 "operationId": "UserCart",
                 "responses": {
                     "200": {
-                        "description": "there is no productItems in the cart",
+                        "description": "successfully got user cart items",
                         "schema": {
-                            "$ref": "#/definitions/res.ResponseCart"
+                            "$ref": "#/definitions/res.Response"
                         }
                     },
                     "500": {
-                        "description": "Faild to get user cart"
+                        "description": "faild to get cart items",
+                        "schema": {
+                            "$ref": "#/definitions/res.Response"
+                        }
                     }
                 }
             },
@@ -39,11 +62,8 @@
                     }
                 ],
                 "description": "user can inrement or drement count of a productItem in cart (min=1)",
-                "produces": [
-                    "application/json"
-                ],
                 "tags": [
-                    "cart"
+                    "Carts"
                 ],
                 "summary": "api for updte productItem count",
                 "operationId": "UpdateCart",
@@ -63,7 +83,10 @@
                         "description": "Successfully productItem count change on cart"
                     },
                     "400": {
-                        "description": "can't change count of product item on cart"
+                        "description": "invalid input"
+                    },
+                    "500": {
+                        "description": "can't update the count of product item on cart"
                     }
                 }
             },
@@ -74,11 +97,8 @@
                     }
                 ],
                 "description": "user can add a stock in product to user cart",
-                "produces": [
-                    "application/json"
-                ],
                 "tags": [
-                    "cart"
+                    "Carts"
                 ],
                 "summary": "api for add productItem to user cart",
                 "operationId": "AddToCart",
@@ -109,11 +129,8 @@
                     }
                 ],
                 "description": "user can remove a signle productItem full quantity from cart",
-                "produces": [
-                    "application/json"
-                ],
                 "tags": [
-                    "cart"
+                    "Carts"
                 ],
                 "summary": "api for remove a product from cart",
                 "operationId": "RemoveFromCart",
@@ -130,10 +147,81 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "Successfully productItem removed from cart"
+                        "description": "Successfully productItem removed from cart",
+                        "schema": {
+                            "$ref": "#/definitions/res.Response"
+                        }
                     },
                     "400": {
-                        "description": "can't remove product item into cart"
+                        "description": "invalid input",
+                        "schema": {
+                            "$ref": "#/definitions/res.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "can't remove product item from cart",
+                        "schema": {
+                            "$ref": "#/definitions/res.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/carts/checkout": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "user can checkout user cart items",
+                "tags": [
+                    "Carts"
+                ],
+                "summary": "api for cart checkout",
+                "operationId": "CheckOutCart",
+                "responses": {
+                    "200": {
+                        "description": "successfully got checkout data",
+                        "schema": {
+                            "$ref": "#/definitions/res.Response"
+                        }
+                    },
+                    "401": {
+                        "description": "cart is empty so user can't call this api",
+                        "schema": {
+                            "$ref": "#/definitions/res.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "faild to get checkout items",
+                        "schema": {
+                            "$ref": "#/definitions/res.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/carts/place-order/:address_id": {
+            "post": {
+                "description": "user can place after checkout",
+                "tags": [
+                    "Carts"
+                ],
+                "summary": "api for place order of all items in user cart",
+                "operationId": "PlaceOrderByCart",
+                "responses": {
+                    "200": {
+                        "description": "successfully placed your order for COD",
+                        "schema": {
+                            "$ref": "#/definitions/res.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "faild to place to order",
+                        "schema": {
+                            "$ref": "#/definitions/res.Response"
+                        }
                     }
                 }
             }
@@ -146,11 +234,8 @@
                     }
                 ],
                 "description": "Enter this fields on login page post",
-                "produces": [
-                    "application/json"
-                ],
                 "tags": [
-                    "login"
+                    "Login"
                 ],
                 "summary": "to get the json format for login",
                 "operationId": "LoginGet",
@@ -158,7 +243,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/req.LoginStruct"
+                            "$ref": "#/definitions/res.Response"
                         }
                     }
                 }
@@ -170,11 +255,8 @@
                     }
                 ],
                 "description": "Enter user_name/phone/email with password",
-                "produces": [
-                    "application/json"
-                ],
                 "tags": [
-                    "login"
+                    "Login"
                 ],
                 "summary": "api for user login",
                 "operationId": "LoginPost",
@@ -191,18 +273,27 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "Successfully Loged In"
+                        "description": "successfully logged in",
+                        "schema": {
+                            "$ref": "#/definitions/res.Response"
+                        }
                     },
                     "400": {
-                        "description": "faild to login"
+                        "description": "faild to login",
+                        "schema": {
+                            "$ref": "#/definitions/res.Response"
+                        }
                     },
                     "500": {
-                        "description": "faild to generat JWT"
+                        "description": "faild to generat JWT",
+                        "schema": {
+                            "$ref": "#/definitions/res.Response"
+                        }
                     }
                 }
             }
         },
-        "/login-otp-send": {
+        "/login/otp-send": {
             "post": {
                 "security": [
                     {
@@ -210,11 +301,8 @@
                     }
                 ],
                 "description": "user can enter email/user_name/phone will send an otp to user phone",
-                "produces": [
-                    "application/json"
-                ],
                 "tags": [
-                    "login"
+                    "Login"
                 ],
                 "summary": "api for user login with otp",
                 "operationId": "LoginOtpSend",
@@ -231,18 +319,27 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "Successfully Otp Send to registered number"
+                        "description": "Successfully Otp Send to registered number",
+                        "schema": {
+                            "$ref": "#/definitions/res.Response"
+                        }
                     },
                     "400": {
-                        "description": "Enter input properly"
+                        "description": "Enter input properly",
+                        "schema": {
+                            "$ref": "#/definitions/res.Response"
+                        }
                     },
                     "500": {
-                        "description": "Faild to send otp"
+                        "description": "Faild to send otp",
+                        "schema": {
+                            "$ref": "#/definitions/res.Response"
+                        }
                     }
                 }
             }
         },
-        "/login-otp-verify": {
+        "/login/otp-verify": {
             "post": {
                 "security": [
                     {
@@ -250,11 +347,8 @@
                     }
                 ],
                 "description": "enter your otp that send to your registered number",
-                "produces": [
-                    "application/json"
-                ],
                 "tags": [
-                    "login"
+                    "Login"
                 ],
                 "summary": "varify user login otp",
                 "operationId": "LoginOtpVerify",
@@ -271,10 +365,10 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "Successfully Logged In"
+                        "description": "successfully logged in uing otp"
                     },
                     "400": {
-                        "description": "Invalid Otp"
+                        "description": "invalid input otp"
                     },
                     "500": {
                         "description": "Faild to generate JWT"
@@ -290,17 +384,152 @@
                     }
                 ],
                 "description": "user can logout",
-                "produces": [
-                    "application/json"
-                ],
                 "tags": [
-                    "logout"
+                    "Logout"
                 ],
                 "summary": "api for user to lgout",
                 "operationId": "Logout",
                 "responses": {
                     "200": {
-                        "description": "Successfully logout"
+                        "description": "successfully logged out"
+                    }
+                }
+            }
+        },
+        "/orders": {
+            "get": {
+                "description": "user can see all user order history",
+                "tags": [
+                    "Orders"
+                ],
+                "summary": "api for showing user order list",
+                "operationId": "GetOrdersOfUser",
+                "responses": {
+                    "200": {
+                        "description": "successfully got shop order list of user",
+                        "schema": {
+                            "$ref": "#/definitions/res.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "faild to get user shop order list",
+                        "schema": {
+                            "$ref": "#/definitions/res.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/orders/": {
+            "put": {
+                "description": "admin can change user order status",
+                "tags": [
+                    "Orders"
+                ],
+                "summary": "api for admin to change the status of order",
+                "operationId": "GetAllShopOrders",
+                "responses": {
+                    "200": {
+                        "description": "Successfully order cancelled",
+                        "schema": {
+                            "$ref": "#/definitions/res.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "invalid input",
+                        "schema": {
+                            "$ref": "#/definitions/res.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/orders/items": {
+            "get": {
+                "description": "user can place after checkout",
+                "tags": [
+                    "Orders"
+                ],
+                "summary": "api for show order items of a specific order",
+                "operationId": "GetOrderItemsForUser",
+                "responses": {
+                    "200": {
+                        "description": "successfully got order items",
+                        "schema": {
+                            "$ref": "#/definitions/res.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "faild to get order list of user",
+                        "schema": {
+                            "$ref": "#/definitions/res.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/profile": {
+            "put": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "user can edit user details",
+                "tags": [
+                    "Profile"
+                ],
+                "summary": "api for edit user details",
+                "operationId": "EditAccount",
+                "parameters": [
+                    {
+                        "description": "input field",
+                        "name": "input",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/req.ReqUser"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successfully edited user details",
+                        "schema": {
+                            "$ref": "#/definitions/res.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "invalid input",
+                        "schema": {
+                            "$ref": "#/definitions/res.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/profile/": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "user can see user details",
+                "tags": [
+                    "Profile"
+                ],
+                "summary": "api for showing user details",
+                "operationId": "Account",
+                "responses": {
+                    "200": {
+                        "description": "Successfully user account details found"
+                    },
+                    "500": {
+                        "description": "faild to show user details",
+                        "schema": {
+                            "$ref": "#/definitions/res.Response"
+                        }
                     }
                 }
             }
@@ -313,20 +542,23 @@
                     }
                 ],
                 "description": "user can show all adderss",
-                "produces": [
-                    "application/json"
-                ],
                 "tags": [
-                    "address"
+                    "Address"
                 ],
                 "summary": "api for get all address of user",
                 "operationId": "GetAddresses",
                 "responses": {
                     "200": {
-                        "description": "Successfully address got"
+                        "description": "successfully got user addresses",
+                        "schema": {
+                            "$ref": "#/definitions/res.Response"
+                        }
                     },
                     "500": {
-                        "description": "Faild to get address of user"
+                        "description": "faild to show user addresses",
+                        "schema": {
+                            "$ref": "#/definitions/res.Response"
+                        }
                     }
                 }
             },
@@ -337,11 +569,8 @@
                     }
                 ],
                 "description": "user can change existing address",
-                "produces": [
-                    "application/json"
-                ],
                 "tags": [
-                    "address"
+                    "Address"
                 ],
                 "summary": "api for edit user address",
                 "operationId": "EditAddress",
@@ -358,10 +587,16 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "Successfully addresses updated"
+                        "description": "successfully addresses updated",
+                        "schema": {
+                            "$ref": "#/definitions/res.Response"
+                        }
                     },
                     "400": {
-                        "description": "can't update the address"
+                        "description": "can't update the address",
+                        "schema": {
+                            "$ref": "#/definitions/res.Response"
+                        }
                     }
                 }
             },
@@ -372,11 +607,8 @@
                     }
                 ],
                 "description": "get a new address from user to store the the database",
-                "produces": [
-                    "application/json"
-                ],
                 "tags": [
-                    "address"
+                    "Address"
                 ],
                 "summary": "api for adding a new address for user",
                 "operationId": "AddAddress",
@@ -393,10 +625,16 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "Successfully address added"
+                        "description": "Successfully address added",
+                        "schema": {
+                            "$ref": "#/definitions/res.Response"
+                        }
                     },
                     "400": {
-                        "description": "can't add the user addres"
+                        "description": "inavlid input",
+                        "schema": {
+                            "$ref": "#/definitions/res.Response"
+                        }
                     }
                 }
             }
@@ -409,11 +647,8 @@
                     }
                 ],
                 "description": "user can see what are the fields to enter to create a new account",
-                "produces": [
-                    "application/json"
-                ],
                 "tags": [
-                    "signup"
+                    "Signup"
                 ],
                 "summary": "api for user to signup page",
                 "operationId": "SignUpGet",
@@ -421,7 +656,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/domain.User"
+                            "$ref": "#/definitions/res.Response"
                         }
                     }
                 }
@@ -433,11 +668,8 @@
                     }
                 ],
                 "description": "user can send user details and validate and create new account",
-                "produces": [
-                    "application/json"
-                ],
                 "tags": [
-                    "signup"
+                    "Signup"
                 ],
                 "summary": "api for user to post the user details",
                 "operationId": "SignUpPost",
@@ -458,11 +690,8 @@
                         "ApiKeyAuth": []
                     }
                 ],
-                "produces": [
-                    "application/json"
-                ],
                 "tags": [
-                    "wishlist"
+                    "Wishlist"
                 ],
                 "summary": "api get all wish list items of user",
                 "operationId": "GetWishListI",
@@ -481,75 +710,66 @@
                         "ApiKeyAuth": []
                     }
                 ],
-                "produces": [
-                    "application/json"
+                "tags": [
+                    "Wishlist"
+                ],
+                "summary": "api to add a productItem to wish list",
+                "operationId": "AddToWishList",
+                "parameters": [
+                    {
+                        "description": "product_id",
+                        "name": "product_id",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successfully added product item to wishlist",
+                        "schema": {
+                            "$ref": "#/definitions/res.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "invalid input",
+                        "schema": {
+                            "$ref": "#/definitions/res.Response"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
                 ],
                 "tags": [
-                    "wishlist"
+                    "Wishlist"
                 ],
                 "summary": "api to remove a productItem from wish list",
                 "operationId": "RemoveFromWishList",
                 "responses": {
                     "200": {
-                        "description": "Successfully product_item remvoed from wishlist"
+                        "description": "successfully removed product item from wishlist",
+                        "schema": {
+                            "$ref": "#/definitions/res.Response"
+                        }
                     },
                     "400": {
-                        "description": "Faild to remove product_item from wishlist"
+                        "description": "invalid input",
+                        "schema": {
+                            "$ref": "#/definitions/res.Response"
+                        }
                     }
                 }
             }
         }
     },
     "definitions": {
-        "domain.User": {
-            "type": "object",
-            "required": [
-                "age",
-                "email",
-                "first_name",
-                "last_name",
-                "password",
-                "phone",
-                "user_name"
-            ],
-            "properties": {
-                "age": {
-                    "type": "integer"
-                },
-                "block_status": {
-                    "type": "boolean"
-                },
-                "email": {
-                    "type": "string"
-                },
-                "first_name": {
-                    "type": "string",
-                    "maxLength": 50,
-                    "minLength": 2
-                },
-                "id": {
-                    "type": "integer"
-                },
-                "last_name": {
-                    "type": "string",
-                    "maxLength": 50,
-                    "minLength": 1
-                },
-                "password": {
-                    "type": "string"
-                },
-                "phone": {
-                    "type": "string",
-                    "maxLength": 10,
-                    "minLength": 10
-                },
-                "user_name": {
-                    "type": "string",
-                    "maxLength": 15,
-                    "minLength": 3
-                }
-            }
-        },
         "req.LoginStruct": {
             "type": "object",
             "required": [
@@ -679,6 +899,10 @@
                 "product_item_id"
             ],
             "properties": {
+                "count": {
+                    "type": "integer",
+                    "minimum": 1
+                },
                 "increment": {
                     "type": "boolean"
                 },
@@ -738,39 +962,60 @@
                 }
             }
         },
-        "res.ResponseCart": {
+        "req.ReqUpdateOrder": {
             "type": "object",
+            "required": [
+                "shop_order_id"
+            ],
             "properties": {
-                "cartItems": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/res.ResponseCartItem"
-                    }
+                "order_status_id": {
+                    "type": "integer"
                 },
-                "total_price": {
+                "shop_order_id": {
                     "type": "integer"
                 }
             }
         },
-        "res.ResponseCartItem": {
+        "req.ReqUser": {
             "type": "object",
             "properties": {
-                "out_of_stock": {
-                    "type": "boolean"
-                },
-                "price": {
+                "age": {
                     "type": "integer"
                 },
-                "product_item_id": {
-                    "type": "integer"
-                },
-                "product_name": {
+                "email": {
                     "type": "string"
                 },
-                "qty": {
-                    "type": "integer"
+                "first_name": {
+                    "type": "string",
+                    "maxLength": 50,
+                    "minLength": 2
                 },
-                "sub_total": {
+                "last_name": {
+                    "type": "string",
+                    "maxLength": 50,
+                    "minLength": 1
+                },
+                "phone": {
+                    "type": "string",
+                    "maxLength": 10,
+                    "minLength": 10
+                },
+                "user_name": {
+                    "type": "string",
+                    "maxLength": 15,
+                    "minLength": 3
+                }
+            }
+        },
+        "res.Response": {
+            "type": "object",
+            "properties": {
+                "data": {},
+                "errors": {},
+                "message": {
+                    "type": "string"
+                },
+                "status": {
                     "type": "integer"
                 }
             }

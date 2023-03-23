@@ -7,6 +7,7 @@ import (
 
 	"github.com/jinzhu/copier"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/domain"
+	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/helper"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/helper/req"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/helper/res"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/repository/interfaces"
@@ -64,24 +65,45 @@ func (c *userUserCase) LoginOtp(ctx context.Context, user domain.User) (domain.U
 	return user, nil
 }
 
-func (c *userUserCase) Signup(ctx context.Context, user domain.User) (domain.User, error) {
-	//hash the password
-	hashPass, err := bcrypt.GenerateFromPassword([]byte(user.Password), 10)
-
+func (c *userUserCase) Signup(ctx context.Context, user domain.User) error {
+	// check the user already exist with this details
+	checkUser, err := c.userRepo.FindUser(ctx, user)
 	if err != nil {
-		return user, errors.New("error to hash the password")
+		return err
 	}
-	user.Password = string(hashPass)
-
-	return c.userRepo.SaveUser(ctx, user)
+	// if user not exist then create user
+	if checkUser.ID == 0 {
+		//hash the password
+		hashPass, err := bcrypt.GenerateFromPassword([]byte(user.Password), 10)
+		if err != nil {
+			return errors.New("error to hash the password")
+		}
+		user.Password = string(hashPass)
+		return c.userRepo.SaveUser(ctx, user)
+	}
+	// if user exist then check which field is exist
+	return helper.CompareUsers(user, checkUser)
 }
 
-func (c *userUserCase) Home(ctx context.Context, userId uint) (domain.User, error) {
+func (c *userUserCase) Account(ctx context.Context, userID uint) (domain.User, error) {
 
-	var user = domain.User{ID: userId}
-
+	var user = domain.User{ID: userID}
 	return c.userRepo.FindUser(ctx, user)
 
+}
+
+func (c *userUserCase) EditAccount(ctx context.Context, user domain.User) error {
+
+	// first check any other user exist with this entered unique fields
+	checkUser, err := c.userRepo.FindUserExceptID(ctx, user)
+	if err != nil {
+		return err
+	} else if checkUser.ID == 0 { // if there is no other user exist with this detail then update it
+		return c.userRepo.EditUser(ctx, user)
+	}
+
+	// if any user exist with this field then show wich field is exis
+	return helper.CompareUsers(user, checkUser)
 }
 
 func (c *userUserCase) SaveToCart(ctx context.Context, body req.ReqCart) (domain.CartItem, error) {

@@ -63,3 +63,6 @@ type ProductImage struct {
 	ProductItem   ProductItem
 	Image         string `json:"image" gorm:"not null"`
 }
+
+
+// promotion
