@@ -57,7 +57,7 @@ wire:
 
 ## Generate swagger docs
 swag: 
-	swag init -g pkg/api/handler/user.go -o ./cmd/api/docs
+	swag init -g pkg/api/server.go -o ./cmd/api/docs
  
 ## Display this help screen
 help:

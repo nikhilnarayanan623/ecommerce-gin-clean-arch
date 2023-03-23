@@ -41,10 +41,10 @@ func AdminRoutes(api *gin.RouterGroup, adminHandler *handler.AdminHandler,
 			category.POST("/variation-option", productHandler.VariationOptionPost)
 		}
 		// product
-		product := api.Group("/product")
+		product := api.Group("/products")
 		{
-			product.GET("/product", productHandler.ListProducts)
-			product.POST("/product", productHandler.AddProducts)
+			product.GET("/", productHandler.ListProducts)
+			product.POST("/", productHandler.AddProducts)
 			product.GET("/product-item", productHandler.GetProductItems)
 			product.POST("/product-item", productHandler.AddProductItem)
 
@@ -54,6 +54,16 @@ func AdminRoutes(api *gin.RouterGroup, adminHandler *handler.AdminHandler,
 		{
 			order.GET("/", orderHandler.GetAllShopOrders)
 			order.PUT("/", orderHandler.UdateOrderStatus)
+		}
+
+		// offer
+		offer := api.Group("/offers")
+		{
+			offer.POST("/", productHandler.AddOffer) // add a new offer
+			offer.GET("/")                           // get all offers
+
+			offer.POST("/category", productHandler.AddOfferCategory) // addd offer for categories
+			offer.POST("/product", productHandler.AddOfferProduct)   // add offer for products
 		}
 
 	}

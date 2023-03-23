@@ -1,13 +1,16 @@
 package domain
 
+import "time"
+
 // represent a model of product
 type Product struct {
 	ID          uint     `json:"id" gorm:"primaryKey;not null"`
 	ProductName string   `json:"product_name" gorm:"not null" binding:"required,min=3,max=50"`
-	Description string   `json:"description" gorm:"not null" validate:"required,min=10,max=100"`
+	Description string   `json:"description" gorm:"not null" binding:"required,min=10,max=100"`
 	CategoryID  uint     `json:"category_id" binding:"omitempty,numeric"`
 	Category    Category `json:"-"` //when binding this fields inside taking so added new requbody on helper
-	Price       uint     `json:"price" gorm:"not null" validte:"required,numeric"`
+	Price       uint     `json:"price" gorm:"not null" binding:"required,numeric"`
+	OfferPrice  uint     `json:"offer_price"`
 	Image       string   `json:"image" gorm:"not null"`
 }
 
@@ -17,8 +20,9 @@ type ProductItem struct {
 	ProductID uint `json:"product_id" gorm:"not null" binding:"required,numeric"`
 	Product   Product
 	//images are stored in sperate table along with productItem Id
-	QtyInStock uint `json:"qty_in_stck" gorm:"not null" binding:"required,numeric"` // no need of stockAvailble column , because from this qty we can get it
+	QtyInStock uint `json:"qty_in_stock" gorm:"not null" binding:"required,numeric"` // no need of stockAvailble column , because from this qty we can get it
 	Price      uint `json:"price" gorm:"not null" binding:"required,numeric"`
+	OfferPrice uint `json:"offer_price"`
 }
 
 // for a products category main and sub category as self joining
@@ -64,5 +68,28 @@ type ProductImage struct {
 	Image         string `json:"image" gorm:"not null"`
 }
 
+// offer
+type Offer struct {
+	ID           uint      `json:"id" gorm:"primaryKey;not null" swaggerignore:"true"`
+	OfferName    string    `json:"offer_name" gorm:"not null;unique" binding:"required"`
+	Description  string    `json:"description" gorm:"not null" binding:"required,min=6,max=50"`
+	DiscountRate uint      `json:"discount_rate" gorm:"not null" binding:"required,numeric,min=1,max=100"`
+	StartDate    time.Time `json:"start_date" gorm:"not null" binding:"required"`
+	EndDate      time.Time `json:"end_date" gorm:"not null" binding:"required,gtfield=StartDate"`
+}
 
-// promotion
+type OfferCategory struct {
+	ID         uint     `json:"id" gorm:"primaryKey;not null"`
+	OfferID    uint     `json:"offer_id" gorm:"not null"`
+	Offer      Offer    `json:"i,exclude"`
+	CategoryID uint     `json:"category_id" gorm:"not null"`
+	Category   Category `json:"r,exclude"`
+}
+
+type OfferProduct struct {
+	ID        uint `json:"id" gorm:"primaryKey;not null"`
+	OfferID   uint `json:"offer_id" gorm:"not null"`
+	Offer     Offer
+	ProductID uint `json:"product_id" gorm:"not null"`
+	Product   Product
+}

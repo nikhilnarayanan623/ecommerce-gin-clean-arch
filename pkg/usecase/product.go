@@ -2,6 +2,8 @@ package usecase
 
 import (
 	"context"
+	"errors"
+	"fmt"
 
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/domain"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/helper/req"
@@ -25,9 +27,28 @@ func (c *productUseCase) GetCategory(ctx context.Context) (res.RespFullCategory,
 }
 
 // to add a new category or add new sub category
-func (c *productUseCase) AddCategory(ctx context.Context, category domain.Category) (domain.Category, error) {
+func (c *productUseCase) AddCategory(ctx context.Context, category domain.Category) error {
 
-	return c.productRepo.AddCategory(ctx, category)
+	// check the given category already exist or not
+	var checkCategory = domain.Category{CategoryName: category.CategoryName}
+	if checkCategory, err := c.productRepo.FindCategory(ctx, category); err != nil {
+		return err
+	} else if checkCategory.ID != 0 {
+		return fmt.Errorf("category already exit with %s name", category.CategoryName)
+	}
+
+	// if main category is given then check it valid or not
+	if category.CategoryID != 0 {
+		checkCategory.CategoryName = ""
+		checkCategory.ID = category.CategoryID
+		if checkCategory, err := c.productRepo.FindCategory(ctx, checkCategory); err != nil {
+			return err
+		} else if checkCategory.CategoryName == "" {
+			return errors.New("invalid categoyr id")
+		}
+	}
+
+	return c.productRepo.SaveCategory(ctx, category)
 }
 
 // to add new variation for a category
@@ -47,8 +68,14 @@ func (c *productUseCase) GetProducts(ctx context.Context) ([]res.ResponseProduct
 }
 
 // to add new product
-func (c *productUseCase) AddProduct(ctx context.Context, product domain.Product) (domain.Product, error) {
-	return c.productRepo.AddProduct(ctx, product)
+func (c *productUseCase) AddProduct(ctx context.Context, product domain.Product) error {
+	//check product already exist or not
+	if product, err := c.productRepo.FindProduct(ctx, product); err != nil {
+		return err
+	} else if product.ID != 0 {
+		return fmt.Errorf("product already exist with %s product name", product.ProductName)
+	}
+	return c.productRepo.SaveProduct(ctx, product)
 }
 
 // for add new productItem for a speicific product

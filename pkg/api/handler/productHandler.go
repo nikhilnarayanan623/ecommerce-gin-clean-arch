@@ -7,7 +7,6 @@ import (
 	"github.com/jinzhu/copier"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/domain"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/helper/req"
-	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/helper/res"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/usecase/interfaces"
 	service "github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/usecase/interfaces"
 )
@@ -65,7 +64,7 @@ func (p *ProductHandler) AddCategory(ctx *gin.Context) {
 		return
 	}
 
-	category, err := p.productUseCase.AddCategory(ctx, productCategory)
+	err := p.productUseCase.AddCategory(ctx, productCategory)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"StatsuCode": 400,
@@ -75,13 +74,9 @@ func (p *ProductHandler) AddCategory(ctx *gin.Context) {
 		return
 	}
 
-	var response res.RespCategory
-	copier.Copy(&response, &category)
-
 	ctx.JSON(http.StatusOK, gin.H{
 		"StatsuCode": 200,
 		"msg":        "category added",
-		"categoty":   response,
 	})
 }
 
@@ -197,7 +192,7 @@ func (p *ProductHandler) AddProducts(ctx *gin.Context) {
 	var product domain.Product
 	copier.Copy(&product, &body)
 
-	product, err := p.productUseCase.AddProduct(ctx, product)
+	err := p.productUseCase.AddProduct(ctx, product)
 
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
@@ -211,7 +206,6 @@ func (p *ProductHandler) AddProducts(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, gin.H{
 		"StatsuCode": 200,
 		"msg":        "successfully product added",
-		"product":    product,
 	})
 }
 

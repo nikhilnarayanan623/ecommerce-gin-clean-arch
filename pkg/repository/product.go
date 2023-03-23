@@ -20,33 +20,28 @@ func NewProductRepository(db *gorm.DB) interfaces.ProductRepository {
 	return &productDatabase{DB: db}
 }
 
-// add category
-func (c *productDatabase) AddCategory(ctx context.Context, category domain.Category) (domain.Category, error) {
+func (c *productDatabase) FindCategory(ctx context.Context, category domain.Category) (domain.Category, error) {
 
-	var checkCat domain.Category
-	//first check the categoryname already exisits or not
-	c.DB.Raw("SELECT * FROM categories WHERE category_name=?", category.CategoryName).Scan(&checkCat)
-
-	if checkCat.ID != 0 { // means category already exist
-		return category, errors.New("category already exist")
+	if c.DB.Raw("SELECT * FROM categories WHERE id = ? OR category_name=?", category.ID, category.CategoryName).Scan(&category).Error != nil {
+		return category, errors.New("faild to get category")
 	}
+	return category, nil
+}
+
+// add category
+func (c *productDatabase) SaveCategory(ctx context.Context, category domain.Category) error {
 
 	// check the given category is main or sub
 	if category.CategoryID == 0 { // no catogry id means its main category
 		querry := `INSERT INTO categories (category_name)VALUES($1) RETURNING id, category_id, category_name`
 		c.DB.Raw(querry, category.CategoryName).Scan(&category)
 	} else {
-		// first check the category id is valid or not
-		c.DB.Raw("SELECT * FROM categories WHERE id=?", category.CategoryID).Scan(&checkCat)
-		if checkCat.ID == 0 { // its not a valid category
-			return category, errors.New("category_id is invalid main category not exist")
-		}
 		//otherwise add its with main category
 		querry := `INSERT INTO categories (category_id,category_name)VALUES($1,$2) RETURNING id, category_id,category_name`
 		c.DB.Raw(querry, category.CategoryID, category.CategoryName).Scan(&category)
 	}
 
-	return category, nil
+	return nil
 }
 
 // to get all categories, all variations and all variation value
@@ -124,23 +119,23 @@ func (c *productDatabase) AddVariationOption(ctx context.Context, variationOptio
 	return variationOption, nil
 }
 
-// to add a new product in database
-func (c *productDatabase) AddProduct(ctx context.Context, product domain.Product) (domain.Product, error) {
+func (c *productDatabase) FindProduct(ctx context.Context, product domain.Product) (domain.Product, error) {
 
-	// first check the product already exist
-	var checkProduct domain.Product
-	c.DB.Raw("SELECT * FROM products WHERE product_name=?", product.ProductName).Scan(&checkProduct)
-
-	if checkProduct.ID != 0 {
-		return product, errors.New("product already exist")
+	if c.DB.Raw("SELECT * FROM products WHERE id = ? OR product_name=?", product.ID, product.ProductName).Scan(&product).Error != nil {
+		return product, errors.New("faild to get product")
 	}
+	return product, nil
+}
+
+// to add a new product in database
+func (c *productDatabase) SaveProduct(ctx context.Context, product domain.Product) error {
 
 	querry := `INSERT INTO products (product_name,description,category_id,price,image)VALUES($1,$2,$3,$4,$5) RETURNING id,product_name,description,category_id,price,image`
 	if c.DB.Raw(querry, product.ProductName, product.Description, product.CategoryID, product.Price, product.Image).Scan(&product).Error != nil {
-		return product, errors.New("faild to insert product on database")
+		return errors.New("faild to insert product on database")
 	}
 
-	return product, nil
+	return nil
 }
 
 // get all products from database

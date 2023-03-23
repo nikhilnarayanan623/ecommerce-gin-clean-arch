@@ -69,7 +69,7 @@ func UserRoutes(api *gin.RouterGroup, userHandler *handler.UserHandler, ProductH
 			profile.DELETE("/address", userHandler.DeleteAddress)
 		}
 
-		//& order
+		// order
 		orders := api.Group("/orders")
 		{
 			orders.GET("/", orderHandler.GetOrdersOfUser)                          // get all order list for user
