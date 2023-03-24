@@ -35,12 +35,12 @@ func (c *OrderDatabase) FindShopOrderByShopOrderID(ctx context.Context, shopOrde
 func (c *OrderDatabase) FindAllShopOrdersByUserID(ctx context.Context, userID uint) ([]res.ResShopOrder, error) {
 
 	var shopOrders []res.ResShopOrder
-	query := `SELECT so.id AS shop_order_id, so.order_date, so.order_total_price,so.order_status_id,os.status AS order_status,so.address_id,so.cod FROM shop_orders so 
+	query := `SELECT user_id, so.id AS shop_order_id, so.order_date, so.order_total_price,so.order_status_id,os.status AS order_status,so.address_id,so.cod FROM shop_orders so 
 	JOIN order_statuses os ON so.order_status_id = os.id  WHERE user_id = ?`
 	if c.DB.Raw(query, userID).Scan(&shopOrders).Error != nil {
 		return shopOrders, errors.New("faild to get user shop order")
 	}
-	
+
 	// take full address and add to it
 	query = `SELECT adrs.id AS address_id, adrs.name,adrs.phone_number,adrs.house,adrs.area, adrs.land_mark,adrs.city,adrs.pincode,adrs.country_id,c.country_name 
 	FROM addresses adrs JOIN countries c ON adrs.country_id = c.id  WHERE adrs.id= ?`
@@ -85,7 +85,7 @@ func (c *OrderDatabase) FindAllOrdersItemsByShopOrderID(ctx context.Context, sho
 
 	var orderList []res.ResOrder
 
-	query := `SELECT ol.product_item_id,p.product_name,p.image,pi.price, so.order_date, os.status,ol.qty, (pi.price * ol.qty) AS sub_total FROM  order_lines ol 
+	query := `SELECT ol.product_item_id,p.product_name,p.image,ol.price, so.order_date, os.status,ol.qty, (ol.price * ol.qty) AS sub_total FROM  order_lines ol 
 	JOIN shop_orders so ON ol.shop_order_id = so.id JOIN product_items pi ON ol.product_item_id = pi.id
 	JOIN products p ON pi.product_id = p.id JOIN order_statuses os ON so.order_status_id = os.id AND ol.shop_order_id= ?`
 
@@ -161,19 +161,18 @@ func (c *OrderDatabase) SaveOrderByCart(ctx context.Context, shopOrder domain.Sh
 	// make order line for each cartItems
 	query = `INSERT INTO order_lines (product_item_id,shop_order_id,qty,price) VALUES ($1,$2,$3,$4)`
 	var (
-		subTotal, price uint
-		orderLine       domain.OrderLine
+		price     uint
+		orderLine domain.OrderLine
 	)
 	for _, cartItem := range cartItems {
-		// get productitem price
-		if trx.Raw("SELECT price FROM product_items WHERE id = ?", cartItem.ProductItemID).Scan(&price).Error != nil {
+		// get productitem price if discount price is there take discount price other wise take price
+		if trx.Raw("SELECT CASE WHEN discount_price > 0 THEN discount_price ELSE price END AS price FROM product_items WHERE id = ?", cartItem.ProductItemID).Scan(&price).Error != nil {
 			trx.Rollback()
 			return errors.New("faild to get producItem's price")
 		}
 		// calculate cartItem subtotal price
-		subTotal = price * cartItem.Qty
 		// make order line
-		if trx.Raw(query, cartItem.ProductItemID, shopOrder.ID, cartItem.Qty, subTotal).Scan(&orderLine).Error != nil {
+		if trx.Raw(query, cartItem.ProductItemID, shopOrder.ID, cartItem.Qty, price).Scan(&orderLine).Error != nil {
 			trx.Rollback()
 			return errors.New("faild to create order line")
 		}
@@ -221,8 +220,11 @@ func (c *OrderDatabase) CheckOutCart(ctx context.Context, userId uint) (res.ResC
 
 	var resCheckOut res.ResCheckOut
 	// get all cartItems of user which are not out of stock
-	query := `SELECT ci.product_item_id, p.product_name,pi.price, pi.qty_in_stock, ci.qty, (pi.price * ci.qty) AS sub_total  FROM cart_items ci JOIN carts c ON ci.cart_id = c.id JOIN product_items pi ON ci.product_item_id = pi.id 
+	query := `SELECT ci.product_item_id, p.product_name,pi.price,pi.discount_price, pi.qty_in_stock, ci.qty, 
+	CASE WHEN pi.discount_price > 0 THEN (ci.qty * pi.discount_price) ELSE (ci.qty * pi.price) END AS sub_total  
+	FROM cart_items ci JOIN carts c ON ci.cart_id = c.id JOIN product_items pi ON ci.product_item_id = pi.id 
 	JOIN products p ON pi.product_id = p.id AND c.user_id = ?`
+
 	if c.DB.Raw(query, userId).Scan(&resCheckOut.ProductItems).Error != nil {
 		return resCheckOut, errors.New("faild to get cartItems for checkout")
 	}

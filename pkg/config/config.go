@@ -24,7 +24,6 @@ var envsNames = []string{
 }
 
 var config Config // create an instance of Config
-
 // func to get env variable and store it on struct Config and retuen it with error as nil or error
 func LoadConfig() (Config, error) {
 
