@@ -23,6 +23,9 @@ type ProductUseCase interface {
 
 	// offer
 	AddOffer(ctx context.Context, offer domain.Offer) error
+	GetAllOffers(ctx context.Context) (res.ResOffer, error)
+
 	AddOfferCategory(ctx context.Context, offerCategory domain.OfferCategory) error
+	ReplaceOfferCategory(ctx context.Context, offerCategory domain.OfferCategory) error
 	AddOfferProduct(ctx context.Context, offerProduct domain.OfferProduct) error
 }

@@ -1,14 +1,17 @@
 package res
 
+import "github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/domain"
+
 // response for product
 type ResponseProduct struct {
-	ID           uint   `json:"id"`
-	ProductName  string `json:"product_name"`
-	Description  string `json:"description" `
-	CategoryID   uint   `json:"category_id"`
-	CategoryName string `json:"category_name"`
-	Price        uint   `json:"price"`
-	Image        string `json:"image"`
+	ID            uint   `json:"id"`
+	ProductName   string `json:"product_name"`
+	Description   string `json:"description" `
+	CategoryID    uint   `json:"category_id"`
+	CategoryName  string `json:"category_name"`
+	Price         uint   `json:"price"`
+	DiscountPrice uint   `json:"discount_price"`
+	Image         string `json:"image"`
 }
 
 // fo a spedific category representation
@@ -44,12 +47,34 @@ type RespFullCategory struct {
 
 // for reponse a specific products all product items
 type RespProductItems struct {
-	ID          uint   `json:"id"`
-	ProductName string `json:"product_name"`
-	ProductID   uint   `json:"product_id"`
-	Price       uint   `json:"price"`
-	QtyInStock  uint   `json:"qty_in_stock"`
+	ID            uint   `json:"id"`
+	ProductName   string `json:"product_name"`
+	ProductID     uint   `json:"product_id"`
+	Price         uint   `json:"price"`
+	DiscountPrice uint   `json:"discount_price"`
+	QtyInStock    uint   `json:"qty_in_stock"`
 
 	VariationOptionID uint   `json:"variation_option_id"`
 	VariationValue    string `json:"variation_value"`
+}
+
+// offer response
+type ResOfferCategory struct {
+	CategoryID   uint   `json:"category_id"`
+	CategoryName string `json:"category_name"`
+	OfferID      uint   `json:"offer_id"`
+	OfferName    string `json:"offer_name"`
+}
+
+type ResOfferProduct struct {
+	ProductID   uint   `json:"product_id"`
+	ProductName string `json:"product_name"`
+	OfferID     uint   `json:"offer_id"`
+	OfferName   string `json:"offer_name"`
+}
+
+type ResOffer struct {
+	Offers          []domain.Offer
+	OfferCategories []ResOfferCategory `json:"offer_categories"`
+	OfferProducts   []ResOfferProduct  `json:"offer_products"`
 }

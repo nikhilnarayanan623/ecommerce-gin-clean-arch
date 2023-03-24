@@ -40,6 +40,25 @@ func (p *ProductHandler) AddOffer(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, response)
 }
 
+func (c *ProductHandler) ShowAllOffers(ctx *gin.Context) {
+
+	resOfer, err := c.productUseCase.GetAllOffers(ctx)
+	if err != nil {
+		response := res.ErrorResponse(500, "faild to get offers", err.Error(), nil)
+		ctx.JSON(http.StatusInternalServerError, response)
+		return
+	}
+
+	if resOfer.Offers == nil {
+		response := res.SuccessResponse(200, "there is no offers to show", resOfer)
+		ctx.JSON(http.StatusOK, response)
+		return
+	}
+
+	response := res.SuccessResponse(200, "successfully got all offer", resOfer)
+	ctx.JSON(http.StatusOK, response)
+}
+
 // AddOfferCategory godoc
 // @summary api for admin to add offer for category
 // @id AddOfferCategory
@@ -68,6 +87,36 @@ func (c *ProductHandler) AddOfferCategory(ctx *gin.Context) {
 
 	response := res.SuccessResponse(200, "successfully offer added for given category")
 	ctx.JSON(200, response)
+}
+
+// ReplaceOfferCategory godoc
+// @summary api for admin to add offer for category
+// @id ReplaceOfferCategory
+// @tags Offers
+// @Param input body req.ReqOfferCategory{} true "input field"
+// @Router /admin/offers/category/replace [post]
+// @Success 200 {object} res.Response{} "successfully offer replaced for category"
+// @Failure 400 {object} res.Response{} "invalid input"
+func (c *ProductHandler) ReplaceOfferCategory(ctx *gin.Context) {
+	var body req.ReqOfferCategory
+	if err := ctx.ShouldBindJSON(&body); err != nil {
+		response := res.ErrorResponse(400, "invalid inputs", err.Error(), nil)
+		ctx.JSON(http.StatusBadRequest, response)
+		return
+	}
+	var offerCategory domain.OfferCategory
+	copier.Copy(&offerCategory, &body)
+
+	err := c.productUseCase.ReplaceOfferCategory(ctx, offerCategory)
+	if err != nil {
+		response := res.ErrorResponse(400, "faild to replace offer for given category", err.Error(), nil)
+		ctx.JSON(http.StatusBadRequest, response)
+		return
+	}
+
+	response := res.SuccessResponse(200, "successfully offer replaced for given category")
+	ctx.JSON(200, response)
+
 }
 
 // AddOfferProduct godoc

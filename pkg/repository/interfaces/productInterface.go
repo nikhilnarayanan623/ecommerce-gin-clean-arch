@@ -24,11 +24,16 @@ type ProductRepository interface {
 	AddVariationOption(ctx context.Context, variationOption domain.VariationOption) (domain.VariationOption, error)
 	// offer
 	FindOffer(ctx context.Context, offer domain.Offer) (domain.Offer, error)
+	FindAllOffer(ctx context.Context) ([]domain.Offer, error)
 	SaveOffer(ctx context.Context, offer domain.Offer) error
 
-	FindOfferCategory(ctx context.Context, offerCategory domain.OfferCategory) (domain.OfferCategory, error)
+	FindOfferCategoryCategoryID(ctx context.Context, categoryID uint) (domain.OfferCategory, error)
+	FindAllOfferCategories(ctx context.Context) ([]res.ResOfferCategory, error)
 	SaveOfferCategory(ctx context.Context, offerCategory domain.OfferCategory) error
+	UpdateOfferCategory(ctx context.Context, offerCategory domain.OfferCategory) error
 
 	FindOfferProduct(ctx context.Context, offerProduct domain.OfferProduct) (domain.OfferProduct, error)
+	FindAllOfferProducts(ctx context.Context) ([]res.ResOfferProduct, error)
 	SaveOfferProduct(ctx context.Context, offerProduct domain.OfferProduct) error
+	//DeleteOfferProducts(ctx context.Context, offerID uint) error
 }

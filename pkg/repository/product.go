@@ -143,7 +143,7 @@ func (c *productDatabase) GetProducts(ctx context.Context) ([]res.ResponseProduc
 
 	var products []res.ResponseProduct
 	// aliase :: p := product; c := category
-	querry := `SELECT p.id,p.product_name,p.description,p.price,p.image,p.category_id,p.image,c.category_name FROM products p LEFT JOIN categories c ON p.category_id=c.id`
+	querry := `SELECT p.id,p.product_name,p.description,p.price,p.discount_price,p.image,p.category_id,p.image,c.category_name FROM products p LEFT JOIN categories c ON p.category_id=c.id`
 
 	if c.DB.Raw(querry).Scan(&products).Error != nil {
 		return products, errors.New("faild to get products from database")
@@ -217,7 +217,7 @@ func (c *productDatabase) GetProductItems(ctx context.Context, product domain.Pr
 	}
 
 	//then get all productItems of the product
-	querry := `SELECT pi.id,pi.product_id,pi.price,pi.qty_in_stock,p.product_name FROM product_items pi INNER JOIN products p ON pi.product_id=p.id AND p.id=?`
+	querry := `SELECT pi.id,pi.product_id,pi.price,pi.discount_price,pi.qty_in_stock,p.product_name FROM product_items pi INNER JOIN products p ON pi.product_id=p.id AND p.id=?`
 
 	if c.DB.Raw(querry, product.ID).Scan(&RespProductItems).Error != nil {
 		return RespProductItems, errors.New("faild to get product_items for product given product id")

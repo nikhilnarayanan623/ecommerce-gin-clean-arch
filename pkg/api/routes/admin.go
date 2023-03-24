@@ -59,11 +59,12 @@ func AdminRoutes(api *gin.RouterGroup, adminHandler *handler.AdminHandler,
 		// offer
 		offer := api.Group("/offers")
 		{
-			offer.POST("/", productHandler.AddOffer) // add a new offer
-			offer.GET("/")                           // get all offers
+			offer.POST("/", productHandler.AddOffer)     // add a new offer
+			offer.GET("/", productHandler.ShowAllOffers) // get all offers
 
 			offer.POST("/category", productHandler.AddOfferCategory) // addd offer for categories
-			offer.POST("/product", productHandler.AddOfferProduct)   // add offer for products
+			offer.POST("/category/replace", productHandler.ReplaceOfferCategory)
+			offer.POST("/product", productHandler.AddOfferProduct) // add offer for products
 		}
 
 	}
