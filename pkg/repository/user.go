@@ -166,9 +166,11 @@ func (c *userDatabse) GetCartItems(ctx context.Context, userId uint) (res.Respon
 	}
 
 	// get the cartItem of all user with subtotal
-	query := `SELECT ci.product_item_id,p.product_name, ci.qty,pi.price,pi.price * ci.qty AS sub_total, pi.qty_in_stock 
-				FROM cart_items ci JOIN product_items pi ON ci.product_item_id = pi.id 
-				JOIN products p ON pi.product_id=p.id AND ci.cart_id=?`
+	query := `SELECT ci.product_item_id, p.product_name, ci.qty,pi.price ,
+	 pi.discount_price, CASE WHEN pi.discount_price > 0 THEN pi.discount_price * ci.qty ELSE pi.price * ci.qty END AS sub_total,  
+	 pi.qty_in_stock 
+	 FROM cart_items ci JOIN product_items pi ON ci.product_item_id = pi.id 
+	JOIN products p ON pi.product_id=p.id AND ci.cart_id=?`
 
 	if c.DB.Raw(query, cart.ID).Scan(&response.CartItems).Error != nil {
 		return response, errors.New("faild to get cartItems from database")
