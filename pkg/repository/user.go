@@ -87,9 +87,9 @@ func (c *userDatabse) FindCart(ctx context.Context, userID uint) (domain.Cart, e
 func (c *userDatabse) UpdateCartPrice(ctx context.Context, cart domain.Cart) (domain.Cart, error) {
 
 	// update cartTotal Price
-	query := ` SELECT SUM(ci.qty * pi.price) FROM cart_items ci 
-		JOIN carts c ON ci.cart_id=c.id JOIN product_items pi 
-		ON ci.product_item_id=pi.id AND c.id=? GROUP BY cart_id;`
+	query := ` SELECT SUM(CASE WHEN pi.discount_price > 0 THEN ci.qty * pi.discount_price ELSE ci.qty * pi.price END) FROM cart_items ci 
+	JOIN carts c ON ci.cart_id=c.id JOIN product_items pi 
+	ON ci.product_item_id=pi.id AND c.id=? GROUP BY cart_id`
 
 	var TotalPrice uint
 
