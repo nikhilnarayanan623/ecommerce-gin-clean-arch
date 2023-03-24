@@ -7,6 +7,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/copier"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/domain"
+	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/helper"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/helper/req"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/helper/res"
 )
@@ -40,6 +41,35 @@ func (p *ProductHandler) AddOffer(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, response)
 }
 
+func (c *ProductHandler) RemoveOffer(ctx *gin.Context) {
+
+	offerID, err := helper.StringToUint(ctx.Param("offer_id"))
+	if err != nil {
+		response := res.ErrorResponse(400, "invalid input on param", err.Error(), nil)
+		ctx.JSON(http.StatusBadRequest, response)
+		return
+	}
+
+	err = c.productUseCase.RemoveOffer(ctx, offerID)
+	if err != nil {
+		response := res.ErrorResponse(400, "faild to rmove offer", err.Error(), nil)
+		ctx.JSON(400, response)
+		return
+	}
+
+	response := res.SuccessResponse(200, "successfully offer removed", nil)
+	ctx.JSON(http.StatusOK, response)
+
+}
+
+// ShowAllOffers godoc
+// @summary api for show all offers
+// @id ShowAllOffers
+// @tags Offers
+// @Param input body domain.Offer{} true "input field"
+// @Router /admin/offers/ [get]
+// @Success 200 {object} res.Response{} ""successfully got all offer"
+// @Failure 500 {object} res.Response{} "faild to get offers"
 func (c *ProductHandler) ShowAllOffers(ctx *gin.Context) {
 
 	resOfer, err := c.productUseCase.GetAllOffers(ctx)
@@ -57,6 +87,34 @@ func (c *ProductHandler) ShowAllOffers(ctx *gin.Context) {
 
 	response := res.SuccessResponse(200, "successfully got all offer", resOfer)
 	ctx.JSON(http.StatusOK, response)
+}
+
+// OfferCategoryPage godoc
+// @summary api for show all offers
+// @id OfferCategoryPage
+// @tags Offers
+// @Param input body domain.Offer{} true "input field"
+// @Router /admin/offers/category [get]
+// @Success 200 {object} res.Response{} ""successfully all offers and categories got for offer category page"
+// @Failure 500 {object} res.Response{} "faild to get offers"
+func (c *ProductHandler) OfferCategoryPage(ctx *gin.Context) {
+
+	resOfferCategoryPage, err := c.productUseCase.OfferCategoryPage(ctx)
+	if err != nil {
+		response := res.ErrorResponse(500, "faild to get offer category page data", err.Error(), nil)
+		ctx.JSON(500, response)
+		return
+	}
+
+	if resOfferCategoryPage.Offers == nil {
+		response := res.SuccessResponse(200, "there is no offer so can't add offer for category", nil)
+		ctx.JSON(http.StatusOK, response)
+		return
+	}
+
+	response := res.SuccessResponse(200, "successfully all offers and categories got for offer category page", resOfferCategoryPage)
+	ctx.JSON(http.StatusOK, response)
+
 }
 
 // AddOfferCategory godoc

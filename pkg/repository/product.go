@@ -44,30 +44,31 @@ func (c *productDatabase) SaveCategory(ctx context.Context, category domain.Cate
 	return nil
 }
 
-// to get all categories, all variations and all variation value
-func (c *productDatabase) GetCategory(ctx context.Context) (res.RespFullCategory, error) {
-
-	var response res.RespFullCategory
-
-	// first find all categories (aliase :: s:= category(means sub category); m:= category (main category) )
+func (c *productDatabase) FindAllCategories(ctx context.Context) ([]res.Category, error) {
+	var categories []res.Category
 	querry := `SELECT s.id,s.category_name,s.category_id,m.category_name AS main_category_name FROM categories s LEFT JOIN categories m ON s.category_id = m.id`
-	if c.DB.Raw(querry).Scan(&response.Category).Error != nil {
-		return response, errors.New("faild to get categories")
+	if c.DB.Raw(querry).Scan(&categories).Error != nil {
+		return categories, errors.New("faild to get categories")
 	}
+	return categories, nil
+}
 
-	// find all variations (aliase ::  v := variations; c:= category)
-	querry = `SELECT v.id,v.variation_name,v.category_id,c.category_name FROM variations v LEFT JOIN categories c ON v.category_id=c.id`
-	if c.DB.Raw(querry).Scan(&response.VariationName).Error != nil {
-		return response, errors.New("faild to get variations")
+func (c *productDatabase) FindAllVariations(ctx context.Context) ([]res.VariationName, error) {
+	var variationName []res.VariationName
+	querry := `SELECT v.id,v.variation_name,v.category_id,c.category_name FROM variations v LEFT JOIN categories c ON v.category_id=c.id`
+	if c.DB.Raw(querry).Scan(&variationName).Error != nil {
+		return variationName, errors.New("faild to get variations")
 	}
+	return variationName, nil
+}
 
-	// find all variations value (aliase :: vo:= variation_options; v:= variations)
-	querry = `SELECT vo.id,vo.variation_value,vo.variation_id,v.variation_name FROM variation_options vo LEFT JOIN variations v ON vo.variation_id=v.id`
-	if c.DB.Raw(querry).Scan(&response.VariationValue).Error != nil {
-		return response, errors.New("faild to get variation options")
+func (c productDatabase) FindAllVariationValues(ctx context.Context) ([]res.VariationValue, error) {
+	var variaionValues []res.VariationValue
+	querry := `SELECT vo.id,vo.variation_value,vo.variation_id,v.variation_name FROM variation_options vo LEFT JOIN variations v ON vo.variation_id=v.id`
+	if c.DB.Raw(querry).Scan(&variaionValues).Error != nil {
+		return variaionValues, errors.New("faild to get variation options")
 	}
-
-	return response, nil
+	return variaionValues, nil
 }
 
 // add variation

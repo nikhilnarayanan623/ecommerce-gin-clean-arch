@@ -78,3 +78,9 @@ type ResOffer struct {
 	OfferCategories []ResOfferCategory `json:"offer_categories"`
 	OfferProducts   []ResOfferProduct  `json:"offer_products"`
 }
+
+// offet get page response
+type ResOfferCategoryPage struct {
+	Offers     []domain.Offer
+	Categories []Category
+}

@@ -23,7 +23,25 @@ func NewProductUseCase(productRepo interfaces.ProductRepository) service.Product
 
 // to get all Category , all variation , all variation value
 func (c *productUseCase) GetCategory(ctx context.Context) (res.RespFullCategory, error) {
-	return c.productRepo.GetCategory(ctx)
+	var (
+		resFullCategories res.RespFullCategory
+		err               error
+	)
+	// find all categories
+	if resFullCategories.Category, err = c.productRepo.FindAllCategories(ctx); err != nil {
+		return resFullCategories, err
+	}
+
+	// find all variations
+	if resFullCategories.VariationName, err = c.productRepo.FindAllVariations(ctx); err != nil {
+		return resFullCategories, err
+	}
+
+	// find all variation values
+	if resFullCategories.VariationValue, err = c.productRepo.FindAllVariationValues(ctx); err != nil {
+		return resFullCategories, err
+	}
+	return resFullCategories, nil
 }
 
 // to add a new category or add new sub category

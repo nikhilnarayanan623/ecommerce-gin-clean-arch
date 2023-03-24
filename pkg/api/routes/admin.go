@@ -61,8 +61,11 @@ func AdminRoutes(api *gin.RouterGroup, adminHandler *handler.AdminHandler,
 		{
 			offer.POST("/", productHandler.AddOffer)     // add a new offer
 			offer.GET("/", productHandler.ShowAllOffers) // get all offers
+			offer.DELETE("/:offer_id", productHandler.RemoveOffer)
 
+			offer.GET("/category", productHandler.OfferCategoryPage) // to show all offers and all categories
 			offer.POST("/category", productHandler.AddOfferCategory) // addd offer for categories
+
 			offer.POST("/category/replace", productHandler.ReplaceOfferCategory)
 			offer.POST("/product", productHandler.AddOfferProduct) // add offer for products
 		}
