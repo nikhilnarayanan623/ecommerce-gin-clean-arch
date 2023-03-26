@@ -231,7 +231,7 @@ func (u *UserHandler) LoginOtpVerify(ctx *gin.Context) {
 		return
 	}
 
-	ctx.SetCookie("user-auth", tokenString["accessToken"], 30*60, "", "", false, true)
+	ctx.SetCookie("user-auth", tokenString["accessToken"], 50*60, "", "", false, true)
 	response := res.SuccessResponse(200, "successfully logged in uing otp", tokenString["accessToken"])
 	ctx.JSON(http.StatusOK, response)
 }

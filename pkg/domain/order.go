@@ -18,6 +18,7 @@ type ShopOrder struct {
 	Address         Address
 	OrderTotalPrice uint `json:"order_total_price" gorm:"not null"`
 	OrderStatusID   uint `json:"order_status_id" gorm:"not null"`
+	OrderStatus     OrderStatus
 	COD             bool `json:"cod"`
 }
 
@@ -38,7 +39,7 @@ type OrderReturn struct {
 	ReturnReason string    `json:"return_reason" gorm:"not null"`
 	RefundAmount uint      `json:"refund_amount" gorm:"not null"`
 
-	IsApproved   bool      `json:"is_approved" `
+	IsApproved   bool      `json:"is_approved"`
 	ReturnDate   time.Time `json:"return_date"`
 	ApprovalDate time.Time `json:"approval_date"`
 	AdminComment string    `json:"admin_comment"`

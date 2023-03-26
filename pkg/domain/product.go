@@ -79,11 +79,11 @@ type Offer struct {
 }
 
 type OfferCategory struct {
-	ID         uint     `json:"id" gorm:"primaryKey;not null"`
-	OfferID    uint     `json:"offer_id" gorm:"not null"`
-	Offer      Offer    `json:"i,exclude"`
-	CategoryID uint     `json:"category_id" gorm:"not null"`
-	Category   Category `json:"r,exclude"`
+	ID         uint `json:"id" gorm:"primaryKey;not null"`
+	OfferID    uint `json:"offer_id" gorm:"not null"`
+	Offer      Offer
+	CategoryID uint `json:"category_id" gorm:"not null"`
+	Category   Category
 }
 
 type OfferProduct struct {

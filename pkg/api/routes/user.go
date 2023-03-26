@@ -75,7 +75,7 @@ func UserRoutes(api *gin.RouterGroup, userHandler *handler.UserHandler, ProductH
 			orders.GET("/", orderHandler.GetUserOrder)                             // get all order list for user
 			orders.GET("/items/:shop_order_id", orderHandler.GetOrderItemsForUser) //get order items for specific order
 
-			orders.PUT("/return", orderHandler.ReturnRequest)
+			orders.PUT("/return", orderHandler.SubmitReturnRequest)
 
 			orders.PUT("/cancel/:shop_order_id", orderHandler.CancellOrder) // cancell an order
 		}

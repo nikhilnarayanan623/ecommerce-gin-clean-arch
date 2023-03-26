@@ -121,7 +121,7 @@ func (a *AdminHandler) LoginPost(ctx *gin.Context) {
 	var response res.ResAdminLogin
 	copier.Copy(&response, &admin)
 
-	ctx.SetCookie("admin-auth", tokenString["accessToken"], 30*60, "", "", false, true)
+	ctx.SetCookie("admin-auth", tokenString["accessToken"], 50*60, "", "", false, true)
 	ctx.JSON(http.StatusOK, gin.H{
 		"StatusCode": 200,
 		"msg":        "Successfully loged in",

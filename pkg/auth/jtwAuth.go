@@ -11,7 +11,7 @@ import (
 
 func GenerateJWT(id uint) (map[string]string, error) {
 
-	expireTime := time.Now().Add(40 * time.Minute).Unix()
+	expireTime := time.Now().Add(50 * time.Minute).Unix()
 
 	// create token with expire time and claims id as user id
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.StandardClaims{

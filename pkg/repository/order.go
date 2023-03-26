@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/domain"
+	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/helper/req"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/helper/res"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/repository/interfaces"
 	"gorm.io/gorm"
@@ -200,7 +201,7 @@ func (c *OrderDatabase) FindOrderStatus(ctx context.Context, orderStatus domain.
 	return orderStatus, nil
 }
 
-func (c *productDatabase) FindAllOrderStauses(ctx context.Context) ([]domain.OrderStatus, error) {
+func (c *OrderDatabase) FindAllOrderStauses(ctx context.Context) ([]domain.OrderStatus, error) {
 	var orderStatuses []domain.OrderStatus
 	if c.DB.Raw("SELECT * FROM order_statuses").Scan(&orderStatuses).Error != nil {
 		return orderStatuses, errors.New("faild to get all order_statuses")
@@ -248,17 +249,38 @@ func (c *OrderDatabase) CheckOutCart(ctx context.Context, userId uint) (res.ResC
 	return resCheckOut, nil
 }
 
+// order return
+
+func (c *OrderDatabase) FindOrderReturn(ctx context.Context, orderReturn domain.OrderReturn) (domain.OrderReturn, error) {
+	query := `SELECT *  FROM order_returns WHERE id = ? OR shop_order_id = ?`
+	if c.DB.Raw(query, orderReturn.ID, orderReturn.ShopOrderID).Scan(&orderReturn).Error != nil {
+		return orderReturn, errors.New("faild to find order return")
+	}
+	return orderReturn, nil
+}
+
 func (c *OrderDatabase) FindAllOrderReturns(ctx context.Context, onlyPending bool) ([]domain.OrderReturn, error) {
 	var orderReturns []domain.OrderReturn
 
-	query := `SELECT * FROM order_returns`
-	if onlyPending {
-		query = "SELECT * FROM order_returns WHERE is_approved = 'f' "
+	if onlyPending { // find all request which are not returned completed
+		// find order_status_id for return
+		var orderStatusID uint
+		if c.DB.Raw("SELECT id FROM order_statuses WHERE status = 'returned'").Scan(&orderStatusID).Error != nil {
+			return orderReturns, errors.New("faild to get order_status_id for return request ")
+		}
+		query := `SELECT ors.id,ors.shop_order_id,ors.request_date, ors.return_date, ors.approval_date, ors.refund_amount, ors.is_approved,admin_comment 
+		FROM order_returns ors INNER JOIN shop_orders so ON so.id = ors.shop_order_id AND so.order_status_id != ?`
+		if c.DB.Raw(query, orderStatusID).Scan(&orderReturns).Error != nil {
+			return orderReturns, errors.New("faild to find orders of return requested")
+		}
+	} else {
+		query := `SELECT * FROM order_returns`
+		if c.DB.Raw(query).Scan(&orderReturns).Error != nil {
+			return orderReturns, errors.New("faild to get order returns")
+		}
 	}
+	fmt.Println(orderReturns)
 
-	if c.DB.Raw(query).Scan(&orderReturns).Error != nil {
-		return orderReturns, errors.New("faild to get order returns")
-	}
 	return orderReturns, nil
 }
 
@@ -276,7 +298,7 @@ func (c *OrderDatabase) SaveOrderReturn(ctx context.Context, orderReturn domain.
 	}
 
 	//get the returning order status id and set to order
-	var orderStatus = domain.OrderStatus{Status: "returning"}
+	var orderStatus = domain.OrderStatus{Status: "return requested"}
 	orderStatus, err := c.FindOrderStatus(ctx, orderStatus)
 	if err != nil {
 		trx.Rollback()
@@ -285,8 +307,6 @@ func (c *OrderDatabase) SaveOrderReturn(ctx context.Context, orderReturn domain.
 		trx.Rollback()
 		return errors.New("faild get order_status_id of returning")
 	}
-
-	fmt.Println("order status", orderStatus.ID, orderStatus.Status)
 
 	//update shopOrder status
 	if err := c.UpdateShopOrderOrderStatus(ctx, orderReturn.ShopOrderID, orderStatus.ID); err != nil {
@@ -297,6 +317,61 @@ func (c *OrderDatabase) SaveOrderReturn(ctx context.Context, orderReturn domain.
 	if err := trx.Commit().Error; err != nil {
 		trx.Rollback()
 		return fmt.Errorf("faild to complete return request for shop_order_id %d", orderReturn.ShopOrderID)
+	}
+	return nil
+}
+
+// update the order return
+func (c *OrderDatabase) UpdateOrderReturn(ctx context.Context, body req.ReqUpdatReturnReq) error {
+	trx := c.DB.Begin()
+
+	// find the orderStatus that admin given
+	orderStatus, err := c.FindOrderStatus(ctx, domain.OrderStatus{ID: body.OrderStatusID})
+	if err != nil {
+		trx.Rollback()
+		return err
+	}
+
+	//find the orderReturn
+	orderReturn, err := c.FindOrderReturn(ctx, domain.OrderReturn{ID: body.OrderReturnID})
+	if err != nil {
+		trx.Rollback()
+		return err
+	}
+
+	// do updattion according to the order status
+	if orderStatus.Status == "return cancelled" {
+
+		query := `UPDATE order_returns SET admin_comment = $1`
+		if trx.Exec(query, body.AdminComment).Error != nil {
+			return fmt.Errorf("faild to update order_returns on %s", orderStatus.Status)
+		}
+	} else if orderStatus.Status == "return approved" {
+		approvalDate := time.Now()
+		returnDate := approvalDate.Add(time.Hour * 24 * 5) // manual return date set to 5 days from approval
+
+		query := `UPDATE order_returns SET approval_date = $1, return_date = $2, admin_comment = $3,is_approved = $4`
+		if trx.Exec(query, approvalDate, returnDate, body.AdminComment, true).Error != nil {
+			return fmt.Errorf("faild to update order_returns on %s", orderStatus.Status)
+		}
+	} else if orderStatus.Status == "returned" {
+		// updae the return date as current date
+		returnDate := time.Now()
+		query := `UPDATE order_returns SET return_date = $1, admin_comment = $2`
+		if trx.Exec(query, returnDate, body.AdminComment).Error != nil {
+			return fmt.Errorf("faild to update order_returns on %s", orderStatus.Status)
+		}
+	}
+
+	// update the status on shop_order
+	query := `UPDATE shop_orders SET order_status_id = $1 WHERE id = $2`
+	if trx.Exec(query, body.OrderStatusID, orderReturn.ShopOrderID).Error != nil {
+		trx.Rollback()
+		return fmt.Errorf("faild to update shop_order_status on %s", orderStatus.Status)
+	}
+	// complete the order_return update
+	if trx.Commit().Error != nil {
+		return errors.New("faild to complete updation of order_return")
 	}
 	return nil
 }

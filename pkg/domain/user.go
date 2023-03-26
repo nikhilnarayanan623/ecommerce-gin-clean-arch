@@ -1,5 +1,7 @@
 package domain
 
+import "time"
+
 type User struct {
 	ID          uint   `json:"id" gorm:"primaryKey;unique"`
 	UserName    string `json:"user_name" gorm:"not null" binding:"required,min=3,max=15"`
@@ -66,4 +68,25 @@ type CartItem struct {
 	ProductItemID uint `json:"product_item_id" gorm:"not null"`
 	ProductItem   ProductItem
 	Qty           uint `json:"qty" gorm:"not null"`
+}
+
+// wallet
+type TransactionType struct {
+	ID   uint   `json:"id" gorm:"primaryKey;not null"`
+	Type string `json:"transaction_type" gorm:"not nul"`
+}
+type Transaction struct {
+	ID                uint `json:"id" gorm:"primaryKey;not null"`
+	WalletID          uint `json:"wallet_id" gorm:"not null"`
+	Wallet            Wallet
+	TransactionDate   time.Time `json:"transaction_time" gorm:"not null"`
+	Amount            uint      `josn:"amount" gorm:"not null"`
+	TransactionTypeID uint      `json:"transaction_type_id" gorm:"not null"`
+	TransactionType   TransactionType
+}
+
+type Wallet struct {
+	ID          uint `json:"id" gorm:"primaryKey;not null"`
+	UserID      uint `json:"user_id" gorm:"not null"`
+	TotalAmount uint `json:"total_amout" gorm:"not null"`
 }

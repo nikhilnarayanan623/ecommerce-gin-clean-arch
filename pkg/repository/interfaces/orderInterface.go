@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/domain"
+	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/helper/req"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/helper/res"
 )
 
@@ -24,8 +25,11 @@ type OrderRepository interface {
 	FindAllOrdersItemsByShopOrderID(ctx context.Context, shopOrderID uint) ([]res.ResOrder, error)
 	// order status
 	FindOrderStatus(ctx context.Context, orderStatus domain.OrderStatus) (domain.OrderStatus, error)
+	FindAllOrderStauses(ctx context.Context) ([]domain.OrderStatus, error)
 
 	//order return
+	FindOrderReturn(ctx context.Context, orderReturn domain.OrderReturn) (domain.OrderReturn, error)
 	FindAllOrderReturns(ctx context.Context, onlyPending bool) ([]domain.OrderReturn, error)
 	SaveOrderReturn(ctx context.Context, orderReturn domain.OrderReturn) error
+	UpdateOrderReturn(ctx context.Context, body req.ReqUpdatReturnReq) error
 }

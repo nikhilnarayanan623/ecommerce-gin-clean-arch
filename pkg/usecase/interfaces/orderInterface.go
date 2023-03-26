@@ -11,7 +11,7 @@ import (
 type OrderUseCase interface {
 	CheckOutCart(ctx context.Context, userID uint) (res.ResCheckOut, error)
 
-	GetAllShopOrders(ctx context.Context) ([]res.ResShopOrder, error)
+	GetAllShopOrders(ctx context.Context) (res.ResShopOrdersPage, error)
 
 	PlaceOrderByCart(ctx context.Context, userID domain.ShopOrder) error
 	GetUserShopOrder(ctx context.Context, userID uint) ([]res.ResShopOrder, error)
@@ -20,6 +20,7 @@ type OrderUseCase interface {
 	ChangeOrderStatus(ctx context.Context, shopOrderID, changeStatusID uint) error
 	CancellOrder(ctx context.Context, shopOrderID uint) error
 
-	ReturnRequest(ctx context.Context, body req.ReqReturn) error
-	GetAllPendingOrderReturn(ctx context.Context) ([]domain.OrderReturn, error)
+	SubmitReturnRequest(ctx context.Context, body req.ReqReturn) error
+	GetAllPendingOrderReturn(ctx context.Context) (res.ResOrderReturnPage, error)
+	UpdateReturnRequest(ctx context.Context, body req.ReqUpdatReturnReq) error
 }

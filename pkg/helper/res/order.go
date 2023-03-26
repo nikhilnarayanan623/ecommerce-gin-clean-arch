@@ -2,6 +2,8 @@ package res
 
 import (
 	"time"
+
+	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/domain"
 )
 
 type ResOrder struct {
@@ -27,12 +29,20 @@ type ResShopOrder struct {
 	COD             bool       `json:"cod"`
 }
 
+// admin side
+type ResShopOrdersPage struct {
+	Orders   []ResShopOrder
+	Statuses []domain.OrderStatus
+}
+
+// checkout
 type ResCheckOut struct {
 	Addresses    []ResAddress       `json:"addresses"`
 	ProductItems []ResponseCartItem `json:"product_items"`
 	TotalPrice   uint               `json:"total_price"`
 }
 
+// return
 type ResOrderReturn struct {
 	OrderReturnID uint      `json:"order_return_id" copier:"ID"`
 	RequestDate   time.Time `json:"request_date" `
@@ -43,4 +53,10 @@ type ResOrderReturn struct {
 	ReturnDate   time.Time `json:"return_date"`
 	ApprovalDate time.Time `json:"approval_date"`
 	AdminComment string    `json:"admin_comment"`
+}
+
+// this is the full datas of a return page order retun with statuses
+type ResOrderReturnPage struct {
+	OrderReturn []ResOrderReturn
+	Statuses    []domain.OrderStatus
 }
