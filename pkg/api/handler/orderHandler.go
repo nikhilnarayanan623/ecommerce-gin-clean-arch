@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/jinzhu/copier"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/domain"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/helper"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/helper/req"
@@ -90,15 +91,15 @@ func (c *OrderHandler) PlaceOrderByCart(ctx *gin.Context) {
 
 }
 
-// GetOrdersOfUser godoc
+// GetUserOrder godoc
 // @summary api for showing user order list
 // @description user can see all user order history
-// @id GetOrdersOfUser
+// @id GetUserOrder
 // @tags Orders
 // @Router /orders [get]
 // @Success 200 {object} res.Response{} "successfully got shop order list of user"
 // @Failure 500 {object} res.Response{} "faild to get user shop order list"
-func (c *OrderHandler) GetOrdersOfUser(ctx *gin.Context) {
+func (c *OrderHandler) GetUserOrder(ctx *gin.Context) {
 
 	userId := helper.GetUserIdFromContext(ctx)
 
@@ -132,7 +133,7 @@ func (c *OrderHandler) GetOrdersOfUser(ctx *gin.Context) {
 // @Failure 500 {object} res.Response{} "faild to get order list of user"
 func (c *OrderHandler) GetOrderItemsForUser(ctx *gin.Context) {
 
-	shopOrderID, err := helper.StringToUint(ctx.Param("shop_order_id"))
+	shopOrderID, _ := helper.StringToUint(ctx.Param("shop_order_id"))
 
 	orderItems, err := c.orderUseCase.GetOrderItemsByShopOrderID(ctx, shopOrderID)
 
@@ -188,7 +189,7 @@ func (c *OrderHandler) UdateOrderStatus(ctx *gin.Context) {
 // @id CancellOrder
 // @tags Orders
 // @Params shop_order_id path int true "shop_order_id"
-// @Router /orders/ [put]
+// @Router /orders [put]
 // @Success 200 {object} res.Response{} "Successfully order cancelled"
 // @Failure 400 {object} res.Response{} "invalid input on param"
 func (c *OrderHandler) CancellOrder(ctx *gin.Context) {
@@ -215,7 +216,7 @@ func (c *OrderHandler) CancellOrder(ctx *gin.Context) {
 // @description admin can change user order status
 // @id GetAllShopOrders
 // @tags Orders
-// @Router /orders/ [put]
+// @Router /admin/orders [get]
 // @Success 200 {object} res.Response{} "Successfully order cancelled"
 // @Failure 400 {object} res.Response{} "invalid input"
 func (c *OrderHandler) GetAllShopOrders(ctx *gin.Context) {
@@ -235,4 +236,54 @@ func (c *OrderHandler) GetAllShopOrders(ctx *gin.Context) {
 		"msg":        "Successfully order list got",
 		"order list": orders,
 	})
+}
+
+// ReturnRequest godoc
+// @summary api for user to request a return for an order
+// @description user can request return for placed orders
+// @id ReturnRequest
+// @tags Orders
+// @Router /orders/return [put]
+// @Success 200 {object} res.Response{} "successfully submited return request for order"
+// @Failure 400 {object} res.Response{} "invalid input"
+func (c OrderHandler) ReturnRequest(ctx *gin.Context) {
+	var body req.ReqReturn
+	if err := ctx.ShouldBindJSON(&body); err != nil {
+		response := res.ErrorResponse(400, "invalid input", err.Error(), nil)
+		ctx.JSON(http.StatusBadRequest, response)
+		return
+	}
+
+	err := c.orderUseCase.ReturnRequest(ctx, body)
+	if err != nil {
+		response := res.ErrorResponse(400, "faild to place return request", err.Error(), nil)
+		ctx.JSON(http.StatusBadRequest, response)
+		return
+	}
+
+	response := res.SuccessResponse(200, "successfully submited return request for order", nil)
+	ctx.JSON(http.StatusOK, response)
+}
+
+func (c *OrderHandler) ShowAllPendingReturns(ctx *gin.Context) {
+
+	orderReturns, err := c.orderUseCase.GetAllPendingOrderReturn(ctx)
+	if err != nil {
+		response := res.ErrorResponse(500, "faild to get pending order return requests", err.Error(), nil)
+		ctx.JSON(http.StatusInternalServerError, response)
+		return
+	}
+
+	if orderReturns == nil {
+		response := res.SuccessResponse(200, "there is no pendinng order return request", nil)
+		ctx.JSON(200, response)
+		return
+	}
+
+	var responseStruct []res.ResOrderReturn
+
+	copier.Copy(&responseStruct, &orderReturns)
+
+	response := res.SuccessResponse(200, "successfully got  pending request", responseStruct)
+	ctx.JSON(http.StatusOK, response)
 }

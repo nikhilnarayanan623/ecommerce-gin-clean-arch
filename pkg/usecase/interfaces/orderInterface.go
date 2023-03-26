@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/domain"
+	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/helper/req"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/helper/res"
 )
 
@@ -18,4 +19,7 @@ type OrderUseCase interface {
 
 	ChangeOrderStatus(ctx context.Context, shopOrderID, changeStatusID uint) error
 	CancellOrder(ctx context.Context, shopOrderID uint) error
+
+	ReturnRequest(ctx context.Context, body req.ReqReturn) error
+	GetAllPendingOrderReturn(ctx context.Context) ([]domain.OrderReturn, error)
 }

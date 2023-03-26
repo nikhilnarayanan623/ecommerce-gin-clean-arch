@@ -32,3 +32,15 @@ type ResCheckOut struct {
 	ProductItems []ResponseCartItem `json:"product_items"`
 	TotalPrice   uint               `json:"total_price"`
 }
+
+type ResOrderReturn struct {
+	OrderReturnID uint      `json:"order_return_id" copier:"ID"`
+	RequestDate   time.Time `json:"request_date" `
+	ReturnReason  string    `json:"return_reason" `
+	RefundAmount  uint      `json:"refund_amount" `
+
+	IsApproved   bool      `json:"is_approved" `
+	ReturnDate   time.Time `json:"return_date"`
+	ApprovalDate time.Time `json:"approval_date"`
+	AdminComment string    `json:"admin_comment"`
+}

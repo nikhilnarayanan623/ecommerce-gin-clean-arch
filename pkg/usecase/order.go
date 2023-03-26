@@ -3,8 +3,11 @@ package usecase
 import (
 	"context"
 	"errors"
+	"fmt"
+	"time"
 
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/domain"
+	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/helper/req"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/helper/res"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/repository/interfaces"
 	service "github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/usecase/interfaces"
@@ -72,7 +75,7 @@ func (c *OrderUseCase) ChangeOrderStatus(ctx context.Context, shopOrderID, chang
 	}
 
 	//at last update the order status
-	return c.orderRepo.UpdateOrderStatus(ctx, shopOrder, changeStatusID)
+	return c.orderRepo.UpdateShopOrderOrderStatus(ctx, shopOrder.ID, changeStatusID)
 }
 
 func (c *OrderUseCase) CancellOrder(ctx context.Context, shopOrderID uint) error {
@@ -107,10 +110,48 @@ func (c *OrderUseCase) CancellOrder(ctx context.Context, shopOrderID uint) error
 		return errors.New("order cancell option is not avaialbe on database")
 	}
 
-	return c.orderRepo.UpdateOrderStatus(ctx, shopOrder, orderStatus.ID)
+	return c.orderRepo.UpdateShopOrderOrderStatus(ctx, shopOrder.ID, orderStatus.ID)
 }
 
 // checkout section
 func (c *OrderUseCase) CheckOutCart(ctx context.Context, userID uint) (res.ResCheckOut, error) {
 	return c.orderRepo.CheckOutCart(ctx, userID)
+}
+
+func (c *OrderUseCase) GetAllPendingOrderReturn(ctx context.Context) ([]domain.OrderReturn, error) {
+
+	return c.orderRepo.FindAllOrderReturns(ctx, true)
+}
+
+// return request
+func (c *OrderUseCase) ReturnRequest(ctx context.Context, body req.ReqReturn) error {
+
+	// validte the shop order id
+	shopOrder, err := c.orderRepo.FindShopOrderByShopOrderID(ctx, body.ShopOrderID)
+	if err != nil {
+		return err
+	} else if shopOrder.ID == 0 {
+		return errors.New("invalid shop_order_id")
+	}
+	fmt.Println("shop order", shopOrder.OrderStatusID)
+	// find the status of shop order
+	orderStatus := domain.OrderStatus{ID: shopOrder.OrderStatusID}
+	if orderStatus, err = c.orderRepo.FindOrderStatus(ctx, orderStatus); err != nil {
+		return err
+	}
+
+	// check if the order staus not placed
+	if orderStatus.Status != "placed" {
+		return fmt.Errorf("order is '%s'\ncan't a make return request for this order", orderStatus.Status)
+	}
+
+	// then create a new returnOrder for saving
+	var OfferReturn = domain.OrderReturn{
+		ShopOrderID:  body.ShopOrderID,
+		ReturnReason: body.ReturnReason,
+		RequestDate:  time.Now(),
+		RefundAmount: shopOrder.OrderTotalPrice,
+	}
+	//save the return request
+	return c.orderRepo.SaveOrderReturn(ctx, OfferReturn)
 }

@@ -29,3 +29,17 @@ type OrderLine struct {
 	Qty           uint `json:"qty" gorm:"not null"`
 	Price         uint `json:"price" gorm:"not null"`
 }
+
+type OrderReturn struct {
+	ID           uint `json:"id" gorm:"primaryKey;not null"`
+	ShopOrderID  uint `json:"shop_order_id" gorm:"not null;unique"`
+	ShopOrder    ShopOrder
+	RequestDate  time.Time `json:"request_date" gorm:"not null"`
+	ReturnReason string    `json:"return_reason" gorm:"not null"`
+	RefundAmount uint      `json:"refund_amount" gorm:"not null"`
+
+	IsApproved   bool      `json:"is_approved" `
+	ReturnDate   time.Time `json:"return_date"`
+	ApprovalDate time.Time `json:"approval_date"`
+	AdminComment string    `json:"admin_comment"`
+}

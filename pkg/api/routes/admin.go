@@ -54,6 +54,9 @@ func AdminRoutes(api *gin.RouterGroup, adminHandler *handler.AdminHandler,
 		{
 			order.GET("/", orderHandler.GetAllShopOrders)
 			order.PUT("/", orderHandler.UdateOrderStatus)
+
+			//return requests
+			order.GET("/return", orderHandler.ShowAllPendingReturns)
 		}
 
 		// offer

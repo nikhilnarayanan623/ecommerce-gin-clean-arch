@@ -23,8 +23,6 @@ func NewAdminHandler(adminUsecase interfaces.AdminUseCase) *AdminHandler {
 
 func (a *AdminHandler) SignUPGet(ctx *gin.Context) {
 
-	// getting the validation engine and type casting it.
-
 	ctx.JSON(http.StatusOK, gin.H{
 		"StatusCode": 200,
 		"msg":        "admin signup details",

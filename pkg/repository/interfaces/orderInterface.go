@@ -13,7 +13,7 @@ type OrderRepository interface {
 	CheckOutCart(ctx context.Context, userId uint) (res.ResCheckOut, error)
 	//save order and update
 	SaveOrderByCart(ctx context.Context, shopOrder domain.ShopOrder) error
-	UpdateOrderStatus(ctx context.Context, shopOrder domain.ShopOrder, changeStatusID uint) error
+	UpdateShopOrderOrderStatus(ctx context.Context, shopOrderID, changeStatusID uint) error
 
 	//find shop order order
 	FindAllShopOrders(ctx context.Context) ([]res.ResShopOrder, error)
@@ -24,4 +24,8 @@ type OrderRepository interface {
 	FindAllOrdersItemsByShopOrderID(ctx context.Context, shopOrderID uint) ([]res.ResOrder, error)
 	// order status
 	FindOrderStatus(ctx context.Context, orderStatus domain.OrderStatus) (domain.OrderStatus, error)
+
+	//order return
+	FindAllOrderReturns(ctx context.Context, onlyPending bool) ([]domain.OrderReturn, error)
+	SaveOrderReturn(ctx context.Context, orderReturn domain.OrderReturn) error
 }

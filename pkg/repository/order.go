@@ -194,21 +194,26 @@ func (c *OrderDatabase) SaveOrderByCart(ctx context.Context, shopOrder domain.Sh
 
 // find order status
 func (c *OrderDatabase) FindOrderStatus(ctx context.Context, orderStatus domain.OrderStatus) (domain.OrderStatus, error) {
-
 	if c.DB.Raw("SELECT * FROM order_statuses WHERE id = ? OR status = ?", orderStatus.ID, orderStatus.Status).Scan(&orderStatus).Error != nil {
 		return orderStatus, errors.New("faild to get order status")
-	} else if orderStatus.ID == 0 {
-		return orderStatus, errors.New("invalid order status id")
 	}
 	return orderStatus, nil
 }
 
+func (c *productDatabase) FindAllOrderStauses(ctx context.Context) ([]domain.OrderStatus, error) {
+	var orderStatuses []domain.OrderStatus
+	if c.DB.Raw("SELECT * FROM order_statuses").Scan(&orderStatuses).Error != nil {
+		return orderStatuses, errors.New("faild to get all order_statuses")
+	}
+	return orderStatuses, nil
+}
+
 // admin side status change
-func (c *OrderDatabase) UpdateOrderStatus(ctx context.Context, shopOrder domain.ShopOrder, changeStatusID uint) error {
+func (c *OrderDatabase) UpdateShopOrderOrderStatus(ctx context.Context, shopOrderID, changeStatusID uint) error {
 
 	// any other change the status
 	query := `UPDATE shop_orders SET order_status_id = ? WHERE id = ?`
-	if c.DB.Raw(query, changeStatusID, shopOrder.ID).Scan(&shopOrder).Error != nil {
+	if c.DB.Exec(query, changeStatusID, shopOrderID).Error != nil {
 		return errors.New("faild to update status of order")
 	}
 
@@ -241,4 +246,57 @@ func (c *OrderDatabase) CheckOutCart(ctx context.Context, userId uint) (res.ResC
 		return resCheckOut, errors.New("faild to ge total price for user cart")
 	}
 	return resCheckOut, nil
+}
+
+func (c *OrderDatabase) FindAllOrderReturns(ctx context.Context, onlyPending bool) ([]domain.OrderReturn, error) {
+	var orderReturns []domain.OrderReturn
+
+	query := `SELECT * FROM order_returns`
+	if onlyPending {
+		query = "SELECT * FROM order_returns WHERE is_approved = 'f' "
+	}
+
+	if c.DB.Raw(query).Scan(&orderReturns).Error != nil {
+		return orderReturns, errors.New("faild to get order returns")
+	}
+	return orderReturns, nil
+}
+
+// to save a return request
+func (c *OrderDatabase) SaveOrderReturn(ctx context.Context, orderReturn domain.OrderReturn) error {
+
+	trx := c.DB.Begin()
+
+	query := `INSERT INTO order_returns (shop_order_id,return_reason,request_date,refund_amount,is_approved) 
+	VALUES($1,$2,$3,$4,$5)`
+	if trx.Exec(query, orderReturn.ShopOrderID, orderReturn.ReturnReason,
+		orderReturn.RequestDate, orderReturn.RefundAmount, false).Error != nil {
+		trx.Rollback()
+		return fmt.Errorf("faild to save return for shop_order_id %d", orderReturn.ShopOrderID)
+	}
+
+	//get the returning order status id and set to order
+	var orderStatus = domain.OrderStatus{Status: "returning"}
+	orderStatus, err := c.FindOrderStatus(ctx, orderStatus)
+	if err != nil {
+		trx.Rollback()
+		return err
+	} else if orderStatus.ID == 0 {
+		trx.Rollback()
+		return errors.New("faild get order_status_id of returning")
+	}
+
+	fmt.Println("order status", orderStatus.ID, orderStatus.Status)
+
+	//update shopOrder status
+	if err := c.UpdateShopOrderOrderStatus(ctx, orderReturn.ShopOrderID, orderStatus.ID); err != nil {
+		trx.Rollback()
+		return err
+	}
+
+	if err := trx.Commit().Error; err != nil {
+		trx.Rollback()
+		return fmt.Errorf("faild to complete return request for shop_order_id %d", orderReturn.ShopOrderID)
+	}
+	return nil
 }
