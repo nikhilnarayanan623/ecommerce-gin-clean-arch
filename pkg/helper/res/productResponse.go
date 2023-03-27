@@ -60,17 +60,19 @@ type RespProductItems struct {
 
 // offer response
 type ResOfferCategory struct {
-	CategoryID   uint   `json:"category_id"`
-	CategoryName string `json:"category_name"`
-	OfferID      uint   `json:"offer_id"`
-	OfferName    string `json:"offer_name"`
+	OfferCategoryID uint   `json:"offer_category_id"`
+	CategoryID      uint   `json:"category_id"`
+	CategoryName    string `json:"category_name"`
+	OfferID         uint   `json:"offer_id"`
+	OfferName       string `json:"offer_name"`
 }
 
 type ResOfferProduct struct {
-	ProductID   uint   `json:"product_id"`
-	ProductName string `json:"product_name"`
-	OfferID     uint   `json:"offer_id"`
-	OfferName   string `json:"offer_name"`
+	OfferProductID uint   `json:"offer_product_id"`
+	ProductID      uint   `json:"product_id"`
+	ProductName    string `json:"product_name"`
+	OfferID        uint   `json:"offer_id"`
+	OfferName      string `json:"offer_name"`
 }
 
 type ResOffer struct {
@@ -83,4 +85,9 @@ type ResOffer struct {
 type ResOfferCategoryPage struct {
 	Offers     []domain.Offer
 	Categories []Category
+}
+
+type ResOfferProductsPage struct {
+	Offers   []domain.Offer
+	Products []ResponseProduct
 }

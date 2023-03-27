@@ -93,26 +93,25 @@ func (c *ProductHandler) ShowAllOffers(ctx *gin.Context) {
 // @summary api for show all offers
 // @id OfferCategoryPage
 // @tags Offers
-// @Param input body domain.Offer{} true "input field"
 // @Router /admin/offers/category [get]
-// @Success 200 {object} res.Response{} ""successfully all offers and categories got for offer category page"
+// @Success 200 {object} res.Response{} "successfully all offers and categories got for offer category page"
 // @Failure 500 {object} res.Response{} "faild to get offers"
 func (c *ProductHandler) OfferCategoryPage(ctx *gin.Context) {
 
-	resOfferCategoryPage, err := c.productUseCase.OfferCategoryPage(ctx)
+	resOfferCategoryData, err := c.productUseCase.OfferCategoryPage(ctx)
 	if err != nil {
 		response := res.ErrorResponse(500, "faild to get offer category page data", err.Error(), nil)
 		ctx.JSON(500, response)
 		return
 	}
 
-	if resOfferCategoryPage.Offers == nil {
+	if resOfferCategoryData.Offers == nil {
 		response := res.SuccessResponse(200, "there is no offer so can't add offer for category", nil)
 		ctx.JSON(http.StatusOK, response)
 		return
 	}
 
-	response := res.SuccessResponse(200, "successfully all offers and categories got for offer category page", resOfferCategoryPage)
+	response := res.SuccessResponse(200, "successfully all offers and categories got for offer category page", resOfferCategoryData)
 	ctx.JSON(http.StatusOK, response)
 
 }
@@ -147,6 +146,27 @@ func (c *ProductHandler) AddOfferCategory(ctx *gin.Context) {
 	ctx.JSON(200, response)
 }
 
+func (c *ProductHandler) RemoveOfferCategory(ctx *gin.Context) {
+
+	offerCategoryID, err := helper.StringToUint(ctx.Param("offer_category_id"))
+	if err != nil {
+		response := res.ErrorResponse(400, "invalid input on params", err.Error(), nil)
+		ctx.JSON(http.StatusBadRequest, response)
+		return
+	}
+
+	err = c.productUseCase.RemoveOfferCategory(ctx, domain.OfferCategory{ID: offerCategoryID})
+
+	if err != nil {
+		response := res.ErrorResponse(400, "faild to remove offer form category", err.Error(), offerCategoryID)
+		ctx.JSON(http.StatusBadRequest, response)
+		return
+	}
+
+	response := res.SuccessResponse(200, "successfully offer removed from cateogry")
+	ctx.JSON(http.StatusOK, response)
+}
+
 // ReplaceOfferCategory godoc
 // @summary api for admin to add offer for category
 // @id ReplaceOfferCategory
@@ -177,6 +197,33 @@ func (c *ProductHandler) ReplaceOfferCategory(ctx *gin.Context) {
 
 }
 
+// OfferProductsPage godoc
+// @summary api for show all offers and products
+// @id OfferProductsPage
+// @tags Offers
+// @Router /admin/offers/products [get]
+// @Success 200 {object} res.Response{} "successfully all offers and categories got for offer products page"
+// @Failure 500 {object} res.Response{} "faild to get offers"
+func (c *ProductHandler) OfferProductsPage(ctx *gin.Context) {
+
+	resOfferProductsData, err := c.productUseCase.OfferProductsPage(ctx)
+	if err != nil {
+		response := res.ErrorResponse(500, "faild to get offer products page data", err.Error(), nil)
+		ctx.JSON(500, response)
+		return
+	}
+
+	if resOfferProductsData.Offers == nil {
+		response := res.SuccessResponse(200, "there is no offer so can't add offer for product", nil)
+		ctx.JSON(http.StatusOK, response)
+		return
+	}
+
+	response := res.SuccessResponse(200, "successfully all offers and categories got for offer products page", resOfferProductsData)
+	ctx.JSON(http.StatusOK, response)
+
+}
+
 // AddOfferProduct godoc
 // @summary api for admin to add offer for product
 // @id AddOfferProduct
@@ -204,5 +251,56 @@ func (c *ProductHandler) AddOfferProduct(ctx *gin.Context) {
 		return
 	}
 	response := res.SuccessResponse(200, "successfully offer added to given product")
+	ctx.JSON(http.StatusOK, response)
+}
+
+func (c *ProductHandler) RemoveOfferProduct(ctx *gin.Context) {
+
+	offerProdctID, err := helper.StringToUint(ctx.Param("offer_product_id"))
+	if err != nil {
+		response := res.ErrorResponse(400, "invalid input on params", err.Error(), nil)
+		ctx.JSON(http.StatusBadRequest, response)
+		return
+	}
+
+	err = c.productUseCase.RemoveOfferProducts(ctx, domain.OfferProduct{ID: offerProdctID})
+
+	if err != nil {
+		response := res.ErrorResponse(400, "faild to remove offer form product", err.Error(), offerProdctID)
+		ctx.JSON(http.StatusBadRequest, response)
+		return
+	}
+
+	response := res.SuccessResponse(200, "successfully offer removed from product")
+	ctx.JSON(http.StatusOK, response)
+}
+
+// ReplaceOfferProduct godoc
+// @summary api for admin to replace a new offer on an existing offer for a product
+// @id ReplaceOfferProduct
+// @tags Offers
+// @Param input body req.ReqOfferProduct{} true "input field"
+// @Router /admin/offers/product [post]
+// @Success 200 {object} res.Response{} "successfully offer replaced for product"
+// @Failure 400 {object} res.Response{} "invalid input"
+func (c *ProductHandler) ReplaceOfferProduct(ctx *gin.Context) {
+
+	var body req.ReqOfferProduct
+	if err := ctx.Bind(&body); err != nil {
+		response := res.ErrorResponse(400, "invalid inputs", err.Error(), nil)
+		ctx.JSON(http.StatusBadRequest, response)
+		return
+	}
+
+	var offerProduct domain.OfferProduct
+	copier.Copy(&offerProduct, &body)
+
+	err := c.productUseCase.ReplaceOfferProducts(ctx, offerProduct)
+	if err != nil {
+		response := res.ErrorResponse(400, "faild to replace offer for given product", err.Error(), nil)
+		ctx.JSON(http.StatusBadRequest, response)
+		return
+	}
+	response := res.SuccessResponse(200, "successfully offer replaced for  given product")
 	ctx.JSON(http.StatusOK, response)
 }

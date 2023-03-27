@@ -37,15 +37,21 @@ type ProductRepository interface {
 	DeleteOffer(ctx context.Context, offerID uint) error
 
 	// offer category
+	FindOfferCategory(ctx context.Context, offerCateogy domain.OfferCategory) (domain.OfferCategory, error)
 	FindOfferCategoryCategoryID(ctx context.Context, categoryID uint) (domain.OfferCategory, error)
 	FindAllOfferCategories(ctx context.Context) ([]res.ResOfferCategory, error)
 	SaveOfferCategory(ctx context.Context, offerCategory domain.OfferCategory) error
+	DeleteOfferCategory(ctx context.Context, offerCategory domain.OfferCategory) error
 	UpdateOfferCategory(ctx context.Context, offerCategory domain.OfferCategory) error
 	UpdateProductPriceForCategory(ctx context.Context) error
 
 	// offer productsss
 	FindOfferProduct(ctx context.Context, offerProduct domain.OfferProduct) (domain.OfferProduct, error)
 	FindAllOfferProducts(ctx context.Context) ([]res.ResOfferProduct, error)
+	FindOfferProductByProductID(ctx context.Context, productID uint) (domain.OfferProduct, error)
+
 	SaveOfferProduct(ctx context.Context, offerProduct domain.OfferProduct) error
-	//DeleteOfferProducts(ctx context.Context, offerID uint) error
+	DeleteOfferProduct(ctx context.Context, offerProduct domain.OfferProduct) error
+	UpdateOfferProduct(ctx context.Context, productOffer domain.OfferProduct) error
+	UpdateProductPriceForProductOffer(ctx context.Context) error
 }

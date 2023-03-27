@@ -29,8 +29,12 @@ type ProductUseCase interface {
 	// offer category
 	OfferCategoryPage(ctx context.Context) (res.ResOfferCategoryPage, error)
 	AddOfferCategory(ctx context.Context, offerCategory domain.OfferCategory) error
+	RemoveOfferCategory(ctx context.Context, offerCategory domain.OfferCategory) error
 	ReplaceOfferCategory(ctx context.Context, offerCategory domain.OfferCategory) error
 
 	// offer product
+	OfferProductsPage(ctx context.Context) (res.ResOfferProductsPage, error)
 	AddOfferProduct(ctx context.Context, offerProduct domain.OfferProduct) error
+	RemoveOfferProducts(ctx context.Context, offerProdcts domain.OfferProduct) error
+	ReplaceOfferProducts(ctx context.Context, offerProduct domain.OfferProduct) error
 }
