@@ -29,47 +29,16 @@ func (c *productUseCase) RemoveOffer(ctx context.Context, offerID uint) error {
 		return errors.New("invalid offer id")
 	}
 
-	return c.productRepo.DeleteOffer(ctx, offerID)
+	if err := c.productRepo.DeleteOffer(ctx, offerID); err != nil {
+		return err
+	}
+	// upate discount price ( after removal discount price there is chance other offer category will relate with this offers products)
+	return c.productRepo.UpdateDiscountPrice(ctx)
 }
 
-func (c *productUseCase) GetAllOffers(ctx context.Context) (res.ResOffer, error) {
+func (c *productUseCase) GetAllOffers(ctx context.Context) ([]domain.Offer, error) {
 
-	var (
-		resOffer res.ResOffer
-		err      error
-	)
-	// find all offers
-	if resOffer.Offers, err = c.productRepo.FindAllOffer(ctx); err != nil {
-		return resOffer, err
-	}
-	// find all offer categories
-	if resOffer.OfferCategories, err = c.productRepo.FindAllOfferCategories(ctx); err != nil {
-		return resOffer, err
-	}
-	// find all offer products
-	if resOffer.OfferProducts, err = c.productRepo.FindAllOfferProducts(ctx); err != nil {
-		return resOffer, err
-	}
-
-	return resOffer, nil
-}
-
-func (c *productUseCase) OfferCategoryPage(ctx context.Context) (res.ResOfferCategoryPage, error) {
-
-	var (
-		resOfferCategoryData res.ResOfferCategoryPage
-		err                  error
-	)
-	// get all offers
-	if resOfferCategoryData.Offers, err = c.productRepo.FindAllOffer(ctx); err != nil {
-		return resOfferCategoryData, err
-	}
-
-	// get all categories
-	if resOfferCategoryData.Categories, err = c.productRepo.FindAllCategories(ctx); err != nil {
-		return resOfferCategoryData, err
-	}
-	return resOfferCategoryData, nil
+	return c.productRepo.FindAllOffer(ctx)
 }
 
 func (c *productUseCase) AddOfferCategory(ctx context.Context, offerCategory domain.OfferCategory) error {
@@ -98,7 +67,18 @@ func (c *productUseCase) AddOfferCategory(ctx context.Context, offerCategory dom
 	}
 
 	// if it not exist then add it
-	return c.productRepo.SaveOfferCategory(ctx, offerCategory)
+	if err := c.productRepo.SaveOfferCategory(ctx, offerCategory); err != nil {
+		return err
+	}
+
+	// last update discount price
+	return c.productRepo.UpdateDiscountPrice(ctx)
+}
+
+// get all offer_category
+func (c *productUseCase) GetAllOffersOfCategories(ctx context.Context) ([]res.ResOfferCategory, error) {
+
+	return c.productRepo.FindAllOfferCategories(ctx)
 }
 
 // remove offer from category
@@ -111,7 +91,11 @@ func (c *productUseCase) RemoveOfferCategory(ctx context.Context, offerCategory 
 		return errors.New("invalid offer_category_id")
 	}
 
-	return c.productRepo.DeleteOfferCategory(ctx, offerCategory)
+	if err := c.productRepo.DeleteOfferCategory(ctx, offerCategory); err != nil {
+		return err
+	}
+	// update the discount price
+	return c.productRepo.UpdateDiscountPrice(ctx)
 }
 
 func (c *productUseCase) ReplaceOfferCategory(ctx context.Context, offerCategory domain.OfferCategory) error {
@@ -138,27 +122,15 @@ func (c *productUseCase) ReplaceOfferCategory(ctx context.Context, offerCategory
 		return errors.New("there is no offer not exist this category for replacing")
 	}
 	// if offer exist then update it
-	return c.productRepo.UpdateOfferCategory(ctx, offerCategory)
+	if err := c.productRepo.UpdateOfferCategory(ctx, offerCategory); err != nil {
+		return err
+	}
+
+	// update the discount price
+	return c.productRepo.UpdateDiscountPrice(ctx)
 }
 
 // offer on products
-
-func (c *productUseCase) OfferProductsPage(ctx context.Context) (res.ResOfferProductsPage, error) {
-	var (
-		resOfferProductsData res.ResOfferProductsPage
-		err                  error
-	)
-	// find all offers
-	if resOfferProductsData.Offers, err = c.productRepo.FindAllOffer(ctx); err != nil {
-		return resOfferProductsData, err
-	}
-	// find all products
-	if resOfferProductsData.Products, err = c.productRepo.GetProducts(ctx); err != nil {
-		return resOfferProductsData, err
-	}
-
-	return resOfferProductsData, nil
-}
 
 func (c *productUseCase) AddOfferProduct(ctx context.Context, offerProduct domain.OfferProduct) error {
 	// check the offerId is valid or not
@@ -187,7 +159,17 @@ func (c *productUseCase) AddOfferProduct(ctx context.Context, offerProduct domai
 	}
 
 	// if not exist then add it
-	return c.productRepo.SaveOfferProduct(ctx, offerProduct)
+	if err := c.productRepo.SaveOfferProduct(ctx, offerProduct); err != nil {
+		return err
+	}
+
+	// update the discount price
+	return c.productRepo.UpdateDiscountPrice(ctx)
+}
+
+// get all offers for products
+func (c *productUseCase) GetAllOffersOfProducts(ctx context.Context) ([]res.ResOfferProduct, error) {
+	return c.productRepo.FindAllOfferProducts(ctx)
 }
 
 // remove offer form products
@@ -200,7 +182,12 @@ func (c *productUseCase) RemoveOfferProducts(ctx context.Context, offerProdcts d
 		return errors.New("invalid offer_product_id")
 	}
 
-	return c.productRepo.DeleteOfferProduct(ctx, offerProdcts)
+	if err := c.productRepo.DeleteOfferProduct(ctx, offerProdcts); err != nil {
+		return err
+	}
+
+	// update the discount price
+	return c.productRepo.UpdateDiscountPrice(ctx)
 }
 
 // replace offer products
@@ -230,5 +217,10 @@ func (c *productUseCase) ReplaceOfferProducts(ctx context.Context, offerProduct 
 		return errors.New("invalid api call\nthere is no offer exist for this products so can't replace")
 	}
 
-	return c.productRepo.UpdateOfferProduct(ctx, offerProduct)
+	if err := c.productRepo.UpdateOfferProduct(ctx, offerProduct); err != nil {
+		return err
+	}
+
+	// update the discount price
+	return c.productRepo.UpdateDiscountPrice(ctx)
 }

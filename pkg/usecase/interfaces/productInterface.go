@@ -24,17 +24,17 @@ type ProductUseCase interface {
 	// offer
 	AddOffer(ctx context.Context, offer domain.Offer) error
 	RemoveOffer(ctx context.Context, offerID uint) error
-	GetAllOffers(ctx context.Context) (res.ResOffer, error)
+	GetAllOffers(ctx context.Context) ([]domain.Offer, error)
 
 	// offer category
-	OfferCategoryPage(ctx context.Context) (res.ResOfferCategoryPage, error)
 	AddOfferCategory(ctx context.Context, offerCategory domain.OfferCategory) error
+	GetAllOffersOfCategories(ctx context.Context) ([]res.ResOfferCategory, error)
 	RemoveOfferCategory(ctx context.Context, offerCategory domain.OfferCategory) error
 	ReplaceOfferCategory(ctx context.Context, offerCategory domain.OfferCategory) error
 
 	// offer product
-	OfferProductsPage(ctx context.Context) (res.ResOfferProductsPage, error)
 	AddOfferProduct(ctx context.Context, offerProduct domain.OfferProduct) error
+	GetAllOffersOfProducts(ctx context.Context) ([]res.ResOfferProduct, error)
 	RemoveOfferProducts(ctx context.Context, offerProdcts domain.OfferProduct) error
 	ReplaceOfferProducts(ctx context.Context, offerProduct domain.OfferProduct) error
 }

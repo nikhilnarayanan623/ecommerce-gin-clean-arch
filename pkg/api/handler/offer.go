@@ -68,50 +68,50 @@ func (c *ProductHandler) RemoveOffer(ctx *gin.Context) {
 // @tags Offers
 // @Param input body domain.Offer{} true "input field"
 // @Router /admin/offers/ [get]
-// @Success 200 {object} res.Response{} ""successfully got all offer"
+// @Success 200 {object} res.Response{} ""successfully got all offers"
 // @Failure 500 {object} res.Response{} "faild to get offers"
 func (c *ProductHandler) ShowAllOffers(ctx *gin.Context) {
 
-	resOfer, err := c.productUseCase.GetAllOffers(ctx)
+	offers, err := c.productUseCase.GetAllOffers(ctx)
 	if err != nil {
 		response := res.ErrorResponse(500, "faild to get offers", err.Error(), nil)
 		ctx.JSON(http.StatusInternalServerError, response)
 		return
 	}
 
-	if resOfer.Offers == nil {
-		response := res.SuccessResponse(200, "there is no offers to show", resOfer)
+	if offers == nil {
+		response := res.SuccessResponse(200, "there is no offers to show", offers)
 		ctx.JSON(http.StatusOK, response)
 		return
 	}
 
-	response := res.SuccessResponse(200, "successfully got all offer", resOfer)
+	response := res.SuccessResponse(200, "successfully got all offers", offers)
 	ctx.JSON(http.StatusOK, response)
 }
 
-// OfferCategoryPage godoc
-// @summary api for show all offers
-// @id OfferCategoryPage
+// GetOfferCategory godoc
+// @summary api for admin to get all offers of categories
+// @id GetOfferCategory
 // @tags Offers
 // @Router /admin/offers/category [get]
-// @Success 200 {object} res.Response{} "successfully all offers and categories got for offer category page"
-// @Failure 500 {object} res.Response{} "faild to get offers"
-func (c *ProductHandler) OfferCategoryPage(ctx *gin.Context) {
+// @Success 200 {object} res.Response{} "successfully got all offer_category"
+// @Failure 500 {object} res.Response{} "faild to get offers_category"
+func (c *ProductHandler) GetOfferCategories(ctx *gin.Context) {
 
-	resOfferCategoryData, err := c.productUseCase.OfferCategoryPage(ctx)
+	offerCategories, err := c.productUseCase.GetAllOffersOfCategories(ctx)
 	if err != nil {
-		response := res.ErrorResponse(500, "faild to get offer category page data", err.Error(), nil)
+		response := res.ErrorResponse(500, "faild to get offer_categories", err.Error(), nil)
 		ctx.JSON(500, response)
 		return
 	}
 
-	if resOfferCategoryData.Offers == nil {
-		response := res.SuccessResponse(200, "there is no offer so can't add offer for category", nil)
+	if offerCategories == nil {
+		response := res.SuccessResponse(200, "there is no offer_cateogies avialable", nil)
 		ctx.JSON(http.StatusOK, response)
 		return
 	}
 
-	response := res.SuccessResponse(200, "successfully all offers and categories got for offer category page", resOfferCategoryData)
+	response := res.SuccessResponse(200, "faild to get offers_category", offerCategories)
 	ctx.JSON(http.StatusOK, response)
 
 }
@@ -197,29 +197,29 @@ func (c *ProductHandler) ReplaceOfferCategory(ctx *gin.Context) {
 
 }
 
-// OfferProductsPage godoc
-// @summary api for show all offers and products
-// @id OfferProductsPage
+// GetOffersOfProducts godoc
+// @summary api for admin to get all offers of products
+// @id GetOffersOfProducts
 // @tags Offers
 // @Router /admin/offers/products [get]
-// @Success 200 {object} res.Response{} "successfully all offers and categories got for offer products page"
-// @Failure 500 {object} res.Response{} "faild to get offers"
-func (c *ProductHandler) OfferProductsPage(ctx *gin.Context) {
+// @Success 200 {object} res.Response{} "successfully got all offers_categories"
+// @Failure 500 {object} res.Response{} "faild to get offer_products"
+func (c *ProductHandler) GetOffersOfProducts(ctx *gin.Context) {
 
-	resOfferProductsData, err := c.productUseCase.OfferProductsPage(ctx)
+	offersOfCategories, err := c.productUseCase.GetAllOffersOfProducts(ctx)
 	if err != nil {
-		response := res.ErrorResponse(500, "faild to get offer products page data", err.Error(), nil)
+		response := res.ErrorResponse(500, "faild to get offer_products", err.Error(), nil)
 		ctx.JSON(500, response)
 		return
 	}
 
-	if resOfferProductsData.Offers == nil {
-		response := res.SuccessResponse(200, "there is no offer so can't add offer for product", nil)
+	if offersOfCategories == nil {
+		response := res.SuccessResponse(200, "there is no offer_products available", nil)
 		ctx.JSON(http.StatusOK, response)
 		return
 	}
 
-	response := res.SuccessResponse(200, "successfully all offers and categories got for offer products page", resOfferProductsData)
+	response := res.SuccessResponse(200, "successfully got all offers_categories", offersOfCategories)
 	ctx.JSON(http.StatusOK, response)
 
 }

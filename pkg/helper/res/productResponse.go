@@ -1,7 +1,5 @@
 package res
 
-import "github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/domain"
-
 // response for product
 type ResponseProduct struct {
 	ID            uint   `json:"id"`
@@ -63,6 +61,7 @@ type ResOfferCategory struct {
 	OfferCategoryID uint   `json:"offer_category_id"`
 	CategoryID      uint   `json:"category_id"`
 	CategoryName    string `json:"category_name"`
+	DiscountRate    uint   `json:"discount_rate"`
 	OfferID         uint   `json:"offer_id"`
 	OfferName       string `json:"offer_name"`
 }
@@ -71,23 +70,7 @@ type ResOfferProduct struct {
 	OfferProductID uint   `json:"offer_product_id"`
 	ProductID      uint   `json:"product_id"`
 	ProductName    string `json:"product_name"`
+	DiscountRate   uint   `json:"discount_rate"`
 	OfferID        uint   `json:"offer_id"`
 	OfferName      string `json:"offer_name"`
-}
-
-type ResOffer struct {
-	Offers          []domain.Offer
-	OfferCategories []ResOfferCategory `json:"offer_categories"`
-	OfferProducts   []ResOfferProduct  `json:"offer_products"`
-}
-
-// offet get page response
-type ResOfferCategoryPage struct {
-	Offers     []domain.Offer
-	Categories []Category
-}
-
-type ResOfferProductsPage struct {
-	Offers   []domain.Offer
-	Products []ResponseProduct
 }

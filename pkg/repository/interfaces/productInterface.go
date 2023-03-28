@@ -36,6 +36,9 @@ type ProductRepository interface {
 	SaveOffer(ctx context.Context, offer domain.Offer) error
 	DeleteOffer(ctx context.Context, offerID uint) error
 
+	// offer discount price updte
+	UpdateDiscountPrice(ctx context.Context) error
+
 	// offer category
 	FindOfferCategory(ctx context.Context, offerCateogy domain.OfferCategory) (domain.OfferCategory, error)
 	FindOfferCategoryCategoryID(ctx context.Context, categoryID uint) (domain.OfferCategory, error)
@@ -43,7 +46,6 @@ type ProductRepository interface {
 	SaveOfferCategory(ctx context.Context, offerCategory domain.OfferCategory) error
 	DeleteOfferCategory(ctx context.Context, offerCategory domain.OfferCategory) error
 	UpdateOfferCategory(ctx context.Context, offerCategory domain.OfferCategory) error
-	UpdateProductPriceForCategory(ctx context.Context) error
 
 	// offer productsss
 	FindOfferProduct(ctx context.Context, offerProduct domain.OfferProduct) (domain.OfferProduct, error)
@@ -53,5 +55,4 @@ type ProductRepository interface {
 	SaveOfferProduct(ctx context.Context, offerProduct domain.OfferProduct) error
 	DeleteOfferProduct(ctx context.Context, offerProduct domain.OfferProduct) error
 	UpdateOfferProduct(ctx context.Context, productOffer domain.OfferProduct) error
-	UpdateProductPriceForProductOffer(ctx context.Context) error
 }
