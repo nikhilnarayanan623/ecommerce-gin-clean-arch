@@ -10,31 +10,31 @@ type OrderStatus struct {
 }
 
 type ShopOrder struct {
-	ID              uint `josn:"id" gorm:"primaryKey;not null"`
-	UserID          uint `json:"user_id" gorm:"not null"`
-	User            User
+	ID              uint      `josn:"id" gorm:"primaryKey;not null"`
+	UserID          uint      `json:"user_id" gorm:"not null"`
+	User            User      `json:"-"`
 	OrderDate       time.Time `json:"order_date" gorm:"not null"`
 	AddressID       uint      `json:"address_id" gorm:"not null"`
-	Address         Address
-	OrderTotalPrice uint `json:"order_total_price" gorm:"not null"`
-	OrderStatusID   uint `json:"order_status_id" gorm:"not null"`
+	Address         Address   `json:"-"`
+	OrderTotalPrice uint      `json:"order_total_price" gorm:"not null"`
+	OrderStatusID   uint      `json:"order_status_id" gorm:"not null"`
 	OrderStatus     OrderStatus
 	COD             bool `json:"cod"`
 }
 
 type OrderLine struct {
-	ID            uint `json:"id" gorm:"primaryKey;not null"`
-	ProductItemID uint `json:"proudct_item_id" gorm:"not null"`
-	ShopOrderID   uint `json:"shop_order_id" gorm:"not null"`
-	ShopOrder     ShopOrder
-	Qty           uint `json:"qty" gorm:"not null"`
-	Price         uint `json:"price" gorm:"not null"`
+	ID            uint      `json:"id" gorm:"primaryKey;not null"`
+	ProductItemID uint      `json:"proudct_item_id" gorm:"not null"`
+	ShopOrderID   uint      `json:"shop_order_id" gorm:"not null"`
+	ShopOrder     ShopOrder `json:"-"`
+	Qty           uint      `json:"qty" gorm:"not null"`
+	Price         uint      `json:"price" gorm:"not null"`
 }
 
 type OrderReturn struct {
-	ID           uint `json:"id" gorm:"primaryKey;not null"`
-	ShopOrderID  uint `json:"shop_order_id" gorm:"not null;unique"`
-	ShopOrder    ShopOrder
+	ID           uint      `json:"id" gorm:"primaryKey;not null"`
+	ShopOrderID  uint      `json:"shop_order_id" gorm:"not null;unique"`
+	ShopOrder    ShopOrder `json:"-"`
 	RequestDate  time.Time `json:"request_date" gorm:"not null"`
 	ReturnReason string    `json:"return_reason" gorm:"not null"`
 	RefundAmount uint      `json:"refund_amount" gorm:"not null"`

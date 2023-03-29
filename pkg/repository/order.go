@@ -268,8 +268,10 @@ func (c *OrderDatabase) FindAllOrderReturns(ctx context.Context, onlyPending boo
 		if c.DB.Raw("SELECT id FROM order_statuses WHERE status = 'returned'").Scan(&orderStatusID).Error != nil {
 			return orderReturns, errors.New("faild to get order_status_id for return request ")
 		}
-		query := `SELECT ors.id,ors.shop_order_id,ors.request_date, ors.return_date, ors.approval_date, ors.refund_amount, ors.is_approved,admin_comment 
-		FROM order_returns ors INNER JOIN shop_orders so ON so.id = ors.shop_order_id AND so.order_status_id != ?`
+		query := `SELECT ors.id, ors.shop_order_id, ors.request_date, ors.return_reason, 
+		ors.return_date, ors.approval_date, ors.refund_amount, ors.is_approved,admin_comment 
+		FROM order_returns ors INNER JOIN shop_orders so ON so.id = ors.shop_order_id 
+		AND so.order_status_id != ?`
 		if c.DB.Raw(query, orderStatusID).Scan(&orderReturns).Error != nil {
 			return orderReturns, errors.New("faild to find orders of return requested")
 		}
@@ -279,7 +281,6 @@ func (c *OrderDatabase) FindAllOrderReturns(ctx context.Context, onlyPending boo
 			return orderReturns, errors.New("faild to get order returns")
 		}
 	}
-	fmt.Println(orderReturns)
 
 	return orderReturns, nil
 }

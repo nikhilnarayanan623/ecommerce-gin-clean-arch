@@ -264,30 +264,56 @@ func (c OrderHandler) SubmitReturnRequest(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, response)
 }
 
-// ShowAllPendingReturnRequests godoc
+// GetAllOrderReturns godoc
+// @summary api for admin to see all order reutns
+// @id GetAllOrderReturns
+// @tags Orders
+// @Router /orders/returns [get]
+// @Success 200 {object} res.Response{} "successfully got all order returns"
+// @Failure 500 {object} res.Response{} "faild to get order returns"
+func (c *OrderHandler) GetAllOrderReturns(ctx *gin.Context) {
+
+	orderReturns, err := c.orderUseCase.GetAllOrderReturns(ctx)
+	if err != nil {
+		response := res.ErrorResponse(500, "faild to get order returns", err.Error(), nil)
+		ctx.JSON(http.StatusInternalServerError, response)
+		return
+	}
+
+	if orderReturns == nil {
+		response := res.SuccessResponse(200, "there is no order returns", nil)
+		ctx.JSON(http.StatusOK, response)
+		return
+	}
+
+	response := res.SuccessResponse(200, "successfully got all order returns", orderReturns)
+	ctx.JSON(http.StatusOK, response)
+}
+
+// GetAllPendingReturns godoc
 // @summary api for admin to show pending return request and update it
 // @description admin can see the pending return request and accept it or not
-// @id ShowAllPendingReturnRequests
+// @id GetAllPendingReturns
 // @tags Orders
-// @Router /admin/orders/return [get]
+// @Router /admin/orders/returns/pending [get]
 // @Success 200 {object} res.Response{} "successfully got  pending orders return request"
 // @Failure 500 {object} res.Response{} "faild to get pending order return requests"
-func (c *OrderHandler) ShowAllPendingReturnRequests(ctx *gin.Context) {
+func (c *OrderHandler) GetAllPendingReturns(ctx *gin.Context) {
 
-	orderReturnsPageData, err := c.orderUseCase.GetAllPendingOrderReturn(ctx)
+	orderReturns, err := c.orderUseCase.GetAllPendingOrderReturns(ctx)
 	if err != nil {
 		response := res.ErrorResponse(500, "faild to get pending order return requests", err.Error(), nil)
 		ctx.JSON(http.StatusInternalServerError, response)
 		return
 	}
 
-	if orderReturnsPageData.OrderReturn == nil {
+	if orderReturns == nil {
 		response := res.SuccessResponse(200, "there is no pendinng orders return request", nil)
 		ctx.JSON(200, response)
 		return
 	}
 
-	response := res.SuccessResponse(200, "successfully got  pending orders return request", orderReturnsPageData)
+	response := res.SuccessResponse(200, "successfully got  pending orders return request", orderReturns)
 	ctx.JSON(http.StatusOK, response)
 }
 
@@ -296,10 +322,10 @@ func (c *OrderHandler) ShowAllPendingReturnRequests(ctx *gin.Context) {
 // @description admin can approve, cancell etc. updation on user order_return
 // @id UpdategReturnRequest
 // @tags Orders
-// @Router /admin/orders/return [put]
+// @Router /admin/orders/returns/penging [put]
 // @Success 200 {object} res.Response{} "successfully order_response updated"
 // @Failure 500 {object} res.Response{} "invalid input"
-func (c *OrderHandler) UpdategReturnRequest(ctx *gin.Context) {
+func (c *OrderHandler) UpdateReturnRequest(ctx *gin.Context) {
 
 	var body req.ReqUpdatReturnReq
 	if err := ctx.ShouldBindJSON(&body); err != nil {

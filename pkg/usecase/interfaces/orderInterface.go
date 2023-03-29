@@ -21,6 +21,7 @@ type OrderUseCase interface {
 	CancellOrder(ctx context.Context, shopOrderID uint) error
 
 	SubmitReturnRequest(ctx context.Context, body req.ReqReturn) error
-	GetAllPendingOrderReturn(ctx context.Context) (res.ResOrderReturnPage, error)
+	GetAllPendingOrderReturns(ctx context.Context) ([]domain.OrderReturn, error)
+	GetAllOrderReturns(ctx context.Context) ([]domain.OrderReturn, error)
 	UpdateReturnRequest(ctx context.Context, body req.ReqUpdatReturnReq) error
 }

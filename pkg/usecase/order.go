@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/jinzhu/copier"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/domain"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/helper/req"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/helper/res"
@@ -141,21 +140,16 @@ func (c *OrderUseCase) CheckOutCart(ctx context.Context, userID uint) (res.ResCh
 	return c.orderRepo.CheckOutCart(ctx, userID)
 }
 
-func (c *OrderUseCase) GetAllPendingOrderReturn(ctx context.Context) (res.ResOrderReturnPage, error) {
+// to get pending order returns
+func (c *OrderUseCase) GetAllPendingOrderReturns(ctx context.Context) ([]domain.OrderReturn, error) {
 
-	var resOrderReturnPage res.ResOrderReturnPage
+	return c.orderRepo.FindAllOrderReturns(ctx, true) // true for only pending
+}
 
-	orderRetun, err := c.orderRepo.FindAllOrderReturns(ctx, true)
-	if err != nil {
-		return resOrderReturnPage, err
-	}
-	// copy the orders return the page response
-	copier.Copy(&resOrderReturnPage.OrderReturn, &orderRetun)
+// to get all order return
+func (c *OrderUseCase) GetAllOrderReturns(ctx context.Context) ([]domain.OrderReturn, error) {
 
-	// then get all status
-	resOrderReturnPage.Statuses, err = c.orderRepo.FindAllOrderStauses(ctx)
-
-	return resOrderReturnPage, err
+	return c.orderRepo.FindAllOrderReturns(ctx, false) // false for  not only pending
 }
 
 // return request
