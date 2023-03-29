@@ -351,7 +351,7 @@ func (u *UserHandler) AddToCart(ctx *gin.Context) {
 	// get userId and add to body
 	body.UserID = helper.GetUserIdFromContext(ctx)
 
-	_, err := u.userUseCase.SaveToCart(ctx, body)
+	err := u.userUseCase.SaveToCart(ctx, body)
 
 	if err != nil {
 		response := res.ErrorResponse(400, "faild to add product into cart", err.Error(), nil)
@@ -385,7 +385,7 @@ func (u UserHandler) RemoveFromCart(ctx *gin.Context) {
 
 	body.UserID = helper.GetUserIdFromContext(ctx)
 
-	_, err := u.userUseCase.RemoveCartItem(ctx, body)
+	err := u.userUseCase.RemoveCartItem(ctx, body)
 
 	if err != nil {
 		response := res.ErrorResponse(500, "can't remove product item from cart", err.Error(), nil)
@@ -420,7 +420,7 @@ func (u *UserHandler) UpdateCart(ctx *gin.Context) {
 
 	body.UserID = helper.GetUserIdFromContext(ctx)
 
-	cartItem, err := u.userUseCase.UpdateCartItem(ctx, body)
+	err := u.userUseCase.UpdateCartItem(ctx, body)
 
 	if err != nil {
 		response := res.ErrorResponse(500, "can't update the count of product item on cart", err.Error(), nil)
@@ -428,7 +428,7 @@ func (u *UserHandler) UpdateCart(ctx *gin.Context) {
 		return
 	}
 
-	response := res.SuccessResponse(200, "successfully updated the count of product item on cart", cartItem.ProductItemID)
+	response := res.SuccessResponse(200, "successfully updated the count of product item on cart", body)
 	ctx.JSON(http.StatusOK, response)
 }
 

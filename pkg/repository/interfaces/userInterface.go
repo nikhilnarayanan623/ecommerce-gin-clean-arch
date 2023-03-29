@@ -15,13 +15,14 @@ type UserRepository interface {
 	// cart
 	FindProductItem(ctx context.Context, productItemID uint) (domain.ProductItem, error)
 	FindCart(ctx context.Context, userId uint) (domain.Cart, error)
-	UpdateCartPrice(ctx context.Context, cart domain.Cart) (domain.Cart, error)
+	UpdateCartPrice(ctx context.Context, cart domain.Cart) error
 	//cart item
-	FindCartItem(ctx context.Context, cartID, productItemID uint) (domain.CartItem, error)
-	SaveCartItem(ctx context.Context, cartID, productItemID uint) (domain.CartItem, error)
-	RemoveCartItem(ctx context.Context, cartItem domain.CartItem) (domain.CartItem, error)
-	UpdateCartItem(ctx context.Context, cartItem domain.CartItem) (domain.CartItem, error)
+	FindCartItem(ctx context.Context, cartItem domain.CartItem) (domain.CartItem, error)
 	GetCartItems(ctx context.Context, userId uint) (res.ResponseCart, error)
+	SaveCartItem(ctx context.Context, cartItems domain.CartItem) error
+	RemoveCartItem(ctx context.Context, cartItem domain.CartItem) error
+	UpdateCartItem(ctx context.Context, cartItem domain.CartItem) error
+
 	//address
 	FindCountryByID(ctx context.Context, countryID uint) (domain.Country, error)                          // find country by id
 	FindAddressByID(ctx context.Context, addressID uint) (domain.Address, error)                          // find address by id
