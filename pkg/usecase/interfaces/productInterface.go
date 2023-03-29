@@ -11,15 +11,17 @@ import (
 type ProductUseCase interface {
 	GetCategory(ctx context.Context) (res.RespFullCategory, error)
 	AddCategory(ctx context.Context, category domain.Category) error
-
+	// variations
 	AddVariation(ctx context.Context, vartaion domain.Variation) (domain.Variation, error)
 	AddVariationOption(ctx context.Context, variationOption domain.VariationOption) (domain.VariationOption, error)
 
+	// products
 	GetProducts(ctx context.Context) ([]res.ResponseProduct, error)
 	AddProduct(ctx context.Context, product domain.Product) error
+	UpdateProduct(ctx context.Context, product domain.Product) error
 
 	AddProductItem(ctx context.Context, productItem req.ReqProductItem) (domain.ProductItem, error)
-	GetProductItems(ctx context.Context, product domain.Product) ([]res.RespProductItems, error)
+	GetProductItems(ctx context.Context, productID uint) ([]res.RespProductItems, error)
 
 	// offer
 	AddOffer(ctx context.Context, offer domain.Offer) error

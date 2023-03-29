@@ -10,11 +10,12 @@ import (
 
 type ProductRepository interface {
 	FindProduct(ctx context.Context, product domain.Product) (domain.Product, error)
-	GetProducts(ctx context.Context) ([]res.ResponseProduct, error)
+	FindAllProducts(ctx context.Context) ([]res.ResponseProduct, error)
 	SaveProduct(ctx context.Context, product domain.Product) error
+	UpdateProduct(ctx context.Context, product domain.Product) error
 
 	// product items
-	GetProductItems(ctx context.Context, product domain.Product) ([]res.RespProductItems, error)
+	FindAllProductItems(ctx context.Context, productID uint) ([]res.RespProductItems, error)
 	AddProductItem(ctx context.Context, productItem req.ReqProductItem) (domain.ProductItem, error)
 
 	// category
@@ -43,11 +44,12 @@ type ProductRepository interface {
 	FindOfferCategory(ctx context.Context, offerCateogy domain.OfferCategory) (domain.OfferCategory, error)
 	FindOfferCategoryCategoryID(ctx context.Context, categoryID uint) (domain.OfferCategory, error)
 	FindAllOfferCategories(ctx context.Context) ([]res.ResOfferCategory, error)
+
 	SaveOfferCategory(ctx context.Context, offerCategory domain.OfferCategory) error
 	DeleteOfferCategory(ctx context.Context, offerCategory domain.OfferCategory) error
 	UpdateOfferCategory(ctx context.Context, offerCategory domain.OfferCategory) error
 
-	// offer productsss
+	// offer productss
 	FindOfferProduct(ctx context.Context, offerProduct domain.OfferProduct) (domain.OfferProduct, error)
 	FindAllOfferProducts(ctx context.Context) ([]res.ResOfferProduct, error)
 	FindOfferProductByProductID(ctx context.Context, productID uint) (domain.OfferProduct, error)

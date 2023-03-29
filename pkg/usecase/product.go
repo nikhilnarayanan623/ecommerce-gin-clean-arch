@@ -82,7 +82,7 @@ func (c *productUseCase) AddVariationOption(ctx context.Context, variationOption
 
 // to get all product
 func (c *productUseCase) GetProducts(ctx context.Context) ([]res.ResponseProduct, error) {
-	return c.productRepo.GetProducts(ctx)
+	return c.productRepo.FindAllProducts(ctx)
 }
 
 // to add new product
@@ -102,6 +102,32 @@ func (c *productUseCase) AddProductItem(ctx context.Context, productItem req.Req
 }
 
 // for get all productItem for a specific product
-func (c *productUseCase) GetProductItems(ctx context.Context, product domain.Product) ([]res.RespProductItems, error) {
-	return c.productRepo.GetProductItems(ctx, product)
+func (c *productUseCase) GetProductItems(ctx context.Context, productID uint) ([]res.RespProductItems, error) {
+
+	//validate the productID
+	if product, err := c.productRepo.FindProduct(ctx, domain.Product{ID: productID}); err != nil {
+		return []res.RespProductItems{}, err
+	} else if product.ID == 0 {
+		return []res.RespProductItems{}, errors.New("invalid product_id")
+	}
+
+	return c.productRepo.FindAllProductItems(ctx, productID)
+}
+
+func (c *productUseCase) UpdateProduct(ctx context.Context, product domain.Product) error {
+	// validate the product_id
+	if product, err := c.productRepo.FindProduct(ctx, product); err != nil {
+
+	} else if product.ProductName == "" {
+		return errors.New("invalid product_id")
+	}
+
+	// check the given product_name already exist or not
+	if checkProduct, err := c.productRepo.FindProduct(ctx, domain.Product{ProductName: product.ProductName}); err != nil {
+		return err
+	} else if checkProduct.ID != 0 && checkProduct.ID != product.ID {
+		return errors.New("can't update the product \nthere is alread a product exist with this product_name")
+	}
+
+	return c.productRepo.UpdateProduct(ctx, product)
 }

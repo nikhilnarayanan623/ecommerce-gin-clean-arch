@@ -6,7 +6,9 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/copier"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/domain"
+	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/helper"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/helper/req"
+	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/helper/res"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/usecase/interfaces"
 	service "github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/usecase/interfaces"
 )
@@ -175,17 +177,21 @@ func (p *ProductHandler) ListProducts(ctx *gin.Context) {
 
 }
 
-// to add a new product
+// AddProducts godoc
+// @summary api for admin to update a product
+// @id AddProducts
+// @tags Products
+// @Param input body req.ReqProduct{} true "inputs"
+// @Router /admin/products [put]
+// @Success 200 {object} res.Response{} "successfully product added"
+// @Failure 400 {object} res.Response{} "invalid input"
 func (p *ProductHandler) AddProducts(ctx *gin.Context) {
 
 	var body req.ReqProduct
 
 	if err := ctx.ShouldBindJSON(&body); err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{
-			"StatsuCode": 400,
-			"msg":        "can't bind the input",
-			"error":      err.Error(),
-		})
+		respones := res.ErrorResponse(400, "invalid input", err.Error(), body)
+		ctx.JSON(http.StatusBadRequest, respones)
 		return
 	}
 
@@ -195,95 +201,109 @@ func (p *ProductHandler) AddProducts(ctx *gin.Context) {
 	err := p.productUseCase.AddProduct(ctx, product)
 
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{
-			"StatsuCode": 400,
-			"msg":        "product can't be add",
-			"err":        err.Error(),
-		})
+		response := res.ErrorResponse(400, "faild to add product", err.Error(), body)
+		ctx.JSON(http.StatusBadRequest, response)
 		return
 	}
 
-	ctx.JSON(http.StatusOK, gin.H{
-		"StatsuCode": 200,
-		"msg":        "successfully product added",
-	})
+	response := res.SuccessResponse(200, "successfully product added", product)
+	ctx.JSON(http.StatusOK, response)
 }
 
-// for add a specific product item
-func (p *ProductHandler) AddProductItem(ctx *gin.Context) {
-	// signle variation_value multiple images
-	var reqProductItem req.ReqProductItem
+// UpdateProduct godoc
+// @summary api for admin to update a product
+// @id UpdateProduct
+// @tags Products
+// @Param input body req.ReqProduct{} true "inputs"
+// @Router /admin/products [put]
+// @Success 200 {object} res.Response{} "successfully product updated"
+// @Failure 400 {object} res.Response{} "invalid input"
+func (c *ProductHandler) UpdateProduct(ctx *gin.Context) {
 
-	if err := ctx.ShouldBindJSON(&reqProductItem); err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{
-			"StatusCode": 200,
-			"msg":        "can't bind the json",
-			"error":      err.Error(),
-		})
-		return
-	}
-
-	productItem, err := p.productUseCase.AddProductItem(ctx, reqProductItem)
-
-	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{
-			"StatusCode": 400,
-			"msg":        "can't add product item",
-			"error":      err.Error(),
-		})
-		return
-	}
-
-	ctx.JSON(http.StatusOK, gin.H{
-		"StatusCode":   200,
-		"msg":          "Successfully product item added",
-		"product_item": productItem,
-	})
-}
-
-func (p *ProductHandler) GetProductItems(ctx *gin.Context) {
-
-	// product_id
-	var body struct {
-		ID uint `json:"id"`
-	}
+	var body req.ReqProduct
 
 	if err := ctx.ShouldBindJSON(&body); err != nil {
-
-		ctx.JSON(http.StatusBadRequest, gin.H{
-			"StatusCode": 400,
-			"msg":        "can't bind the json",
-			"errors":     err.Error(),
-		})
+		response := res.ErrorResponse(400, "invalid input", err.Error(), body)
+		ctx.JSON(http.StatusBadRequest, response)
 		return
 	}
 
 	var product domain.Product
-
 	copier.Copy(&product, &body)
 
-	response, err := p.productUseCase.GetProductItems(ctx, product)
+	err := c.productUseCase.UpdateProduct(ctx, product)
+	if err != nil {
+		response := res.ErrorResponse(400, "faild to update product", err.Error(), product)
+		ctx.JSON(400, response)
+		return
+	}
+
+	response := res.SuccessResponse(200, "successfully product updated", product)
+	ctx.JSON(200, response)
+}
+
+// AddProductItem godoc
+// @summary api for admin to add product-items for a specific product
+// @id AddProductItem
+// @tags Products
+// @Param input body req.ReqProductItem{} true "inputs"
+// @Router /admin/products/product-items [post]
+// @Success 200 {object} res.Response{} "Successfully product item added"
+// @Failure 400 {object} res.Response{} "invalid input"
+func (p *ProductHandler) AddProductItem(ctx *gin.Context) {
+	// signle variation_value multiple images
+	var body req.ReqProductItem
+
+	if err := ctx.ShouldBindJSON(&body); err != nil {
+		response := res.ErrorResponse(400, "invalid input", err.Error(), body)
+		ctx.JSON(http.StatusBadRequest, response)
+		return
+	}
+
+	productItem, err := p.productUseCase.AddProductItem(ctx, body)
 
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{
-			"StatusCode": 400,
-			"error":      err.Error(),
-		})
+		response := res.ErrorResponse(400, "faild to add product_item", err.Error(), body)
+		ctx.JSON(http.StatusBadRequest, response)
+		return
+	}
+
+	response := res.SuccessResponse(200, "successfully product item added", productItem)
+	ctx.JSON(http.StatusOK, response)
+}
+
+// @summary api for get all product_items for a prooduct
+// @id GetProductItems
+// @tags Products
+// @param product_id path int true "product_id"
+// @Router /admin/products/product-items [get]
+// @Success 200 {object} res.Response{} "successfully got all product_items for given product_id"
+// @Failure 400 {object} res.Response{} "invalid input on params"
+func (p *ProductHandler) GetProductItems(ctx *gin.Context) {
+
+	productID, err := helper.StringToUint(ctx.Param("product_id"))
+
+	if err != nil {
+		response := res.ErrorResponse(400, "invalid input on params", err.Error(), nil)
+		ctx.JSON(http.StatusBadRequest, response)
+		return
+	}
+
+	productItems, err := p.productUseCase.GetProductItems(ctx, productID)
+
+	if err != nil {
+		response := res.ErrorResponse(400, "faild to get product_items", err.Error(), nil)
+		ctx.JSON(400, response)
 		return
 	}
 
 	// check the product have productItem exist or not
-	if response == nil {
-		ctx.JSON(http.StatusOK, gin.H{
-			"StatusCode": 200,
-			"msg":        "there is no product items avialable for the product",
-		})
+	if productItems == nil {
+		response := res.SuccessResponse(200, "there is no product items available for given product_id")
+		ctx.JSON(http.StatusOK, response)
 		return
 	}
 
-	ctx.JSON(http.StatusOK, gin.H{
-		"StatusCode":    200,
-		"msg":           "Successfully product items got",
-		"productItems ": response,
-	})
+	response := res.SuccessResponse(200, "successfully got all product_items for given product_id", productItems)
+	ctx.JSON(http.StatusOK, response)
 }

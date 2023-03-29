@@ -116,6 +116,7 @@ func (c *ProductHandler) GetOfferCategories(ctx *gin.Context) {
 
 }
 
+
 // AddOfferCategory godoc
 // @summary api for admin to add offer for category
 // @id AddOfferCategory

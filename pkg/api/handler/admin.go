@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"errors"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -77,56 +78,52 @@ func (a *AdminHandler) LoginGet(ctx *gin.Context) {
 	})
 }
 
-func (a *AdminHandler) LoginPost(ctx *gin.Context) {
+// LoginPost godoc
+// @summary api for admin to login
+// @id LoginPost
+// @tags Admin Login
+// @Param input body domain.Admin{} true "inputs"
+// @Router /admin/login [post]
+// @Success 200 {object} res.Response{} "successfully logged in"
+// @Failure 400 {object} res.Response{} "invalid input"
+// @Failure 500 {object} res.Response{} "faild to generate jwt token"
+func (a *AdminHandler) AdminLoginPost(ctx *gin.Context) {
 
-	var admin domain.Admin
-	if err := ctx.ShouldBindJSON(&admin); err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{
-			"StatusCode": 400,
-			"msg":        "Can't bind the values invalid inputs",
-			"error":      err.Error(),
-		})
+	var body domain.Admin
+
+	if err := ctx.ShouldBindJSON(&body); err != nil {
+		response := res.ErrorResponse(400, "invalid input", err.Error(), body)
+		ctx.JSON(http.StatusBadRequest, response)
 		return
 	}
 
 	// then check all field is empty
-	if admin.Email == "" && admin.UserName == "" {
-		ctx.JSON(http.StatusBadRequest, gin.H{
-			"StatusCode": 400,
-			"msg":        "Enter atleast user_name or email",
-		})
+	if body.Email == "" && body.UserName == "" {
+		err := errors.New("enter email or user_name atleast")
+		response := res.ErrorResponse(400, "invalid input", err.Error(), body)
+		ctx.JSON(http.StatusBadRequest, response)
 		return
 	}
 
-	admin, err := a.adminUseCase.Login(ctx, admin)
+	admin, err := a.adminUseCase.Login(ctx, body)
 
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{
-			"StatusCode": 400,
-			"msg":        "Can't login",
-			"err":        err.Error(),
-		})
+		response := res.ErrorResponse(400, "faild to login", err.Error(), admin)
+		ctx.JSON(http.StatusBadRequest, response)
 		return
 	}
 
 	tokenString, err := auth.GenerateJWT(admin.ID)
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{
-			"StatusCode": 500,
-			"msg":        "Error to Create JWT",
-		})
+		response := res.ErrorResponse(500, "faild to generate jwt token", err.Error(), nil)
+		ctx.JSON(http.StatusInternalServerError, response)
+		return
 	}
 
-	// if no error then copy the admin details to response
-	var response res.ResAdminLogin
-	copier.Copy(&response, &admin)
-
 	ctx.SetCookie("admin-auth", tokenString["accessToken"], 50*60, "", "", false, true)
-	ctx.JSON(http.StatusOK, gin.H{
-		"StatusCode": 200,
-		"msg":        "Successfully loged in",
-		"admin":      response,
-	})
+
+	response := res.SuccessResponse(200, "successfully logged in", nil)
+	ctx.JSON(http.StatusOK, response)
 }
 
 func (a *AdminHandler) Home(ctx *gin.Context) {

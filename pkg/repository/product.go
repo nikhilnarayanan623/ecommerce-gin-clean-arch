@@ -139,8 +139,20 @@ func (c *productDatabase) SaveProduct(ctx context.Context, product domain.Produc
 	return nil
 }
 
+// update product
+func (c *productDatabase) UpdateProduct(ctx context.Context, product domain.Product) error {
+	query := `UPDATE products SET product_name = $1, description = $2, category_id = $3, 
+	price = $4, image = $5 WHERE id = $6`
+	if c.DB.Exec(query, product.ProductName, product.Description, product.CategoryID,
+		product.Price, product.Image, product.ID).Error != nil {
+		return errors.New("faild to update product")
+	}
+
+	return nil
+}
+
 // get all products from database
-func (c *productDatabase) GetProducts(ctx context.Context) ([]res.ResponseProduct, error) {
+func (c *productDatabase) FindAllProducts(ctx context.Context) ([]res.ResponseProduct, error) {
 
 	var products []res.ResponseProduct
 	// aliase :: p := product; c := category
@@ -172,7 +184,6 @@ func (c *productDatabase) AddProductItem(ctx context.Context, reqProductItem req
 	}
 
 	// if product item already exist with this productId
-	fmt.Println(productItem.ID != 0, productItem.ProductID == reqProductItem.ProductID)
 	if productItem.ID != 0 && productItem.ProductID == reqProductItem.ProductID {
 		return productItem, errors.New("this product configuration already exist")
 	}
@@ -206,21 +217,13 @@ func (c *productDatabase) AddProductItem(ctx context.Context, reqProductItem req
 }
 
 // for get all products items for a product
-func (c *productDatabase) GetProductItems(ctx context.Context, product domain.Product) ([]res.RespProductItems, error) {
+func (c *productDatabase) FindAllProductItems(ctx context.Context, productID uint) ([]res.RespProductItems, error) {
 
 	var RespProductItems []res.RespProductItems
 
-	// first check the given product id is valid or not
-	if c.DB.Raw("SELECT * FROM products WHERE id=?", product.ID).Scan(&product).Error != nil {
-		return RespProductItems, errors.New("faild to get the product")
-	} else if product.ProductName == "" {
-		return RespProductItems, errors.New("invalid product id there is no product with this id")
-	}
-
 	//then get all productItems of the product
 	querry := `SELECT pi.id,pi.product_id,pi.price,pi.discount_price,pi.qty_in_stock,p.product_name FROM product_items pi INNER JOIN products p ON pi.product_id=p.id AND p.id=?`
-
-	if c.DB.Raw(querry, product.ID).Scan(&RespProductItems).Error != nil {
+	if c.DB.Raw(querry, productID).Scan(&RespProductItems).Error != nil {
 		return RespProductItems, errors.New("faild to get product_items for product given product id")
 	}
 

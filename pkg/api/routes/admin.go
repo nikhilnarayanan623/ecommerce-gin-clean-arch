@@ -14,7 +14,7 @@ func AdminRoutes(api *gin.RouterGroup, adminHandler *handler.AdminHandler,
 	login := api.Group("/login")
 	{
 		login.GET("/", adminHandler.LoginGet)
-		login.POST("/", adminHandler.LoginPost)
+		login.POST("/", adminHandler.AdminLoginPost)
 	}
 	// signup
 	signup := api.Group("/signup")
@@ -45,7 +45,9 @@ func AdminRoutes(api *gin.RouterGroup, adminHandler *handler.AdminHandler,
 		{
 			product.GET("/", productHandler.ListProducts)
 			product.POST("/", productHandler.AddProducts)
-			product.GET("/product-item", productHandler.GetProductItems)
+			product.PUT("/", productHandler.UpdateProduct)
+
+			product.GET("/product-item/:product_id", productHandler.GetProductItems)
 			product.POST("/product-item", productHandler.AddProductItem)
 
 		}

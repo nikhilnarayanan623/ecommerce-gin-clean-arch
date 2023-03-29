@@ -32,8 +32,8 @@ func UserRoutes(api *gin.RouterGroup, userHandler *handler.UserHandler, ProductH
 		// products
 		products := api.Group("/products")
 		{
-			products.GET("/", ProductHandler.ListProducts)                // show products
-			products.GET("/product-item", ProductHandler.GetProductItems) // show product items of a product
+			products.GET("/", ProductHandler.ListProducts)                            // show products
+			products.GET("/product-item/:product_id", ProductHandler.GetProductItems) // show product items of a product
 		}
 
 		// cart

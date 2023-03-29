@@ -19,12 +19,9 @@ func NewAdminRepository(DB *gorm.DB) interfaces.AdminRepository {
 
 func (c *adminDatabase) FindAdmin(ctx context.Context, admin domain.Admin) (domain.Admin, error) {
 
-	c.DB.Raw("SELECT * FROM admins WHERE email=? OR user_name=?", admin.Email, admin.UserName).Scan(&admin)
-
-	//check the admin got or not
-	if admin.ID == 0 {
-		return admin, errors.New("admin not exist with this details")
-	}
+	if c.DB.Raw("SELECT * FROM admins WHERE email=? OR user_name=?", admin.Email, admin.UserName).Scan(&admin).Error != nil {
+		return admin, errors.New("faild to find admin")
+	} 
 
 	return admin, nil
 }

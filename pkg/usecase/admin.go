@@ -38,15 +38,16 @@ func (c *adminUseCase) SignUp(ctx context.Context, admin domain.Admin) (domain.A
 func (c *adminUseCase) Login(ctx context.Context, admin domain.Admin) (domain.Admin, error) {
 
 	// get the admin from database
-	dbAdmin, dbErr := c.adminRepo.FindAdmin(ctx, admin)
-
-	if dbErr != nil {
-		return admin, dbErr
+	dbAdmin, err := c.adminRepo.FindAdmin(ctx, admin)
+	if err != nil {
+		return admin, err
+	} else if dbAdmin.ID == 0 {
+		return admin, errors.New("admin not exist with given details")
 	}
 
 	// check db password with given password
 	if bcrypt.CompareHashAndPassword([]byte(dbAdmin.Password), []byte(admin.Password)) != nil {
-		return admin, errors.New("entered passsword is incorrect")
+		return admin, errors.New("wrong password")
 	}
 
 	return dbAdmin, nil
