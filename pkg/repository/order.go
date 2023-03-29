@@ -221,33 +221,7 @@ func (c *OrderDatabase) UpdateShopOrderOrderStatus(ctx context.Context, shopOrde
 	return nil
 }
 
-// checkout page
-func (c *OrderDatabase) CheckOutCart(ctx context.Context, userId uint) (res.ResCheckOut, error) {
 
-	var resCheckOut res.ResCheckOut
-	// get all cartItems of user which are not out of stock
-	query := `SELECT ci.product_item_id, p.product_name,pi.price,pi.discount_price, pi.qty_in_stock, ci.qty, 
-	CASE WHEN pi.discount_price > 0 THEN (ci.qty * pi.discount_price) ELSE (ci.qty * pi.price) END AS sub_total  
-	FROM cart_items ci JOIN carts c ON ci.cart_id = c.id JOIN product_items pi ON ci.product_item_id = pi.id 
-	JOIN products p ON pi.product_id = p.id AND c.user_id = ?`
-
-	if c.DB.Raw(query, userId).Scan(&resCheckOut.ProductItems).Error != nil {
-		return resCheckOut, errors.New("faild to get cartItems for checkout")
-	}
-
-	// get user addresses
-	query = `SELECT * FROM addresses adrs JOIN user_addresses uadrs ON uadrs.address_id = adrs.id AND uadrs.user_id = ?`
-	if c.DB.Raw(query, userId).Scan(&resCheckOut.Addresses).Error != nil {
-		return resCheckOut, errors.New("faild to get user addrss for checkout")
-	}
-
-	// find total price
-	query = `SELECT total_price FROM carts WHERE user_id = ?`
-	if c.DB.Raw(query, userId).Scan(&resCheckOut.TotalPrice).Error != nil {
-		return resCheckOut, errors.New("faild to ge total price for user cart")
-	}
-	return resCheckOut, nil
-}
 
 // order return
 

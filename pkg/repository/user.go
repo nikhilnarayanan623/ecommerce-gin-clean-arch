@@ -201,7 +201,7 @@ func (c *userDatabse) FindAllAddressByUserID(ctx context.Context, userID uint) (
 
 	query := `SELECT a.id, a.house,a.name,a.phone_number,a.area,a.land_mark,a.city,a.pincode,a.country_id,c.country_name,ua.is_default
 	 FROM user_addresses ua JOIN addresses a ON ua.address_id=a.id 
-	 LEFT JOIN countries c ON a.country_id=c.id AND ua.user_id=?`
+	 INNER JOIN countries c ON a.country_id=c.id AND ua.user_id=?`
 	if c.DB.Raw(query, userID).Scan(&addresses).Error != nil {
 		return addresses, errors.New("faild to get address of user")
 	}
@@ -324,4 +324,34 @@ func (c *userDatabse) RemoveWishListItem(ctx context.Context, wishList domain.Wi
 		return errors.New("faild to delete productItem from database")
 	}
 	return nil
+}
+
+// checkout page
+func (c *userDatabse) CheckOutCart(ctx context.Context, userId uint) (res.ResCheckOut, error) {
+
+	var resCheckOut res.ResCheckOut
+	// get all cartItems of user which are not out of stock
+	query := `SELECT ci.product_item_id, p.product_name,pi.price,pi.discount_price, pi.qty_in_stock, ci.qty, 
+	CASE WHEN pi.discount_price > 0 THEN (ci.qty * pi.discount_price) ELSE (ci.qty * pi.price) END AS sub_total  
+	FROM cart_items ci JOIN carts c ON ci.cart_id = c.id JOIN product_items pi ON ci.product_item_id = pi.id 
+	JOIN products p ON pi.product_id = p.id AND c.user_id = ?`
+
+	if c.DB.Raw(query, userId).Scan(&resCheckOut.ProductItems).Error != nil {
+		return resCheckOut, errors.New("faild to get cartItems for checkout")
+	}
+
+	// get user addresses
+	adresses, err := c.FindAllAddressByUserID(ctx, userId)
+	if err != nil {
+		return resCheckOut, errors.New("faild to get user addrss for checkout")
+	}
+	resCheckOut.Addresses = adresses
+
+	// find total price
+	query = `SELECT total_price FROM carts WHERE user_id = ?`
+	if c.DB.Raw(query, userId).Scan(&resCheckOut.TotalPrice).Error != nil {
+		return resCheckOut, errors.New("faild to ge total price for user cart")
+	}
+
+	return resCheckOut, nil
 }

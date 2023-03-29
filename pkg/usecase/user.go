@@ -244,6 +244,11 @@ func (c *userUserCase) GetCartItems(ctx context.Context, userId uint) (res.Respo
 	return c.userRepo.GetCartItems(ctx, userId)
 }
 
+// checkout section
+func (c *userUserCase) CheckOutCart(ctx context.Context, userID uint) (res.ResCheckOut, error) {
+	return c.userRepo.CheckOutCart(ctx, userID)
+}
+
 // adddress
 func (c *userUserCase) SaveAddress(ctx context.Context, address domain.Address, userID uint, isDefault bool) (domain.Address, error) {
 	//check the address is already exist for the user

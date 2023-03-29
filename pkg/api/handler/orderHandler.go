@@ -20,37 +20,6 @@ func NewOrderHandler(orderUseCase interfaces.OrderUseCase) *OrderHandler {
 	return &OrderHandler{orderUseCase: orderUseCase}
 }
 
-// CheckOutCart godoc
-// @summary api for cart checkout
-// @description user can checkout user cart items
-// @security ApiKeyAuth
-// @id CheckOutCart
-// @tags Carts
-// @Router /carts/checkout [get]
-// @Success 200 {object} res.Response{} "successfully got checkout data"
-// @Failure 401 {object} res.Response{} "cart is empty so user can't call this api"
-// @Failure 500 {object} res.Response{} "faild to get checkout items"
-func (c *OrderHandler) CheckOutCart(ctx *gin.Context) {
-
-	userId := helper.GetUserIdFromContext(ctx)
-
-	resCheckOut, err := c.orderUseCase.CheckOutCart(ctx, userId)
-
-	if err != nil {
-		response := res.ErrorResponse(500, "faild to get checkout items", err.Error(), nil)
-		ctx.JSON(http.StatusInternalServerError, response)
-		return
-	}
-
-	if resCheckOut.ProductItems == nil {
-		response := res.ErrorResponse(401, "cart is empty so user can't call this api", "", nil)
-		ctx.JSON(http.StatusInternalServerError, response)
-		return
-	}
-
-	responser := res.SuccessResponse(200, "successfully got checkout data", resCheckOut)
-	ctx.JSON(http.StatusOK, responser)
-}
 
 // PlaceOrderByCart godoc
 // @summary api for place order of all items in user cart

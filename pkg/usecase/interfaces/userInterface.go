@@ -22,6 +22,7 @@ type UserUseCase interface {
 	UpdateCartItem(ctx context.Context, body req.ReqCartCount) error         // edit cartItems( quantity change )
 	GetCartItems(ctx context.Context, userId uint) (res.ResponseCart, error) // show all cart_items
 
+	CheckOutCart(ctx context.Context, userID uint) (res.ResCheckOut, error)
 	// profile side
 
 	//address side

@@ -23,6 +23,9 @@ type UserRepository interface {
 	RemoveCartItem(ctx context.Context, cartItem domain.CartItem) error
 	UpdateCartItem(ctx context.Context, cartItem domain.CartItem) error
 
+	// checkout for order
+	CheckOutCart(ctx context.Context, userId uint) (res.ResCheckOut, error)
+
 	//address
 	FindCountryByID(ctx context.Context, countryID uint) (domain.Country, error)                          // find country by id
 	FindAddressByID(ctx context.Context, addressID uint) (domain.Address, error)                          // find address by id
