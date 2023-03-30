@@ -8,6 +8,7 @@ import (
 
 func AdminRoutes(api *gin.RouterGroup, adminHandler *handler.AdminHandler,
 	productHandler *handler.ProductHandler, orderHandler *handler.OrderHandler,
+	couponHandler *handler.CouponHandler,
 
 ) {
 	// login
@@ -79,6 +80,14 @@ func AdminRoutes(api *gin.RouterGroup, adminHandler *handler.AdminHandler,
 			offer.POST("/products", productHandler.AddOfferProduct)    // add offer for products
 			offer.PUT("/products", productHandler.ReplaceOfferProduct)
 			offer.DELETE("/products/:offer_product_id", productHandler.RemoveOfferProduct)
+		}
+
+		// coupons
+		coupons := api.Group("/coupons")
+		{
+			coupons.POST("/", couponHandler.AddCoupon)
+			coupons.GET("/", couponHandler.GetAllCoupons)
+			coupons.PUT("/", couponHandler.UpdateCoupon)
 		}
 
 	}

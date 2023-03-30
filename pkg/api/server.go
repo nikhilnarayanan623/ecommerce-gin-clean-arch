@@ -17,7 +17,7 @@ type ServerHTTP struct {
 }
 
 func NewServerHTTP(adminHandler *handler.AdminHandler, userHandler *handler.UserHandler,
-	productHandler *handler.ProductHandler, orderHandler *handler.OrderHandler) *ServerHTTP {
+	productHandler *handler.ProductHandler, orderHandler *handler.OrderHandler, couponHandler *handler.CouponHandler) *ServerHTTP {
 
 	engine := gin.New()
 
@@ -28,7 +28,7 @@ func NewServerHTTP(adminHandler *handler.AdminHandler, userHandler *handler.User
 
 	// set up routes
 	routes.UserRoutes(engine.Group("/"), userHandler, productHandler, orderHandler)
-	routes.AdminRoutes(engine.Group("/admin"), adminHandler, productHandler, orderHandler)
+	routes.AdminRoutes(engine.Group("/admin"), adminHandler, productHandler, orderHandler, couponHandler)
 
 	// no handler
 	engine.NoRoute(func(ctx *gin.Context) {

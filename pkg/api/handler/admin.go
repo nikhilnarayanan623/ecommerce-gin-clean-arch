@@ -195,3 +195,6 @@ func (a *AdminHandler) BlockUser(ctx *gin.Context) {
 		"user":       response,
 	})
 }
+
+// add coupons
+

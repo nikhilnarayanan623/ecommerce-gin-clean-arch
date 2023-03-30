@@ -18,12 +18,15 @@ func InitializeApi(cfg config.Config) (*http.ServerHTTP, error) {
 		// repository
 		repository.NewAdminRepository, repository.NewUserRepository,
 		repository.NewProductRepository, repository.NewOrderRepository,
+		repository.NewCouponRepository,
 		//usecase
 		usecase.NewAdminUseCase, usecase.NewUserUseCase,
 		usecase.NewProductUseCase, usecase.NewOrderUseCase,
+		usecase.NewCouponUseCase,
 		// handler
 		handler.NewAdminHandler, handler.NewUserHandler,
 		handler.NewProductHandler, handler.NewOrderHandler,
+		handler.NewCouponHandler,
 		http.NewServerHTTP,
 	)
 

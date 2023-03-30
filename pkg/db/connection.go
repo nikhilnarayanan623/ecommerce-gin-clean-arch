@@ -61,6 +61,10 @@ func ConnectDatbase(cfg config.Config) (*gorm.DB, error) {
 		domain.Offer{},
 		domain.OfferCategory{},
 		domain.OfferProduct{},
+
+		// coupon
+		domain.Coupon{},
+		domain.UserCoupons{},
 	)
 
 	return db, err
