@@ -113,13 +113,13 @@ func (c *OrderDatabase) SaveOrderByCart(ctx context.Context, shopOrder domain.Sh
 	// get all cartItems of user cart which are not out of stock
 	var cartItems []domain.CartItem
 	query := `SELECT ci.cart_id,ci.product_item_id, ci.qty FROM cart_items ci JOIN product_items pi ON ci.product_item_id = pi.id AND pi.qty_in_stock > 0 AND ci.cart_id=?`
-	if trx.Raw(query, cart.ID).Scan(&cartItems).Scan(&cartItems).Error != nil {
+	if trx.Raw(query, cart.ID).Scan(&cartItems).Error != nil {
 		trx.Rollback()
 		return errors.New("there is no cartItems in the user cart")
-		//return errors.New("faild to get cartItems of user")
-	} //else if cartItems == nil { // there is no cartItems for user
-	///	return errors.New("there is no cartItems in the user cart")
-	///}
+	} else if cartItems == nil {
+		trx.Rollback()
+		return errors.New("invalid api call \nthere is no product_itmes in cart")
+	}
 
 	if shopOrder.AddressID == 0 { // if address id not given then get user default address
 		query := `SELECT a.id AS adress_id FROM user_addresses ua JOIN addresses a ON ua.address_id = a.id AND ua.user_id=? AND ua.is_default='t'`

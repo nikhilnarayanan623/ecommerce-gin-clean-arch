@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/domain"
+	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/helper/res"
 )
 
 type CouponRepository interface {
@@ -11,4 +12,10 @@ type CouponRepository interface {
 	FindAllCoupons(ctx context.Context) ([]domain.Coupon, error)
 	SaveCoupon(ctx context.Context, coupon domain.Coupon) error
 	UpdateCoupon(ctx context.Context, coupon domain.Coupon) error
+
+	// user_coupon
+	FindUserCouponByCouponCode(ctx context.Context, couponCode string) (domain.UserCoupon, error)
+	FindAllUserCouponsByUserID(ctx context.Context, userID uint) ([]res.ResUserCoupon, error)
+	SaveUserCoupon(ctx context.Context, userCoupon domain.UserCoupon) error
+	UpdateUserCoupon(ctx context.Context, userCoupon domain.UserCoupon) error
 }

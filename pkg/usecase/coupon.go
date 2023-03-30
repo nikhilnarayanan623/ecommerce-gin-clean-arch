@@ -3,8 +3,11 @@ package usecase
 import (
 	"context"
 	"errors"
+	"time"
 
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/domain"
+	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/helper"
+	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/helper/res"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/repository/interfaces"
 	service "github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/usecase/interfaces"
 )
@@ -44,4 +47,40 @@ func (c *couponUseCase) UpdateCoupon(ctx context.Context, coupon domain.Coupon) 
 
 	// update the coupon
 	return c.couponRepo.UpdateCoupon(ctx, coupon)
+}
+
+// save coupon code for user
+func (c *couponUseCase) AddUserCoupon(ctx context.Context, userID uint) (domain.UserCoupon, error) {
+
+	// first all coupons
+	coupons, err := c.couponRepo.FindAllCoupons(ctx)
+	if err != nil {
+		return domain.UserCoupon{}, err
+	} else if coupons == nil {
+		return domain.UserCoupon{}, errors.New("there is no coupons available")
+	}
+
+	// then slelect a random coupon and set its id to user_coupons
+	randomCouponID := coupons[helper.SelectRandomNumber(0, len(coupons))].ID
+	// create a random coupon for user_coupon
+	randomCouponCode := helper.CreateRandomCouponCode(10)
+	// select a random date
+	randomExpireDate := time.Now().AddDate(0, 0, helper.SelectRandomNumber(10, 30))
+
+	// create a useCoupon with this details
+
+	userCoupon := domain.UserCoupon{
+		UserID:     userID,
+		CouponID:   randomCouponID,
+		CouponCode: randomCouponCode,
+		ExpireDate: randomExpireDate,
+	}
+
+	// return user_coupn with save coupon
+	return userCoupon, c.couponRepo.SaveUserCoupon(ctx, userCoupon)
+}
+
+// get all user_coupons
+func (c *couponUseCase) GetAllUserCoupons(ctx context.Context, userID uint) ([]res.ResUserCoupon, error) {
+	return c.couponRepo.FindAllUserCouponsByUserID(ctx, userID)
 }

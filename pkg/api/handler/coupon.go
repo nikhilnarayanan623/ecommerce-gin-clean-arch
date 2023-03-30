@@ -5,6 +5,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/domain"
+	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/helper"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/helper/res"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/usecase/interfaces"
 )
@@ -54,7 +55,9 @@ func (c *CouponHandler) GetAllCoupons(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, response)
 }
 
+// update coupon
 func (c *CouponHandler) UpdateCoupon(ctx *gin.Context) {
+
 	var coupon domain.Coupon
 	if err := ctx.ShouldBindJSON(&coupon); err != nil {
 		response := res.ErrorResponse(400, "invalid input", err.Error(), coupon)
@@ -71,4 +74,50 @@ func (c *CouponHandler) UpdateCoupon(ctx *gin.Context) {
 
 	response := res.SuccessResponse(200, "successfully update the coupon", coupon)
 	ctx.JSON(http.StatusOK, response)
+}
+
+// func create user_coupn
+func (c *CouponHandler) AddUserCoupon(ctx *gin.Context) {
+
+	// check ther probability and if no probability then return
+	if !helper.CheckProbability(0.5) {
+		response := res.SuccessResponse(200, "there is no coupon \nbetter luck next time", nil)
+		ctx.JSON(http.StatusOK, response)
+		return
+	}
+
+	userID := helper.GetUserIdFromContext(ctx)
+
+	//save coupon for use
+	userCoupon, err := c.couponUseCase.AddUserCoupon(ctx, userID)
+	if err != nil {
+		response := res.ErrorResponse(500, "faild to create coupon for user", err.Error(), userCoupon)
+		ctx.JSON(http.StatusInternalServerError, response)
+		return
+	}
+
+	response := res.SuccessResponse(http.StatusOK, "successfully created a coupon for user", userCoupon)
+	ctx.JSON(200, response)
+
+}
+
+func (c *CouponHandler) GetAllUserCoupons(ctx *gin.Context) {
+
+	userID := helper.GetUserIdFromContext(ctx)
+
+	userCoupons, err := c.couponUseCase.GetAllUserCoupons(ctx, userID)
+	if err != nil {
+		response := res.ErrorResponse(500, "faild to get user coupons", err.Error(), nil)
+		ctx.JSON(http.StatusInternalServerError, response)
+		return
+	}
+
+	if userCoupons == nil {
+		response := res.SuccessResponse(200, "there is no coupons for user", nil)
+		ctx.JSON(http.StatusOK, response)
+		return
+	}
+
+	respones := res.SuccessResponse(200, "successfully got user coupons", userCoupons)
+	ctx.JSON(http.StatusOK, respones)
 }

@@ -12,7 +12,7 @@ type Coupon struct {
 	BlockStatus    bool   `json:"block_status" gorm:"not null"`
 }
 
-type UserCoupons struct {
+type UserCoupon struct {
 	ID          uint      `json:"id" gorm:"primaryKey;not null"`
 	CouponCode  string    `json:"coupon_code" gorm:"unique;not null"`
 	UserID      uint      `json:"user_id" gorm:"not null"`

@@ -7,7 +7,7 @@ import (
 )
 
 func UserRoutes(api *gin.RouterGroup, userHandler *handler.UserHandler, ProductHandler *handler.ProductHandler,
-	orderHandler *handler.OrderHandler,
+	orderHandler *handler.OrderHandler, couponHandler *handler.CouponHandler,
 ) {
 
 	// login
@@ -46,7 +46,8 @@ func UserRoutes(api *gin.RouterGroup, userHandler *handler.UserHandler, ProductH
 
 			// place order by cart
 			cart.GET("/checkout", orderHandler.CheckOutCart)
-			cart.POST("/place-order/:address_id", orderHandler.PlaceOrderByCart) // place an order
+			// place an order after place order coupon will create and will send
+			cart.POST("/place-order/:address_id", orderHandler.PlaceOrderByCart, couponHandler.AddUserCoupon)
 		}
 
 		//wishlist
@@ -78,6 +79,12 @@ func UserRoutes(api *gin.RouterGroup, userHandler *handler.UserHandler, ProductH
 			orders.PUT("/return", orderHandler.SubmitReturnRequest)
 
 			orders.PUT("/cancel/:shop_order_id", orderHandler.CancellOrder) // cancell an order
+		}
+
+		// coupons
+		coupons := api.Group("/coupons")
+		{
+			coupons.GET("/", couponHandler.GetAllUserCoupons)
 		}
 
 	}

@@ -2,7 +2,9 @@ package helper
 
 import (
 	"errors"
+	"math/rand"
 	"strconv"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/domain"
@@ -33,4 +35,38 @@ func CompareUsers(user, checkUser domain.User) error {
 	}
 
 	return err
+}
+
+// chack probability for coupons (chance 0.0 to 1.0 : low to hign)
+func CheckProbability(channce float64) bool {
+
+	rand.Seed(time.Now().UnixMilli())
+
+	// rangom.Float64() gives value of 0 to 1
+	return channce > rand.Float64()
+}
+
+// random coupons
+func CreateRandomCouponCode(couponCodeLenth int) string {
+	// letter for coupns
+	letters := `ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890`
+	rand.Seed(time.Now().UnixMilli())
+
+	// creat a byte array of couponCodeLength
+	couponCode := make([]byte, couponCodeLenth)
+
+	// loop through the array and randomly pic letter and add to array
+	for i := range couponCode {
+		couponCode[i] = letters[rand.Intn(len(letters))]
+	}
+	// convert into string and return the random letter array
+	return string(couponCode)
+}
+
+// select a rangom number from start to end
+func SelectRandomNumber(min, max int) int {
+
+	rand.Seed(time.Now().UnixMilli())
+
+	return rand.Intn(max-min) + min
 }

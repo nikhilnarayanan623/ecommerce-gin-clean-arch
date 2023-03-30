@@ -69,7 +69,7 @@ func (c *OrderHandler) PlaceOrderByCart(ctx *gin.Context) {
 
 	if err != nil {
 		response := res.ErrorResponse(400, "invalid input for params", err.Error(), nil)
-		ctx.JSON(http.StatusBadRequest, response)
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, response)
 		return
 	}
 
@@ -81,7 +81,7 @@ func (c *OrderHandler) PlaceOrderByCart(ctx *gin.Context) {
 
 	if err := c.orderUseCase.PlaceOrderByCart(ctx, shopOrder); err != nil {
 		response := res.ErrorResponse(400, "faild to place order", err.Error(), nil)
-		ctx.JSON(http.StatusBadRequest, response)
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, response)
 		return
 	}
 
