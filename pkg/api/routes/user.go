@@ -45,9 +45,8 @@ func UserRoutes(api *gin.RouterGroup, userHandler *handler.UserHandler, ProductH
 			cart.DELETE("/", userHandler.RemoveFromCart)
 
 			// place order by cart
-			cart.GET("/checkout", orderHandler.CheckOutCart)
-			// place an order after place order coupon will create and will send
-			cart.POST("/place-order/:address_id", orderHandler.PlaceOrderByCart, couponHandler.AddUserCoupon)
+			cart.GET("/checkout", userHandler.CheckOutCart)
+			cart.POST("/place-order/:address_id", orderHandler.PlaceOrderByCart) // place an order
 		}
 
 		//wishlist

@@ -351,7 +351,7 @@ func (u *UserHandler) AddToCart(ctx *gin.Context) {
 	// get userId and add to body
 	body.UserID = helper.GetUserIdFromContext(ctx)
 
-	_, err := u.userUseCase.SaveToCart(ctx, body)
+	err := u.userUseCase.SaveToCart(ctx, body)
 
 	if err != nil {
 		response := res.ErrorResponse(400, "faild to add product into cart", err.Error(), nil)
@@ -385,7 +385,7 @@ func (u UserHandler) RemoveFromCart(ctx *gin.Context) {
 
 	body.UserID = helper.GetUserIdFromContext(ctx)
 
-	_, err := u.userUseCase.RemoveCartItem(ctx, body)
+	err := u.userUseCase.RemoveCartItem(ctx, body)
 
 	if err != nil {
 		response := res.ErrorResponse(500, "can't remove product item from cart", err.Error(), nil)
@@ -420,7 +420,7 @@ func (u *UserHandler) UpdateCart(ctx *gin.Context) {
 
 	body.UserID = helper.GetUserIdFromContext(ctx)
 
-	cartItem, err := u.userUseCase.UpdateCartItem(ctx, body)
+	err := u.userUseCase.UpdateCartItem(ctx, body)
 
 	if err != nil {
 		response := res.ErrorResponse(500, "can't update the count of product item on cart", err.Error(), nil)
@@ -428,7 +428,7 @@ func (u *UserHandler) UpdateCart(ctx *gin.Context) {
 		return
 	}
 
-	response := res.SuccessResponse(200, "successfully updated the count of product item on cart", cartItem.ProductItemID)
+	response := res.SuccessResponse(200, "successfully updated the count of product item on cart", body)
 	ctx.JSON(http.StatusOK, response)
 }
 
@@ -460,6 +460,38 @@ func (u *UserHandler) UserCart(ctx *gin.Context) {
 
 	response := res.SuccessResponse(200, "successfully got user cart items", resCart)
 	ctx.JSON(http.StatusOK, response)
+}
+
+// CheckOutCart godoc
+// @summary api for cart checkout
+// @description user can checkout user cart items
+// @security ApiKeyAuth
+// @id CheckOutCart
+// @tags Carts
+// @Router /carts/checkout [get]
+// @Success 200 {object} res.Response{} "successfully got checkout data"
+// @Failure 401 {object} res.Response{} "cart is empty so user can't call this api"
+// @Failure 500 {object} res.Response{} "faild to get checkout items"
+func (c *UserHandler) CheckOutCart(ctx *gin.Context) {
+
+	userId := helper.GetUserIdFromContext(ctx)
+
+	resCheckOut, err := c.userUseCase.CheckOutCart(ctx, userId)
+
+	if err != nil {
+		response := res.ErrorResponse(500, "faild to get checkout items", err.Error(), nil)
+		ctx.JSON(http.StatusInternalServerError, response)
+		return
+	}
+
+	if resCheckOut.ProductItems == nil {
+		response := res.ErrorResponse(401, "cart is empty so user can't call this api", "", nil)
+		ctx.JSON(http.StatusInternalServerError, response)
+		return
+	}
+
+	responser := res.SuccessResponse(200, "successfully got checkout data", resCheckOut)
+	ctx.JSON(http.StatusOK, responser)
 }
 
 //! ***** for user profiler ***** //

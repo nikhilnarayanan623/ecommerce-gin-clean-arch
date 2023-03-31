@@ -135,10 +135,7 @@ func (c *OrderUseCase) CancellOrder(ctx context.Context, shopOrderID uint) error
 	return c.orderRepo.UpdateShopOrderOrderStatus(ctx, shopOrder.ID, orderStatus.ID)
 }
 
-// checkout section
-func (c *OrderUseCase) CheckOutCart(ctx context.Context, userID uint) (res.ResCheckOut, error) {
-	return c.orderRepo.CheckOutCart(ctx, userID)
-}
+
 
 // to get pending order returns
 func (c *OrderUseCase) GetAllPendingOrderReturns(ctx context.Context) ([]domain.OrderReturn, error) {

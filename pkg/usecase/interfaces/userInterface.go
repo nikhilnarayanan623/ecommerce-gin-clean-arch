@@ -17,11 +17,12 @@ type UserUseCase interface {
 	EditAccount(ctx context.Context, user domain.User) error
 
 	//cart side
-	SaveToCart(ctx context.Context, body req.ReqCart) (domain.CartItem, error)          // save product_item to cart
-	RemoveCartItem(ctx context.Context, body req.ReqCart) (domain.Cart, error)          // remove product_item from cart
-	UpdateCartItem(ctx context.Context, body req.ReqCartCount) (domain.CartItem, error) // edit cartItems( quantity change )
-	GetCartItems(ctx context.Context, userId uint) (res.ResponseCart, error)            // show all cart_items
+	SaveToCart(ctx context.Context, body req.ReqCart) error                  // save product_item to cart
+	RemoveCartItem(ctx context.Context, body req.ReqCart) error              // remove product_item from cart
+	UpdateCartItem(ctx context.Context, body req.ReqCartCount) error         // edit cartItems( quantity change )
+	GetCartItems(ctx context.Context, userId uint) (res.ResponseCart, error) // show all cart_items
 
+	CheckOutCart(ctx context.Context, userID uint) (res.ResCheckOut, error)
 	// profile side
 
 	//address side
