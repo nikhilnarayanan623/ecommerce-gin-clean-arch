@@ -13,14 +13,14 @@ type Coupon struct {
 }
 
 type UserCoupon struct {
-	ID          uint      `json:"id" gorm:"primaryKey;not null"`
-	CouponCode  string    `json:"coupon_code" gorm:"unique;not null"`
-	UserID      uint      `json:"user_id" gorm:"not null"`
-	User        User      `json:"-"`
-	CouponID    uint      `json:"coupon_id" gorm:"not null"`
-	Coupon      Coupon    `json:"-"`
-	Discount    uint      `json:"discount"`
-	ExpireDate  time.Time `json:"expire_date" gorm:"not null"`
-	Used        bool      `json:"used" gorm:"not null"`
-	LastApplied time.Time `json:"last_applied"`
+	ID             uint      `json:"id" gorm:"primaryKey;not null"`
+	CouponCode     string    `json:"coupon_code" gorm:"unique;not null"`
+	UserID         uint      `json:"user_id" gorm:"not null"`
+	User           User      `json:"-"`
+	CouponID       uint      `json:"coupon_id" gorm:"not null"`
+	Coupon         Coupon    `json:"-"`
+	DiscountAmount uint      `json:"discount_amount"`
+	ExpireDate     time.Time `json:"expire_date" gorm:"not null"`
+	Used           bool      `json:"used" gorm:"not null"`
+	LastApplied    time.Time `json:"last_applied"`
 }

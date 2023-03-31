@@ -121,3 +121,27 @@ func (c *CouponHandler) GetAllUserCoupons(ctx *gin.Context) {
 	respones := res.SuccessResponse(200, "successfully got user coupons", userCoupons)
 	ctx.JSON(http.StatusOK, respones)
 }
+
+func (c *CouponHandler) ApplyUserCoupon(ctx *gin.Context) {
+
+	var body struct {
+		CouponCode string `json:"coupon_code" binding:"required"`
+		TotalPrice uint   `json:"total_price" binding:"required"`
+	}
+
+	if err := ctx.ShouldBindJSON(&body); err != nil {
+		response := res.ErrorResponse(400, "invalid input", err.Error(), body)
+		ctx.JSON(http.StatusBadRequest, response)
+		return
+	}
+
+	userCoupon, err := c.couponUseCase.ApplyUserCoupon(ctx, body.CouponCode, body.TotalPrice)
+	if err != nil {
+		response := res.ErrorResponse(400, "faild to apply coupon_code", err.Error(), body)
+		ctx.JSON(http.StatusBadRequest, response)
+		return
+	}
+
+	response := res.SuccessResponse(200, "successfully coupon code applied", userCoupon)
+	ctx.JSON(http.StatusOK, response)
+}

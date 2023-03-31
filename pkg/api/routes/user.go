@@ -85,6 +85,7 @@ func UserRoutes(api *gin.RouterGroup, userHandler *handler.UserHandler, ProductH
 		coupons := api.Group("/coupons")
 		{
 			coupons.GET("/", couponHandler.GetAllUserCoupons)
+			coupons.POST("/", couponHandler.ApplyUserCoupon)
 		}
 
 	}

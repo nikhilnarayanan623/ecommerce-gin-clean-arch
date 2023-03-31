@@ -3,6 +3,7 @@ package usecase
 import (
 	"context"
 	"errors"
+	"fmt"
 	"time"
 
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/domain"
@@ -83,4 +84,47 @@ func (c *couponUseCase) AddUserCoupon(ctx context.Context, userID uint) (domain.
 // get all user_coupons
 func (c *couponUseCase) GetAllUserCoupons(ctx context.Context, userID uint) ([]res.ResUserCoupon, error) {
 	return c.couponRepo.FindAllUserCouponsByUserID(ctx, userID)
+}
+
+// apply a user_coupon
+func (c *couponUseCase) ApplyUserCoupon(ctx context.Context, couponCode string, toatalPrice uint) (domain.UserCoupon, error) {
+
+	// first get the coupon using coupon_code and validate it
+	userCoupon, err := c.couponRepo.FindUserCouponByCouponCode(ctx, couponCode)
+	if err != nil {
+		return userCoupon, err
+	} else if userCoupon.ID == 0 {
+		return userCoupon, errors.New("invalid coupon_code")
+	}
+
+	// check coupon is used or not
+	if userCoupon.Used {
+		return userCoupon, errors.New("coupon is already used")
+	}
+
+	// check coupon expire time and last_applied
+	if time.Since(userCoupon.ExpireDate) > 0 {
+		return userCoupon, errors.New("can't apply coupon \ncoupon expired")
+	} else if time.Since(userCoupon.LastApplied.AddDate(0, 0, 1)) < 0 { // check the coupon is within a date or not
+		return userCoupon, errors.New("can't apply coupon \ncoupon already try to apply within a day \ntry after a day")
+	}
+
+	// find the coupon and check its minmum price its requird or not
+	coupon, err := c.couponRepo.FindCoupon(ctx, domain.Coupon{ID: userCoupon.CouponID})
+	fmt.Println(coupon)
+	if err != nil {
+		return userCoupon, err
+	} else if toatalPrice < coupon.MinimumPrice {
+		return userCoupon, fmt.Errorf("can't apply coupon \nrequired order_toatal price not met with coupon minimum_price %d", coupon.MinimumPrice)
+	}
+
+	// calucalte a random discount price with coupun_percentage_upto form 5
+	randomDisountRate := helper.SelectRandomNumber(5, int(coupon.PercentageUpto))
+
+	discountPrice := (toatalPrice * (100 - uint(randomDisountRate))) / 100
+
+	// set the disount_price and last applied time to use_coupn and update it
+	userCoupon.DiscountAmount = discountPrice
+	userCoupon.LastApplied = time.Now()
+	return userCoupon, c.couponRepo.UpdateUserCoupon(ctx, userCoupon)
 }

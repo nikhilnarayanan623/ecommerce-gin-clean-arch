@@ -162,7 +162,9 @@ func (c *OrderUseCase) SubmitReturnRequest(ctx context.Context, body req.ReqRetu
 	} else if shopOrder.ID == 0 {
 		return errors.New("invalid shop_order_id")
 	}
-	fmt.Println("shop order", shopOrder.OrderStatusID)
+
+	// check order return time is over
+
 	// find the status of shop order
 	orderStatus := domain.OrderStatus{ID: shopOrder.OrderStatusID}
 	if orderStatus, err = c.orderRepo.FindOrderStatus(ctx, orderStatus); err != nil {
