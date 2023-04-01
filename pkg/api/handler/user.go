@@ -480,13 +480,13 @@ func (c *UserHandler) CheckOutCart(ctx *gin.Context) {
 
 	if err != nil {
 		response := res.ErrorResponse(500, "faild to get checkout items", err.Error(), nil)
-		ctx.JSON(http.StatusInternalServerError, response)
+		ctx.AbortWithStatusJSON(http.StatusInternalServerError, response)
 		return
 	}
 
 	if resCheckOut.ProductItems == nil {
-		response := res.ErrorResponse(401, "cart is empty so user can't call this api", "", nil)
-		ctx.JSON(http.StatusInternalServerError, response)
+		response := res.ErrorResponse(401, "cart is empty can't checkout cart", "", nil)
+		ctx.AbortWithStatusJSON(http.StatusUnauthorized, response)
 		return
 	}
 

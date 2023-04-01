@@ -16,3 +16,9 @@ type ReqUpdatReturnReq struct {
 	OrderStatusID uint   `json:"order_status_id" binding:"required"`
 	AdminComment  string `json:"admin_comment" bindin:"requied,min=6,max=50"`
 }
+
+type ReqPlaceOrder struct {
+	PaymentMethodID uint   `json:"payment_method_id"`
+	CouponCode      string `json:"coupon_code" binding:"required"`
+	AddressID       uint   `json:"address_id" binding:"required"`
+}

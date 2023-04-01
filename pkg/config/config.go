@@ -7,20 +7,25 @@ import (
 
 // to store env variables
 type Config struct {
-	DBHost     string `mapstructure:"DB_HOST"`
-	DBName     string `mapstructure:"DB_NAME"`
-	DBUser     string `mapstructure:"DB_USER"`
-	DBPassword string `mapstructure:"DB_PASSWORD"`
-	DBPort     string `mapstructure:"DB_PORT"`
-	JWT        string `mapstructure:"JWT_CODE"`
-	AUTHTOKEN  string `mapstructure:"AUTH_TOKEN"`
-	ACCOUNTSID string `mapstructure:"ACCOUNT_SID"`
-	SERVICESID string `mapstructure:"SERVICE_SID"`
+	DBHost         string `mapstructure:"DB_HOST"`
+	DBName         string `mapstructure:"DB_NAME"`
+	DBUser         string `mapstructure:"DB_USER"`
+	DBPassword     string `mapstructure:"DB_PASSWORD"`
+	DBPort         string `mapstructure:"DB_PORT"`
+	JWT            string `mapstructure:"JWT_CODE"`
+	AUTHTOKEN      string `mapstructure:"AUTH_TOKEN"`
+	ACCOUNTSID     string `mapstructure:"ACCOUNT_SID"`
+	SERVICESID     string `mapstructure:"SERVICE_SID"`
+	RazorPayKey    string `mapstructure:"RAZOR_PAY_KEY"`
+	RazorPaySecret string `mapstructure:"RAZOR_PAY_SECRET"`
 }
 
 // to hold all names of env variables
 var envsNames = []string{
-	"DB_HOST", "DB_NAME", "DB_USER", "DB_PASSWORD", "DB_PORT", "JWT_CODE", "AUTH_TOKEN", "ACCOUNT_SID", "SERVICE_SID",
+	"DB_HOST", "DB_NAME", "DB_USER", "DB_PASSWORD", "DB_PORT", // databse
+	"JWT_CODE",                                 // jwt
+	"AUTH_TOKEN", "ACCOUNT_SID", "SERVICE_SID", // twillio
+	"RAZOR_PAY_KEY", "RAZOR_PAY_SECRET", // razor pay
 }
 
 var config Config // create an instance of Config

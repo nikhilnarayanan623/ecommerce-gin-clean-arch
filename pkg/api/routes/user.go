@@ -45,7 +45,7 @@ func UserRoutes(api *gin.RouterGroup, userHandler *handler.UserHandler, ProductH
 			cart.DELETE("/", userHandler.RemoveFromCart)
 
 			// place order by cart
-			cart.GET("/checkout", userHandler.CheckOutCart)
+			cart.GET("/checkout", userHandler.CheckOutCart, orderHandler.GetAllPaymentMethods)
 			cart.POST("/place-order/:address_id", orderHandler.PlaceOrderByCart) // place an order
 		}
 

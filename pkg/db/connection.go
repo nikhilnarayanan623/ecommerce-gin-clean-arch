@@ -49,7 +49,6 @@ func ConnectDatbase(cfg config.Config) (*gorm.DB, error) {
 
 		// cart
 		domain.Cart{},
-		domain.CartItem{},
 
 		// order
 		domain.OrderStatus{},

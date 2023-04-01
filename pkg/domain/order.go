@@ -4,22 +4,30 @@ import (
 	"time"
 )
 
+type PaymentMethod struct {
+	ID            uint   `json:"id" gorm:"primaryKey;not null"`
+	PaymentType   string `json:"" gorm:"not null"`
+	BlockStatus   bool   `json:"block_status" gorm:"not null"`
+	MaximumAmount uint   `json:"maximum_amount" gorm:"not null"`
+}
+
 type OrderStatus struct {
 	ID     uint   `json:"id" gorm:"primaryKey;not null"`
 	Status string `json:"status" gorm:"unique;not null"`
 }
 
 type ShopOrder struct {
-	ID              uint      `josn:"id" gorm:"primaryKey;not null"`
-	UserID          uint      `json:"user_id" gorm:"not null"`
-	User            User      `json:"-"`
-	OrderDate       time.Time `json:"order_date" gorm:"not null"`
-	AddressID       uint      `json:"address_id" gorm:"not null"`
-	Address         Address   `json:"-"`
-	OrderTotalPrice uint      `json:"order_total_price" gorm:"not null"`
-	OrderStatusID   uint      `json:"order_status_id" gorm:"not null"`
-	OrderStatus     OrderStatus
-	COD             bool `json:"cod"`
+	ID              uint          `josn:"id" gorm:"primaryKey;not null"`
+	UserID          uint          `json:"user_id" gorm:"not null"`
+	User            User          `json:"-"`
+	OrderDate       time.Time     `json:"order_date" gorm:"not null"`
+	AddressID       uint          `json:"address_id" gorm:"not null"`
+	Address         Address       `json:"-"`
+	OrderTotalPrice uint          `json:"order_total_price" gorm:"not null"`
+	OrderStatusID   uint          `json:"order_status_id" gorm:"not null"`
+	OrderStatus     OrderStatus   `json:"-"`
+	PaymentMethodID uint          `json:"payment_method_id" gorm:"not null"`
+	PaymentMethod   PaymentMethod `json:"-"`
 }
 
 type OrderLine struct {

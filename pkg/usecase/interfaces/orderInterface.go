@@ -9,7 +9,6 @@ import (
 )
 
 type OrderUseCase interface {
-
 	GetAllShopOrders(ctx context.Context) (res.ResShopOrdersPage, error)
 
 	PlaceOrderByCart(ctx context.Context, userID domain.ShopOrder) error
@@ -23,4 +22,7 @@ type OrderUseCase interface {
 	GetAllPendingOrderReturns(ctx context.Context) ([]domain.OrderReturn, error)
 	GetAllOrderReturns(ctx context.Context) ([]domain.OrderReturn, error)
 	UpdateReturnRequest(ctx context.Context, body req.ReqUpdatReturnReq) error
+
+	// pyment
+	GetAllPaymentMethods(ctx context.Context) ([]domain.PaymentMethod, error)
 }

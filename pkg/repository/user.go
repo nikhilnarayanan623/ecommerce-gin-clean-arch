@@ -65,110 +65,97 @@ func (c *userDatabse) FindProductItem(ctx context.Context, productItemID uint) (
 	return productItem, nil
 }
 
-// get the cart of user
-func (c *userDatabse) FindCart(ctx context.Context, userID uint) (domain.Cart, error) {
-	// then check user have cart already exist or not
-	var cart domain.Cart
-	if c.DB.Raw("SELECT * FROM carts WHERE user_id=?", userID).Scan(&cart).Error != nil {
-		return cart, errors.New("faild to get cart of user from database")
-	}
+// find a cartItem
+func (c *userDatabse) FindCart(ctx context.Context, cart domain.Cart) (domain.Cart, error) {
 
-	// if user have no cart then create a new cart for user
-	if cart.ID == 0 {
-		querry := `INSERT INTO carts (user_id,total_price) VALUES ($1,$2) RETURNING id,user_id,total_price`
-		if c.DB.Raw(querry, userID, 0).Scan(&cart).Error != nil {
-			return cart, errors.New("faild to create cart for user in database")
-		}
+	query := `SELECT * FROM carts WHERE cart_id = ? OR user_id=? AND product_item_id=?`
+	if c.DB.Raw(query, cart.CartID, cart.UserID, cart.ProductItemID).Scan(&cart).Error != nil {
+		return cart, errors.New("faild to get cartItem of user")
 	}
-
 	return cart, nil
 }
 
-func (c *userDatabse) UpdateCartPrice(ctx context.Context, cart domain.Cart) error {
-
-	// update cartTotal Price
-	query := ` SELECT SUM(CASE WHEN pi.discount_price > 0 THEN ci.qty * pi.discount_price ELSE ci.qty * pi.price END) AS total_price	 
-	FROM cart_items ci 
-	JOIN carts c ON ci.cart_id=c.id JOIN product_items pi 
-	ON ci.product_item_id=pi.id AND c.id=? GROUP BY cart_id`
-
-	var TotalPrice uint
-	if c.DB.Raw(query, cart.ID).Scan(&TotalPrice).Error != nil {
-		return errors.New("faild to find calculate total price of cart_items")
-	}
-	//update the total price on cart
-	query = `UPDATE carts SET total_price = $1 WHERE id=$2`
-	if c.DB.Exec(query, TotalPrice, cart.ID).Error != nil {
-		return errors.New("faild to update the total price of cart")
-	}
-
-	return nil
-
-}
-
-// find a cartItem
-func (c *userDatabse) FindCartItem(ctx context.Context, cartItem domain.CartItem) (domain.CartItem, error) {
-
-	query := `SELECT * FROM cart_items WHERE id = ? OR cart_id=? AND product_item_id=?`
-	if c.DB.Raw(query, cartItem.ID, cartItem.CartID, cartItem.ProductItemID).Scan(&cartItem).Error != nil {
-		return cartItem, errors.New("faild to get cartItem of user")
-	}
-	return cartItem, nil
-}
-
 // add a productItem to cartitem
-func (c *userDatabse) SaveCartItem(ctx context.Context, cartItems domain.CartItem) error {
+func (c *userDatabse) SaveCartItem(ctx context.Context, cart domain.Cart) error {
 
-	querry := `INSERT INTO cart_items (cart_id,product_item_id,qty) VALUES ($1,$2,$3)`
-	if c.DB.Exec(querry, cartItems.CartID, cartItems.ProductItemID, 1).Error != nil {
+	querry := `INSERT INTO carts (user_id,product_item_id,qty) VALUES ($1,$2,$3)`
+	if c.DB.Exec(querry, cart.UserID, cart.ProductItemID, 1).Error != nil {
 		return errors.New("faild to save cart_items")
 	}
 
 	return nil
 }
 
-func (c *userDatabse) RemoveCartItem(ctx context.Context, cartItem domain.CartItem) error {
-
+func (c *userDatabse) RemoveCartItem(ctx context.Context, cart domain.Cart) error {
 	// delete productItem from cart
-	if c.DB.Raw("DELETE FROM cart_items WHERE id=?", cartItem.ID).Scan(&cartItem).Error != nil {
-		return errors.New("faild to delete cart_item")
+	query := `DELETE FROM carts WHERE cart_id = $1`
+	if c.DB.Exec(query, cart.CartID).Error != nil {
+		return errors.New("faild to remove product_items from cart")
 	}
 
 	return nil
 }
 
-func (c *userDatabse) UpdateCartItem(ctx context.Context, cartItem domain.CartItem) error {
+func (c *userDatabse) UpdateCartItem(ctx context.Context, cart domain.Cart) error {
 
-	if c.DB.Raw("UPDATE cart_items SET qty = ? WHERE id=? RETURNING qty", cartItem.Qty, cartItem.ID).Scan(&cartItem).Error != nil {
-		return errors.New("faild to update the qty of cartItem")
+	query := `UPDATE carts SET qty = $1 WHERE user_id = $2`
+	if c.DB.Exec(query, cart.Qty, cart.UserID).Error != nil {
+		return errors.New("faild to update the qty of product_item on cart")
 	}
 	return nil
+}
+
+// find total price of cart include out of stock or not
+func (c *userDatabse) FindCartTotalPrice(ctx context.Context, userID uint, includeOutOfStck bool) (uint, error) {
+	var (
+		totalPrice uint
+		query      string
+	)
+
+	if includeOutOfStck { // for all cart items
+		query = `SELECT SUM( CASE WHEN pi.discount_price > 0 THEN pi.discount_price * c.qty ELSE pi.price * c.qty END) AS total_price 
+		FROM carts c INNER JOIN product_items pi ON c.product_item_id = pi.id 
+		AND c.user_id = $1 
+		GROUP BY c.user_id`
+	} else { // for all cart_items which are in stock
+		query = `SELECT SUM( CASE WHEN pi.discount_price > 0 THEN pi.discount_price * c.qty ELSE pi.price * c.qty END) AS total_price 
+		FROM carts c INNER JOIN product_items pi ON c.product_item_id = pi.id 
+		AND pi.qty_in_stock > 0 AND c.user_id = $1 
+		GROUP BY c.user_id`
+	}
+
+	if c.DB.Raw(query, userID).Scan(&totalPrice).Error != nil {
+		return totalPrice, errors.New("faild to calculate total price for user cart")
+	}
+
+	fmt.Println(totalPrice, "total price")
+
+	return totalPrice, nil
 }
 
 // get all itmes from cart
-func (c *userDatabse) GetCartItems(ctx context.Context, userId uint) (res.ResponseCart, error) {
+func (c *userDatabse) GetCartItems(ctx context.Context, userID uint) (res.ResponseCart, error) {
 
-	var response res.ResponseCart
-	// get the cart of user
-	cart, err := c.FindCart(ctx, userId)
-	if err != nil {
-		return response, err
-	}
+	var (
+		response res.ResponseCart
+		err      error
+	)
 
 	// get the cartItem of all user with subtotal
-	query := `SELECT ci.product_item_id, p.product_name, ci.qty,pi.price ,
-	 pi.discount_price, CASE WHEN pi.discount_price > 0 THEN pi.discount_price * ci.qty ELSE pi.price * ci.qty END AS sub_total,  
+	query := `SELECT c.product_item_id, p.product_name, c.qty,pi.price ,
+	 pi.discount_price, CASE WHEN pi.discount_price > 0 THEN pi.discount_price * c.qty ELSE pi.price * c.qty END AS sub_total,  
 	 pi.qty_in_stock 
-	 FROM cart_items ci JOIN product_items pi ON ci.product_item_id = pi.id 
-	JOIN products p ON pi.product_id=p.id AND ci.cart_id=?`
+	 FROM carts c JOIN product_items pi ON c.product_item_id = pi.id 
+	JOIN products p ON pi.product_id = p.id AND c.user_id=?`
 
-	if c.DB.Raw(query, cart.ID).Scan(&response.CartItems).Error != nil {
-		return response, errors.New("faild to get cartItems from database")
+	if c.DB.Raw(query, userID).Scan(&response.CartItems).Error != nil {
+		return response, errors.New("faild to get product_items from cart")
 	}
 
-	response.TotalPrice = cart.TotalPrice
+	response.TotalPrice, err = c.FindCartTotalPrice(ctx, userID, true)
+	fmt.Println(response.TotalPrice, "at respone")
 
-	return response, nil
+	return response, err
 }
 
 func (c *userDatabse) FindAddressByID(ctx context.Context, addressID uint) (domain.Address, error) {
@@ -327,31 +314,29 @@ func (c *userDatabse) RemoveWishListItem(ctx context.Context, wishList domain.Wi
 }
 
 // checkout page
-func (c *userDatabse) CheckOutCart(ctx context.Context, userId uint) (res.ResCheckOut, error) {
+func (c *userDatabse) CheckOutCart(ctx context.Context, userID uint) (res.ResCheckOut, error) {
 
 	var resCheckOut res.ResCheckOut
 	// get all cartItems of user which are not out of stock
-	query := `SELECT ci.product_item_id, p.product_name,pi.price,pi.discount_price, pi.qty_in_stock, ci.qty, 
-	CASE WHEN pi.discount_price > 0 THEN (ci.qty * pi.discount_price) ELSE (ci.qty * pi.price) END AS sub_total  
-	FROM cart_items ci JOIN carts c ON ci.cart_id = c.id JOIN product_items pi ON ci.product_item_id = pi.id 
+	query := `SELECT c.product_item_id, p.product_name,pi.price,pi.discount_price, pi.qty_in_stock, c.qty, 
+	CASE WHEN pi.discount_price > 0 THEN (c.qty * pi.discount_price) ELSE (c.qty * pi.price) END AS sub_total  
+	FROM carts c JOIN product_items pi ON c.product_item_id = pi.id 
+	AND pi.qty_in_stock > 0 
 	JOIN products p ON pi.product_id = p.id AND c.user_id = ?`
 
-	if c.DB.Raw(query, userId).Scan(&resCheckOut.ProductItems).Error != nil {
+	if c.DB.Raw(query, userID).Scan(&resCheckOut.ProductItems).Error != nil {
 		return resCheckOut, errors.New("faild to get cartItems for checkout")
 	}
 
 	// get user addresses
-	adresses, err := c.FindAllAddressByUserID(ctx, userId)
+	adresses, err := c.FindAllAddressByUserID(ctx, userID)
 	if err != nil {
 		return resCheckOut, errors.New("faild to get user addrss for checkout")
 	}
 	resCheckOut.Addresses = adresses
 
 	// find total price
-	query = `SELECT total_price FROM carts WHERE user_id = ?`
-	if c.DB.Raw(query, userId).Scan(&resCheckOut.TotalPrice).Error != nil {
-		return resCheckOut, errors.New("faild to ge total price for user cart")
-	}
+	resCheckOut.TotalPrice, err = c.FindCartTotalPrice(ctx, userID, false)
 
-	return resCheckOut, nil
+	return resCheckOut, err
 }

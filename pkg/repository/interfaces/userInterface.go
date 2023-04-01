@@ -14,14 +14,13 @@ type UserRepository interface {
 	EditUser(ctx context.Context, user domain.User) error
 	// cart
 	FindProductItem(ctx context.Context, productItemID uint) (domain.ProductItem, error)
-	FindCart(ctx context.Context, userId uint) (domain.Cart, error)
-	UpdateCartPrice(ctx context.Context, cart domain.Cart) error
+
 	//cart item
-	FindCartItem(ctx context.Context, cartItem domain.CartItem) (domain.CartItem, error)
+	FindCart(ctx context.Context, cart domain.Cart) (domain.Cart, error)
 	GetCartItems(ctx context.Context, userId uint) (res.ResponseCart, error)
-	SaveCartItem(ctx context.Context, cartItems domain.CartItem) error
-	RemoveCartItem(ctx context.Context, cartItem domain.CartItem) error
-	UpdateCartItem(ctx context.Context, cartItem domain.CartItem) error
+	SaveCartItem(ctx context.Context, cartItems domain.Cart) error
+	RemoveCartItem(ctx context.Context, cartItem domain.Cart) error
+	UpdateCartItem(ctx context.Context, cartItem domain.Cart) error
 
 	// checkout for order
 	CheckOutCart(ctx context.Context, userId uint) (res.ResCheckOut, error)

@@ -44,7 +44,6 @@ func (c *OrderHandler) PlaceOrderByCart(ctx *gin.Context) {
 	var shopOrder = domain.ShopOrder{
 		UserID:    userId,
 		AddressID: addressID,
-		COD:       true,
 	}
 
 	if err := c.orderUseCase.PlaceOrderByCart(ctx, shopOrder); err != nil {
@@ -56,6 +55,18 @@ func (c *OrderHandler) PlaceOrderByCart(ctx *gin.Context) {
 	response := res.SuccessResponse(200, "Successfully placed your order for COD", nil)
 	ctx.JSON(http.StatusOK, response)
 
+}
+
+func (c *OrderHandler) FullPlaceOrderForCart(ctx *gin.Context) {
+
+	var body req.ReqPlaceOrder
+	if err := ctx.ShouldBindJSON(&body); err != nil {
+		response := res.ErrorResponse(400, "invalid inputs", err.Error(), body)
+		ctx.JSON(http.StatusBadRequest, response)
+		return
+	}
+
+	
 }
 
 // GetUserOrder godoc

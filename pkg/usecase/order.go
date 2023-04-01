@@ -135,8 +135,6 @@ func (c *OrderUseCase) CancellOrder(ctx context.Context, shopOrderID uint) error
 	return c.orderRepo.UpdateShopOrderOrderStatus(ctx, shopOrder.ID, orderStatus.ID)
 }
 
-
-
 // to get pending order returns
 func (c *OrderUseCase) GetAllPendingOrderReturns(ctx context.Context) ([]domain.OrderReturn, error) {
 
@@ -224,3 +222,19 @@ func (c *OrderUseCase) UpdateReturnRequest(ctx context.Context, body req.ReqUpda
 
 	return c.orderRepo.UpdateOrderReturn(ctx, body)
 }
+
+// func (c *OrderUseCase) FullPlaceOrderForCart(ctx context.Context, body req.ReqPlaceOrder) (domain.PaymentMethod, error) {
+
+// 	// first get paymentMethod by payment_method_id
+// 	paymentMethod, err := c.orderRepo.FindPaymentMethodByID(ctx, body.PaymentMethodID)
+// 	if err != nil {
+// 		return paymentMethod, err
+// 	} else if paymentMethod.ID == 0 {
+// 		return paymentMethod, errors.New("invalid payment_method_id")
+// 	}
+
+// 	//check if payment is COD place order
+// 	if paymentMethod.PaymentType == "COD" {
+// 		c.orderRepo.SaveOrderByCart(ctx,)
+// 	}
+// }

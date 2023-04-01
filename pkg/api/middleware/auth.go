@@ -37,7 +37,7 @@ func authHelper(ctx *gin.Context, user string) {
 		return
 	}
 
-	// check the cliams time
+	// check the cliams expire time
 	if time.Now().Unix() > claims.ExpiresAt {
 		ctx.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
 			"StatusCode": 401,

@@ -36,7 +36,7 @@ func (c *OrderDatabase) FindShopOrderByShopOrderID(ctx context.Context, shopOrde
 func (c *OrderDatabase) FindAllShopOrdersByUserID(ctx context.Context, userID uint) ([]res.ResShopOrder, error) {
 
 	var shopOrders []res.ResShopOrder
-	query := `SELECT user_id, so.id AS shop_order_id, so.order_date, so.order_total_price,so.order_status_id,os.status AS order_status,so.address_id,so.cod FROM shop_orders so 
+	query := `SELECT user_id, so.id AS shop_order_id, so.order_date, so.order_total_price,so.order_status_id,os.status AS order_status,so.address_id, FROM shop_orders so 
 	JOIN order_statuses os ON so.order_status_id = os.id  WHERE user_id = ?`
 	if c.DB.Raw(query, userID).Scan(&shopOrders).Error != nil {
 		return shopOrders, errors.New("faild to get user shop order")
@@ -61,7 +61,7 @@ func (c *OrderDatabase) FindAllShopOrdersByUserID(ctx context.Context, userID ui
 func (c *OrderDatabase) FindAllShopOrders(ctx context.Context) ([]res.ResShopOrder, error) {
 
 	var shopOrders []res.ResShopOrder
-	query := `SELECT so.user_id, so.id AS shop_order_id, so.order_date, so.order_total_price,so.order_status_id,os.status AS order_status,so.address_id, so.cod FROM shop_orders so 
+	query := `SELECT so.user_id, so.id AS shop_order_id, so.order_date, so.order_total_price,so.order_status_id,os.status AS order_status,so.address_id,FROM shop_orders so 
 	JOIN order_statuses os ON so.order_status_id = os.id `
 	if c.DB.Raw(query).Scan(&shopOrders).Error != nil {
 		return shopOrders, errors.New("faild to get order list")
@@ -101,19 +101,12 @@ func (c *OrderDatabase) SaveOrderByCart(ctx context.Context, shopOrder domain.Sh
 
 	trx := c.DB.Begin()
 
-	// find the user cart
-	var cart domain.Cart
-	if trx.Raw("SELECT * FROM carts WHERE user_id=?", shopOrder.UserID).Scan(&cart).Error != nil {
-		trx.Rollback()
-		return errors.New("faild to get user cart")
-	} else if cart.ID == 0 {
-		return errors.New("user have no cart")
-	}
-
 	// get all cartItems of user cart which are not out of stock
-	var cartItems []domain.CartItem
-	query := `SELECT ci.cart_id,ci.product_item_id, ci.qty FROM cart_items ci JOIN product_items pi ON ci.product_item_id = pi.id AND pi.qty_in_stock > 0 AND ci.cart_id=?`
-	if trx.Raw(query, cart.ID).Scan(&cartItems).Error != nil {
+	var cartItems []domain.Cart
+	query := `SELECT c.cart_id,c.product_item_id, c.qty FROM carts c JOIN product_items pi ON c.product_item_id = pi.id 
+	AND pi.qty_in_stock > 0 AND c.user_id=?`
+
+	if trx.Raw(query, shopOrder.UserID).Scan(&cartItems).Error != nil {
 		trx.Rollback()
 		return errors.New("there is no cartItems in the user cart")
 	} else if cartItems == nil {
@@ -150,11 +143,13 @@ func (c *OrderDatabase) SaveOrderByCart(ctx context.Context, shopOrder domain.Sh
 	}
 
 	//place an full order
-	query = `INSERT INTO shop_orders (user_id,order_date,address_id,order_total_price,order_status_id,cod) VALUES 
-	($1,$2,$3,$4,$5,$6) RETURNING *`
-	orderDate := time.Now()
+	query = `INSERT INTO shop_orders (user_id,order_date,address_id,order_total_price,order_status_id) VALUES 
+	($1,$2,$3,$4,$5,$6)`
 
-	if trx.Raw(query, shopOrder.UserID, orderDate, shopOrder.AddressID, cart.TotalPrice, orderStatusID, shopOrder.COD).Scan(&shopOrder).Error != nil {
+	orderDate := time.Now()
+	var totalPrice uint
+
+	if trx.Exec(query, shopOrder.UserID, orderDate, shopOrder.AddressID, totalPrice, orderStatusID).Scan(&shopOrder).Error != nil {
 		trx.Rollback()
 		return errors.New("faild to place order")
 	}
@@ -180,8 +175,10 @@ func (c *OrderDatabase) SaveOrderByCart(ctx context.Context, shopOrder domain.Sh
 	}
 
 	// delete cart items which are not out of stock
-	query = `DELETE FROM cart_items USING product_items WHERE cart_items.product_item_id = product_items.id AND product_items.qty_in_stock > 0 AND cart_items.cart_id = ?`
-	if trx.Raw(query, cart.ID).Scan(&cartItems).Error != nil {
+	query = `DELETE FROM carts USING product_items WHERE carts.product_item_id = product_items.id 
+	 AND product_items.qty_in_stock > 0 AND carts.user_id = $1`
+
+	if trx.Exec(query, shopOrder.UserID).Error != nil {
 		return errors.New("faild to clear the cart of user")
 	}
 
@@ -220,8 +217,6 @@ func (c *OrderDatabase) UpdateShopOrderOrderStatus(ctx context.Context, shopOrde
 
 	return nil
 }
-
-
 
 // order return
 

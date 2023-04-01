@@ -10,7 +10,6 @@ import (
 
 type OrderRepository interface {
 
-	
 	//save order and update
 	SaveOrderByCart(ctx context.Context, shopOrder domain.ShopOrder) error
 	UpdateShopOrderOrderStatus(ctx context.Context, shopOrderID, changeStatusID uint) error
@@ -31,4 +30,8 @@ type OrderRepository interface {
 	FindAllOrderReturns(ctx context.Context, onlyPending bool) ([]domain.OrderReturn, error)
 	SaveOrderReturn(ctx context.Context, orderReturn domain.OrderReturn) error
 	UpdateOrderReturn(ctx context.Context, body req.ReqUpdatReturnReq) error
+
+	// payments
+	FindPaymentMethodByID(ctx context.Context, paymenMethodtID uint) (domain.PaymentMethod, error)
+	FindAllPaymentMethods(ctx context.Context) ([]domain.PaymentMethod, error)
 }
