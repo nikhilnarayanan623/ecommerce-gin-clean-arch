@@ -77,7 +77,7 @@ func (c *CouponHandler) UpdateCoupon(ctx *gin.Context) {
 }
 
 // func create user_coupn
-func (c *CouponHandler) AddUserCoupon(ctx *gin.Context) {
+func (c *CouponHandler) GetUserCoupon(ctx *gin.Context) {
 
 	// check ther probability and if no probability then return
 	if !helper.CheckProbability(0.5) {
