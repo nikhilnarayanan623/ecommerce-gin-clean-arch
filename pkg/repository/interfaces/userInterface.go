@@ -17,7 +17,8 @@ type UserRepository interface {
 
 	//cart item
 	FindCart(ctx context.Context, cart domain.Cart) (domain.Cart, error)
-	GetCartItems(ctx context.Context, userId uint) (res.ResponseCart, error)
+	FindCartTotalPrice(ctx context.Context, userID uint, includeOutOfStck bool) (uint, error)
+	FindAllCartItems(ctx context.Context, userID uint) ([]res.ResCartItem, error)
 	SaveCartItem(ctx context.Context, cartItems domain.Cart) error
 	RemoveCartItem(ctx context.Context, cartItem domain.Cart) error
 	UpdateCartItem(ctx context.Context, cartItem domain.Cart) error

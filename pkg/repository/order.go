@@ -36,8 +36,10 @@ func (c *OrderDatabase) FindShopOrderByShopOrderID(ctx context.Context, shopOrde
 func (c *OrderDatabase) FindAllShopOrdersByUserID(ctx context.Context, userID uint) ([]res.ResShopOrder, error) {
 
 	var shopOrders []res.ResShopOrder
-	query := `SELECT user_id, so.id AS shop_order_id, so.order_date, so.order_total_price,so.order_status_id,os.status AS order_status,so.address_id, FROM shop_orders so 
-	JOIN order_statuses os ON so.order_status_id = os.id  WHERE user_id = ?`
+	query := `SELECT so.user_id, so.id AS shop_order_id, so.order_date, so.order_total_price,so.discount, 
+	so.order_status_id, os.status AS order_status,so.address_id,so.payment_method_id, pm.payment_type  
+	FROM shop_orders so JOIN order_statuses os ON so.order_status_id = os.id 
+	INNER JOIN payment_methods pm ON so.payment_method_id = pm.id WHERE user_id = ?`
 	if c.DB.Raw(query, userID).Scan(&shopOrders).Error != nil {
 		return shopOrders, errors.New("faild to get user shop order")
 	}
@@ -96,99 +98,198 @@ func (c *OrderDatabase) FindAllOrdersItemsByShopOrderID(ctx context.Context, sho
 	return orderList, nil
 }
 
-// save a new order from user cart
-func (c *OrderDatabase) SaveOrderByCart(ctx context.Context, shopOrder domain.ShopOrder) error {
-
+// !cart to order
+func (c *OrderDatabase) SaveShopOrder(ctx context.Context, shopOrder domain.ShopOrder) (domain.ShopOrder, error) {
 	trx := c.DB.Begin()
 
-	// get all cartItems of user cart which are not out of stock
-	var cartItems []domain.Cart
-	query := `SELECT c.cart_id,c.product_item_id, c.qty FROM carts c JOIN product_items pi ON c.product_item_id = pi.id 
-	AND pi.qty_in_stock > 0 AND c.user_id=?`
-
-	if trx.Raw(query, shopOrder.UserID).Scan(&cartItems).Error != nil {
-		trx.Rollback()
-		return errors.New("there is no cartItems in the user cart")
-	} else if cartItems == nil {
-		trx.Rollback()
-		return errors.New("invalid api call \nthere is no product_itmes in cart")
-	}
-
-	if shopOrder.AddressID == 0 { // if address id not given then get user default address
-		query := `SELECT a.id AS adress_id FROM user_addresses ua JOIN addresses a ON ua.address_id = a.id AND ua.user_id=? AND ua.is_default='t'`
-		if trx.Raw(query, shopOrder.UserID).Scan(&shopOrder.AddressID).Error != nil {
-			trx.Rollback()
-			return errors.New("faild to get user default address")
-		}
-	} else { // validate addressId with user
-		query := `SELECT a.id FROM user_addresses ua JOIN addresses a ON ua.address_id = a.id AND ua.user_id=? AND a.id=?`
-		var AddressID uint
-		if trx.Raw(query, shopOrder.UserID, shopOrder.AddressID).Scan(&AddressID).Error != nil {
-			trx.Rollback()
-			return errors.New("faild to get user addres id")
-		} else if AddressID == 0 {
-			return errors.New("invalid address id")
-		}
-	}
-
-	var orderStatusID int
-	if trx.Raw("SELECT id FROM order_statuses WHERE status = 'pending'").Scan(&orderStatusID).Error != nil {
-		trx.Rollback()
-		return errors.New("faild to find order status")
-	} else if orderStatusID == 0 { // pending status id not in the order status then crete new one
-		if trx.Raw("INSERT INTO order_statuses (status) VALUES ('pending') RETURNING id").Scan(&orderStatusID).Error != nil {
-			trx.Rollback()
-			return errors.New("peding status not in the order_status and faild to insert new one")
-		}
-	}
-
-	//place an full order
-	query = `INSERT INTO shop_orders (user_id,order_date,address_id,order_total_price,order_status_id) VALUES 
-	($1,$2,$3,$4,$5,$6)`
-
+	// save the shop_order
+	query := `INSERT INTO shop_orders (user_id,address_id, order_total_price, discount, 
+	order_status_id,order_date, payment_method_id) 
+	VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING id`
 	orderDate := time.Now()
-	var totalPrice uint
-
-	if trx.Exec(query, shopOrder.UserID, orderDate, shopOrder.AddressID, totalPrice, orderStatusID).Scan(&shopOrder).Error != nil {
+	if c.DB.Raw(query, shopOrder.UserID, shopOrder.AddressID, shopOrder.OrderTotalPrice, shopOrder.Discount,
+		shopOrder.OrderStatusID, orderDate, shopOrder.PaymentMethodID).Scan(&shopOrder).Error != nil {
 		trx.Rollback()
-		return errors.New("faild to place order")
+		return shopOrder, errors.New("faild to save shop_order")
 	}
 
-	// make order line for each cartItems
-	query = `INSERT INTO order_lines (product_item_id,shop_order_id,qty,price) VALUES ($1,$2,$3,$4)`
-	var (
-		price     uint
-		orderLine domain.OrderLine
-	)
-	for _, cartItem := range cartItems {
-		// get productitem price if discount price is there take discount price other wise take price
-		if trx.Raw("SELECT CASE WHEN discount_price > 0 THEN discount_price ELSE price END AS price FROM product_items WHERE id = ?", cartItem.ProductItemID).Scan(&price).Error != nil {
-			trx.Rollback()
-			return errors.New("faild to get producItem's price")
-		}
-		// calculate cartItem subtotal price
-		// make order line
-		if trx.Raw(query, cartItem.ProductItemID, shopOrder.ID, cartItem.Qty, price).Scan(&orderLine).Error != nil {
-			trx.Rollback()
-			return errors.New("faild to create order line")
-		}
-	}
-
-	// delete cart items which are not out of stock
-	query = `DELETE FROM carts USING product_items WHERE carts.product_item_id = product_items.id 
-	 AND product_items.qty_in_stock > 0 AND carts.user_id = $1`
-
-	if trx.Exec(query, shopOrder.UserID).Error != nil {
-		return errors.New("faild to clear the cart of user")
-	}
-
-	// atlast commit the transaction to complete the order
 	if trx.Commit().Error != nil {
-		trx.Rollback()
-		return errors.New("faild to commit order")
+		return shopOrder, errors.New("faild to complete save shop_order")
+	}
+
+	return shopOrder, nil
+}
+
+func (c *OrderDatabase) FindCartTotalPrice(ctx context.Context, userID uint) (uint, error) {
+	// find totalPrice of cart
+	var orderTotalPrice uint
+	query := `SELECT SUM( CASE WHEN pi.discount_price > 0 THEN pi.discount_price * c.qty ELSE pi.price * c.qty END) 
+	AS order_total_price FROM carts c 
+	INNER JOIN product_items pi ON c.product_item_id = pi.id 
+	AND pi.qty_in_stock >= c.qty AND c.user_id = $1 
+	GROUP BY c.user_id`
+	if c.DB.Raw(query, userID).Scan(&orderTotalPrice).Error != nil {
+		return 0, errors.New("faild to calculate total price of cart")
+	}
+	return orderTotalPrice, nil
+}
+
+func (c *OrderDatabase) CartItemToOrderLines(ctx context.Context, userID uint) ([]domain.OrderLine, error) {
+	var orderLines []domain.OrderLine
+	query := `SELECT c.product_item_id, c.qty, CASE WHEN pi.discount_price > 0 THEN pi.discount_price ELSE pi.price END 
+	FROM carts c INNER JOIN product_items pi ON c.product_item_id = pi.id 
+	AND pi.qty_in_stock > c.qty AND c.user_id = $1`
+	if c.DB.Raw(query, userID).Scan(&orderLines).Error != nil {
+		return orderLines, errors.New("faild to convert cart_item to order_lines")
+	}
+	return orderLines, nil
+}
+
+func (c *OrderDatabase) SaveOrderLine(ctx context.Context, orderLine domain.OrderLine) error {
+	query := `INSERT INTO order_lines (product_item_id, shop_order_id, qty, price) 
+	VALUES ($1, $2, $3, $4)`
+	if c.DB.Exec(query, orderLine.ProductItemID, orderLine.ShopOrderID, orderLine.Qty, orderLine.Price).Error != nil {
+		return errors.New("faild to save orde line")
+	}
+
+	return nil
+}
+
+func (c *OrderDatabase) DeleteOrderedCartItems(ctx context.Context, userID uint) error {
+
+	query := `DELETE FROM carts c USING product_items pi 
+	WHERE c.product_item_id = pi.id AND pi.qty_in_stock > c.qty AND c.user_id = $1`
+	if c.DB.Exec(query, userID).Error != nil {
+		return errors.New("faild to remove cart_items on order")
 	}
 	return nil
 }
+
+func (c *OrderDatabase) FindUserCoupon(ctx context.Context, couponCode string) (domain.UserCoupon, error) {
+	var userCoupon domain.UserCoupon
+
+	query := `SELECT * FROM user_coupons WHERE coupon_code = $1`
+	if c.DB.Raw(query, couponCode).Scan(&userCoupon).Error != nil {
+		return userCoupon, errors.New("faild to get user_coupon disocunt_amount")
+	}
+	return userCoupon, nil
+}
+
+func (c *OrderDatabase) UpdteUserCouponAsused(ctx context.Context, couponCode string) error {
+
+	query := `UPDATE user_coupons SET used = 'T' WHERE coupon_code = $1`
+	if c.DB.Exec(query, couponCode).Error != nil {
+		return errors.New("faild to updte user_coupon as used")
+	}
+	return nil
+}
+
+func (c *OrderDatabase) ValidateAddressID(ctx context.Context, addressID uint) error {
+
+	var id uint
+	if c.DB.Raw(`SELECT id FROM addresses WHERE id = $1`, addressID).Scan(&id).Error != nil {
+		return errors.New("faild to validte address_id")
+	} else if id == 0 {
+		return errors.New("invlaid address_id")
+	}
+	return nil
+}
+
+//!end
+
+// save a new order from user cart
+// func (c *OrderDatabase) SaveOrderByCart(ctx context.Context, shopOrder domain.ShopOrder) error {
+
+// 	trx := c.DB.Begin()
+
+// 	// get all cartItems of user cart which are not out of stock
+// 	var cartItems []domain.Cart
+// 	query := `SELECT c.cart_id,c.product_item_id, c.qty FROM carts c JOIN product_items pi ON c.product_item_id = pi.id
+// 	AND pi.qty_in_stock > 0 AND c.user_id=?`
+
+// 	if trx.Raw(query, shopOrder.UserID).Scan(&cartItems).Error != nil {
+// 		trx.Rollback()
+// 		return errors.New("there is no cartItems in the user cart")
+// 	} else if cartItems == nil {
+// 		trx.Rollback()
+// 		return errors.New("invalid api call \nthere is no product_itmes in cart")
+// 	}
+
+// 	if shopOrder.AddressID == 0 { // if address id not given then get user default address
+// 		query := `SELECT a.id AS adress_id FROM user_addresses ua JOIN addresses a ON ua.address_id = a.id AND ua.user_id=? AND ua.is_default='t'`
+// 		if trx.Raw(query, shopOrder.UserID).Scan(&shopOrder.AddressID).Error != nil {
+// 			trx.Rollback()
+// 			return errors.New("faild to get user default address")
+// 		}
+// 	} else { // validate addressId with user
+// 		query := `SELECT a.id FROM user_addresses ua JOIN addresses a ON ua.address_id = a.id AND ua.user_id=? AND a.id=?`
+// 		var AddressID uint
+// 		if trx.Raw(query, shopOrder.UserID, shopOrder.AddressID).Scan(&AddressID).Error != nil {
+// 			trx.Rollback()
+// 			return errors.New("faild to get user addres id")
+// 		} else if AddressID == 0 {
+// 			return errors.New("invalid address id")
+// 		}
+// 	}
+
+// 	var orderStatusID int
+// 	if trx.Raw("SELECT id FROM order_statuses WHERE status = 'pending'").Scan(&orderStatusID).Error != nil {
+// 		trx.Rollback()
+// 		return errors.New("faild to find order status")
+// 	} else if orderStatusID == 0 { // pending status id not in the order status then crete new one
+// 		if trx.Raw("INSERT INTO order_statuses (status) VALUES ('pending') RETURNING id").Scan(&orderStatusID).Error != nil {
+// 			trx.Rollback()
+// 			return errors.New("peding status not in the order_status and faild to insert new one")
+// 		}
+// 	}
+
+// 	//place an full order
+// 	query = `INSERT INTO shop_orders (user_id,order_date,address_id,order_total_price,order_status_id) VALUES
+// 	($1,$2,$3,$4,$5,$6)`
+
+// 	orderDate := time.Now()
+// 	var totalPrice uint
+
+// 	if trx.Exec(query, shopOrder.UserID, orderDate, shopOrder.AddressID, totalPrice, orderStatusID).Scan(&shopOrder).Error != nil {
+// 		trx.Rollback()
+// 		return errors.New("faild to place order")
+// 	}
+
+// 	// make order line for each cartItems
+// 	query = `INSERT INTO order_lines (product_item_id,shop_order_id,qty,price) VALUES ($1,$2,$3,$4)`
+// 	var (
+// 		price     uint
+// 		orderLine domain.OrderLine
+// 	)
+// 	for _, cartItem := range cartItems {
+// 		// get productitem price if discount price is there take discount price other wise take price
+// 		if trx.Raw("SELECT CASE WHEN discount_price > 0 THEN discount_price ELSE price END AS price FROM product_items WHERE id = ?", cartItem.ProductItemID).Scan(&price).Error != nil {
+// 			trx.Rollback()
+// 			return errors.New("faild to get producItem's price")
+// 		}
+// 		// calculate cartItem subtotal price
+// 		// make order line
+// 		if trx.Raw(query, cartItem.ProductItemID, shopOrder.ID, cartItem.Qty, price).Scan(&orderLine).Error != nil {
+// 			trx.Rollback()
+// 			return errors.New("faild to create order line")
+// 		}
+// 	}
+
+// 	// delete cart items which are not out of stock
+// 	query = `DELETE FROM carts USING product_items WHERE carts.product_item_id = product_items.id
+// 	 AND product_items.qty_in_stock > 0 AND carts.user_id = $1`
+
+// 	if trx.Exec(query, shopOrder.UserID).Error != nil {
+// 		return errors.New("faild to clear the cart of user")
+// 	}
+
+// 	// atlast commit the transaction to complete the order
+// 	if trx.Commit().Error != nil {
+// 		trx.Rollback()
+// 		return errors.New("faild to commit order")
+// 	}
+// 	return nil
+// }
 
 // find order status
 func (c *OrderDatabase) FindOrderStatus(ctx context.Context, orderStatus domain.OrderStatus) (domain.OrderStatus, error) {

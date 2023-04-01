@@ -10,11 +10,24 @@ import (
 
 type OrderRepository interface {
 
+	//!
+	SaveShopOrder(ctx context.Context, shopOrder domain.ShopOrder) (domain.ShopOrder, error)
+
+	FindCartTotalPrice(ctx context.Context, userID uint) (uint, error)
+	FindUserCoupon(ctx context.Context, couponCode string) (domain.UserCoupon, error)
+	UpdteUserCouponAsused(ctx context.Context, couponCode string) error
+	ValidateAddressID(ctx context.Context, addressID uint) error
+
+	CartItemToOrderLines(ctx context.Context, userID uint) ([]domain.OrderLine, error)
+	SaveOrderLine(ctx context.Context, orderLine domain.OrderLine) error
+	DeleteOrderedCartItems(ctx context.Context, userID uint) error
+	//!
+
 	//save order and update
-	SaveOrderByCart(ctx context.Context, shopOrder domain.ShopOrder) error
+	//SaveOrderByCart(ctx context.Context, shopOrder domain.ShopOrder) error //!
 	UpdateShopOrderOrderStatus(ctx context.Context, shopOrderID, changeStatusID uint) error
 
-	//find shop order order
+	// shop order order
 	FindAllShopOrders(ctx context.Context) ([]res.ResShopOrder, error)
 	FindShopOrderByShopOrderID(ctx context.Context, shopOrderID uint) (domain.ShopOrder, error)
 	FindAllShopOrdersByUserID(ctx context.Context, userID uint) ([]res.ResShopOrder, error)

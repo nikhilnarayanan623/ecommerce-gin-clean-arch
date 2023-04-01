@@ -18,7 +18,7 @@ type ResUserHome struct {
 	User     UserRespStrcut    `json:"user"`
 }
 
-type ResponseCartItem struct {
+type ResCartItem struct {
 	ProductItemId uint   `json:"product_item_id"`
 	ProductName   string `json:"product_name"`
 	Price         uint   `json:"price"`
@@ -28,8 +28,8 @@ type ResponseCartItem struct {
 	SubTotal      uint   `json:"sub_total"`
 }
 
-type ResponseCart struct {
-	CartItems  []ResponseCartItem
+type ResCart struct {
+	CartItems  []ResCartItem
 	TotalPrice uint `json:"total_price"`
 }
 

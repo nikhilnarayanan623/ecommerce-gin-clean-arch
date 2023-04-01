@@ -6,6 +6,16 @@ import (
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/domain"
 )
 
+type ResOrderCheckout struct {
+	UserID          uint   `json:"user_id"`
+	PaymentMethodID uint   `json:"payment_method_id"`
+	PaymentType     string `json:"payment_type"`
+	AmountToPay     uint   `json:"amount_to_pay"`
+	Discount        uint   `json:"discount"`
+	CouponCode      string `json:"coupon_code" `
+	AddressID       uint   `json:"address_id"`
+}
+
 type ResOrder struct {
 	ProductItemID uint   `json:"product_item_id"`
 	ProductName   string `json:"product_name"`
@@ -18,15 +28,17 @@ type ResOrder struct {
 }
 
 type ResShopOrder struct {
-	UserID          uint `json:"user_id"`
-	ShopOrderID     uint `json:"shop_order_id"`
-	OrderDate       time.Time
+	UserID          uint       `json:"user_id"`
+	ShopOrderID     uint       `json:"shop_order_id"`
+	OrderDate       time.Time  `json:"order_date"`
 	AddressID       uint       `json:"address_id" `
 	Address         ResAddress `json:"address"`
 	OrderTotalPrice uint       `json:"order_total_price" `
+	Discount        uint       `json:"discount"`
 	OrderStatusID   uint       `json:"order_status_id"`
 	OrderStatus     string     `json:"order_status"`
-	COD             bool       `json:"cod"`
+	PaymentMethodID uint       `json:"payment_method_id" gorm:"primaryKey;not null"`
+	PaymentType     string     `json:"" gorm:"unique;not null"`
 }
 
 // admin side
@@ -37,9 +49,9 @@ type ResShopOrdersPage struct {
 
 // checkout
 type ResCheckOut struct {
-	Addresses    []ResAddress       `json:"addresses"`
-	ProductItems []ResponseCartItem `json:"product_items"`
-	TotalPrice   uint               `json:"total_price"`
+	Addresses    []ResAddress  `json:"addresses"`
+	ProductItems []ResCartItem `json:"product_items"`
+	TotalPrice   uint          `json:"total_price"`
 }
 
 // return

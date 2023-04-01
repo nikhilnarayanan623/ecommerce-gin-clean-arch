@@ -57,12 +57,6 @@ func (c *OrderUseCase) GetUserShopOrder(ctx context.Context, userID uint) ([]res
 	return c.orderRepo.FindAllShopOrdersByUserID(ctx, userID)
 }
 
-// place an order for user cart
-func (c *OrderUseCase) PlaceOrderByCart(ctx context.Context, shopOrder domain.ShopOrder) error {
-
-	return c.orderRepo.SaveOrderByCart(ctx, shopOrder)
-}
-
 // update order
 func (c *OrderUseCase) ChangeOrderStatus(ctx context.Context, shopOrderID, changeStatusID uint) error {
 
@@ -223,18 +217,103 @@ func (c *OrderUseCase) UpdateReturnRequest(ctx context.Context, body req.ReqUpda
 	return c.orderRepo.UpdateOrderReturn(ctx, body)
 }
 
-// func (c *OrderUseCase) FullPlaceOrderForCart(ctx context.Context, body req.ReqPlaceOrder) (domain.PaymentMethod, error) {
+func (c *OrderUseCase) OrderCheckOut(ctx context.Context, body req.ReqCheckout) (res.ResOrderCheckout, error) {
 
-// 	// first get paymentMethod by payment_method_id
-// 	paymentMethod, err := c.orderRepo.FindPaymentMethodByID(ctx, body.PaymentMethodID)
-// 	if err != nil {
-// 		return paymentMethod, err
-// 	} else if paymentMethod.ID == 0 {
-// 		return paymentMethod, errors.New("invalid payment_method_id")
-// 	}
+	// find the payment method
+	paymentMethod, err := c.orderRepo.FindPaymentMethodByID(ctx, body.PaymentMethodID)
+	if err != nil {
+		return res.ResOrderCheckout{}, err
+	} else if paymentMethod.PaymentType == "" {
+		return res.ResOrderCheckout{}, errors.New("invalid payment_method_id")
+	}
 
-// 	//check if payment is COD place order
-// 	if paymentMethod.PaymentType == "COD" {
-// 		c.orderRepo.SaveOrderByCart(ctx,)
-// 	}
-// }
+	// find the total price of cart of user
+	cartTotalPrice, err := c.orderRepo.FindCartTotalPrice(ctx, body.UserID)
+	if err != nil {
+		return res.ResOrderCheckout{}, err
+	} else if cartTotalPrice == 0 {
+		return res.ResOrderCheckout{}, errors.New("there is product_items eligible for place order in cart")
+	}
+
+	// compare payement max_amount with total price
+	if cartTotalPrice > paymentMethod.MaximumAmount {
+		return res.ResOrderCheckout{}, fmt.Errorf("cart order total price is more than payment max amount %d", paymentMethod.MaximumAmount)
+	}
+
+	var discountAmount uint
+	// if couponCode exist then check coupon code is valid or not
+	if body.CouponCode != "" {
+		userCoupon, err := c.orderRepo.FindUserCoupon(ctx, body.CouponCode)
+		if err != nil {
+			return res.ResOrderCheckout{}, err
+		} else if userCoupon.ID == 0 {
+			return res.ResOrderCheckout{}, errors.New("invalid coupon code \nplease enter valid coupon code")
+		} else if time.Since(userCoupon.ExpireDate) > 0 {
+			return res.ResOrderCheckout{}, errors.New("can't use coupon code \ncoupon code is expired")
+		} else if userCoupon.Used {
+			return res.ResOrderCheckout{}, errors.New("can't user coupon code \nthis coupon already used")
+		}
+	}
+
+	// validate the address_id
+	if err := c.orderRepo.ValidateAddressID(ctx, body.AddressID); err != nil {
+		return res.ResOrderCheckout{}, err
+	}
+
+	//create a resCheckout and return
+	return res.ResOrderCheckout{
+		UserID:          body.UserID,
+		PaymentMethodID: paymentMethod.ID,
+		PaymentType:     paymentMethod.PaymentType,
+		AmountToPay:     cartTotalPrice - discountAmount, // subtract discount price on total price
+		Discount:        discountAmount,
+		AddressID:       body.AddressID,
+		CouponCode:      body.CouponCode,
+	}, nil
+}
+
+func (c *OrderUseCase) PlaceOrderCOD(ctx context.Context, checkoutValues res.ResOrderCheckout) error {
+
+	orderStatus, err := c.orderRepo.FindOrderStatus(ctx, domain.OrderStatus{Status: "placed"})
+	if err != nil {
+		return err
+	}
+
+	shopOrder := domain.ShopOrder{
+		UserID:          checkoutValues.UserID,
+		AddressID:       checkoutValues.AddressID,
+		PaymentMethodID: checkoutValues.PaymentMethodID,
+		OrderTotalPrice: checkoutValues.AmountToPay,
+		OrderStatusID:   orderStatus.ID,
+		Discount:        checkoutValues.Discount,
+	}
+
+	// save shop_order
+	shopOrder, err = c.orderRepo.SaveShopOrder(ctx, shopOrder)
+	if err != nil {
+		return err
+	}
+
+	// make orderLines for cart
+	ordlerLines, err := c.orderRepo.CartItemToOrderLines(ctx, checkoutValues.UserID)
+	if err != nil {
+		return err
+	}
+
+	// save all order lines
+	for _, orderLine := range ordlerLines {
+		// set shop_order_id
+		orderLine.ShopOrderID = shopOrder.ID
+		if err := c.orderRepo.SaveOrderLine(ctx, orderLine); err != nil {
+			return err
+		}
+	}
+
+	//update the coupon status as used
+	if err := c.orderRepo.UpdteUserCouponAsused(ctx, checkoutValues.CouponCode); err != nil {
+		return err
+	}
+
+	// delete ordered items from cart
+	return c.orderRepo.DeleteOrderedCartItems(ctx, checkoutValues.UserID)
+}

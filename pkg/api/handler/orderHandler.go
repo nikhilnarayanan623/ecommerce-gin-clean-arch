@@ -4,7 +4,6 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/domain"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/helper"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/helper/req"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/helper/res"
@@ -20,53 +19,81 @@ func NewOrderHandler(orderUseCase interfaces.OrderUseCase) *OrderHandler {
 	return &OrderHandler{orderUseCase: orderUseCase}
 }
 
-// PlaceOrderByCart godoc
-// @summary api for place order of all items in user cart
-// @description user can place after checkout
-// @id PlaceOrderByCart
-// @tags Carts
-// @Router /carts/place-order/:address_id [post]
-// @Params address_id path int true "address_id"
-// @Success 200 {object} res.Response{} "successfully placed your order for COD"
-// @Failure 400 {object} res.Response{} "faild to place to order"
-func (c *OrderHandler) PlaceOrderByCart(ctx *gin.Context) {
+// // PlaceOrderByCart godoc
+// // @summary api for place order of all items in user cart
+// // @description user can place after checkout
+// // @id PlaceOrderByCart
+// // @tags Carts
+// // @Router /carts/place-order/:address_id [post]
+// // @Params address_id path int true "address_id"
+// // @Success 200 {object} res.Response{} "successfully placed your order for COD"
+// // @Failure 400 {object} res.Response{} "faild to place to order"
+// func (c *OrderHandler) PlaceOrderByCart(ctx *gin.Context) {
 
-	userId := helper.GetUserIdFromContext(ctx)
+// 	userId := helper.GetUserIdFromContext(ctx)
 
-	addressID, err := helper.StringToUint(ctx.Param("address_id"))
+// 	addressID, err := helper.StringToUint(ctx.Param("address_id"))
 
-	if err != nil {
-		response := res.ErrorResponse(400, "invalid input for params", err.Error(), nil)
-		ctx.AbortWithStatusJSON(http.StatusBadRequest, response)
-		return
-	}
+// 	if err != nil {
+// 		response := res.ErrorResponse(400, "invalid input for params", err.Error(), nil)
+// 		ctx.AbortWithStatusJSON(http.StatusBadRequest, response)
+// 		return
+// 	}
 
-	var shopOrder = domain.ShopOrder{
-		UserID:    userId,
-		AddressID: addressID,
-	}
+// 	var shopOrder = domain.ShopOrder{
+// 		UserID:    userId,
+// 		AddressID: addressID,
+// 	}
 
-	if err := c.orderUseCase.PlaceOrderByCart(ctx, shopOrder); err != nil {
-		response := res.ErrorResponse(400, "faild to place order", err.Error(), nil)
-		ctx.AbortWithStatusJSON(http.StatusBadRequest, response)
-		return
-	}
+// 	if err := c.orderUseCase.PlaceOrderByCart(ctx, shopOrder); err != nil {
+// 		response := res.ErrorResponse(400, "faild to place order", err.Error(), nil)
+// 		ctx.AbortWithStatusJSON(http.StatusBadRequest, response)
+// 		return
+// 	}
 
-	response := res.SuccessResponse(200, "Successfully placed your order for COD", nil)
-	ctx.JSON(http.StatusOK, response)
+// 	response := res.SuccessResponse(200, "Successfully placed your order for COD", nil)
+// 	ctx.JSON(http.StatusOK, response)
 
-}
+// }
 
 func (c *OrderHandler) FullPlaceOrderForCart(ctx *gin.Context) {
 
-	var body req.ReqPlaceOrder
+	var body req.ReqCheckout
 	if err := ctx.ShouldBindJSON(&body); err != nil {
 		response := res.ErrorResponse(400, "invalid inputs", err.Error(), body)
-		ctx.JSON(http.StatusBadRequest, response)
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, response)
 		return
 	}
 
-	
+	body.UserID = helper.GetUserIdFromContext(ctx)
+
+	// checkout the order
+	resCheckout, err := c.orderUseCase.OrderCheckOut(ctx, body)
+	if err != nil {
+		response := res.ErrorResponse(400, "faild to checkout order", err.Error(), body)
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, response)
+		return
+	}
+
+	// direct order for COD
+	if resCheckout.PaymentType == "COD" {
+
+		err := c.orderUseCase.PlaceOrderCOD(ctx, resCheckout)
+		if err != nil {
+			response := res.ErrorResponse(400, "faild to place order on COD", err.Error(), nil)
+			ctx.AbortWithStatusJSON(http.StatusBadRequest, response)
+			return
+		}
+		response := res.SuccessResponse(200, "successfully placed order for COD")
+		ctx.JSON(http.StatusOK, response)
+		ctx.Next()
+		return
+	}
+
+	//ctx.JSON(200, "out off order on place order")
+
+	// order for razor pary render page
+
 }
 
 // GetUserOrder godoc

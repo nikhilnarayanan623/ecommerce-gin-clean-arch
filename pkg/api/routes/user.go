@@ -46,7 +46,7 @@ func UserRoutes(api *gin.RouterGroup, userHandler *handler.UserHandler, ProductH
 
 			// place order by cart
 			cart.GET("/checkout", userHandler.CheckOutCart, orderHandler.GetAllPaymentMethods)
-			cart.POST("/place-order/:address_id", orderHandler.PlaceOrderByCart) // place an order
+			cart.POST("/place-order", orderHandler.FullPlaceOrderForCart, couponHandler.GetUserCoupon) // place an order
 		}
 
 		//wishlist

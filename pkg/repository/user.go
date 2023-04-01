@@ -134,10 +134,10 @@ func (c *userDatabse) FindCartTotalPrice(ctx context.Context, userID uint, inclu
 }
 
 // get all itmes from cart
-func (c *userDatabse) GetCartItems(ctx context.Context, userID uint) (res.ResponseCart, error) {
+func (c *userDatabse) FindAllCartItems(ctx context.Context, userID uint) ([]res.ResCartItem, error) {
 
 	var (
-		response res.ResponseCart
+		response []res.ResCartItem
 		err      error
 	)
 
@@ -148,12 +148,9 @@ func (c *userDatabse) GetCartItems(ctx context.Context, userID uint) (res.Respon
 	 FROM carts c JOIN product_items pi ON c.product_item_id = pi.id 
 	JOIN products p ON pi.product_id = p.id AND c.user_id=?`
 
-	if c.DB.Raw(query, userID).Scan(&response.CartItems).Error != nil {
+	if c.DB.Raw(query, userID).Scan(&response).Error != nil {
 		return response, errors.New("faild to get product_items from cart")
 	}
-
-	response.TotalPrice, err = c.FindCartTotalPrice(ctx, userID, true)
-	fmt.Println(response.TotalPrice, "at respone")
 
 	return response, err
 }
@@ -321,7 +318,7 @@ func (c *userDatabse) CheckOutCart(ctx context.Context, userID uint) (res.ResChe
 	query := `SELECT c.product_item_id, p.product_name,pi.price,pi.discount_price, pi.qty_in_stock, c.qty, 
 	CASE WHEN pi.discount_price > 0 THEN (c.qty * pi.discount_price) ELSE (c.qty * pi.price) END AS sub_total  
 	FROM carts c JOIN product_items pi ON c.product_item_id = pi.id 
-	AND pi.qty_in_stock > 0 
+	AND pi.qty_in_stock >= qty 
 	JOIN products p ON pi.product_id = p.id AND c.user_id = ?`
 
 	if c.DB.Raw(query, userID).Scan(&resCheckOut.ProductItems).Error != nil {

@@ -205,9 +205,23 @@ func (c *userUserCase) UpdateCartItem(ctx context.Context, body req.ReqCartCount
 	return c.userRepo.UpdateCartItem(ctx, cartItem)
 }
 
-func (c *userUserCase) GetCartItems(ctx context.Context, userId uint) (res.ResponseCart, error) {
+func (c *userUserCase) GetCartItems(ctx context.Context, userId uint) (res.ResCart, error) {
+	var resCart res.ResCart
 
-	return c.userRepo.GetCartItems(ctx, userId)
+	resCartItems, err := c.userRepo.FindAllCartItems(ctx, userId)
+	if err != nil {
+		return resCart, err
+	}
+
+	cartTotalPrice, err := c.userRepo.FindCartTotalPrice(ctx, userId, true)
+	if err != nil {
+		return resCart, err
+	}
+
+	resCart.CartItems = resCartItems
+	resCart.TotalPrice = cartTotalPrice
+
+	return resCart, nil
 }
 
 // checkout section

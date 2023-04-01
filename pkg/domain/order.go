@@ -6,7 +6,7 @@ import (
 
 type PaymentMethod struct {
 	ID            uint   `json:"id" gorm:"primaryKey;not null"`
-	PaymentType   string `json:"" gorm:"not null"`
+	PaymentType   string `json:"" gorm:"unique;not null"`
 	BlockStatus   bool   `json:"block_status" gorm:"not null"`
 	MaximumAmount uint   `json:"maximum_amount" gorm:"not null"`
 }
@@ -24,6 +24,7 @@ type ShopOrder struct {
 	AddressID       uint          `json:"address_id" gorm:"not null"`
 	Address         Address       `json:"-"`
 	OrderTotalPrice uint          `json:"order_total_price" gorm:"not null"`
+	Discount        uint          `json:"discount" gorm:"not null"`
 	OrderStatusID   uint          `json:"order_status_id" gorm:"not null"`
 	OrderStatus     OrderStatus   `json:"-"`
 	PaymentMethodID uint          `json:"payment_method_id" gorm:"not null"`

@@ -17,8 +17,9 @@ type ReqUpdatReturnReq struct {
 	AdminComment  string `json:"admin_comment" bindin:"requied,min=6,max=50"`
 }
 
-type ReqPlaceOrder struct {
-	PaymentMethodID uint   `json:"payment_method_id"`
-	CouponCode      string `json:"coupon_code" binding:"required"`
+type ReqCheckout struct {
+	UserID          uint   `json:"-"`
+	PaymentMethodID uint   `json:"payment_method_id" binding:"required"`
+	CouponCode      string `json:"coupon_code" `
 	AddressID       uint   `json:"address_id" binding:"required"`
 }
