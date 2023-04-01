@@ -75,9 +75,10 @@ func (c *couponDatabase) FindUserCouponByCouponCode(ctx context.Context, couponC
 func (c *couponDatabase) FindAllUserCouponsByUserID(ctx context.Context, userID uint) ([]res.ResUserCoupon, error) {
 	var userCoupon []res.ResUserCoupon
 
-	query := `SELECT uc.id, uc.coupon_code, c.coupon_name,c.percentage_upto, c.minimum_price ,c.description, c.image, uc.expire_date 
-	 FROM user_coupons uc INNER JOIN coupons c ON uc.coupon_id = c.id 
-	 WHERE uc.user_id = ?`
+	query := `SELECT uc.id, uc.coupon_code, c.coupon_name,c.percentage_upto, c.minimum_price, 
+	c.description, c.image, uc.expire_date, uc.used 
+	FROM user_coupons uc INNER JOIN coupons c ON uc.coupon_id = c.id 
+	WHERE uc.user_id = ?`
 	if c.DB.Raw(query, userID).Scan(&userCoupon).Error != nil {
 		return userCoupon, errors.New("faild to get user_coupons")
 	}
