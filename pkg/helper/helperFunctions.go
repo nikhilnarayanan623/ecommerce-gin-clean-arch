@@ -1,12 +1,17 @@
 package helper
 
 import (
+	"crypto/hmac"
+	"crypto/sha256"
+	"crypto/subtle"
+	"encoding/hex"
 	"errors"
 	"math/rand"
 	"strconv"
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/config"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/domain"
 )
 
@@ -69,4 +74,22 @@ func SelectRandomNumber(min, max int) int {
 	rand.Seed(time.Now().UnixMilli())
 
 	return rand.Intn(max-min) + min
+}
+
+func VeifyRazorPaySignature(orderId, paymentId, signature string) error {
+
+	razorPaySecret := config.GetCofig().RazorPaySecret
+	data := orderId + "|" + paymentId
+
+	h := hmac.New(sha256.New, []byte(razorPaySecret))
+	_, err := h.Write([]byte(data))
+	if err != nil {
+		return errors.New("faild to veify signature")
+	}
+
+	sha := hex.EncodeToString(h.Sum(nil))
+	if subtle.ConstantTimeCompare([]byte(sha), []byte(signature)) == 1 {
+		return nil
+	}
+	return errors.New("razorpay signature not match")
 }

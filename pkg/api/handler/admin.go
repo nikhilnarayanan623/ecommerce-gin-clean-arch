@@ -10,7 +10,6 @@ import (
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/domain"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/helper/req"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/helper/res"
-	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/usecase/interfaces"
 	service "github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/usecase/interfaces"
 )
 
@@ -18,78 +17,66 @@ type AdminHandler struct {
 	adminUseCase service.AdminUseCase
 }
 
-func NewAdminHandler(adminUsecase interfaces.AdminUseCase) *AdminHandler {
+func NewAdminHandler(adminUsecase service.AdminUseCase) *AdminHandler {
 	return &AdminHandler{adminUseCase: adminUsecase}
 }
 
-func (a *AdminHandler) SignUPGet(ctx *gin.Context) {
+// // AdminSignupGet godoc
+// // @summary api for admin to login
+// // @id AdminSignupGet
+// // @tags Admin Login
+// // @Param input body domain.Admin{} true "inputs"
+// // @Router /admin/login [post]
+// // @Success 200 {object} res.Response{} "successfully logged in"
+// // @Failure 400 {object} res.Response{} "invalid input"
+// // @Failure 500 {object} res.Response{} "faild to generate jwt token"
 
-	ctx.JSON(http.StatusOK, gin.H{
-		"StatusCode": 200,
-		"msg":        "admin signup details",
-		"user_name":  "string(user name of admin)",
-		"email":      "string(admin email)",
-		"password":   "string(enter a strong password)",
-	})
-}
+// func (a *AdminHandler) AdminS(ctx *gin.Context) {
 
-func (a *AdminHandler) SignUpPost(ctx *gin.Context) {
+// 	var admin domain.Admin
 
-	var admin domain.Admin
+// 	if ctx.ShouldBindJSON(&admin) != nil {
+// 		ctx.JSON(http.StatusBadRequest, gin.H{
+// 			"StatusCode": 500,
+// 			"msg":        "Can't signup admin",
+// 			"error":      "Invalid input can't bind JSON",
+// 		})
+// 		return
+// 	}
 
-	if ctx.ShouldBindJSON(&admin) != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{
-			"StatusCode": 500,
-			"msg":        "Can't signup admin",
-			"error":      "Invalid input can't bind JSON",
-		})
-		return
-	}
+// 	admin, err := a.adminUseCase.SignUp(ctx, admin)
+// 	if err != nil {
+// 		ctx.JSON(http.StatusBadRequest, gin.H{
+// 			"StatusCode": 500,
+// 			"msg":        "Can't signup admin",
+// 			"error":      err.Error(),
+// 		})
+// 		return
+// 	}
 
-	admin, err := a.adminUseCase.SignUp(ctx, admin)
-	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{
-			"StatusCode": 500,
-			"msg":        "Can't signup admin",
-			"error":      err.Error(),
-		})
-		return
-	}
+// 	var response res.ResAdminLogin
 
-	var response res.ResAdminLogin
+// 	copier.Copy(&response, &admin)
 
-	copier.Copy(&response, &admin)
+// 	ctx.JSON(http.StatusOK, gin.H{
+// 		"StatusCode": 200,
+// 		"msg":        "Successfully account creatd for admin",
+// 		"admin":      response,
+// 	})
+// }
 
-	ctx.JSON(http.StatusOK, gin.H{
-		"StatusCode": 200,
-		"msg":        "Successfully account creatd for admin",
-		"admin":      response,
-	})
-}
-
-func (a *AdminHandler) LoginGet(ctx *gin.Context) {
-
-	ctx.JSON(http.StatusOK, gin.H{
-		"StatusCode": 200,
-		"msg":        "admin login details",
-		"email":      "string(enter email)",
-		"user_name":  "string(enter user name)",
-		"password":   "string(enter password)",
-	})
-}
-
-// LoginPost godoc
+// AdminLogin godoc
 // @summary api for admin to login
-// @id LoginPost
+// @id AdminLogin
 // @tags Admin Login
-// @Param input body domain.Admin{} true "inputs"
+// @Param input body req.LoginStruct{} true "inputs"
 // @Router /admin/login [post]
 // @Success 200 {object} res.Response{} "successfully logged in"
 // @Failure 400 {object} res.Response{} "invalid input"
 // @Failure 500 {object} res.Response{} "faild to generate jwt token"
-func (a *AdminHandler) AdminLoginPost(ctx *gin.Context) {
+func (a *AdminHandler) AdminLogin(ctx *gin.Context) {
 
-	var body domain.Admin
+	var body req.LoginStruct
 
 	if err := ctx.ShouldBindJSON(&body); err != nil {
 		response := res.ErrorResponse(400, "invalid input", err.Error(), body)
@@ -105,7 +92,9 @@ func (a *AdminHandler) AdminLoginPost(ctx *gin.Context) {
 		return
 	}
 
-	admin, err := a.adminUseCase.Login(ctx, body)
+	var admin domain.Admin
+	copier.Copy(&admin, &body)
+	admin, err := a.adminUseCase.Login(ctx, admin)
 
 	if err != nil {
 		response := res.ErrorResponse(400, "faild to login", err.Error(), admin)
@@ -126,75 +115,74 @@ func (a *AdminHandler) AdminLoginPost(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, response)
 }
 
-func (a *AdminHandler) Home(ctx *gin.Context) {
+// AdminHome godoc
+// @summary api admin home
+// @id AdminHome
+// @tags Admin Home
+// @Router /admin [get]
+// @Success 200 {object} res.Response{} "successfully logged in"
+func (a *AdminHandler) AdminHome(ctx *gin.Context) {
 
 	ctx.JSON(http.StatusOK, gin.H{
 		"StatusCode": 200,
-		"message":    "Welcome to Admin Panel",
+		"message":    "Welcome to Admin Home",
 	})
 }
-func (a *AdminHandler) Allusers(ctx *gin.Context) {
 
-	usersResp, err := a.adminUseCase.FindAllUser(ctx)
+// ListUsers godoc
+// @summary api for admin to list users
+// @id ListUsers
+// @tags Admin User
+// @Router /admin/users [get]
+// @Success 200 {object} res.Response{} "successfully got all users"
+// @Failure 500 {object} res.Response{} "faild to get all users"
+func (a *AdminHandler) ListUsers(ctx *gin.Context) {
+
+	users, err := a.adminUseCase.FindAllUser(ctx)
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{
-			"StatusCode": 500,
-			"Error ":     err.Error(),
-		})
+		respone := res.ErrorResponse(500, "faild to get all users", err.Error(), nil)
+		ctx.JSON(http.StatusInternalServerError, respone)
 		return
 	}
 
-	// frist check there is no user or not
-	if usersResp == nil {
-		ctx.JSON(http.StatusOK, gin.H{
-			"StatusCode": 200,
-			"msg":        "There is no user to show",
-		})
+	// check there is no usee
+	if users == nil {
+		response := res.SuccessResponse(200, "there is no users to show", nil)
+		ctx.JSON(http.StatusOK, response)
 		return
 	}
 
-	// if no error then response stats code 200 with usres
-	ctx.JSON(http.StatusOK, gin.H{
-		"StatusCode": 200,
-		"users":      usersResp,
-	})
+	response := res.SuccessResponse(200, "successfully got all users", users)
+	ctx.JSON(http.StatusOK, response)
 
 }
+
+// BlockUser godoc
+// @summary api for admin to block or unblock user
+// @id BlockUser
+// @tags Admin User
+// @Param input body req.BlockStruct{} true "inputs"
+// @Router /admin/users/block [patch]
+// @Success 200 {object} res.Response{} "Successfully changed user block_status"
+// @Failure 400 {object} res.Response{} "invalid input"
 func (a *AdminHandler) BlockUser(ctx *gin.Context) {
 
 	var body req.BlockStruct
+
 	if err := ctx.ShouldBindJSON(&body); err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{
-			"StatusCode": 400,
-			"msg":        "can't bind the user id",
-			"err":        err.Error(),
-		})
+		response := res.ErrorResponse(400, "invalid input", err.Error(), body)
+		ctx.JSON(http.StatusBadRequest, response)
 		return
 	}
 
-	// copy into user
-	var user domain.User
-	copier.Copy(&user, body)
-
-	user, err := a.adminUseCase.BlockUser(ctx, user)
+	err := a.adminUseCase.BlockUser(ctx, body.UserID)
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{
-			"StatusCode": 400,
-			"msg":        "can't block user",
-			"error":      err.Error(),
-		})
+		response := res.ErrorResponse(400, "faild to change user block_status", err.Error(), nil)
+		ctx.JSON(http.StatusBadRequest, response)
 		return
 	}
 
-	var response res.UserRespStrcut
-	copier.Copy(&response, &user)
+	response := res.SuccessResponse(200, "Successfully changed user block_status", body)
 	// if successfully blocked or unblock user then response 200
-	ctx.JSON(http.StatusOK, gin.H{
-		"StatusCode": 200,
-		"msg":        "Successfully blocked or unblocked user",
-		"user":       response,
-	})
+	ctx.JSON(http.StatusOK, response)
 }
-
-// add coupons
-

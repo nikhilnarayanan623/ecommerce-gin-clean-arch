@@ -14,12 +14,12 @@ type OTPLoginStruct struct {
 }
 
 type OTPVerifyStruct struct {
-	OTP string `json:"otp" binding:"required,min=4,max=8"`
-	ID  uint   `json:"id" binding:"required,numeric"`
+	OTP    string `json:"otp" binding:"required,min=4,max=8"`
+	UserID uint   `json:"user_id" binding:"required,numeric"`
 }
 
 type BlockStruct struct {
-	ID uint `json:"id" binding:"required,numeric"`
+	UserID uint `json:"-" binding:"required,numeric"`
 }
 
 // product side
@@ -30,19 +30,19 @@ type ReqCategory struct {
 
 // user side
 type ReqCart struct {
-	UserID        uint `json:"user_id"`
+	UserID        uint `json:"-"`
 	ProductItemID uint `json:"product_item_id" binding:"required"`
 }
 
 type ReqCartCount struct {
-	UserID        uint `json:"user_id"`
+	UserID        uint `json:"-"`
 	ProductItemID uint `json:"product_item_id" binding:"required"`
 	Count         uint `json:"count" binding:"omitempty,gte=1"`
 }
 
 // for address add address
 type ReqAddress struct {
-	ID          uint   `json:"id"`
+	ID          uint   `json:"-"`
 	Name        string `json:"name" binding:"required,min=2,max=50"`
 	PhoneNumber string `json:"phone_number" binding:"required,min=10,max=10"`
 	House       string `json:"house" binding:"required"`
@@ -57,7 +57,7 @@ type ReqAddress struct {
 
 // for address
 type ReqEditAddress struct {
-	ID          uint   `json:"id" binding:"required"`
+	ID          uint   `json:"address_id" binding:"required"`
 	Name        string `json:"name" binding:"required,min=2,max=50"`
 	PhoneNumber string `json:"phone_number" binding:"required,min=10,max=10"`
 	House       string `json:"house" binding:"required"`

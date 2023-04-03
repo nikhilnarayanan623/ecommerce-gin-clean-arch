@@ -7,7 +7,6 @@ import (
 	_ "github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/cmd/api/docs"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/api/handler"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/api/routes"
-
 	swaggerfiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
 )
@@ -21,6 +20,8 @@ func NewServerHTTP(adminHandler *handler.AdminHandler, userHandler *handler.User
 	couponHandler *handler.CouponHandler) *ServerHTTP {
 
 	engine := gin.New()
+
+	engine.LoadHTMLGlob("template/*.html")
 
 	engine.Use(gin.Logger())
 

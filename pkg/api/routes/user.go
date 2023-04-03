@@ -13,22 +13,22 @@ func UserRoutes(api *gin.RouterGroup, userHandler *handler.UserHandler, ProductH
 	// login
 	login := api.Group("/login")
 	{
-		login.GET("/", userHandler.LoginGet)
-		login.POST("/", userHandler.LoginPost)
-		login.POST("/otp-send", userHandler.LoginOtpSend)
-		login.POST("/verify", userHandler.LoginOtpVerify)
+		login.POST("/", userHandler.UserLogin)
+		login.POST("/otp-send", userHandler.UserLoginOtpSend)
+		login.POST("/otp-verify", userHandler.UserLoginOtpVerify)
 	}
 	//signup
 	signup := api.Group("/signup")
 	{
-		signup.GET("/", userHandler.SignUpGet)
-		signup.POST("/", userHandler.SignUpPost)
+		signup.POST("/", userHandler.UserSignUp)
 	}
 
 	api.Use(middleware.AuthenticateUser)
 	{
+
 		api.GET("/", userHandler.Home)
-		api.POST("/logout", userHandler.Logout)
+		api.POST("/logout", userHandler.UserLogout)
+
 		// products
 		products := api.Group("/products")
 		{
@@ -46,7 +46,14 @@ func UserRoutes(api *gin.RouterGroup, userHandler *handler.UserHandler, ProductH
 
 			// place order by cart
 			cart.GET("/checkout", userHandler.CheckOutCart, orderHandler.GetAllPaymentMethods)
-			cart.POST("/place-order", orderHandler.FullPlaceOrderForCart, couponHandler.GetUserCoupon) // place an order
+			// page for select payment method
+			cart.GET("/checkout/payemt-select-page", orderHandler.CartOrderPayementSelectPage)
+			// for submit order
+			cart.POST("/place-order/cod", orderHandler.PlaceOrderForCartCOD, couponHandler.GetUserCoupon) // place an order
+
+			// make razorpay order and verify
+			cart.POST("/place-order/razorpay-checkout", orderHandler.RazorpayCheckout)
+			cart.POST("/place-order/razorpay-verify", orderHandler.RazorpayVerify)
 		}
 
 		//wishlist
@@ -58,15 +65,15 @@ func UserRoutes(api *gin.RouterGroup, userHandler *handler.UserHandler, ProductH
 		}
 
 		// profile
-		profile := api.Group("/profile")
+		account := api.Group("/account")
 		{
-			profile.GET("/", userHandler.Account)
-			profile.PUT("/", userHandler.EditAccount)
+			account.GET("/", userHandler.Account)
+			account.PUT("/", userHandler.UpateAccount)
 
-			profile.GET("/address", userHandler.GetAddresses) // to show all address and // show countries
-			profile.POST("/address", userHandler.AddAddress)  // to add a new address
-			profile.PUT("/address", userHandler.EditAddress)  // to edit address
-			profile.DELETE("/address", userHandler.DeleteAddress)
+			account.GET("/address", userHandler.GetAddresses) // to show all address and // show countries
+			account.POST("/address", userHandler.AddAddress)  // to add a new address
+			account.PUT("/address", userHandler.EditAddress)  // to edit address
+			account.DELETE("/address", userHandler.DeleteAddress)
 		}
 
 		// order

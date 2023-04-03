@@ -9,10 +9,10 @@ import (
 
 type AdminUseCase interface {
 	Login(ctx context.Context, admin domain.Admin) (domain.Admin, error)
-	SignUp(ctx context.Context, admin domain.Admin) (domain.Admin, error)
+	SignUp(ctx context.Context, admin domain.Admin) error
 
 	FindAllUser(ctx context.Context) ([]res.UserRespStrcut, error)
-	BlockUser(ctx context.Context, user domain.User) (domain.User, error)
+	BlockUser(ctx context.Context, userID uint) error
 }
 
 // GetCategory(ctx context.Context) (helper.ReqCategory, any)

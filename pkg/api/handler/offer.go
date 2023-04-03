@@ -66,7 +66,6 @@ func (c *ProductHandler) RemoveOffer(ctx *gin.Context) {
 // @summary api for show all offers
 // @id ShowAllOffers
 // @tags Offers
-// @Param input body domain.Offer{} true "input field"
 // @Router /admin/offers/ [get]
 // @Success 200 {object} res.Response{} ""successfully got all offers"
 // @Failure 500 {object} res.Response{} "faild to get offers"
@@ -115,7 +114,6 @@ func (c *ProductHandler) GetOfferCategories(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, response)
 
 }
-
 
 // AddOfferCategory godoc
 // @summary api for admin to add offer for category
@@ -281,7 +279,7 @@ func (c *ProductHandler) RemoveOfferProduct(ctx *gin.Context) {
 // @id ReplaceOfferProduct
 // @tags Offers
 // @Param input body req.ReqOfferProduct{} true "input field"
-// @Router /admin/offers/product [post]
+// @Router /admin/offers/product [put]
 // @Success 200 {object} res.Response{} "successfully offer replaced for product"
 // @Failure 400 {object} res.Response{} "invalid input"
 func (c *ProductHandler) ReplaceOfferProduct(ctx *gin.Context) {

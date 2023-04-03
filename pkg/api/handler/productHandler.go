@@ -182,7 +182,7 @@ func (p *ProductHandler) ListProducts(ctx *gin.Context) {
 // @id AddProducts
 // @tags Products
 // @Param input body req.ReqProduct{} true "inputs"
-// @Router /admin/products [put]
+// @Router /admin/products [post]
 // @Success 200 {object} res.Response{} "successfully product added"
 // @Failure 400 {object} res.Response{} "invalid input"
 func (p *ProductHandler) AddProducts(ctx *gin.Context) {
@@ -240,6 +240,8 @@ func (c *ProductHandler) UpdateProduct(ctx *gin.Context) {
 
 	response := res.SuccessResponse(200, "successfully product updated", product)
 	ctx.JSON(200, response)
+
+	ctx.Abort()
 }
 
 // AddProductItem godoc

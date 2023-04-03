@@ -25,31 +25,15 @@ func NewUserHandler(userUsecase interfaces.UserUseCase) *UserHandler {
 	return &UserHandler{userUseCase: userUsecase}
 }
 
-// SignUpGet godoc
-// @summary api for user to signup page
-// @description user can see what are the fields to enter to create a new account
+// UserSignUp godoc
+// @summary api for user to signup
 // @security ApiKeyAuth
-// @id SignUpGet
-// @tags Signup
-// @Router /signup [get]
-// @Success 200 {object} res.Response{}
-func (u *UserHandler) SignUpGet(ctx *gin.Context) {
-
-	response := res.SuccessResponse(200, "Welecome to SignUp Page", domain.User{})
-
-	ctx.JSON(http.StatusOK, response)
-}
-
-// SignUpPost godoc
-// @summary api for user to post the user details
-// @description user can send user details and validate and create new account
-// @security ApiKeyAuth
-// @id SignUpPost
-// @tags Signup
+// @id UserSignUp
+// @tags User Signup
 // @Router /signup [post]
-// @Success 200 "Successfully account created"
-// @Failure 400 "Faild to create account"
-func (u *UserHandler) SignUpPost(ctx *gin.Context) {
+// @Success 200 "Successfully account created for user"
+// @Failure 400 "invalid input"
+func (u *UserHandler) UserSignUp(ctx *gin.Context) {
 
 	var user domain.User
 	if err := ctx.ShouldBindJSON(&user); err != nil {
@@ -60,7 +44,7 @@ func (u *UserHandler) SignUpPost(ctx *gin.Context) {
 	}
 
 	if err := u.userUseCase.Signup(ctx, user); err != nil {
-		response := res.ErrorResponse(400, "cant't singup", err.Error(), nil)
+		response := res.ErrorResponse(400, "faild to signup", err.Error(), nil)
 		ctx.JSON(http.StatusBadRequest, response)
 		return
 	}
@@ -69,31 +53,18 @@ func (u *UserHandler) SignUpPost(ctx *gin.Context) {
 	ctx.JSON(200, response)
 }
 
-// LoginGet godoc
-// @summary to get the json format for login
-// @description Enter this fields on login page post
-// @tags Login
+// UserLogin godoc
+// @summary api for user to login
+// @description Enter user_name | phone | email with password
 // @security ApiKeyAuth
-// @id LoginGet
-// @Router /login [get]
-// @Success 200 {object} res.Response{} "OK"
-func (u *UserHandler) LoginGet(ctx *gin.Context) {
-	response := res.SuccessResponse(200, "Welcome to login page", req.LoginStruct{})
-	ctx.JSON(http.StatusOK, response)
-}
-
-// LoginPost godoc
-// @summary api for user login
-// @description Enter user_name/phone/email with password
-// @security ApiKeyAuth
-// @tags Login
-// @id LoginPost
+// @tags User Login
+// @id UserLogin
 // @Param        inputs   body     req.LoginStruct{}   true  "Input Field"
 // @Router /login [post]
 // @Success 200 {object} res.Response{} "successfully logged in"
-// @Failure 400 {object} res.Response{}  "faild to login"
+// @Failure 400 {object} res.Response{}  "invalid input"
 // @Failure 500 {object} res.Response{}  "faild to generat JWT"
-func (u *UserHandler) LoginPost(ctx *gin.Context) {
+func (u *UserHandler) UserLogin(ctx *gin.Context) {
 
 	var body req.LoginStruct
 	if err := ctx.ShouldBindJSON(&body); err != nil {
@@ -115,14 +86,14 @@ func (u *UserHandler) LoginPost(ctx *gin.Context) {
 	// get user from database and check password in usecase
 	user, err := u.userUseCase.Login(ctx, user)
 	if err != nil {
-		response := res.ErrorResponse(400, "can't login", err.Error(), nil)
+		response := res.ErrorResponse(400, "faild to login", err.Error(), nil)
 		ctx.JSON(http.StatusBadRequest, response)
 		return
 	}
 	// generate token using jwt in map
 	tokenString, err := auth.GenerateJWT(user.ID)
 	if err != nil {
-		response := res.ErrorResponse(500, "can't login", err.Error(), nil)
+		response := res.ErrorResponse(500, "faild to login", err.Error(), nil)
 		ctx.JSON(http.StatusInternalServerError, response)
 		return
 	}
@@ -133,18 +104,18 @@ func (u *UserHandler) LoginPost(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, response)
 }
 
-// LoginOtpSend godoc
-// @summary api for user login with otp
-// @description user can enter email/user_name/phone will send an otp to user phone
+// UserLoginOtpSend godoc
+// @summary api for user to login with otp
+// @description user can enter email/user_name/phone will send an otp to user registered phone_number
 // @security ApiKeyAuth
-// @id LoginOtpSend
-// @tags Login
+// @id UserLoginOtpSend
+// @tags User Login
 // @Param inputs body req.OTPLoginStruct true "Input Field"
 // @Router /login/otp-send [post]
 // @Success 200 {object} res.Response{}  "Successfully Otp Send to registered number"
 // @Failure 400 {object} res.Response{}  "Enter input properly"
 // @Failure 500 {object} res.Response{}  "Faild to send otp"
-func (u *UserHandler) LoginOtpSend(ctx *gin.Context) {
+func (u *UserHandler) UserLoginOtpSend(ctx *gin.Context) {
 
 	var body req.OTPLoginStruct
 	if err := ctx.ShouldBindJSON(&body); err != nil {
@@ -179,38 +150,38 @@ func (u *UserHandler) LoginOtpSend(ctx *gin.Context) {
 		return
 	}
 
-	response := res.SuccessResponse(200, "successfully otp send to registered number", nil)
+	response := res.SuccessResponse(200, "successfully otp send to registered number", user.ID)
 	ctx.JSON(http.StatusOK, response)
-
 }
 
-// LoginOtpVerify godoc
-// @summary varify user login otp
+// UserLoginOtpVerify godoc
+// @summary api for user to varify user login_otp
 // @description enter your otp that send to your registered number
 // @security ApiKeyAuth
-// @id LoginOtpVerify
-// @tags Login
+// @id UserLoginOtpVerify
+// @tags User Login
 // @param inputs body req.OTPVerifyStruct{} true "Input Field"
 // @Router /login/otp-verify [post]
 // @Success 200 "successfully logged in uing otp"
-// @Failure 400 "invalid input otp"
+// @Failure 400 "invalid login_otp"
 // @Failure 500 "Faild to generate JWT"
-func (u *UserHandler) LoginOtpVerify(ctx *gin.Context) {
+func (u *UserHandler) UserLoginOtpVerify(ctx *gin.Context) {
 
 	var body req.OTPVerifyStruct
 	if err := ctx.ShouldBindJSON(&body); err != nil {
-		response := res.ErrorResponse(400, "invalid input otp", err.Error(), nil)
+		response := res.ErrorResponse(400, "invalid login_otp", err.Error(), nil)
 		ctx.JSON(http.StatusBadRequest, response)
 		return
 	}
 
-	var user domain.User
-	copier.Copy(&user, &body)
+	var user = domain.User{
+		ID: body.UserID,
+	}
 
 	// get the user using loginOtp useCase
 	user, err := u.userUseCase.LoginOtp(ctx, user)
 	if err != nil {
-		response := res.ErrorResponse(400, "can't login", err.Error(), nil)
+		response := res.ErrorResponse(400, "faild to login", err.Error(), nil)
 		ctx.JSON(http.StatusBadRequest, response)
 		return
 	}
@@ -218,7 +189,7 @@ func (u *UserHandler) LoginOtpVerify(ctx *gin.Context) {
 	// then varify the otp
 	err = varify.TwilioVerifyOTP("+91"+user.Phone, body.OTP)
 	if err != nil {
-		response := res.ErrorResponse(400, "can't login invalid otp", err.Error(), nil)
+		response := res.ErrorResponse(400, "faild to login", err.Error(), nil)
 		ctx.JSON(http.StatusBadRequest, response)
 		return
 	}
@@ -226,7 +197,7 @@ func (u *UserHandler) LoginOtpVerify(ctx *gin.Context) {
 	// if everyting ok then generate token
 	tokenString, err := auth.GenerateJWT(user.ID)
 	if err != nil {
-		response := res.ErrorResponse(500, "can't login", err.Error(), nil)
+		response := res.ErrorResponse(500, "faild to login", err.Error(), nil)
 		ctx.JSON(http.StatusInternalServerError, response)
 		return
 	}
@@ -240,11 +211,10 @@ func (u *UserHandler) LoginOtpVerify(ctx *gin.Context) {
 // @summary api for showing home page of user
 // @description after user login user will seen this page with user informations
 // @security ApiKeyAuth
-// @id Home
+// @id User Home
 // @tags Home
 // @Router / [get]
 // @Success 200 "Welcome Home"
-// @Failure 400 "Faild to load user home page"
 func (u *UserHandler) Home(ctx *gin.Context) {
 
 	response := res.SuccessResponse(200, "welcome to home page", nil)
@@ -255,77 +225,13 @@ func (u *UserHandler) Home(ctx *gin.Context) {
 // @summary api for user to lgout
 // @description user can logout
 // @security ApiKeyAuth
-// @id Logout
-// @tags Logout
+// @id UserLogout
+// @tags User Logout
 // @Router /logout [post]
 // @Success 200 "successfully logged out"
-func (u *UserHandler) Logout(ctx *gin.Context) {
+func (u *UserHandler) UserLogout(ctx *gin.Context) {
 	ctx.SetCookie("user-auth", "", -1, "", "", false, true)
 	response := res.SuccessResponse(200, "successfully logged out", nil)
-	ctx.JSON(http.StatusOK, response)
-}
-
-// Account godoc
-// @summary api for showing user details
-// @description user can see user details
-// @security ApiKeyAuth
-// @id Account
-// @tags Profile
-// @Router /profile/ [get]
-// @Success 200 "Successfully user account details found"
-// @Failure 500 {object} res.Response{} "faild to show user details"
-func (u *UserHandler) Account(ctx *gin.Context) {
-
-	userID := helper.GetUserIdFromContext(ctx)
-
-	user, err := u.userUseCase.Account(ctx, userID)
-	if err != nil {
-		response := res.ErrorResponse(500, "faild to show user details", err.Error(), nil)
-		ctx.JSON(http.StatusInternalServerError, response)
-		return
-	}
-
-	var data res.UserRespStrcut
-	copier.Copy(&data, &user)
-
-	response := res.SuccessResponse(200, "Successfully user account details found", data)
-	ctx.JSON(http.StatusOK, response)
-}
-
-// EditAccount godoc
-// @summary api for edit user details
-// @description user can edit user details
-// @security ApiKeyAuth
-// @id EditAccount
-// @tags Profile
-// @Param input body req.ReqUser true "input field"
-// @Router /profile [put]
-// @Success 200 {object} res.Response{} "successfully edited user details"
-// @Failure 400 {object} res.Response{} "invalid input"
-func (u *UserHandler) EditAccount(ctx *gin.Context) {
-	userID := helper.GetUserIdFromContext(ctx)
-
-	var body req.ReqUser
-
-	if err := ctx.ShouldBindJSON(&body); err != nil {
-		response := res.ErrorResponse(400, "invalid input", err.Error(), nil)
-		ctx.JSON(http.StatusBadRequest, response)
-		return
-	}
-
-	var user domain.User
-
-	copier.Copy(&user, &body)
-
-	user.ID = userID
-	// edit the user details
-	if err := u.userUseCase.EditAccount(ctx, user); err != nil {
-		response := res.ErrorResponse(400, "invalid input", err.Error(), nil)
-		ctx.JSON(http.StatusBadRequest, response)
-		return
-	}
-
-	response := res.SuccessResponse(200, "successfully edited user details", nil)
 	ctx.JSON(http.StatusOK, response)
 }
 
@@ -334,7 +240,7 @@ func (u *UserHandler) EditAccount(ctx *gin.Context) {
 // @description user can add a stock in product to user cart
 // @security ApiKeyAuth
 // @id AddToCart
-// @tags Carts
+// @tags User Cart
 // @Param input body req.ReqCart true "Input Field"
 // @Router /carts [post]
 // @Success 200 "Successfully productItem added to cart"
@@ -368,7 +274,7 @@ func (u *UserHandler) AddToCart(ctx *gin.Context) {
 // @description user can remove a signle productItem full quantity from cart
 // @security ApiKeyAuth
 // @id RemoveFromCart
-// @tags Carts
+// @tags User Cart
 // @Param input body req.ReqCart{} true "Input Field"
 // @Router /carts [delete]
 // @Success 200 {object} res.Response{} "Successfully productItem removed from cart"
@@ -402,7 +308,7 @@ func (u UserHandler) RemoveFromCart(ctx *gin.Context) {
 // @description user can inrement or drement count of a productItem in cart (min=1)
 // @security ApiKeyAuth
 // @id UpdateCart
-// @tags Carts
+// @tags User Cart
 // @Param input body req.ReqCartCount{} true "Input Field"
 // @Router /carts [put]
 // @Success 200 "Successfully productItem count change on cart"
@@ -436,7 +342,7 @@ func (u *UserHandler) UpdateCart(ctx *gin.Context) {
 // @summary api for get all cart item of user
 // @description user can see all productItem that stored in cart
 // @security ApiKeyAuth
-// @id UserCart
+// @id User Cart
 // @tags Carts
 // @Router /carts [get]
 // @Success 200 {object} res.Response{} "successfully got user cart items"
@@ -467,7 +373,7 @@ func (u *UserHandler) UserCart(ctx *gin.Context) {
 // @description user can checkout user cart items
 // @security ApiKeyAuth
 // @id CheckOutCart
-// @tags Carts
+// @tags User Cart
 // @Router /carts/checkout [get]
 // @Success 200 {object} res.Response{} "successfully got checkout data"
 // @Failure 401 {object} res.Response{} "cart is empty so user can't call this api"
@@ -494,16 +400,78 @@ func (c *UserHandler) CheckOutCart(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, responser)
 }
 
-//! ***** for user profiler ***** //
+// ! ***** for user account ***** //
+// Account godoc
+// @summary api for see use details
+// @security ApiKeyAuth
+// @id Account
+// @tags User Account
+// @Router /account [get]
+// @Success 200 "Successfully user account details found"
+// @Failure 500 {object} res.Response{} "faild to show user details"
+func (u *UserHandler) Account(ctx *gin.Context) {
+
+	userID := helper.GetUserIdFromContext(ctx)
+
+	user, err := u.userUseCase.Account(ctx, userID)
+	if err != nil {
+		response := res.ErrorResponse(500, "faild to show user details", err.Error(), nil)
+		ctx.JSON(http.StatusInternalServerError, response)
+		return
+	}
+
+	var data res.UserRespStrcut
+	copier.Copy(&data, &user)
+
+	response := res.SuccessResponse(200, "Successfully user account details found", data)
+	ctx.JSON(http.StatusOK, response)
+}
+
+// UpateAccount godoc
+// @summary api for edit user details
+// @description user can edit user details
+// @security ApiKeyAuth
+// @id UpateAccount
+// @tags User Account
+// @Param input body req.ReqUser true "input field"
+// @Router /account [put]
+// @Success 200 {object} res.Response{} "successfully updated user details"
+// @Failure 400 {object} res.Response{} "invalid input"
+func (u *UserHandler) UpateAccount(ctx *gin.Context) {
+	userID := helper.GetUserIdFromContext(ctx)
+
+	var body req.ReqUser
+
+	if err := ctx.ShouldBindJSON(&body); err != nil {
+		response := res.ErrorResponse(400, "invalid input", err.Error(), nil)
+		ctx.JSON(http.StatusBadRequest, response)
+		return
+	}
+
+	var user domain.User
+
+	copier.Copy(&user, &body)
+
+	user.ID = userID
+	// edit the user details
+	if err := u.userUseCase.EditAccount(ctx, user); err != nil {
+		response := res.ErrorResponse(400, "invalid input", err.Error(), nil)
+		ctx.JSON(http.StatusBadRequest, response)
+		return
+	}
+
+	response := res.SuccessResponse(200, "successfully updated user details", body)
+	ctx.JSON(http.StatusOK, response)
+}
 
 // AddAddress godoc
 // @summary api for adding a new address for user
 // @description get a new address from user to store the the database
 // @security ApiKeyAuth
 // @id AddAddress
-// @tags Address
+// @tags User Address
 // @Param inputs body req.ReqAddress{} true "Input Field"
-// @Router /profile/address [post]
+// @Router /account/address [post]
 // @Success 200 {object} res.Response{} "Successfully address added"
 // @Failure 400 {object} res.Response{} "inavlid input"
 func (u *UserHandler) AddAddress(ctx *gin.Context) {
@@ -527,7 +495,7 @@ func (u *UserHandler) AddAddress(ctx *gin.Context) {
 		return
 	}
 
-	response := res.SuccessResponse(200, "successfully saved user address", nil)
+	response := res.SuccessResponse(200, "successfully saved user address", body)
 	ctx.JSON(http.StatusOK, response)
 }
 
@@ -536,8 +504,8 @@ func (u *UserHandler) AddAddress(ctx *gin.Context) {
 // @description user can show all adderss
 // @security ApiKeyAuth
 // @id GetAddresses
-// @tags Address
-// @Router /profile/address [get]
+// @tags User Address
+// @Router /account/address [get]
 // @Success 200 {object} res.Response{} "successfully got user addresses"
 // @Failure 500 {object} res.Response{} "faild to show user addresses"
 func (u *UserHandler) GetAddresses(ctx *gin.Context) {
@@ -567,9 +535,9 @@ func (u *UserHandler) GetAddresses(ctx *gin.Context) {
 // @description user can change existing address
 // @security ApiKeyAuth
 // @id EditAddress
-// @tags Address
+// @tags User Address
 // @Param input body req.ReqEditAddress true "Input Field"
-// @Router /profile/address [put]
+// @Router /account/address [put]
 // @Success 200 {object} res.Response{} "successfully addresses updated"
 // @Failure 400 {object} res.Response{} "can't update the address"
 func (u *UserHandler) EditAddress(ctx *gin.Context) {
@@ -589,7 +557,7 @@ func (u *UserHandler) EditAddress(ctx *gin.Context) {
 		return
 	}
 
-	reponse := res.SuccessResponse(200, "successfully addresses updated", nil)
+	reponse := res.SuccessResponse(200, "successfully addresses updated", body)
 	ctx.JSON(http.StatusOK, reponse)
 
 }

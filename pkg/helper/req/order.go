@@ -23,3 +23,10 @@ type ReqCheckout struct {
 	CouponCode      string `json:"coupon_code" `
 	AddressID       uint   `json:"address_id" binding:"required"`
 }
+
+type ReqRazorpayVeification struct {
+	RazorpayPaymentID string `json:"razorpay_payment_id"`
+	RazorpayOrderID   string `json:"razorpay_order_id"`
+	RazorpaySignature string `json:"razorpay_signature"`
+	UserID            string `json:"user_id"`
+}

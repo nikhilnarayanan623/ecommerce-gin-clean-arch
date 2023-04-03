@@ -283,7 +283,6 @@ func (c *userUserCase) EditAddress(ctx context.Context, addressBody req.ReqEditA
 	} else if country.ID == 0 {
 		return errors.New("invalid country id")
 	}
-
 	copier.Copy(&address, &addressBody)
 
 	if c.userRepo.UpdateAddress(ctx, address) != nil {
@@ -291,7 +290,7 @@ func (c *userUserCase) EditAddress(ctx context.Context, addressBody req.ReqEditA
 	}
 
 	//update the addres with user default or not with user
-	if *addressBody.IsDefault {
+	if addressBody.IsDefault != nil && *addressBody.IsDefault {
 		userAddress := domain.UserAddress{
 			UserID:    userID,
 			AddressID: address.ID,

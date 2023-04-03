@@ -14,23 +14,22 @@ func AdminRoutes(api *gin.RouterGroup, adminHandler *handler.AdminHandler,
 	// login
 	login := api.Group("/login")
 	{
-		login.GET("/", adminHandler.LoginGet)
-		login.POST("/", adminHandler.AdminLoginPost)
+		login.POST("/", adminHandler.AdminLogin)
 	}
 	// signup
-	signup := api.Group("/signup")
-	{
-		signup.GET("/", adminHandler.SignUPGet)
-		signup.POST("/", adminHandler.SignUpPost)
-	}
+	// signup := api.Group("/signup")
+	// {
+	// 	signup.GET("/", adminHandler.AdminSignupGet)
+	// 	signup.POST("/", adminHandler.SignUpPost)
+	// }
 
 	api.Use(middleware.AuthenticateAdmin)
 	{
 		// user side
 		user := api.Group("/users")
 		{
-			user.GET("/", adminHandler.Allusers)
-			user.POST("/block", adminHandler.BlockUser)
+			user.GET("/", adminHandler.ListUsers)
+			user.PATCH("/block", adminHandler.BlockUser)
 		}
 		// category
 		category := api.Group("/category")

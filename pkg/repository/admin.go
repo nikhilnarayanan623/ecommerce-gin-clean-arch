@@ -3,6 +3,7 @@ package repository
 import (
 	"context"
 	"errors"
+	"fmt"
 
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/domain"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/repository/interfaces"
@@ -21,35 +22,19 @@ func (c *adminDatabase) FindAdmin(ctx context.Context, admin domain.Admin) (doma
 
 	if c.DB.Raw("SELECT * FROM admins WHERE email=? OR user_name=?", admin.Email, admin.UserName).Scan(&admin).Error != nil {
 		return admin, errors.New("faild to find admin")
-	} 
+	}
 
 	return admin, nil
 }
 
-func (c *adminDatabase) SaveAdmin(ctx context.Context, admin domain.Admin) (domain.Admin, error) {
+func (c *adminDatabase) SaveAdmin(ctx context.Context, admin domain.Admin) error {
 
-	// first check the admin already exist or not
-	var dbAdmin domain.Admin
-	c.DB.Raw("SELECT * FROM admins WHERE email=? OR user_name=?", admin.Email, admin.UserName).Scan(&dbAdmin)
-
-	if dbAdmin.ID != 0 { // amdmin already exist
-
-		// first check the email is already exist
-		if dbAdmin.Email == admin.Email {
-			// errMap["email"] = "Email Already exist"
-			return admin, errors.New("admin already exist with this email")
-		} // if email not then its user name is exist
-		return admin, errors.New("admin already exist with this user_name")
+	querry := `INSERT INTO admins (user_name,email,password) VALUES ($1,$2,$3)`
+	if c.DB.Exec(querry, admin.UserName, admin.Email, admin.Password).Error != nil {
+		return errors.New("faild to save admin")
 	}
 
-	//if admin not exist then create it
-	querry := `INSERT INTO admins (user_name,email,password) VALUES ($1,$2,$3) RETURNING id,user_name,email,password`
-	if c.DB.Raw(querry, admin.UserName, admin.Email, admin.Password).Scan(&admin).Error != nil {
-		return admin, errors.New("faild to create account for admin")
-	}
-
-	//c.DB.Raw("SELECT * FROM admins WHERE email=?", admin.Email).Scan(&admin)
-	return admin, nil // successfully admin added
+	return nil
 }
 
 func (c *adminDatabase) FindAllUser(ctx context.Context) ([]domain.User, error) {
@@ -60,22 +45,18 @@ func (c *adminDatabase) FindAllUser(ctx context.Context) ([]domain.User, error) 
 	return users, err
 }
 
-func (c *adminDatabase) BlockUser(ctx context.Context, user domain.User) (domain.User, error) {
+func (c *adminDatabase) BlockUser(ctx context.Context, userID uint) error {
 
 	// first check ther user is valid or not
-	c.DB.Raw("SELECT * FROM users WHERE id=?", user.ID).Scan(&user)
-
+	var user domain.User
+	c.DB.Raw("SELECT * FROM users WHERE id=?", userID).Scan(&user)
 	if user.Email == "" { // here given id so check with email
-		return user, errors.New("invalid user id user doesn't exist")
+		return errors.New("invalid user id user doesn't exist")
 	}
 
-	// if user is blocked then unblock
-	if user.BlockStatus {
-		c.DB.Raw("UPDATE users SET block_status='F' WHERE id=? RETURNING block_status", user.ID).Scan(&user)
-		//user.BlockStatus = false
-		return user, nil
+	query := `UPDATE users SET block_status = $1 WHERE id = $2`
+	if c.DB.Exec(query, !user.BlockStatus, userID).Error != nil {
+		return fmt.Errorf("faild update user block_status to %v", !user.BlockStatus)
 	}
-	c.DB.Raw("UPDATE users SET block_status='T' WHERE id=? RETURNING block_status", user.ID).Scan(&user)
-	//user.BlockStatus = true
-	return user, nil
+	return nil
 }
