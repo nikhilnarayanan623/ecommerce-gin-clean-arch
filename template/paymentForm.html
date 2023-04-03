@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Payment Form</title>
+	<!-- Add bootstrap CDN links for styling -->
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.1.4/dist/sweetalert2.min.js"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11.1.4/dist/sweetalert2.min.css">
+</head>
+<body>
+	<div class="container">
+		<div class="row">
+			<div class="col-md-6 col-md-offset-3 text-center">
+				        <h2 class="text-center">Payment Checkout Form</h2>
+                <form id="place-order">
+                  <div class="form-group">
+                    <label for="payment-method">Select Payment Method:</label>
+                    <select class="form-control" id="payment_select">
+                      <!-- <option value="cod"><strong>COD  </strong> <p>(localhost:8000/carts/place-order/cod)</p></option> -->
+                      <option value="razorpay">RazorPay <p>(localhost:8000/carts/place-order/razorpay-checkout)</p></option>
+                      <!-- <option value="PayPal">PayPal</option> -->
+                    </select>
+                  </div>
+                    <div class="form-group">
+                      <label for="name">Address ID:</label>
+                      <input type="text" class="form-control" id="name" name="address_id" placeholder="Enter address_id that got from checkout page">
+                    </div>
+                    <div class="form-group">
+                      <label for="name">Payemt Method ID:</label>
+                      <input type="text" class="form-control" id="payment_method_id" name="payment_method_id" placeholder="Enter payement_method_id that got from checkout page">
+                  </div>
+                    <div class="form-group">
+                        <label for="name">Coupon Code (Optional):</label>
+                        <input type="text" class="form-control" id="name" name="coupon_code" placeholder="Enter coupon_code if you have">
+                    </div>
+                    <button type="submit" class="btn btn-primary">Submit</button>
+
+                </form>
+			</div>
+		</div>
+	</div>
+</body>
+</html>
+
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<script>
+  $('#place-order').submit((e)=>{
+    e.preventDefault()
+    const paymentMethod = document.getElementById('payment_select').value
+    console.log(paymentMethod,"herere")
+    let paymentApi = ''
+
+    if(paymentMethod == 'cod'){
+      paymentApi='/carts/place-order/cod'
+    } else if (paymentMethod == 'razorpay'){
+      paymentApi='/carts/place-order/razorpay-checkout'
+    }else {
+      console.log("hiisgfadsfasdfasdf");
+     FailureRes("invalid payment type","select a payment type")
+    }
+
+
+    $.ajax({
+      url:paymentApi,
+      type:'post',
+      data:$('#place-order').serialize(),
+      success:(response)=>{
+        console.log(response, "respone");
+        // if respones is cod it means call form cod
+        if(response.cod){
+          console.log("cod success");
+          SuccessPayment('COD')
+          // location.href = ''
+        } else if (response.Razorpay){// response from razor pay
+          console.log("razorpay");
+          getRazorpay(response.Order)
+          
+        }
+        console.log(response)
+      },
+      error:(err)=>{ // if error on backend response
+        console.log(err)
+        FailureRes("",err.responseJSON.errors)
+        console.log("error",err);
+      }
+
+    })
+  })
+
+const getRazorpay = (order) =>{
+    console.log("at get razor pay");
+    var userid= order.UserID
+    var orderid= order.OrderID
+    var total= order.AmountToPay
+    var options = {
+        "key": order.Key, // razorpay test key on set up on order resopnse
+        "amount": order.amount, // Amount is in currency subunits. Default currency is INR. Hence, 50000 refers to 50000 paise
+        "currency": "INR",
+        "name": "Shoefer",
+        "description": "Test Transaction",
+        "image": "https://example.com/your_logo",
+        "order_id": order.OrderID,  // order id get from order response
+        "handler": function (response){
+            verifyPayment(order, userid , response);
+        },
+        "prefill": {
+        
+            "email": order.Email,
+            "contact": order.Phone_Number
+        },
+        "notes": {
+            "address": "Razorpay Corporate Office"
+        },
+        "theme": {
+            "color": "#3399cc"
+        }
+    };
+
+  var rzp1 = new Razorpay(options);
+  rzp1.on('payment.failed', function (response){
+          alert(response.error.code);
+          alert(response.error.description);
+          alert(response.error.source);
+          alert(response.error.step);
+          alert(response.error.reason);
+          alert(response.error.metadata.order_id);
+          alert(response.error.metadata.payment_id);
+  });
+  // swal for payment amount show and confirmation
+  Swal.fire({
+  title: "Razorpay Payment",
+  html:
+    '<div style="font-size: 30px;"><strong>Amount to pay:</strong> ' + order.AmountToPay + '</div>' +
+    '<div style="margin-top: 10px;">Please confirm your payment by clicking on the "Confirm" button below:</div>',
+  icon: "success",
+  showCancelButton: true,
+  confirmButtonText: "Confirm",
+  cancelButtonText: "Cancel",
+  dangerMode: true,
+  customClass: {
+    container: 'my-swal'
+  }
+})
+.then((willConfirm) => {
+  if (willConfirm.isConfirmed) {
+    // Open the Razorpay payment window
+    rzp1.open();
+  } else {
+    // Payment cancelled
+    Swal.fire({
+      title: "Payment Cancelled",
+      icon: "error",
+      text: "Your payment has been cancelled. Please try again later.",
+    });
+  }
+});
+
+  
+}
+
+// function for razor pay varification on backend
+function verifyPayment(order, userid , response) {
+  console.log(response.razorpay_payment_id,": ",response.razorpay_order_id, " ",response.razorpay_signature);
+        $.ajax({
+            //call backend api with data data to vefiry
+            type: "post",
+            url: '/carts/place-order/razorpay-verify',
+            data: {
+              "razorpay_payment_id" : response.razorpay_payment_id,
+              "razorpay_order_id":response.razorpay_order_id,
+              "razorpay_signature":response.razorpay_signature,
+              "user_id":userid,
+            },
+            success: (response) => {
+              console.log("vaification respone backend",response)
+                if (response.data) {
+                  
+                  Swal.fire({
+                      title: "Successfully Payment Verified",
+                      icon: 'success',
+                  })
+                  //location.href = '/'
+                }else {
+                  Swal.fire({
+                      title: "Sorry, Payment Failed on data",
+                      icon: 'warning',
+                      dangerMode: true,
+                  })
+                }
+            },
+            error:(response) => {
+              console.log(response)
+              Swal.fire({
+                      title: "Sorry, Payment Failed on no data",
+                      icon: 'warning',
+                      dangerMode: true,
+              })
+            }
+        })
+}
+
+const SuccessRes = (paymentName) => {
+  Swal.fire({
+    title: "Successfully Order Placed On " + paymentName,
+    icon: 'success',
+  })
+}
+
+const FailureRes = (paymentName,error) =>{
+  Swal.fire({
+    title: "Sorry, Faild to place order on " + paymentName,
+    html:
+    '<div style="font-size: 15px;"><strong>Faild to Place order</strong> </div>' +
+    '<div style="margin-top:15px;font-size: 25px"> Error: '+ error +'</div>',
+    icon: 'warning',
+    dangerMode: true,
+  })
+}
+</script>
