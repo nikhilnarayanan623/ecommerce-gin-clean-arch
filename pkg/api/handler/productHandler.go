@@ -21,166 +21,169 @@ func NewProductHandler(productUsecase interfaces.ProductUseCase) *ProductHandler
 	return &ProductHandler{productUseCase: productUsecase}
 }
 
-func (p *ProductHandler) AllCategories(ctx *gin.Context) {
+// GetAlllCategories godoc
+// @summary api for adminn get all categories
+// @security ApiKeyAuth
+// @tags Admin Category
+// @id GetAlllCategories
+// @Router /admin/category [get]
+// @Success 200 {object} res.Response{} "successfully update the coupon"
+// @Failure 500 {object} res.Response{} "faild to get all cateogires"
+func (p *ProductHandler) GetAlllCategories(ctx *gin.Context) {
 
 	categories, err := p.productUseCase.GetCategory(ctx)
 
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{
-			"StatusCode": 500,
-			"msg":        "Faild to get categories",
-			"error":      err.Error(),
-		})
+		response := res.ErrorResponse(500, "faild to get all cateogires", err.Error(), nil)
+		ctx.JSON(http.StatusInternalServerError, response)
 		return
 	}
 
 	// check category is empty or not
 	if categories.Category == nil {
-		ctx.JSON(http.StatusOK, gin.H{
-			"StatusCode": 200,
-			"msg":        "there is no category to show",
-		})
+		response := res.SuccessResponse(200, "there is no category to show", nil)
+		ctx.JSON(http.StatusOK, response)
 		return
 
 	}
-	ctx.JSON(http.StatusOK, gin.H{
-		"StatsuCode":         200,
-		"msg":                "Category Page",
-		"categories":         categories.Category,
-		"variations":         categories.VariationName,
-		"variations options": categories.VariationValue,
-	})
+
+	response := res.SuccessResponse(200, "successfully got all cateogries", categories)
+	ctx.JSON(http.StatusOK, response)
 }
 
-// add a category
+// AddCategory godoc
+// @summary api for adminn add a new category
+// @security ApiKeyAuth
+// @tags Admin Category
+// @id AddCategory
+// @Param input body domain.Category{} true "Input field"
+// @Router /admin/category [post]
+// @Success 200 {object} res.Response{} "successfully added a new category"
+// @Failure 400 {object} res.Response{} "invalid input"
 func (p *ProductHandler) AddCategory(ctx *gin.Context) {
 
 	var productCategory domain.Category
 
 	if err := ctx.ShouldBindJSON(&productCategory); err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{
-			"StatsuCode": 400,
-			"msg":        "Error to bind the input",
-			"error":      err.Error(),
-		})
+		response := res.ErrorResponse(400, "invalid input", err.Error(), productCategory)
+		ctx.JSON(http.StatusBadRequest, response)
 		return
 	}
 
 	err := p.productUseCase.AddCategory(ctx, productCategory)
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{
-			"StatsuCode": 400,
-			"msg":        "category can't be added",
-			"err":        err.Error(),
-		})
+		response := res.ErrorResponse(400, "faild to add cateogy", err.Error(), nil)
+		ctx.JSON(http.StatusBadRequest, response)
 		return
 	}
 
-	ctx.JSON(http.StatusOK, gin.H{
-		"StatsuCode": 200,
-		"msg":        "category added",
-	})
+	response := res.SuccessResponse(200, "successfully added a new category")
+	ctx.JSON(http.StatusOK, response)
 }
 
 // for get all variations with its related category
-
 // for add a variation like size / color/ ram/ memory
-func (p *ProductHandler) VariationPost(ctx *gin.Context) {
 
-	var variation domain.Variation
-	if err := ctx.ShouldBindJSON(&variation); err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{
-			"StatusCode": 400,
-			"msg":        "can't bind json",
-			"error":      err.Error(),
-		})
+// AddVariation godoc
+// @summary api for adminn add a new variation
+// @security ApiKeyAuth
+// @tags Admin Category
+// @id AddVariation
+// @Param input body req.ReqVariation{} true "Input field"
+// @Router /admin/category/variation [post]
+// @Success 200 {object} res.Response{} "successfully variation added"
+// @Failure 400 {object} res.Response{} "invalid input"
+func (p *ProductHandler) AddVariation(ctx *gin.Context) {
+
+	var body req.ReqVariation
+	if err := ctx.ShouldBindJSON(&body); err != nil {
+		response := res.ErrorResponse(400, "invalid inputs", err.Error(), body)
+		ctx.JSON(http.StatusBadRequest, response)
 		return
 	}
+
+	var variation domain.Variation
+	copier.Copy(&variation, &body)
 
 	variation, err := p.productUseCase.AddVariation(ctx, variation)
 
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{
-			"StatusCode": 400,
-			"msg":        "can't add variation",
-			"error":      err.Error(),
-		})
+		respones := res.ErrorResponse(400, "faild to add variation", err.Error(), nil)
+		ctx.JSON(http.StatusBadRequest, respones)
 		return
 	}
 
-	ctx.JSON(http.StatusOK, gin.H{
-		"StatusCode": 200,
-		"msg":        "variation added",
-		"variation":  variation,
-	})
+	respones := res.SuccessResponse(200, "successfully variation added", variation)
+	ctx.JSON(http.StatusOK, respones)
 }
 
 // for add a value for varaion color:blue,red; size:M,S,L; RAM:2gb,4gb;
-func (p *ProductHandler) VariationOptionPost(ctx *gin.Context) {
 
-	var variationOption domain.VariationOption
-	if err := ctx.ShouldBindJSON(&variationOption); err != nil {
+// AddVariationOption godoc
+// @summary api for adminn add a new variation options
+// @security ApiKeyAuth
+// @tags Admin Category
+// @id AddVariationOption
+// @Param input body req.ReqVariationOption{} true "Input field"
+// @Router /admin/category/variation-option [post]
+// @Success 200 {object} res.Response{} "successfully added variation option"
+// @Failure 400 {object} res.Response{} "invalid input"
+func (p *ProductHandler) AddVariationOption(ctx *gin.Context) {
 
-		ctx.JSON(http.StatusBadRequest, gin.H{
-			"StatusCode": 400,
-			"msg":        "Faild to bind json input",
-			"error":      err.Error(),
-		})
+	var body req.ReqVariationOption
+	if err := ctx.ShouldBindJSON(&body); err != nil {
+		response := res.ErrorResponse(400, "invalid input", err.Error(), body)
+		ctx.JSON(http.StatusBadRequest, response)
 		return
 	}
 
+	var variationOption domain.VariationOption
+	copier.Copy(&variationOption, body)
 	variationOption, err := p.productUseCase.AddVariationOption(ctx, variationOption)
 
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{
-			"StatusCode": 400,
-			"msg":        "can't add variation option",
-			"error":      err.Error(),
-		})
+		response := res.ErrorResponse(400, "faild to add variation option", err.Error(), nil)
+		ctx.JSON(http.StatusBadRequest, response)
 		return
 	}
 
-	ctx.JSON(http.StatusOK, gin.H{
-		"StatusCode":       200,
-		"msg":              "Successfully variationOpion added",
-		"variation_option": variationOption,
-	})
+	response := res.SuccessResponse(200, "successfully added variation option")
+	ctx.JSON(http.StatusOK, response)
 }
 
-// to show get all products
+// ListProducts godoc
+// @summary api for admin and user to show products
+// @security ApiKeyAuth
+// @tags User Products
+// @id ListProducts
+// @Router /products [get]
+// @Success 200 {object} res.Response{} "successfully got all products"
+// @Failure 500 {object} res.Response{}  "faild to get all products"
 func (p *ProductHandler) ListProducts(ctx *gin.Context) {
 
 	products, err := p.productUseCase.GetProducts(ctx)
 
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{
-			"StatusCode": 500,
-			"msg":        "can't show products",
-			"error":      err.Error(),
-		})
+		response := res.ErrorResponse(500, "faild to get all products", err.Error(), nil)
+		ctx.JSON(http.StatusInternalServerError, response)
 		return
 	}
 
 	if products == nil {
-		ctx.JSON(http.StatusOK, gin.H{
-			"StatusCode": 200,
-			"msg":        "there is no products to show",
-		})
+		response := res.SuccessResponse(200, "there is no products to show", nil)
+		ctx.JSON(http.StatusOK, response)
 		return
 	}
 
-	ctx.JSON(http.StatusOK, gin.H{
-		"StatusCode": 200,
-		"msg":        "List Products",
-		"produtcts":  products,
-	})
+	respones := res.SuccessResponse(200, "successfully got all products", products)
+	ctx.JSON(http.StatusOK, respones)
 
 }
 
 // AddProducts godoc
 // @summary api for admin to update a product
 // @id AddProducts
-// @tags Products
+// @tags Admin Products
 // @Param input body req.ReqProduct{} true "inputs"
 // @Router /admin/products [post]
 // @Success 200 {object} res.Response{} "successfully product added"
@@ -213,7 +216,7 @@ func (p *ProductHandler) AddProducts(ctx *gin.Context) {
 // UpdateProduct godoc
 // @summary api for admin to update a product
 // @id UpdateProduct
-// @tags Products
+// @tags Admin Products
 // @Param input body req.ReqProduct{} true "inputs"
 // @Router /admin/products [put]
 // @Success 200 {object} res.Response{} "successfully product updated"
@@ -247,7 +250,7 @@ func (c *ProductHandler) UpdateProduct(ctx *gin.Context) {
 // AddProductItem godoc
 // @summary api for admin to add product-items for a specific product
 // @id AddProductItem
-// @tags Products
+// @tags Admin Products
 // @Param input body req.ReqProductItem{} true "inputs"
 // @Router /admin/products/product-items [post]
 // @Success 200 {object} res.Response{} "Successfully product item added"
@@ -262,7 +265,7 @@ func (p *ProductHandler) AddProductItem(ctx *gin.Context) {
 		return
 	}
 
-	productItem, err := p.productUseCase.AddProductItem(ctx, body)
+	_, err := p.productUseCase.AddProductItem(ctx, body)
 
 	if err != nil {
 		response := res.ErrorResponse(400, "faild to add product_item", err.Error(), body)
@@ -270,15 +273,15 @@ func (p *ProductHandler) AddProductItem(ctx *gin.Context) {
 		return
 	}
 
-	response := res.SuccessResponse(200, "successfully product item added", productItem)
+	response := res.SuccessResponse(200, "successfully product item added", nil)
 	ctx.JSON(http.StatusOK, response)
 }
 
 // @summary api for get all product_items for a prooduct
 // @id GetProductItems
-// @tags Products
+// @tags User Products
 // @param product_id path int true "product_id"
-// @Router /admin/products/product-items [get]
+// @Router /products/product-items [get]
 // @Success 200 {object} res.Response{} "successfully got all product_items for given product_id"
 // @Failure 400 {object} res.Response{} "invalid input on params"
 func (p *ProductHandler) GetProductItems(ctx *gin.Context) {

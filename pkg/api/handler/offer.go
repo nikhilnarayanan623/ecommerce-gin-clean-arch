@@ -228,7 +228,7 @@ func (c *ProductHandler) GetOffersOfProducts(ctx *gin.Context) {
 // @id AddOfferProduct
 // @tags Offers
 // @Param input body req.ReqOfferProduct{} true "input field"
-// @Router /admin/offers/product [post]
+// @Router /admin/offers/products [post]
 // @Success 200 {object} res.Response{} "successfully offer added for product"
 // @Failure 400 {object} res.Response{} "invalid input"
 func (c *ProductHandler) AddOfferProduct(ctx *gin.Context) {
@@ -253,6 +253,14 @@ func (c *ProductHandler) AddOfferProduct(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, response)
 }
 
+// RemoveOfferProduct godoc
+// @summary api for admin to remove offer from product
+// @id RemoveOfferProduct
+// @tags Offers
+// @param offer_product_id path int true "offer_product_id"
+// @Router /admin/offers/products/ [delete]
+// @Success 200 {object} res.Response{} "successfully offer removed from product"
+// @Failure 400 {object} res.Response{} "invalid input on params"
 func (c *ProductHandler) RemoveOfferProduct(ctx *gin.Context) {
 
 	offerProdctID, err := helper.StringToUint(ctx.Param("offer_product_id"))
@@ -279,7 +287,7 @@ func (c *ProductHandler) RemoveOfferProduct(ctx *gin.Context) {
 // @id ReplaceOfferProduct
 // @tags Offers
 // @Param input body req.ReqOfferProduct{} true "input field"
-// @Router /admin/offers/product [put]
+// @Router /admin/offers/products [put]
 // @Success 200 {object} res.Response{} "successfully offer replaced for product"
 // @Failure 400 {object} res.Response{} "invalid input"
 func (c *ProductHandler) ReplaceOfferProduct(ctx *gin.Context) {

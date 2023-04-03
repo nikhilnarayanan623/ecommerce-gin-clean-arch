@@ -6,6 +6,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/domain"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/helper"
+	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/helper/req"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/helper/res"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/usecase/interfaces"
 )
@@ -18,6 +19,15 @@ func NewCouponHandler(couponUseCase interfaces.CouponUseCase) *CouponHandler {
 	return &CouponHandler{couponUseCase: couponUseCase}
 }
 
+// AddCoupon godoc
+// @summary api for admin to add coupon
+// @security ApiKeyAuth
+// @tags Admin Coupon
+// @id AddCoupon
+// @Param        inputs   body     domain.Coupon{}   true  "Input Field"
+// @Router /admin/coupons [post]
+// @Success 200 {object} res.Response{} "successfully added coupon"
+// @Failure 400 {object} res.Response{}  "invalid input"
 func (c *CouponHandler) AddCoupon(ctx *gin.Context) {
 	var coupon domain.Coupon
 	if err := ctx.ShouldBindJSON(&coupon); err != nil {
@@ -37,6 +47,14 @@ func (c *CouponHandler) AddCoupon(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, response)
 }
 
+// GetAllCoupons godoc
+// @summary api for admin to see all coupons
+// @security ApiKeyAuth
+// @tags Admin Coupon
+// @id GetAllCoupons
+// @Router /admin/coupons [get]
+// @Success 200 {object} res.Response{} "successfully update the coupon"
+// @Failure 400 {object} res.Response{}  "invalid input"
 func (c *CouponHandler) GetAllCoupons(ctx *gin.Context) {
 	coupons, err := c.couponUseCase.GetAllCoupons(ctx)
 	if err != nil {
@@ -55,7 +73,15 @@ func (c *CouponHandler) GetAllCoupons(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, response)
 }
 
-// update coupon
+// UpdateCoupon godoc
+// @summary api for admin to update the coupon
+// @security ApiKeyAuth
+// @tags Admin Coupon
+// @id UpdateCoupon
+// @Param        inputs   body     domain.Coupon{}   true  "Input Field"
+// @Router /admin/coupons [put]
+// @Success 200 {object} res.Response{} "successfully update the coupon"
+// @Failure 400 {object} res.Response{}  "invalid input"
 func (c *CouponHandler) UpdateCoupon(ctx *gin.Context) {
 
 	var coupon domain.Coupon
@@ -76,12 +102,11 @@ func (c *CouponHandler) UpdateCoupon(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, response)
 }
 
-// func create user_coupn
-func (c *CouponHandler) GetUserCoupon(ctx *gin.Context) {
+func (c *CouponHandler) CheckUserCouponChance(ctx *gin.Context) {
 
 	// check ther probability and if no probability then return
-	if !helper.CheckProbability(0.5) {
-		response := res.SuccessResponse(200, "there is no coupon \nbetter luck next time", nil)
+	if !helper.CheckProbability(0.7) {
+		response := res.SuccessResponse(200, "there is no coupon better luck next time", nil)
 		ctx.JSON(http.StatusOK, response)
 		return
 	}
@@ -101,6 +126,14 @@ func (c *CouponHandler) GetUserCoupon(ctx *gin.Context) {
 
 }
 
+// GetAllUserCoupons godoc
+// @summary api user to see all coupons that use got
+// @security ApiKeyAuth
+// @tags User Coupons
+// @id GetAllUserCoupons
+// @Router /coupons [get]
+// @Success 200 {object} res.Response{} "successfully copon code applied for cart"
+// @Failure 400 {object} res.Response{}  "invalid input"
 func (c *CouponHandler) GetAllUserCoupons(ctx *gin.Context) {
 
 	userID := helper.GetUserIdFromContext(ctx)
@@ -122,12 +155,20 @@ func (c *CouponHandler) GetAllUserCoupons(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, respones)
 }
 
+// ApplyUserCoupon godoc
+// @summary api user to apply on cart on checkout time
+// @security ApiKeyAuth
+// @tags User Cart
+// @id ApplyUserCoupon
+// @Param        inputs   body     req.ReqApplyCoupon{}   true  "Input Field"
+// @Router /carts/apply-coupon [patch]
+// @Success 200 {object} res.Response{} "successfully copon code applied for cart"
+// @Failure 400 {object} res.Response{}  "invalid input"
 func (c *CouponHandler) ApplyUserCoupon(ctx *gin.Context) {
 
-	var body struct {
-		CouponCode string `json:"coupon_code" binding:"required"`
-		TotalPrice uint   `json:"total_price" binding:"required"`
-	}
+	var body req.ReqApplyCoupon
+
+	userID := helper.GetUserIdFromContext(ctx)
 
 	if err := ctx.ShouldBindJSON(&body); err != nil {
 		response := res.ErrorResponse(400, "invalid input", err.Error(), body)
@@ -135,7 +176,8 @@ func (c *CouponHandler) ApplyUserCoupon(ctx *gin.Context) {
 		return
 	}
 
-	userCoupon, err := c.couponUseCase.ApplyUserCoupon(ctx, body.CouponCode, body.TotalPrice)
+	userCoupon, err := c.couponUseCase.ApplyUserCoupon(ctx, userID, body.CouponCode)
+
 	if err != nil {
 		response := res.ErrorResponse(400, "faild to apply coupon_code", err.Error(), body)
 		ctx.JSON(http.StatusBadRequest, response)

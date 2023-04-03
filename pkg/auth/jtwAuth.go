@@ -11,7 +11,7 @@ import (
 
 func GenerateJWT(id uint) (map[string]string, error) {
 
-	expireTime := time.Now().Add(50 * time.Minute).Unix()
+	expireTime := time.Now().Add(60 * time.Minute).Unix()
 
 	// create token with expire time and claims id as user id
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.StandardClaims{
@@ -48,7 +48,7 @@ func ValidateToken(tokenString string) (jwt.StandardClaims, error) {
 	// then parse the token to claims
 	claims, ok := token.Claims.(*jwt.StandardClaims)
 	if !ok {
-		return jwt.StandardClaims{}, errors.New("Can't parse the claims")
+		return jwt.StandardClaims{}, errors.New("can't parse the claims")
 	}
 
 	return *claims, nil

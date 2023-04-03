@@ -28,5 +28,6 @@ type ReqRazorpayVeification struct {
 	RazorpayPaymentID string `json:"razorpay_payment_id"`
 	RazorpayOrderID   string `json:"razorpay_order_id"`
 	RazorpaySignature string `json:"razorpay_signature"`
-	UserID            string `json:"user_id"`
+	UserID            uint   `json:"user_id"`
+	ShopOrderID       uint   `json:"shop_order_id"`
 }

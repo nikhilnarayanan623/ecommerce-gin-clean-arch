@@ -16,5 +16,5 @@ type CouponUseCase interface {
 	// user_coupon
 	AddUserCoupon(ctx context.Context, userID uint) (domain.UserCoupon, error)
 	GetAllUserCoupons(ctx context.Context, userID uint) ([]res.ResUserCoupon, error)
-	ApplyUserCoupon(ctx context.Context, couponCode string, toatalPrice uint) (domain.UserCoupon, error)
+	ApplyUserCoupon(ctx context.Context, userID uint, couponCode string) (domain.UserCoupon, error)
 }

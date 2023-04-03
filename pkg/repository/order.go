@@ -63,8 +63,10 @@ func (c *OrderDatabase) FindAllShopOrdersByUserID(ctx context.Context, userID ui
 func (c *OrderDatabase) FindAllShopOrders(ctx context.Context) ([]res.ResShopOrder, error) {
 
 	var shopOrders []res.ResShopOrder
-	query := `SELECT so.user_id, so.id AS shop_order_id, so.order_date, so.order_total_price,so.order_status_id,os.status AS order_status,so.address_id,FROM shop_orders so 
-	JOIN order_statuses os ON so.order_status_id = os.id `
+	query := `SELECT so.user_id, so.id AS shop_order_id, so.order_date, so.order_total_price,so.discount, 
+	so.order_status_id, os.status AS order_status,so.address_id,so.payment_method_id, pm.payment_type  
+	FROM shop_orders so JOIN order_statuses os ON so.order_status_id = os.id 
+	INNER JOIN payment_methods pm ON so.payment_method_id = pm.id `
 	if c.DB.Raw(query).Scan(&shopOrders).Error != nil {
 		return shopOrders, errors.New("faild to get order list")
 	}

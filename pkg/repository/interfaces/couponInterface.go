@@ -18,4 +18,5 @@ type CouponRepository interface {
 	FindAllUserCouponsByUserID(ctx context.Context, userID uint) ([]res.ResUserCoupon, error)
 	SaveUserCoupon(ctx context.Context, userCoupon domain.UserCoupon) error
 	UpdateUserCoupon(ctx context.Context, userCoupon domain.UserCoupon) error
+	FindCartTotalPrice(ctx context.Context, userID uint, includeOutOfStck bool) (uint, error)
 }

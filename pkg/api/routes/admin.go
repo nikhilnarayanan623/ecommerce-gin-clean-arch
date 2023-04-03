@@ -25,6 +25,7 @@ func AdminRoutes(api *gin.RouterGroup, adminHandler *handler.AdminHandler,
 
 	api.Use(middleware.AuthenticateAdmin)
 	{
+		api.GET("/", adminHandler.AdminHome)
 		// user side
 		user := api.Group("/users")
 		{
@@ -34,11 +35,11 @@ func AdminRoutes(api *gin.RouterGroup, adminHandler *handler.AdminHandler,
 		// category
 		category := api.Group("/category")
 		{
-			category.GET("/", productHandler.AllCategories)
+			category.GET("/", productHandler.GetAlllCategories)
 			category.POST("/", productHandler.AddCategory)
 
-			category.POST("/variation", productHandler.VariationPost)
-			category.POST("/variation-option", productHandler.VariationOptionPost)
+			category.POST("/variation", productHandler.AddVariation)
+			category.POST("/variation-option", productHandler.AddVariationOption)
 		}
 		// product
 		product := api.Group("/products")

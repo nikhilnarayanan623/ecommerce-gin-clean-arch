@@ -80,3 +80,7 @@ type ReqOfferProduct struct {
 	OfferID   uint `json:"offer_id" binding:"required"`
 	ProductID uint `json:"product_id" binding:"required"`
 }
+
+type ReqApplyCoupon struct {
+	CouponCode string `json:"coupon_code" binding:"required"`
+}

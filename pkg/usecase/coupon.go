@@ -87,7 +87,7 @@ func (c *couponUseCase) GetAllUserCoupons(ctx context.Context, userID uint) ([]r
 }
 
 // apply a user_coupon
-func (c *couponUseCase) ApplyUserCoupon(ctx context.Context, couponCode string, toatalPrice uint) (domain.UserCoupon, error) {
+func (c *couponUseCase) ApplyUserCoupon(ctx context.Context, userID uint, couponCode string) (domain.UserCoupon, error) {
 
 	// first get the coupon using coupon_code and validate it
 	userCoupon, err := c.couponRepo.FindUserCouponByCouponCode(ctx, couponCode)
@@ -106,25 +106,35 @@ func (c *couponUseCase) ApplyUserCoupon(ctx context.Context, couponCode string, 
 	if time.Since(userCoupon.ExpireDate) > 0 {
 		return userCoupon, errors.New("can't apply coupon \ncoupon expired")
 	} else if time.Since(userCoupon.LastApplied.AddDate(0, 0, 1)) < 0 { // check the coupon is within a date or not
-		return userCoupon, errors.New("can't apply coupon \ncoupon already try to apply within a day \ntry after a day")
+		return userCoupon, errors.New("can't apply coupon \ncoupon already applied on cart \ntry after a day")
 	}
 
 	// find the coupon and check its minmum price its requird or not
 	coupon, err := c.couponRepo.FindCoupon(ctx, domain.Coupon{ID: userCoupon.CouponID})
-	fmt.Println(coupon)
 	if err != nil {
 		return userCoupon, err
-	} else if toatalPrice < coupon.MinimumPrice {
+	}
+
+	cartPrice, err := c.couponRepo.FindCartTotalPrice(ctx, userID, false) // find total price of cart exclude the the outOfStock
+
+	if err != nil {
+		return userCoupon, err
+	} else if cartPrice == 0 {
+		return userCoupon, errors.New("cart is empty or cart items out of stock")
+	} else if cartPrice < coupon.MinimumPrice {
 		return userCoupon, fmt.Errorf("can't apply coupon \nrequired order_toatal price not met with coupon minimum_price %d", coupon.MinimumPrice)
 	}
 
 	// calucalte a random discount price with coupun_percentage_upto form 5
 	randomDisountRate := helper.SelectRandomNumber(5, int(coupon.PercentageUpto))
-
-	discountPrice := (toatalPrice * (100 - uint(randomDisountRate))) / 100
+	fmt.Println("discount rate ", randomDisountRate, coupon.PercentageUpto)
+	discountPrice := (cartPrice * uint(randomDisountRate)) / 100
+	fmt.Println("discount price", discountPrice)
 
 	// set the disount_price and last applied time to use_coupn and update it
 	userCoupon.DiscountAmount = discountPrice
 	userCoupon.LastApplied = time.Now()
+	userCoupon.CartPrice = cartPrice
+
 	return userCoupon, c.couponRepo.UpdateUserCoupon(ctx, userCoupon)
 }

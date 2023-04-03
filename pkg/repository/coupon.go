@@ -3,6 +3,7 @@ package repository
 import (
 	"context"
 	"errors"
+	"fmt"
 
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/domain"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/helper/res"
@@ -76,7 +77,7 @@ func (c *couponDatabase) FindAllUserCouponsByUserID(ctx context.Context, userID 
 	var userCoupon []res.ResUserCoupon
 
 	query := `SELECT uc.id, uc.coupon_code, c.coupon_name,c.percentage_upto, c.minimum_price, 
-	c.description, c.image, uc.expire_date, uc.used 
+	c.description, c.image, uc.expire_date,uc.last_applied, uc.used, discount_amount, cart_price  
 	FROM user_coupons uc INNER JOIN coupons c ON uc.coupon_id = c.id 
 	WHERE uc.user_id = ?`
 	if c.DB.Raw(query, userID).Scan(&userCoupon).Error != nil {
@@ -97,9 +98,38 @@ func (c *couponDatabase) SaveUserCoupon(ctx context.Context, userCoupon domain.U
 
 // update use_coupon
 func (c *couponDatabase) UpdateUserCoupon(ctx context.Context, userCoupon domain.UserCoupon) error {
-	query := `UPDATE user_coupons SET discount_amount = $1, used = $2, last_applied = $3`
-	if c.DB.Exec(query, userCoupon.DiscountAmount, userCoupon.Used, userCoupon.LastApplied).Error != nil {
+	query := `UPDATE user_coupons SET discount_amount = $1,cart_price = $2, used = $3, last_applied = $4 WHERE coupon_code = $5`
+	if c.DB.Exec(query, userCoupon.DiscountAmount, userCoupon.CartPrice, userCoupon.Used,
+		userCoupon.LastApplied, userCoupon.CouponCode).Error != nil {
 		return errors.New("faild to update user_coupons")
 	}
 	return nil
+}
+
+// find total price of cart include out of stock or not
+func (c *couponDatabase) FindCartTotalPrice(ctx context.Context, userID uint, includeOutOfStck bool) (uint, error) {
+	var (
+		totalPrice uint
+		query      string
+	)
+
+	if includeOutOfStck { // for all cart items
+		query = `SELECT SUM( CASE WHEN pi.discount_price > 0 THEN pi.discount_price * c.qty ELSE pi.price * c.qty END) AS total_price 
+		FROM carts c INNER JOIN product_items pi ON c.product_item_id = pi.id 
+		AND c.user_id = $1 
+		GROUP BY c.user_id`
+	} else { // for all cart_items which are in stock
+		query = `SELECT SUM( CASE WHEN pi.discount_price > 0 THEN pi.discount_price * c.qty ELSE pi.price * c.qty END) AS total_price 
+		FROM carts c INNER JOIN product_items pi ON c.product_item_id = pi.id 
+		AND pi.qty_in_stock > 0 AND c.user_id = $1 
+		GROUP BY c.user_id`
+	}
+
+	if c.DB.Raw(query, userID).Scan(&totalPrice).Error != nil {
+		return totalPrice, errors.New("faild to calculate total price for user cart")
+	}
+
+	fmt.Println(totalPrice, "total price")
+
+	return totalPrice, nil
 }

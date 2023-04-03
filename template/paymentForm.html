@@ -69,7 +69,7 @@
       success:(response)=>{
         console.log(response, "respone");
         // if respones is cod it means call form cod
-        if(response.cod){
+        if(response.Cod){
           console.log("cod success");
           SuccessPayment('COD')
           // location.href = ''
@@ -92,16 +92,15 @@
 const getRazorpay = (order) =>{
     console.log("at get razor pay");
     var userid= order.UserID
-    var orderid= order.OrderID
-    var total= order.AmountToPay
+    var orderID= order.OrderID
     var options = {
         "key": order.Key, // razorpay test key on set up on order resopnse
-        "amount": order.amount, // Amount is in currency subunits. Default currency is INR. Hence, 50000 refers to 50000 paise
+        "amount": order.RazorpayAmout, // Amount is in currency subunits. Default currency is INR. Hence, 50000 refers to 50000 paise
         "currency": "INR",
         "name": "Shoefer",
         "description": "Test Transaction",
         "image": "https://example.com/your_logo",
-        "order_id": order.OrderID,  // order id get from order response
+        "order_id": orderID,  // order id get from order response
         "handler": function (response){
             verifyPayment(order, userid , response);
         },
@@ -162,7 +161,7 @@ const getRazorpay = (order) =>{
 
 // function for razor pay varification on backend
 function verifyPayment(order, userid , response) {
-  console.log(response.razorpay_payment_id,": ",response.razorpay_order_id, " ",response.razorpay_signature);
+  console.log(response.razorpay_payment_id," : ",response.razorpay_order_id, " ",response.razorpay_signature, " ",order.CouponCode);
         $.ajax({
             //call backend api with data data to vefiry
             type: "post",
@@ -172,6 +171,9 @@ function verifyPayment(order, userid , response) {
               "razorpay_order_id":response.razorpay_order_id,
               "razorpay_signature":response.razorpay_signature,
               "user_id":userid,
+              "shop_order_id":order.ShopOrderID,
+              "coupon_code" : order.CouponCode,
+
             },
             success: (response) => {
               console.log("vaification respone backend",response)

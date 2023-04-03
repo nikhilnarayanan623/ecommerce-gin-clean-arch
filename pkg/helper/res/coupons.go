@@ -11,5 +11,8 @@ type ResUserCoupon struct {
 	Description    string    `json:"description" gorm:"not null" binding:"required,min=6,max=50"`
 	Image          string    `json:"image" binding:"required"`
 	ExpireDate     time.Time `json:"expire_date" gorm:"not null"`
+	LastApplied    time.Time `json:"last_applied"`
+	DiscountAmount uint      `json:"discount_amount"`
+	CartPrice      uint      `json:"cart_price"`
 	Used           bool      `json:"used" gorm:"not null"`
 }

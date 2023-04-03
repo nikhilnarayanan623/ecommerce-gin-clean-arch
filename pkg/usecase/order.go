@@ -112,7 +112,9 @@ func (c *OrderUseCase) CancellOrder(ctx context.Context, shopOrderID uint) error
 	}
 
 	// check if order is not in pending or approved then don't allow to cancell
-	if orderStatus.Status != "pending" && orderStatus.Status != "approved" {
+	// new only placed
+	//orderStatus.Status != "pending" && orderStatus.Status != "approved" &&
+	if orderStatus.Status != "placed" {
 		return fmt.Errorf("order is %s \ncan't cancell the order", orderStatus.Status)
 	}
 
@@ -161,7 +163,7 @@ func (c *OrderUseCase) SubmitReturnRequest(ctx context.Context, body req.ReqRetu
 	}
 
 	// check if the order staus not placed
-	if orderStatus.Status != "placed" {
+	if orderStatus.Status != "delivered" {
 		return fmt.Errorf("order is '%s'\ncan't a make return request for this order", orderStatus.Status)
 	}
 
@@ -225,6 +227,8 @@ func (c *OrderUseCase) OrderCheckOut(ctx context.Context, body req.ReqCheckout) 
 		return res.ResOrderCheckout{}, err
 	} else if paymentMethod.PaymentType == "" {
 		return res.ResOrderCheckout{}, errors.New("invalid payment_method_id")
+	} else if paymentMethod.BlockStatus {
+		return res.ResOrderCheckout{}, errors.New("payment status is blocked use another payment method")
 	}
 
 	// find the total price of cart of user
@@ -232,7 +236,7 @@ func (c *OrderUseCase) OrderCheckOut(ctx context.Context, body req.ReqCheckout) 
 	if err != nil {
 		return res.ResOrderCheckout{}, err
 	} else if cartTotalPrice == 0 {
-		return res.ResOrderCheckout{}, errors.New("there is product_items eligible for place order in cart")
+		return res.ResOrderCheckout{}, errors.New("there is no product_items eligible for place order in cart \nadd product to cart")
 	}
 
 	// compare payement max_amount with total price
@@ -246,13 +250,18 @@ func (c *OrderUseCase) OrderCheckOut(ctx context.Context, body req.ReqCheckout) 
 		userCoupon, err := c.orderRepo.FindUserCoupon(ctx, body.CouponCode)
 		if err != nil {
 			return res.ResOrderCheckout{}, err
-		} else if userCoupon.ID == 0 {
+		} else if userCoupon.ID == 0 { // validate coupon
 			return res.ResOrderCheckout{}, errors.New("invalid coupon code \nplease enter valid coupon code")
-		} else if time.Since(userCoupon.ExpireDate) > 0 {
+		} else if time.Since(userCoupon.ExpireDate) > 0 { // check expire date
 			return res.ResOrderCheckout{}, errors.New("can't use coupon code \ncoupon code is expired")
-		} else if userCoupon.Used {
+		} else if userCoupon.Used { // check couponCode already used
 			return res.ResOrderCheckout{}, errors.New("can't user coupon code \nthis coupon already used")
+		} else if userCoupon.DiscountAmount == 0 { // check coupon applied on cart
+			return res.ResOrderCheckout{}, errors.New("given coupon_code is not applied apply on cart checkout")
+		} else if userCoupon.CartPrice != cartTotalPrice { // check coupon applied time cart price and current cart price
+			return res.ResOrderCheckout{}, errors.New("coupon applied cart price and order time cart price not matching")
 		}
+		discountAmount = userCoupon.DiscountAmount // discount check coupon applied or not
 	}
 
 	// validate the address_id
@@ -272,11 +281,15 @@ func (c *OrderUseCase) OrderCheckOut(ctx context.Context, body req.ReqCheckout) 
 	}, nil
 }
 
-func (c *OrderUseCase) PlaceOrderCOD(ctx context.Context, checkoutValues res.ResOrderCheckout) error {
+// save order as pending then after vefication change order status to placed
+func (c *OrderUseCase) SaveOrder(ctx context.Context, checkoutValues res.ResOrderCheckout) (uint, error) {
 
-	orderStatus, err := c.orderRepo.FindOrderStatus(ctx, domain.OrderStatus{Status: "placed"})
+	//find order status for pending
+	orderStatus, err := c.orderRepo.FindOrderStatus(ctx, domain.OrderStatus{Status: "payment pending"})
 	if err != nil {
-		return err
+		return 0, err
+	} else if orderStatus.ID == 0 {
+		return 0, errors.New("order status pending not found")
 	}
 
 	shopOrder := domain.ShopOrder{
@@ -291,13 +304,13 @@ func (c *OrderUseCase) PlaceOrderCOD(ctx context.Context, checkoutValues res.Res
 	// save shop_order
 	shopOrder, err = c.orderRepo.SaveShopOrder(ctx, shopOrder)
 	if err != nil {
-		return err
+		return 0, err
 	}
 
 	// make orderLines for cart
 	ordlerLines, err := c.orderRepo.CartItemToOrderLines(ctx, checkoutValues.UserID)
 	if err != nil {
-		return err
+		return 0, err
 	}
 
 	// save all order lines
@@ -305,15 +318,33 @@ func (c *OrderUseCase) PlaceOrderCOD(ctx context.Context, checkoutValues res.Res
 		// set shop_order_id
 		orderLine.ShopOrderID = shopOrder.ID
 		if err := c.orderRepo.SaveOrderLine(ctx, orderLine); err != nil {
-			return err
+			return 0, err
 		}
 	}
 
+	return shopOrder.ID, nil
+}
+
+func (c *OrderUseCase) ApproveOrder(ctx context.Context, userID, shopOrderID uint, couponCode string) error {
+
+	//find order status for placed
+	orderStatus, err := c.orderRepo.FindOrderStatus(ctx, domain.OrderStatus{Status: "placed"})
+	if err != nil {
+		return err
+	} else if orderStatus.ID == 0 {
+		return errors.New("order status placed not found")
+	}
+
+	err = c.orderRepo.UpdateShopOrderOrderStatus(ctx, shopOrderID, orderStatus.ID)
+	if err != nil {
+		return err
+	}
+
 	//update the coupon status as used
-	if err := c.orderRepo.UpdteUserCouponAsused(ctx, checkoutValues.CouponCode); err != nil {
+	if err := c.orderRepo.UpdteUserCouponAsused(ctx, couponCode); err != nil {
 		return err
 	}
 
 	// delete ordered items from cart
-	return c.orderRepo.DeleteOrderedCartItems(ctx, checkoutValues.UserID)
+	return c.orderRepo.DeleteOrderedCartItems(ctx, userID)
 }

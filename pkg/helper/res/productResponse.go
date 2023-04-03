@@ -14,9 +14,9 @@ type ResponseProduct struct {
 
 // fo a spedific category representation
 type Category struct {
-	ID               uint   `json:"id"`
+	ID               uint   `json:"cateogy_id"`
 	CategoryName     string `json:"category_name"`
-	CategoryID       uint   `json:"category_id"`
+	CategoryID       uint   `json:"main_category_id"`
 	MainCategoryName string `json:"main_category_name"`
 }
 

@@ -1,17 +1,13 @@
 package handler
 
 import (
-	"errors"
-	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/config"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/helper"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/helper/req"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/helper/res"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/usecase/interfaces"
-	"github.com/razorpay/razorpay-go"
 )
 
 type OrderHandler struct {
@@ -36,7 +32,7 @@ func (c *OrderHandler) CartOrderPayementSelectPage(ctx *gin.Context) {
 // PlaceOrderForCart godoc
 // @summary api cart order
 // @security ApiKeyAuth
-// @tags Order
+// @tags User Order
 // @id PlaceOrderForCart
 // @Param        inputs   body     req.ReqCheckout{}   true  "Input Field"
 // @Router /carts/place-order/cod [post]
@@ -61,16 +57,24 @@ func (c *OrderHandler) PlaceOrderForCartCOD(ctx *gin.Context) {
 		return
 	}
 
-	// check order status is COD or not
+	// check payment status is COD or not
 	if resCheckout.PaymentType != "COD" {
 		respones := res.ErrorResponse(400, "can't place order order", "payement type is not COD", nil)
 		ctx.AbortWithStatusJSON(400, respones)
 		return
 	}
 	// place order on COD
-	err = c.orderUseCase.PlaceOrderCOD(ctx, resCheckout)
+	shopOrderID, err := c.orderUseCase.SaveOrder(ctx, resCheckout)
 	if err != nil {
 		response := res.ErrorResponse(400, "faild to place order on COD", err.Error(), nil)
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, response)
+		return
+	}
+
+	//this is COD so approve the order as instand
+	err = c.orderUseCase.ApproveOrder(ctx, body.UserID, shopOrderID, resCheckout.CouponCode)
+	if err != nil {
+		response := res.ErrorResponse(400, "faild to place order on COD for approve", err.Error(), nil)
 		ctx.AbortWithStatusJSON(http.StatusBadRequest, response)
 		return
 	}
@@ -80,132 +84,11 @@ func (c *OrderHandler) PlaceOrderForCartCOD(ctx *gin.Context) {
 
 }
 
-// RazorpayPage godoc
-// @summary api for create an razorpay order
-// @security ApiKeyAuth
-// @tags Order
-// @id RazorpayPage
-// @Param payment_method_id formData uint true "Payment Method ID"
-// @Param address_id formData uint true "Address ID"
-// @Param coupon_code formData string false "Coupon Code"
-// @Router /carts/place-order/razorpay-checkout [post]
-// @Success 200 {object} res.Response{} "place order"
-// @Failure 400 {object} res.Response{}  "faill place order"
-func (c *OrderHandler) RazorpayCheckout(ctx *gin.Context) {
-
-	paymentMethodID, err1 := helper.StringToUint(ctx.Request.PostFormValue("payment_method_id"))
-	addressID, err2 := helper.StringToUint(ctx.Request.PostFormValue("address_id"))
-	couponCode := ctx.Request.PostFormValue("coupon_code")
-
-	err := errors.Join(err1, err2)
-	if err != nil {
-		fmt.Println(err)
-		response := res.ErrorResponse(400, "invalid inputs", err.Error(), nil)
-		ctx.AbortWithStatusJSON(http.StatusBadRequest, response)
-		return
-	}
-
-	UserID := helper.GetUserIdFromContext(ctx)
-
-	var body = req.ReqCheckout{
-		UserID:          UserID,
-		PaymentMethodID: paymentMethodID,
-		CouponCode:      couponCode,
-		AddressID:       addressID,
-	}
-
-	// checkout the order
-	resCheckout, err := c.orderUseCase.OrderCheckOut(ctx, body)
-	if err != nil {
-		response := res.ErrorResponse(400, "faild to place order on razor pay", err.Error(), body)
-		ctx.AbortWithStatusJSON(http.StatusBadRequest, response)
-		return
-	}
-
-	// frist get razor pay key and secret
-	razorPaykey := config.GetCofig().RazorPayKey
-	razorPaysecret := config.GetCofig().RazorPaySecret
-
-	// create a new client
-	client := razorpay.NewClient(razorPaykey, razorPaysecret)
-
-	razorPayAmount := resCheckout.AmountToPay * 100
-
-	data := map[string]interface{}{
-		"amount":   razorPayAmount,
-		"currency": "INR",
-		"receipt":  "some_receipt_id",
-	}
-
-	razorPayRes, err := client.Order.Create(data, nil)
-	if err != nil {
-		response := res.ErrorResponse(500, "faild to create razor pay order", err.Error(), nil)
-		ctx.AbortWithStatusJSON(500, response)
-		return
-	}
-	fmt.Println("razor pay response when orde creating", razorPayRes)
-
-	Order := gin.H{
-		"Key":           razorPaykey,
-		"UserID":        resCheckout.UserID,
-		"AmountToPay":   resCheckout.AmountToPay,
-		"RazorpayAmout": razorPayAmount,
-		"OrderID":       razorPayRes["id"],
-		"Email":         "nikhil@gmail.com",
-		"Phone":         "62385893260",
-	}
-
-	// make a respone of order and and razorpay for fron-end validation
-	response := gin.H{
-		"Razorpay": true,
-		"Order":    Order,
-	}
-
-	ctx.JSON(200, response)
-}
-
-// razorpay verification
-func (c *OrderHandler) RazorpayVerify(ctx *gin.Context) {
-	// struct of razorpay varification
-	var data req.ReqRazorpayVeification
-	// take value as form value
-	data.RazorpayPaymentID = ctx.Request.PostFormValue("razorpay_payment_id")
-	data.RazorpayOrderID = ctx.Request.PostFormValue("razorpay_order_id")
-	data.RazorpaySignature = ctx.Request.PostFormValue("razorpay_signature")
-
-	//verify the signature
-	err := helper.VeifyRazorPaySignature(data.RazorpayOrderID, data.RazorpayPaymentID, data.RazorpaySignature)
-	if err != nil {
-		respones := res.ErrorResponse(400, "faild to veify payment", err.Error(), nil)
-		ctx.JSON(http.StatusBadRequest, respones)
-		return
-	}
-	// get razorpay key and secret
-	razorpayKey, razorPaySecret := config.GetCofig().RazorPayKey, config.GetCofig().RazorPaySecret
-	// create a new razorpay client
-	razorpayClient := razorpay.NewClient(razorpayKey, razorPaySecret)
-	payment, err := razorpayClient.Payment.Fetch(data.RazorpayPaymentID, nil, nil)
-	if err != nil {
-		response := res.ErrorResponse(400, "faild to get payment details", err.Error(), nil)
-		ctx.JSON(400, response)
-		return
-	}
-
-	if payment["status"] != "captured" {
-		response := res.ErrorResponse(400, "payment faild", "payment not got on razorpay", payment)
-		ctx.JSON(400, response)
-		return
-	}
-
-	response := res.SuccessResponse(200, "successfully payment completed", payment)
-	ctx.JSON(200, response)
-}
-
 // GetUserOrder godoc
 // @summary api for showing user order list
 // @description user can see all user order history
 // @id GetUserOrder
-// @tags Orders
+// @tags User Order
 // @Router /orders [get]
 // @Success 200 {object} res.Response{} "successfully got shop order list of user"
 // @Failure 500 {object} res.Response{} "faild to get user shop order list"
@@ -236,7 +119,7 @@ func (c *OrderHandler) GetUserOrder(ctx *gin.Context) {
 // @summary api for show order items of a specific order
 // @description user can place after checkout
 // @id GetOrderItemsForUser
-// @tags Orders
+// @tags User Order
 // @Params shop_order_id path int true "shop_order_id"
 // @Router /orders/items [get]
 // @Success 200 {object} res.Response{} "successfully got order items"
@@ -267,7 +150,7 @@ func (c *OrderHandler) GetOrderItemsForUser(ctx *gin.Context) {
 // @summary api for admin to change the status of order
 // @description admin can change user order status
 // @id UdateOrderStatus
-// @tags Orders
+// @tags Admin Orders
 // @Param input body req.ReqUpdateOrder true "input field"
 // @Router /orders/ [put]
 // @Success 200 {object} res.Response{} "successfully got order items"
@@ -297,7 +180,7 @@ func (c *OrderHandler) UdateOrderStatus(ctx *gin.Context) {
 // @summary api for user to cancell the order
 // @description user can cancell the order if it's not placed
 // @id CancellOrder
-// @tags Orders
+// @tags User Order
 // @Params shop_order_id path int true "shop_order_id"
 // @Router /orders [put]
 // @Success 200 {object} res.Response{} "Successfully order cancelled"
@@ -325,7 +208,7 @@ func (c *OrderHandler) CancellOrder(ctx *gin.Context) {
 // @summary api for admin to show all order
 // @description admin can see all orders in application
 // @id GetAllShopOrders
-// @tags Orders
+// @tags Admin Orders
 // @Router /admin/orders [get]
 // @Success 200 {object} res.Response{} "successfully order list got"
 // @Failure 500 {object} res.Response{} "faild to get shop order data"
@@ -352,7 +235,7 @@ func (c *OrderHandler) GetAllShopOrders(ctx *gin.Context) {
 // @summary api for user to request a return for an order
 // @description user can request return for placed orders
 // @id SubmitReturnRequest
-// @tags Orders
+// @tags User Order
 // @Router /orders/return [put]
 // @Success 200 {object} res.Response{} "successfully submited return request for order"
 // @Failure 400 {object} res.Response{} "invalid input"
@@ -378,7 +261,7 @@ func (c OrderHandler) SubmitReturnRequest(ctx *gin.Context) {
 // GetAllOrderReturns godoc
 // @summary api for admin to see all order reutns
 // @id GetAllOrderReturns
-// @tags Orders
+// @tags Admin Orders
 // @Router /orders/returns [get]
 // @Success 200 {object} res.Response{} "successfully got all order returns"
 // @Failure 500 {object} res.Response{} "faild to get order returns"
@@ -405,7 +288,7 @@ func (c *OrderHandler) GetAllOrderReturns(ctx *gin.Context) {
 // @summary api for admin to show pending return request and update it
 // @description admin can see the pending return request and accept it or not
 // @id GetAllPendingReturns
-// @tags Orders
+// @tags Admin Orders
 // @Router /admin/orders/returns/pending [get]
 // @Success 200 {object} res.Response{} "successfully got  pending orders return request"
 // @Failure 500 {object} res.Response{} "faild to get pending order return requests"
@@ -432,7 +315,7 @@ func (c *OrderHandler) GetAllPendingReturns(ctx *gin.Context) {
 // @summary api for admin to supdate the order_return request from user
 // @description admin can approve, cancell etc. updation on user order_return
 // @id UpdategReturnRequest
-// @tags Orders
+// @tags Admin Orders
 // @Router /admin/orders/returns/penging [put]
 // @Success 200 {object} res.Response{} "successfully order_response updated"
 // @Failure 500 {object} res.Response{} "invalid input"

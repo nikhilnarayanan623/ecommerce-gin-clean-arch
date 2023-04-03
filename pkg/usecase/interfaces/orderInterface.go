@@ -16,7 +16,8 @@ type OrderUseCase interface {
 
 	// order placement
 	OrderCheckOut(ctx context.Context, body req.ReqCheckout) (res.ResOrderCheckout, error)
-	PlaceOrderCOD(ctx context.Context, checkoutValues res.ResOrderCheckout) error
+	SaveOrder(ctx context.Context, checkoutValues res.ResOrderCheckout) (uint, error)
+	ApproveOrder(ctx context.Context, userID, shopOrderID uint, couponCode string) error
 	// end
 
 	// get order and orde items

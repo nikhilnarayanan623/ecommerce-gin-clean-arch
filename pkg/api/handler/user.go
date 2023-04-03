@@ -98,7 +98,7 @@ func (u *UserHandler) UserLogin(ctx *gin.Context) {
 		return
 	}
 
-	ctx.SetCookie("user-auth", tokenString["accessToken"], 20*60, "", "", false, true)
+	ctx.SetCookie("user-auth", tokenString["accessToken"], 60*60, "", "", false, true)
 
 	response := res.SuccessResponse(200, "successfully logged in", tokenString["accessToken"])
 	ctx.JSON(http.StatusOK, response)
@@ -343,7 +343,7 @@ func (u *UserHandler) UpdateCart(ctx *gin.Context) {
 // @description user can see all productItem that stored in cart
 // @security ApiKeyAuth
 // @id User Cart
-// @tags Carts
+// @tags User Cart
 // @Router /carts [get]
 // @Success 200 {object} res.Response{} "successfully got user cart items"
 // @Failure 500 {object} res.Response{} "faild to get cart items"

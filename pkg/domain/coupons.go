@@ -20,6 +20,7 @@ type UserCoupon struct {
 	CouponID       uint      `json:"coupon_id" gorm:"not null"`
 	Coupon         Coupon    `json:"-"`
 	DiscountAmount uint      `json:"discount_amount"`
+	CartPrice      uint      `json:"cart_price"`
 	ExpireDate     time.Time `json:"expire_date" gorm:"not null"`
 	Used           bool      `json:"used" gorm:"not null"`
 	LastApplied    time.Time `json:"last_applied"`

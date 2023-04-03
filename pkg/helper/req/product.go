@@ -19,3 +19,13 @@ type ReqProductItem struct {
 	QtyInStock        uint     `json:"qty_in_stock" binding:"required,min=1"`
 	Images            []string `json:"images" binding:"required"`
 }
+
+type ReqVariation struct {
+	CategoryID    uint   `json:"category_id"  binding:"required,numeric"`
+	VariationName string `json:"variation_name" binding:"required"`
+}
+
+type ReqVariationOption struct {
+	VariationID    uint   `json:"variation_id" gorm:"not null" binding:"required,numeric"` // a specific field of variation like color/size
+	VariationValue string `json:"variation_value" gorm:"not null" binding:"required"`      // the variations value like blue/XL
+}
