@@ -6,6 +6,7 @@ import (
 	"fmt"
 
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/domain"
+	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/helper/res"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/repository/interfaces"
 	"gorm.io/gorm"
 )
@@ -59,4 +60,19 @@ func (c *adminDatabase) BlockUser(ctx context.Context, userID uint) error {
 		return fmt.Errorf("faild update user block_status to %v", !user.BlockStatus)
 	}
 	return nil
+}
+
+// sales report from order // !add  product wise report
+func (c *adminDatabase) CreateFullSalesReport(ctc context.Context) ([]res.SalesReport, error) {
+	var salesReport []res.SalesReport
+	query := `SELECT so.id AS shop_order_id, so.user_id, so.order_date, 
+	so.order_total_price, so.discount, os.status AS order_status, pm.payment_type FROM shop_orders so
+	INNER JOIN order_statuses os ON so.order_status_id = os.id 
+	INNER JOIN  payment_methods pm ON so.payment_method_id = pm.id`
+
+	if c.DB.Raw(query).Scan(&salesReport).Error != nil {
+		return salesReport, errors.New("faidl create sales report from database")
+	}
+
+	return salesReport, nil
 }

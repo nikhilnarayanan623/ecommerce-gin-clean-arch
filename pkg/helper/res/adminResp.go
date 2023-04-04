@@ -1,5 +1,7 @@
 package res
 
+import "time"
+
 var ResoposeMap map[string]string
 
 // admin
@@ -18,3 +20,13 @@ type RespCategory struct {
 }
 
 // reponse for get all variations with its respective category
+
+type SalesReport struct {
+	UserID          uint      `json:"user_id"`
+	ShopOrderID     uint      `json:"order_id"`
+	OrderDate       time.Time `json:"order_date"`
+	OrderTotalPrice uint      `json:"order_total_price"`
+	Discount        uint      `json:"discount_price"`
+	OrderStatus     string    `json:"order_status"`
+	PaymentType     string    `json:"payment_type"`
+}

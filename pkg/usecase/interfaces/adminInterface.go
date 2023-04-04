@@ -13,6 +13,8 @@ type AdminUseCase interface {
 
 	FindAllUser(ctx context.Context) ([]res.UserRespStrcut, error)
 	BlockUser(ctx context.Context, userID uint) error
+
+	GetFullSalesReport(ctx context.Context) ([]res.SalesReport, error)
 }
 
 // GetCategory(ctx context.Context) (helper.ReqCategory, any)

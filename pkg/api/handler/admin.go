@@ -1,7 +1,9 @@
 package handler
 
 import (
+	"encoding/csv"
 	"errors"
+	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -185,4 +187,54 @@ func (a *AdminHandler) BlockUser(ctx *gin.Context) {
 	response := res.SuccessResponse(200, "Successfully changed user block_status", body)
 	// if successfully blocked or unblock user then response 200
 	ctx.JSON(http.StatusOK, response)
+}
+
+// FullSalesReport godoc
+// @summary api for admin to see full sales report and download it as csv
+// @id FullSalesReport
+// @tags Admin Sales
+// @Router /admin/sales [get]
+// @Success 200 {object} res.Response{} "ecommercesalesreport.csv"
+// @Failure 500 {object} res.Response{} "faild to get sales report"
+func (c *AdminHandler) FullSalesReport(ctx *gin.Context) {
+
+	salesReport, err := c.adminUseCase.GetFullSalesReport(ctx)
+	if err != nil {
+		respones := res.ErrorResponse(500, "faild to get sales report", err.Error(), nil)
+		ctx.JSON(http.StatusInternalServerError, respones)
+		return
+	}
+
+	ctx.Header("Content-Type", "text/csv")
+	ctx.Header("Content-Disposition", "attachment;filename=ecommercesalesreport.csv")
+
+	csvWriter := csv.NewWriter(ctx.Writer)
+	headers := []string{"UserID", "ShopOrderID", "OrderDate", "OrderTotalPrice", "Discount", "OrderStatus", "PaymentType"}
+
+	if err := csvWriter.Write(headers); err != nil {
+		response := res.ErrorResponse(500, "faild to reponse sales report", err.Error(), nil)
+		ctx.JSON(500, response)
+		return
+	}
+
+	for _, sales := range salesReport {
+		row := []string{
+			fmt.Sprintf("%v", sales.UserID),
+			fmt.Sprintf("%v", sales.ShopOrderID),
+			sales.OrderDate.Format("2006-01-02 15:04:05"),
+			fmt.Sprintf("%v", sales.OrderTotalPrice),
+			fmt.Sprintf("%v", sales.Discount),
+			sales.OrderStatus,
+			sales.PaymentType,
+		}
+
+		if err := csvWriter.Write(row); err != nil {
+			response := res.ErrorResponse(500, "faild to create error csv", err.Error(), nil)
+			ctx.JSON(http.StatusInternalServerError, response)
+			return
+		}
+	}
+
+	csvWriter.Flush()
+
 }

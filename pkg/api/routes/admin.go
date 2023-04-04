@@ -26,6 +26,12 @@ func AdminRoutes(api *gin.RouterGroup, adminHandler *handler.AdminHandler,
 	api.Use(middleware.AuthenticateAdmin)
 	{
 		api.GET("/", adminHandler.AdminHome)
+
+		// sales report
+		sales := api.Group("/sales")
+		{
+			sales.GET("/", adminHandler.FullSalesReport)
+		}
 		// user side
 		user := api.Group("/users")
 		{

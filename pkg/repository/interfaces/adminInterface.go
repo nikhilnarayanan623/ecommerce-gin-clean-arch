@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/domain"
+	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/helper/res"
 )
 
 type AdminRepository interface {
@@ -12,4 +13,6 @@ type AdminRepository interface {
 
 	FindAllUser(ctx context.Context) ([]domain.User, error)
 	BlockUser(ctx context.Context, userID uint) error
+
+	CreateFullSalesReport(ctc context.Context) ([]res.SalesReport, error)
 }

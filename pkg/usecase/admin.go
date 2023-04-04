@@ -79,3 +79,7 @@ func (c *adminUseCase) BlockUser(ctx context.Context, userID uint) error {
 
 	return c.adminRepo.BlockUser(ctx, userID)
 }
+
+func (c *adminUseCase) GetFullSalesReport(ctx context.Context) ([]res.SalesReport, error) {
+	return c.adminRepo.CreateFullSalesReport(ctx)
+}

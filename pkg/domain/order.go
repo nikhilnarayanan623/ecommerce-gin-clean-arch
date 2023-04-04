@@ -15,9 +15,8 @@ type OrderStatus struct {
 	ID     uint   `json:"id" gorm:"primaryKey;not null"`
 	Status string `json:"status" gorm:"unique;not null"`
 }
-
 type ShopOrder struct {
-	ID              uint          `josn:"id" gorm:"primaryKey;not null"`
+	ID              uint          `josn:"shop_order_id" gorm:"primaryKey;not null"`
 	UserID          uint          `json:"user_id" gorm:"not null"`
 	User            User          `json:"-"`
 	OrderDate       time.Time     `json:"order_date" gorm:"not null"`

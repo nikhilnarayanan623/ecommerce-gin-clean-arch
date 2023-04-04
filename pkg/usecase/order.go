@@ -75,22 +75,29 @@ func (c *OrderUseCase) ChangeOrderStatus(ctx context.Context, shopOrderID, chang
 		return err
 	}
 
-	// if order status not pending or approved then don't allow to change order status
-	if orderStatus.Status != "pending" && orderStatus.Status != "approved" {
-		return fmt.Errorf("order is already %s \ncant't change its status", orderStatus.Status)
-	}
-
 	//check the given changeStatus id is not approve or placed(like if an order is pending , then won't allow it to return)
-	orderStatus.Status = ""
-	orderStatus.ID = changeStatusID
-	orderStatus, err = c.orderRepo.FindOrderStatus(ctx, orderStatus)
+	changeOrderStatus, err := c.orderRepo.FindOrderStatus(ctx, domain.OrderStatus{ID: changeStatusID})
 	if err != nil {
 		return err
-	} else if orderStatus.Status != "approved" && orderStatus.Status != "placed" && orderStatus.Status != "cancelled" {
-		return fmt.Errorf("order status can't be change to %s", orderStatus.Status)
+	}
+	//  using switch to compare order status and change status  in easy way
+	// initially set an common error of all case and direct go that status and check corresponding status is not we want then return
+	// otherwise update the status
+
+	err = fmt.Errorf("order status %s can't change to %s ", orderStatus.Status, changeOrderStatus.Status)
+	switch orderStatus.Status {
+	case "placed":
+		if changeOrderStatus.Status != "delivered" {
+			return err
+		}
+	case "return requested":
+		if changeOrderStatus.Status != "return approved" && changeOrderStatus.Status != "return cancelled" {
+			return err
+		}
+	default: // order status not placed or not retuen requsted then don't allow to change status
+		return err
 	}
 
-	//at last update the order status
 	return c.orderRepo.UpdateShopOrderOrderStatus(ctx, shopOrder.ID, changeStatusID)
 }
 
@@ -188,7 +195,7 @@ func (c *OrderUseCase) UpdateReturnRequest(ctx context.Context, body req.ReqUpda
 		return err
 	} else if orderReturn.ShopOrderID == 0 {
 		fmt.Print(orderReturn)
-		return errors.New("invalid shop_order_id")
+		return errors.New("invalid order_return_id")
 	}
 
 	// get the shopOrder
@@ -196,24 +203,36 @@ func (c *OrderUseCase) UpdateReturnRequest(ctx context.Context, body req.ReqUpda
 	if err != nil {
 		return err
 	}
-	// check the order is already returned
-	if orderStatus, err := c.orderRepo.FindOrderStatus(ctx, domain.OrderStatus{ID: shopOrder.OrderStatusID}); err != nil {
-		return err
-	} else if orderStatus.Status == "returned" {
-		return errors.New("the order is already returned")
-	}
 
-	// check the given order_status_id for upations
-	var orderStatus = domain.OrderStatus{ID: body.OrderStatusID}
-	orderStatus, err = c.orderRepo.FindOrderStatus(ctx, orderStatus)
+	// get the order status
+	orderStatus, err := c.orderRepo.FindOrderStatus(ctx, domain.OrderStatus{ID: shopOrder.OrderStatusID})
 	if err != nil {
 		return err
-	} else if orderStatus.Status == "" {
+	}
+	// get the change order status
+	changeOrderStatus, err := c.orderRepo.FindOrderStatus(ctx, domain.OrderStatus{ID: body.OrderStatusID})
+	if err != nil {
+		return err
+	} else if changeOrderStatus.Status == "" {
 		return errors.New("invalid order_status_id")
 	}
-	// the given order status should be to be  ` returned or return approved or return cancelled`
-	if orderStatus.Status != "returned" && orderStatus.Status != "return approved" && orderStatus.Status != "return cancelled" {
-		return fmt.Errorf("given order_status %s \ncan't update on order_return", orderStatus.Status)
+
+	// define an error for invalid status change
+	err = fmt.Errorf("order return status %s can't change to %s ", orderStatus.Status, changeOrderStatus.Status)
+
+	switch orderStatus.Status {
+	case "return requested": // if order status is requsted it can only change into given two or its an error
+		if changeOrderStatus.Status != "return approved" && changeOrderStatus.Status != "return cancelled" {
+			return err
+		}
+
+	case "return approved":
+		if changeOrderStatus.Status != "returned" {
+			return err
+		}
+
+	default:
+		return err
 	}
 
 	return c.orderRepo.UpdateOrderReturn(ctx, body)

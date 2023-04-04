@@ -61,8 +61,10 @@ type ResOrderReturn struct {
 	ReturnReason  string    `json:"return_reason" `
 	RefundAmount  uint      `json:"refund_amount" `
 
-	IsApproved   bool      `json:"is_approved" `
-	ReturnDate   time.Time `json:"return_date"`
-	ApprovalDate time.Time `json:"approval_date"`
-	AdminComment string    `json:"admin_comment"`
+	OrderStatusID uint      `json:"order_status_id"`
+	OrderStatus   string    `json:"order_status"`
+	IsApproved    bool      `json:"is_approved" `
+	ReturnDate    time.Time `json:"return_date"`
+	ApprovalDate  time.Time `json:"approval_date"`
+	AdminComment  string    `json:"admin_comment"`
 }
