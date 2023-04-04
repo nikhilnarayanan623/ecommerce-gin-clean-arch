@@ -193,9 +193,9 @@ function verifyPayment(order, userid , response) {
                 }
             },
             error:(response) => {
-              console.log(response)
+              console.log("varification error",response)
               Swal.fire({
-                      title: "Sorry, Payment Failed on no data",
+                      title: "Sorry, Payment Failed by backen verification" + response.errors,
                       icon: 'warning',
                       dangerMode: true,
               })

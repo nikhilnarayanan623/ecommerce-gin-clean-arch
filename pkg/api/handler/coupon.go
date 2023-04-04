@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -104,9 +105,12 @@ func (c *CouponHandler) UpdateCoupon(ctx *gin.Context) {
 
 func (c *CouponHandler) CheckUserCouponChance(ctx *gin.Context) {
 
+	razorPayResponse, _git := ctx.Get("razorpay-response")
+
 	// check ther probability and if no probability then return
 	if !helper.CheckProbability(0.7) {
-		response := res.SuccessResponse(200, "there is no coupon better luck next time", nil)
+		response := res.SuccessResponse(200, "there is no coupon better luck next time", razorPayResponse)
+		fmt.Println(response)
 		ctx.JSON(http.StatusOK, response)
 		return
 	}
@@ -116,12 +120,14 @@ func (c *CouponHandler) CheckUserCouponChance(ctx *gin.Context) {
 	//save coupon for use
 	userCoupon, err := c.couponUseCase.AddUserCoupon(ctx, userID)
 	if err != nil {
-		response := res.ErrorResponse(500, "faild to create coupon for user", err.Error(), userCoupon)
+		response := res.ErrorResponse(500, "faild to create coupon for user", err.Error(), razorPayResponse)
+		fmt.Println(response)
 		ctx.JSON(http.StatusInternalServerError, response)
 		return
 	}
 
-	response := res.SuccessResponse(http.StatusOK, "successfully created a coupon for user", userCoupon)
+	response := res.SuccessResponse(http.StatusOK, "successfully created a coupon for user", razorPayResponse, userCoupon)
+	fmt.Println(response)
 	ctx.JSON(200, response)
 
 }

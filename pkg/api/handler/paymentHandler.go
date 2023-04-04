@@ -171,6 +171,7 @@ func (c *OrderHandler) RazorpayVerify(ctx *gin.Context) {
 	fmt.Println("coupon code ", couponCode)
 	if err != nil {
 		response := res.ErrorResponse(400, "can't make order", "shop_order id is not valid", nil)
+		fmt.Println(response)
 		ctx.JSON(400, response)
 		return
 	}
@@ -178,8 +179,10 @@ func (c *OrderHandler) RazorpayVerify(ctx *gin.Context) {
 	//verify the razorpay signature
 	err = helper.VeifyRazorPaySignature(body.RazorpayOrderID, body.RazorpayPaymentID, body.RazorpaySignature)
 	if err != nil {
-		respones := res.ErrorResponse(400, "faild to veify payment", err.Error(), nil)
-		ctx.JSON(http.StatusBadRequest, respones)
+		response := res.ErrorResponse(400, "faild to veify payment", err.Error(), nil)
+		fmt.Println(response)
+
+		ctx.JSON(http.StatusBadRequest, response)
 		return
 	}
 
@@ -190,12 +193,16 @@ func (c *OrderHandler) RazorpayVerify(ctx *gin.Context) {
 	payment, err := razorpayClient.Payment.Fetch(body.RazorpayPaymentID, nil, nil)
 	if err != nil {
 		response := res.ErrorResponse(400, "faild to get payment details", err.Error(), nil)
+		fmt.Println(response)
+
 		ctx.JSON(400, response)
 		return
 	}
 
 	if payment["status"] != "captured" {
 		response := res.ErrorResponse(400, "payment faild", "payment not got on razorpay", payment)
+		fmt.Println(response)
+
 		ctx.JSON(400, response)
 		return
 	}
@@ -204,10 +211,14 @@ func (c *OrderHandler) RazorpayVerify(ctx *gin.Context) {
 	err = c.orderUseCase.ApproveOrder(ctx, body.UserID, body.ShopOrderID, couponCode)
 	if err != nil {
 		response := res.ErrorResponse(400, "faild to place order on Razorpay for approve", err.Error(), nil)
+		fmt.Println(response)
+
 		ctx.AbortWithStatusJSON(http.StatusBadRequest, response)
 		return
 	}
-
 	response := res.SuccessResponse(200, "successfully payment completed and order approved", payment)
-	ctx.JSON(200, response)
+
+	ctx.Set("razorpay-response", response)
+	// set the response on context for coupon code handler
+	// ctx.JSON(200, response)
 }
