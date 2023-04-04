@@ -40,7 +40,7 @@ type OrderRepository interface {
 
 	//order return
 	FindOrderReturn(ctx context.Context, orderReturn domain.OrderReturn) (domain.OrderReturn, error)
-	FindAllOrderReturns(ctx context.Context, onlyPending bool) ([]domain.OrderReturn, error)
+	FindAllOrderReturns(ctx context.Context, onlyPending bool) ([]res.ResOrderReturn, error)
 	SaveOrderReturn(ctx context.Context, orderReturn domain.OrderReturn) error
 	UpdateOrderReturn(ctx context.Context, body req.ReqUpdatReturnReq) error
 

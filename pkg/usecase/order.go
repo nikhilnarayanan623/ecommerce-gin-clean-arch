@@ -139,13 +139,13 @@ func (c *OrderUseCase) CancellOrder(ctx context.Context, shopOrderID uint) error
 }
 
 // to get pending order returns
-func (c *OrderUseCase) GetAllPendingOrderReturns(ctx context.Context) ([]domain.OrderReturn, error) {
+func (c *OrderUseCase) GetAllPendingOrderReturns(ctx context.Context) ([]res.ResOrderReturn, error) {
 
 	return c.orderRepo.FindAllOrderReturns(ctx, true) // true for only pending
 }
 
 // to get all order return
-func (c *OrderUseCase) GetAllOrderReturns(ctx context.Context) ([]domain.OrderReturn, error) {
+func (c *OrderUseCase) GetAllOrderReturns(ctx context.Context) ([]res.ResOrderReturn, error) {
 
 	return c.orderRepo.FindAllOrderReturns(ctx, false) // false for  not only pending
 }
@@ -223,7 +223,7 @@ func (c *OrderUseCase) UpdateReturnRequest(ctx context.Context, body req.ReqUpda
 	switch orderStatus.Status {
 	case "return requested": // if order status is requsted it can only change into given two or its an error
 		if changeOrderStatus.Status != "return approved" && changeOrderStatus.Status != "return cancelled" {
-			return err
+			return errors.Join(err, errors.New(" change status must be return approved or return cancelled"))
 		}
 
 	case "return approved":

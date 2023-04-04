@@ -31,7 +31,7 @@ type OrderUseCase interface {
 
 	// return order and updte
 	SubmitReturnRequest(ctx context.Context, body req.ReqReturn) error
-	GetAllPendingOrderReturns(ctx context.Context) ([]domain.OrderReturn, error)
-	GetAllOrderReturns(ctx context.Context) ([]domain.OrderReturn, error)
+	GetAllPendingOrderReturns(ctx context.Context) ([]res.ResOrderReturn, error)
+	GetAllOrderReturns(ctx context.Context) ([]res.ResOrderReturn, error)
 	UpdateReturnRequest(ctx context.Context, body req.ReqUpdatReturnReq) error
 }

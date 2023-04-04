@@ -57,6 +57,7 @@ type ResCheckOut struct {
 // return
 type ResOrderReturn struct {
 	OrderReturnID uint      `json:"order_return_id" copier:"ID"`
+	ShopOrderID   uint      `json:"shop_order_id"`
 	RequestDate   time.Time `json:"request_date" `
 	ReturnReason  string    `json:"return_reason" `
 	RefundAmount  uint      `json:"refund_amount" `
