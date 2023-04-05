@@ -1,4 +1,4 @@
-package helper
+package utils
 
 import (
 	"crypto/hmac"
@@ -27,16 +27,15 @@ func StringToUint(str string) (uint, error) {
 	return uint(val), err
 }
 
-func CompareUsers(user, checkUser domain.User) error {
-	var err error
+func CompareUsers(user, checkUser domain.User) (err error) {
 	if checkUser.Email == user.Email {
 		err = errors.Join(err, errors.New("user already exist with this email"))
 	}
 	if checkUser.UserName == user.UserName {
-		errors.Join(err, errors.New("user already exist with this user name"))
+		err = errors.Join(err, errors.New("user already exist with this user name"))
 	}
 	if checkUser.Phone == user.Phone {
-		errors.Join(err, errors.New("user already exist with this phone"))
+		err = errors.Join(err, errors.New("user already exist with this phone"))
 	}
 
 	return err

@@ -5,9 +5,9 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/domain"
-	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/helper"
-	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/helper/req"
-	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/helper/res"
+	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/utils"
+	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/utils/req"
+	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/utils/res"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/usecase/interfaces"
 )
 
@@ -105,13 +105,13 @@ func (c *CouponHandler) UpdateCoupon(ctx *gin.Context) {
 func (c *CouponHandler) CheckUserCouponChance(ctx *gin.Context) {
 
 	// check ther probability and if no probability then return
-	if !helper.CheckProbability(0.7) {
+	if !utils.CheckProbability(0.7) {
 		response := res.SuccessResponse(200, "there is no coupon better luck next time", nil)
 		ctx.JSON(http.StatusOK, response)
 		return
 	}
 
-	userID := helper.GetUserIdFromContext(ctx)
+	userID := utils.GetUserIdFromContext(ctx)
 
 	//save coupon for use
 	userCoupon, err := c.couponUseCase.AddUserCoupon(ctx, userID)
@@ -136,7 +136,7 @@ func (c *CouponHandler) CheckUserCouponChance(ctx *gin.Context) {
 // @Failure 400 {object} res.Response{}  "invalid input"
 func (c *CouponHandler) GetAllUserCoupons(ctx *gin.Context) {
 
-	userID := helper.GetUserIdFromContext(ctx)
+	userID := utils.GetUserIdFromContext(ctx)
 
 	userCoupons, err := c.couponUseCase.GetAllUserCoupons(ctx, userID)
 	if err != nil {
@@ -168,7 +168,7 @@ func (c *CouponHandler) ApplyUserCoupon(ctx *gin.Context) {
 
 	var body req.ReqApplyCoupon
 
-	userID := helper.GetUserIdFromContext(ctx)
+	userID := utils.GetUserIdFromContext(ctx)
 
 	if err := ctx.ShouldBindJSON(&body); err != nil {
 		response := res.ErrorResponse(400, "invalid input", err.Error(), body)

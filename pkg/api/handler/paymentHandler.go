@@ -7,9 +7,9 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/config"
-	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/helper"
-	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/helper/req"
-	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/helper/res"
+	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/utils"
+	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/utils/req"
+	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/utils/res"
 	"github.com/razorpay/razorpay-go"
 )
 
@@ -39,8 +39,8 @@ func (c *OrderHandler) GetAllPaymentMethods(ctx *gin.Context) {
 // @Failure 400 {object} res.Response{}  "faill place order"
 func (c *OrderHandler) RazorpayCheckout(ctx *gin.Context) {
 
-	paymentMethodID, err1 := helper.StringToUint(ctx.Request.PostFormValue("payment_method_id"))
-	addressID, err2 := helper.StringToUint(ctx.Request.PostFormValue("address_id"))
+	paymentMethodID, err1 := utils.StringToUint(ctx.Request.PostFormValue("payment_method_id"))
+	addressID, err2 := utils.StringToUint(ctx.Request.PostFormValue("address_id"))
 	couponCode := ctx.Request.PostFormValue("coupon_code")
 
 	err := errors.Join(err1, err2)
@@ -51,7 +51,7 @@ func (c *OrderHandler) RazorpayCheckout(ctx *gin.Context) {
 		return
 	}
 
-	UserID := helper.GetUserIdFromContext(ctx)
+	UserID := utils.GetUserIdFromContext(ctx)
 
 	var body = req.ReqCheckout{
 		UserID:          UserID,
@@ -160,13 +160,13 @@ func (c *OrderHandler) RazorpayVerify(ctx *gin.Context) {
 		err  error
 	)
 
-	body.UserID = helper.GetUserIdFromContext(ctx)
+	body.UserID = utils.GetUserIdFromContext(ctx)
 
 	// take value as form value from ajax call
 	body.RazorpayPaymentID = ctx.Request.PostFormValue("razorpay_payment_id")
 	body.RazorpayOrderID = ctx.Request.PostFormValue("razorpay_order_id")
 	body.RazorpaySignature = ctx.Request.PostFormValue("razorpay_signature")
-	body.ShopOrderID, err = helper.StringToUint(ctx.Request.PostFormValue("shop_order_id"))
+	body.ShopOrderID, err = utils.StringToUint(ctx.Request.PostFormValue("shop_order_id"))
 	couponCode := ctx.Request.PostFormValue("coupon_code")
 	fmt.Println("coupon code ", couponCode)
 	if err != nil {
@@ -176,7 +176,7 @@ func (c *OrderHandler) RazorpayVerify(ctx *gin.Context) {
 	}
 
 	//verify the razorpay signature
-	err = helper.VeifyRazorPaySignature(body.RazorpayOrderID, body.RazorpayPaymentID, body.RazorpaySignature)
+	err = utils.VeifyRazorPaySignature(body.RazorpayOrderID, body.RazorpayPaymentID, body.RazorpaySignature)
 	if err != nil {
 		respones := res.ErrorResponse(400, "faild to veify payment", err.Error(), nil)
 		ctx.JSON(http.StatusBadRequest, respones)

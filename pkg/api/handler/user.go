@@ -9,11 +9,11 @@ import (
 	"github.com/jinzhu/copier"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/auth"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/domain"
-	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/helper"
-	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/helper/req"
-	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/helper/res"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/usecase/interfaces"
 	service "github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/usecase/interfaces"
+	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/utils"
+	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/utils/req"
+	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/utils/res"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/varify"
 )
 
@@ -255,7 +255,7 @@ func (u *UserHandler) AddToCart(ctx *gin.Context) {
 	}
 
 	// get userId and add to body
-	body.UserID = helper.GetUserIdFromContext(ctx)
+	body.UserID = utils.GetUserIdFromContext(ctx)
 
 	err := u.userUseCase.SaveToCart(ctx, body)
 
@@ -289,7 +289,7 @@ func (u UserHandler) RemoveFromCart(ctx *gin.Context) {
 		return
 	}
 
-	body.UserID = helper.GetUserIdFromContext(ctx)
+	body.UserID = utils.GetUserIdFromContext(ctx)
 
 	err := u.userUseCase.RemoveCartItem(ctx, body)
 
@@ -324,7 +324,7 @@ func (u *UserHandler) UpdateCart(ctx *gin.Context) {
 		return
 	}
 
-	body.UserID = helper.GetUserIdFromContext(ctx)
+	body.UserID = utils.GetUserIdFromContext(ctx)
 
 	err := u.userUseCase.UpdateCartItem(ctx, body)
 
@@ -349,7 +349,7 @@ func (u *UserHandler) UpdateCart(ctx *gin.Context) {
 // @Failure 500 {object} res.Response{} "faild to get cart items"
 func (u *UserHandler) UserCart(ctx *gin.Context) {
 
-	userId := helper.GetUserIdFromContext(ctx)
+	userId := utils.GetUserIdFromContext(ctx)
 
 	resCart, err := u.userUseCase.GetCartItems(ctx, userId)
 	if err != nil {
@@ -380,7 +380,7 @@ func (u *UserHandler) UserCart(ctx *gin.Context) {
 // @Failure 500 {object} res.Response{} "faild to get checkout items"
 func (c *UserHandler) CheckOutCart(ctx *gin.Context) {
 
-	userId := helper.GetUserIdFromContext(ctx)
+	userId := utils.GetUserIdFromContext(ctx)
 
 	resCheckOut, err := c.userUseCase.CheckOutCart(ctx, userId)
 
@@ -411,7 +411,7 @@ func (c *UserHandler) CheckOutCart(ctx *gin.Context) {
 // @Failure 500 {object} res.Response{} "faild to show user details"
 func (u *UserHandler) Account(ctx *gin.Context) {
 
-	userID := helper.GetUserIdFromContext(ctx)
+	userID := utils.GetUserIdFromContext(ctx)
 
 	user, err := u.userUseCase.Account(ctx, userID)
 	if err != nil {
@@ -438,7 +438,7 @@ func (u *UserHandler) Account(ctx *gin.Context) {
 // @Success 200 {object} res.Response{} "successfully updated user details"
 // @Failure 400 {object} res.Response{} "invalid input"
 func (u *UserHandler) UpateAccount(ctx *gin.Context) {
-	userID := helper.GetUserIdFromContext(ctx)
+	userID := utils.GetUserIdFromContext(ctx)
 
 	var body req.ReqUser
 
@@ -481,7 +481,7 @@ func (u *UserHandler) AddAddress(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, response)
 		return
 	}
-	userID := helper.GetUserIdFromContext(ctx)
+	userID := utils.GetUserIdFromContext(ctx)
 
 	var address domain.Address
 
@@ -510,7 +510,7 @@ func (u *UserHandler) AddAddress(ctx *gin.Context) {
 // @Failure 500 {object} res.Response{} "faild to show user addresses"
 func (u *UserHandler) GetAddresses(ctx *gin.Context) {
 
-	userID := helper.GetUserIdFromContext(ctx)
+	userID := utils.GetUserIdFromContext(ctx)
 
 	addresses, err := u.userUseCase.GetAddresses(ctx, userID)
 
@@ -550,7 +550,7 @@ func (u *UserHandler) EditAddress(ctx *gin.Context) {
 		return
 	}
 
-	userID := helper.GetUserIdFromContext(ctx)
+	userID := utils.GetUserIdFromContext(ctx)
 	if err := u.userUseCase.EditAddress(ctx, body, userID); err != nil {
 		response := res.ErrorResponse(400, "faild to update user address", err.Error(), nil)
 		ctx.JSON(http.StatusBadRequest, response)
@@ -580,7 +580,7 @@ func (u *UserHandler) DeleteAddress(ctx *gin.Context) {
 // @Failure 400 {object} res.Response{} "invalid input"
 func (u *UserHandler) AddToWishList(ctx *gin.Context) {
 	// get productItemID using parmas
-	productItemID, err := helper.StringToUint(ctx.Param("id"))
+	productItemID, err := utils.StringToUint(ctx.Param("id"))
 
 	if err != nil {
 		reponse := res.ErrorResponse(400, "invalid input", err.Error(), nil)
@@ -588,7 +588,7 @@ func (u *UserHandler) AddToWishList(ctx *gin.Context) {
 		return
 	}
 
-	userID := helper.GetUserIdFromContext(ctx)
+	userID := utils.GetUserIdFromContext(ctx)
 
 	var wishList = domain.WishList{
 		ProductItemID: productItemID,
@@ -619,7 +619,7 @@ func (u *UserHandler) AddToWishList(ctx *gin.Context) {
 func (u *UserHandler) RemoveFromWishList(ctx *gin.Context) {
 
 	// get productItemID using parmas
-	productItemID, err := helper.StringToUint(ctx.Param("id"))
+	productItemID, err := utils.StringToUint(ctx.Param("id"))
 
 	if err != nil {
 		response := res.ErrorResponse(400, "invalid input", err.Error(), nil)
@@ -627,7 +627,7 @@ func (u *UserHandler) RemoveFromWishList(ctx *gin.Context) {
 		return
 	}
 
-	userID := helper.GetUserIdFromContext(ctx)
+	userID := utils.GetUserIdFromContext(ctx)
 
 	var wishList = domain.WishList{
 		ProductItemID: productItemID,
@@ -657,7 +657,7 @@ func (u *UserHandler) RemoveFromWishList(ctx *gin.Context) {
 // @Failure 400  "faild to get user wish list items"
 func (u *UserHandler) GetWishListI(ctx *gin.Context) {
 
-	userID := helper.GetUserIdFromContext(ctx)
+	userID := utils.GetUserIdFromContext(ctx)
 	data, err := u.userUseCase.GetWishListItems(ctx, userID)
 
 	if err != nil {

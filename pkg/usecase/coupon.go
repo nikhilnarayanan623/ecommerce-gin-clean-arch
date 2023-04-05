@@ -7,8 +7,8 @@ import (
 	"time"
 
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/domain"
-	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/helper"
-	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/helper/res"
+	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/utils"
+	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/utils/res"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/repository/interfaces"
 	service "github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/usecase/interfaces"
 )
@@ -62,11 +62,11 @@ func (c *couponUseCase) AddUserCoupon(ctx context.Context, userID uint) (domain.
 	}
 
 	// then slelect a random coupon and set its id to user_coupons
-	randomCouponID := coupons[helper.SelectRandomNumber(0, len(coupons))].ID
+	randomCouponID := coupons[utils.SelectRandomNumber(0, len(coupons))].ID
 	// create a random coupon for user_coupon
-	randomCouponCode := helper.CreateRandomCouponCode(10)
+	randomCouponCode := utils.CreateRandomCouponCode(10)
 	// select a random date
-	randomExpireDate := time.Now().AddDate(0, 0, helper.SelectRandomNumber(10, 30))
+	randomExpireDate := time.Now().AddDate(0, 0, utils.SelectRandomNumber(10, 30))
 
 	// create a useCoupon with this details
 
@@ -126,7 +126,7 @@ func (c *couponUseCase) ApplyUserCoupon(ctx context.Context, userID uint, coupon
 	}
 
 	// calucalte a random discount price with coupun_percentage_upto form 5
-	randomDisountRate := helper.SelectRandomNumber(5, int(coupon.PercentageUpto))
+	randomDisountRate := utils.SelectRandomNumber(5, int(coupon.PercentageUpto))
 	fmt.Println("discount rate ", randomDisountRate, coupon.PercentageUpto)
 	discountPrice := (cartPrice * uint(randomDisountRate)) / 100
 	fmt.Println("discount price", discountPrice)

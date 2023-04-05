@@ -6,9 +6,9 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/copier"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/domain"
-	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/helper"
-	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/helper/req"
-	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/helper/res"
+	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/utils"
+	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/utils/req"
+	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/utils/res"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/usecase/interfaces"
 	service "github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/usecase/interfaces"
 )
@@ -286,7 +286,7 @@ func (p *ProductHandler) AddProductItem(ctx *gin.Context) {
 // @Failure 400 {object} res.Response{} "invalid input on params"
 func (p *ProductHandler) GetProductItems(ctx *gin.Context) {
 
-	productID, err := helper.StringToUint(ctx.Param("product_id"))
+	productID, err := utils.StringToUint(ctx.Param("product_id"))
 
 	if err != nil {
 		response := res.ErrorResponse(400, "invalid input on params", err.Error(), nil)

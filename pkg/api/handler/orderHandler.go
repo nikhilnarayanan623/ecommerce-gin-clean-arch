@@ -4,9 +4,9 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/helper"
-	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/helper/req"
-	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/helper/res"
+	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/utils"
+	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/utils/req"
+	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/utils/res"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/usecase/interfaces"
 )
 
@@ -47,7 +47,7 @@ func (c *OrderHandler) PlaceOrderForCartCOD(ctx *gin.Context) {
 		return
 	}
 
-	body.UserID = helper.GetUserIdFromContext(ctx)
+	body.UserID = utils.GetUserIdFromContext(ctx)
 
 	// checkout the order
 	resCheckout, err := c.orderUseCase.OrderCheckOut(ctx, body)
@@ -94,7 +94,7 @@ func (c *OrderHandler) PlaceOrderForCartCOD(ctx *gin.Context) {
 // @Failure 500 {object} res.Response{} "faild to get user shop order list"
 func (c *OrderHandler) GetUserOrder(ctx *gin.Context) {
 
-	userId := helper.GetUserIdFromContext(ctx)
+	userId := utils.GetUserIdFromContext(ctx)
 
 	orders, err := c.orderUseCase.GetUserShopOrder(ctx, userId)
 
@@ -126,7 +126,7 @@ func (c *OrderHandler) GetUserOrder(ctx *gin.Context) {
 // @Failure 500 {object} res.Response{} "faild to get order list of user"
 func (c *OrderHandler) GetOrderItemsForUser(ctx *gin.Context) {
 
-	shopOrderID, _ := helper.StringToUint(ctx.Param("shop_order_id"))
+	shopOrderID, _ := utils.StringToUint(ctx.Param("shop_order_id"))
 
 	orderItems, err := c.orderUseCase.GetOrderItemsByShopOrderID(ctx, shopOrderID)
 
@@ -187,7 +187,7 @@ func (c *OrderHandler) UdateOrderStatus(ctx *gin.Context) {
 // @Failure 400 {object} res.Response{} "invalid input on param"
 func (c *OrderHandler) CancellOrder(ctx *gin.Context) {
 
-	shopOrderID, err := helper.StringToUint(ctx.Param("shop_order_id"))
+	shopOrderID, err := utils.StringToUint(ctx.Param("shop_order_id"))
 	if err != nil {
 		respnose := res.ErrorResponse(400, "invalid input on param", err.Error(), nil)
 		ctx.JSON(http.StatusBadRequest, respnose)

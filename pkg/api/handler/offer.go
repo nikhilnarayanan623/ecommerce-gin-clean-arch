@@ -7,9 +7,9 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/copier"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/domain"
-	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/helper"
-	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/helper/req"
-	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/helper/res"
+	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/utils"
+	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/utils/req"
+	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/utils/res"
 )
 
 // AddOffer godoc
@@ -43,7 +43,7 @@ func (p *ProductHandler) AddOffer(ctx *gin.Context) {
 
 func (c *ProductHandler) RemoveOffer(ctx *gin.Context) {
 
-	offerID, err := helper.StringToUint(ctx.Param("offer_id"))
+	offerID, err := utils.StringToUint(ctx.Param("offer_id"))
 	if err != nil {
 		response := res.ErrorResponse(400, "invalid input on param", err.Error(), nil)
 		ctx.JSON(http.StatusBadRequest, response)
@@ -147,7 +147,7 @@ func (c *ProductHandler) AddOfferCategory(ctx *gin.Context) {
 
 func (c *ProductHandler) RemoveOfferCategory(ctx *gin.Context) {
 
-	offerCategoryID, err := helper.StringToUint(ctx.Param("offer_category_id"))
+	offerCategoryID, err := utils.StringToUint(ctx.Param("offer_category_id"))
 	if err != nil {
 		response := res.ErrorResponse(400, "invalid input on params", err.Error(), nil)
 		ctx.JSON(http.StatusBadRequest, response)
@@ -263,7 +263,7 @@ func (c *ProductHandler) AddOfferProduct(ctx *gin.Context) {
 // @Failure 400 {object} res.Response{} "invalid input on params"
 func (c *ProductHandler) RemoveOfferProduct(ctx *gin.Context) {
 
-	offerProdctID, err := helper.StringToUint(ctx.Param("offer_product_id"))
+	offerProdctID, err := utils.StringToUint(ctx.Param("offer_product_id"))
 	if err != nil {
 		response := res.ErrorResponse(400, "invalid input on params", err.Error(), nil)
 		ctx.JSON(http.StatusBadRequest, response)

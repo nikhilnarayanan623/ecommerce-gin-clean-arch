@@ -6,11 +6,11 @@ import (
 
 	"github.com/jinzhu/copier"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/domain"
-	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/helper"
-	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/helper/req"
-	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/helper/res"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/repository/interfaces"
 	service "github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/usecase/interfaces"
+	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/utils"
+	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/utils/req"
+	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/utils/res"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -69,7 +69,7 @@ func (c *userUserCase) Signup(ctx context.Context, user domain.User) error {
 	checkUser, err := c.userRepo.FindUser(ctx, user)
 	if err != nil {
 		return err
-	}
+	} 
 	// if user not exist then create user
 	if checkUser.ID == 0 {
 		//hash the password
@@ -81,7 +81,7 @@ func (c *userUserCase) Signup(ctx context.Context, user domain.User) error {
 		return c.userRepo.SaveUser(ctx, user)
 	}
 	// if user exist then check which field is exist
-	return helper.CompareUsers(user, checkUser)
+	return utils.CompareUsers(user, checkUser)
 }
 
 func (c *userUserCase) Account(ctx context.Context, userID uint) (domain.User, error) {
@@ -102,7 +102,7 @@ func (c *userUserCase) EditAccount(ctx context.Context, user domain.User) error 
 	}
 
 	// if any user exist with this field then show wich field is exis
-	return helper.CompareUsers(user, checkUser)
+	return utils.CompareUsers(user, checkUser)
 }
 
 func (c *userUserCase) SaveToCart(ctx context.Context, body req.ReqCart) error {

@@ -17,11 +17,10 @@ func AdminRoutes(api *gin.RouterGroup, adminHandler *handler.AdminHandler,
 		login.POST("/", adminHandler.AdminLogin)
 	}
 	// signup
-	// signup := api.Group("/signup")
-	// {
-	// 	signup.GET("/", adminHandler.AdminSignupGet)
-	// 	signup.POST("/", adminHandler.SignUpPost)
-	// }
+	signup := api.Group("/signup")
+	{
+		signup.POST("/", adminHandler.AdminSignUp)
+	}
 
 	api.Use(middleware.AuthenticateAdmin)
 	{
