@@ -30,26 +30,31 @@ func NewUserHandler(userUsecase interfaces.UserUseCase) *UserHandler {
 // @security ApiKeyAuth
 // @id UserSignUp
 // @tags User Signup
+// @Param input body req.User{} true "Input Fields"
 // @Router /signup [post]
 // @Success 200 "Successfully account created for user"
 // @Failure 400 "invalid input"
 func (u *UserHandler) UserSignUp(ctx *gin.Context) {
 
-	var user domain.User
-	if err := ctx.ShouldBindJSON(&user); err != nil {
-		response := res.ErrorResponse(400, "invalid input", err.Error(), nil)
+	var body req.User
+
+	if err := ctx.ShouldBindJSON(&body); err != nil {
+		response := res.ErrorResponse(400, "invalid input", err.Error(), body)
 
 		ctx.JSON(http.StatusBadRequest, response)
 		return
 	}
+
+	var user domain.User
+	copier.Copy(&user, body)
 
 	if err := u.userUseCase.Signup(ctx, user); err != nil {
-		response := res.ErrorResponse(400, "faild to signup", err.Error(), nil)
+		response := res.ErrorResponse(400, "faild to signup", err.Error(), body)
 		ctx.JSON(http.StatusBadRequest, response)
 		return
 	}
 
-	response := res.SuccessResponse(200, "Successfully Account Created", nil)
+	response := res.SuccessResponse(200, "Successfully Account Created", body)
 	ctx.JSON(200, response)
 }
 
@@ -433,14 +438,14 @@ func (u *UserHandler) Account(ctx *gin.Context) {
 // @security ApiKeyAuth
 // @id UpateAccount
 // @tags User Account
-// @Param input body req.ReqUser true "input field"
+// @Param input body req.User true "input field"
 // @Router /account [put]
 // @Success 200 {object} res.Response{} "successfully updated user details"
 // @Failure 400 {object} res.Response{} "invalid input"
 func (u *UserHandler) UpateAccount(ctx *gin.Context) {
 	userID := utils.GetUserIdFromContext(ctx)
 
-	var body req.ReqUser
+	var body req.User
 
 	if err := ctx.ShouldBindJSON(&body); err != nil {
 		response := res.ErrorResponse(400, "invalid input", err.Error(), nil)
@@ -470,12 +475,12 @@ func (u *UserHandler) UpateAccount(ctx *gin.Context) {
 // @security ApiKeyAuth
 // @id AddAddress
 // @tags User Address
-// @Param inputs body req.ReqAddress{} true "Input Field"
+// @Param inputs body req.Address{} true "Input Field"
 // @Router /account/address [post]
 // @Success 200 {object} res.Response{} "Successfully address added"
 // @Failure 400 {object} res.Response{} "inavlid input"
 func (u *UserHandler) AddAddress(ctx *gin.Context) {
-	var body req.ReqAddress
+	var body req.Address
 	if err := ctx.ShouldBindJSON(&body); err != nil {
 		response := res.ErrorResponse(400, "inavlid input", err.Error(), nil)
 		ctx.JSON(http.StatusBadRequest, response)
@@ -521,7 +526,7 @@ func (u *UserHandler) GetAddresses(ctx *gin.Context) {
 	}
 
 	if addresses == nil {
-		response := res.SuccessResponse(200, "there is no product items to show", nil)
+		response := res.SuccessResponse(200, "there is no addresses to show")
 		ctx.JSON(http.StatusOK, response)
 		return
 	}
@@ -536,13 +541,13 @@ func (u *UserHandler) GetAddresses(ctx *gin.Context) {
 // @security ApiKeyAuth
 // @id EditAddress
 // @tags User Address
-// @Param input body req.ReqEditAddress true "Input Field"
+// @Param input body req.Address true "Input Field"
 // @Router /account/address [put]
 // @Success 200 {object} res.Response{} "successfully addresses updated"
 // @Failure 400 {object} res.Response{} "can't update the address"
 func (u *UserHandler) EditAddress(ctx *gin.Context) {
 
-	var body req.ReqEditAddress
+	var body req.Address
 
 	if err := ctx.ShouldBindJSON(&body); err != nil {
 		respone := res.ErrorResponse(400, "invalid input", err.Error(), nil)

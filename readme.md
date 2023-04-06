@@ -11,7 +11,7 @@
 
 # To Use and check my `ecommerce-gin-clean-arch` Project
 
-# follow these steps
+# Follow these steps
 
 1. clone my github `ecommerce-gin-clean-arch` repository to your system
 2. use these bash commands
@@ -19,14 +19,50 @@
 ``` bash commands
 ## these bash comands are set-up on makefilie ##
 
-# Navigate into project directory
+# Step 1 :  Navigate into project directory
 cd ./ecommerce-gin-clean-arch
 
-# Install needed dependencies
-make deps
+# Step 2 : Install needed dependencies
+make deps 
+#or
+go mod tidy
 
-# !create `.env` in these work_dir with your database details
+# Step 3 : Setup Env file directions are given below
 
-#generate wire_gen.go for dependency injection
+# Step 4 : If you want to use swagger api documetation
+
+make swag
+
+# Step 5 : Run the Server
+make run
+
+# If you want to use in post man : then check localhost:8000
+ 
+# If you want to use the swagger 
+#  Open any browser and visit localhost:8000/swagger/index.html (!you should generate swagger files use `make swag`)
+
+# !Direction for creating creating Env file
+# Crate create a new " .env " file in your root directory
+
+# database details
+DB_HOST=(Your Datbase host name (localhost))
+DB_NAME="Your Database name"
+DB_USER="Your Database owner name"
+DB_PASSWORD="Your database owner password"
+DB_PORT="Your database host port number"
+
+#JWT
+JWT_CODE= "secret code that you wan't to use for jwt signature"
+
+# Twilio
+# Register an account on twilio and create a messaging service
+AUTH_TOKEN="Your Twilio Authenticatino token (authe token)"
+ACCOUNT_SID="Your Twilio Account SID (account sid)"
+SERVICE_SID="Your Twilio SID (messaging service id)"
+
+#Razorpay
+# Create an razorpay account
+RAZOR_PAY_KEY="Your Razorpay test key"
+RAZOR_PAY_SECRET="your Razropay secret key"
 
 ```

@@ -69,7 +69,7 @@ func (c *userUserCase) Signup(ctx context.Context, user domain.User) error {
 	checkUser, err := c.userRepo.FindUser(ctx, user)
 	if err != nil {
 		return err
-	} 
+	}
 	// if user not exist then create user
 	if checkUser.ID == 0 {
 		//hash the password
@@ -266,7 +266,7 @@ func (c *userUserCase) SaveAddress(ctx context.Context, address domain.Address, 
 	return address, nil
 }
 
-func (c *userUserCase) EditAddress(ctx context.Context, addressBody req.ReqEditAddress, userID uint) error {
+func (c *userUserCase) EditAddress(ctx context.Context, addressBody req.Address, userID uint) error {
 
 	// first validate the addessId is valid or not
 	address, err := c.userRepo.FindAddressByID(ctx, addressBody.ID)
@@ -285,7 +285,7 @@ func (c *userUserCase) EditAddress(ctx context.Context, addressBody req.ReqEditA
 	}
 	copier.Copy(&address, &addressBody)
 
-	if c.userRepo.UpdateAddress(ctx, address) != nil {
+	if err := c.userRepo.UpdateAddress(ctx, address); err != nil {
 		return err
 	}
 
@@ -296,7 +296,10 @@ func (c *userUserCase) EditAddress(ctx context.Context, addressBody req.ReqEditA
 			AddressID: address.ID,
 			IsDefault: *addressBody.IsDefault,
 		}
-		return c.userRepo.UpdateUserAddress(ctx, userAddress)
+
+		if err := c.userRepo.UpdateUserAddress(ctx, userAddress); err != nil {
+			return err
+		}
 	}
 
 	return nil
@@ -328,7 +331,11 @@ func (c *userUserCase) AddToWishList(ctx context.Context, wishList domain.WishLi
 	}
 
 	// save productItem wishlist
-	return c.userRepo.SaveWishListItem(ctx, wishList)
+	if err := c.userRepo.SaveWishListItem(ctx, wishList); err != nil {
+		return err
+	}
+	
+	return nil
 }
 
 // remove from wishlist

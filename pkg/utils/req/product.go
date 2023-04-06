@@ -11,7 +11,6 @@ type ReqProduct struct {
 }
 
 // for a new prodctItem
-
 type ReqProductItem struct {
 	ProductID         uint     `json:"product_id" binding:"required"`
 	Price             uint     `json:"price" binding:"required,min=1"`
@@ -28,4 +27,10 @@ type ReqVariation struct {
 type ReqVariationOption struct {
 	VariationID    uint   `json:"variation_id" gorm:"not null" binding:"required,numeric"` // a specific field of variation like color/size
 	VariationValue string `json:"variation_value" gorm:"not null" binding:"required"`      // the variations value like blue/XL
+}
+
+// product side
+type ReqCategory struct {
+	CategoryName string `json:"category_name"` // new category name
+	ID           uint   `json:"id"`            // id any of main category
 }
