@@ -356,20 +356,41 @@ func (u *UserHandler) UserCart(ctx *gin.Context) {
 
 	userId := utils.GetUserIdFromContext(ctx)
 
-	resCart, err := u.userUseCase.GetCartItems(ctx, userId)
+	// first get cart of user
+	cart, err := u.userUseCase.GetUserCart(ctx, userId)
+	if err != nil {
+		response := res.ErrorResponse(500, "faild to get user cart", err.Error(), nil)
+		ctx.JSON(http.StatusInternalServerError, response)
+		return
+	}
+
+	// user have not cart created
+	if cart.CartID == 0 {
+		respone := res.SuccessResponse(200, "user didn't add any product in cart", nil)
+		ctx.JSON(http.StatusOK, respone)
+		return
+	}
+
+	// get user cart items
+	cartItems, err := u.userUseCase.GetUserCartItems(ctx, cart.CartID)
 	if err != nil {
 		response := res.ErrorResponse(500, "faild to get cart items", err.Error(), nil)
 		ctx.JSON(http.StatusInternalServerError, response)
 		return
 	}
 
-	if resCart.CartItems == nil {
+	if cartItems == nil {
 		response := res.SuccessResponse(200, "there is no productItems in the cart", nil)
 		ctx.JSON(http.StatusOK, response)
 		return
 	}
 
-	response := res.SuccessResponse(200, "successfully got user cart items", resCart)
+	resposeCart := res.ResCart{
+		CartItems:  cartItems,
+		TotalPrice: cart.TotalPrice,
+	}
+
+	response := res.SuccessResponse(200, "successfully got user cart items", resposeCart)
 	ctx.JSON(http.StatusOK, response)
 }
 
@@ -385,24 +406,24 @@ func (u *UserHandler) UserCart(ctx *gin.Context) {
 // @Failure 500 {object} res.Response{} "faild to get checkout items"
 func (c *UserHandler) CheckOutCart(ctx *gin.Context) {
 
-	userId := utils.GetUserIdFromContext(ctx)
+	// userId := utils.GetUserIdFromContext(ctx)
 
-	resCheckOut, err := c.userUseCase.CheckOutCart(ctx, userId)
+	// resCheckOut, err := c.userUseCase.CheckOutCart(ctx, userId)
 
-	if err != nil {
-		response := res.ErrorResponse(500, "faild to get checkout items", err.Error(), nil)
-		ctx.AbortWithStatusJSON(http.StatusInternalServerError, response)
-		return
-	}
+	// if err != nil {
+	// 	response := res.ErrorResponse(500, "faild to get checkout items", err.Error(), nil)
+	// 	ctx.AbortWithStatusJSON(http.StatusInternalServerError, response)
+	// 	return
+	// }
 
-	if resCheckOut.ProductItems == nil {
-		response := res.ErrorResponse(401, "cart is empty can't checkout cart", "", nil)
-		ctx.AbortWithStatusJSON(http.StatusUnauthorized, response)
-		return
-	}
+	// if resCheckOut.ProductItems == nil {
+	// 	response := res.ErrorResponse(401, "cart is empty can't checkout cart", "", nil)
+	// 	ctx.AbortWithStatusJSON(http.StatusUnauthorized, response)
+	// 	return
+	// }
 
-	responser := res.SuccessResponse(200, "successfully got checkout data", resCheckOut)
-	ctx.JSON(http.StatusOK, responser)
+	// responser := res.SuccessResponse(200, "successfully got checkout data", resCheckOut)
+	// ctx.JSON(http.StatusOK, responser)
 }
 
 // ! ***** for user account ***** //
