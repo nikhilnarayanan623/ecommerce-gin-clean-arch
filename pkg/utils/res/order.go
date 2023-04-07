@@ -6,7 +6,12 @@ import (
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/domain"
 )
 
-type UserOrderCOD struct {
+type ResEmailAndPhone struct {
+	Email string `json:"email"`
+	Phone string `json:"phone"`
+}
+
+type ResUserOrder struct {
 	AmountToPay uint `json:"amount_to_pay"`
 	Discount    uint `json:"discount"`
 	CouponID    uint `json:"coupon_id"`
@@ -75,3 +80,17 @@ type ResOrderReturn struct {
 	ApprovalDate  time.Time `json:"approval_date"`
 	AdminComment  string    `json:"admin_comment"`
 }
+
+// razorpay
+type ResRazorpayOrder struct {
+	RazorpayKey     string      `json:"razorpay_key"`
+	UserID          uint        `json:"user_id"`
+	AmountToPay     uint        `json:"amount_to_pay"`
+	RazorpayAmount  uint        `json:"razorpay_amount"`
+	RazorpayOrderID interface{} `json:"razorpay_order_id"`
+	Email           string      `json:"email"`
+	Phone           string      `json:"phone"`
+	ShopOrderID     uint        `json:"shop_order_id"`
+	CouponID        uint        `json:"coupon_id"`
+}
+

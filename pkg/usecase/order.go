@@ -4,11 +4,14 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"log"
 	"time"
 
+	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/config"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/domain"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/repository/interfaces"
 	service "github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/usecase/interfaces"
+	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/utils"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/utils/req"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/utils/res"
 )
@@ -239,7 +242,7 @@ func (c *OrderUseCase) UpdateReturnRequest(ctx context.Context, body req.ReqUpda
 }
 
 // ! place order
-func (c *OrderUseCase) GetOrderDetails(ctx context.Context, userID uint, body req.ReqPlaceOrder) (userOrder res.UserOrderCOD, err error) {
+func (c *OrderUseCase) GetOrderDetails(ctx context.Context, userID uint, body req.ReqPlaceOrder) (userOrder res.ResUserOrder, err error) {
 
 	// find the payment method_id
 	paymentMethod, err := c.orderRepo.FindPaymentMethodByID(ctx, body.PaymentMethodID)
@@ -269,12 +272,45 @@ func (c *OrderUseCase) GetOrderDetails(ctx context.Context, userID uint, body re
 		return userOrder, errors.New("there is no product_s in cart")
 	}
 
-	fmt.Println("cart", cart)
 	userOrder.AmountToPay = cart.TotalPrice - cart.DiscountAmount
 	userOrder.Discount = cart.DiscountAmount
 	userOrder.CouponID = cart.AppliedCouponID
 
+	log.Printf("successfully order created for user with user_id %v", userID)
 	return userOrder, nil
+}
+
+// generate razorpay order
+func (c *OrderUseCase) GetRazorpayOrder(ctx context.Context, userID uint, userOrder res.ResUserOrder) (razorpayOrder res.ResRazorpayOrder, err error) {
+
+	// get user email and phone of user
+	emailAnPhone, err := c.orderRepo.GetUserEmailAndPhone(ctx, userID)
+	if err != nil {
+		return razorpayOrder, err
+	}
+
+	// generate razorpay order
+	//razorpay amount is caluculate on pisa for india so make the actual price into paisa
+	razorPayAmount := userOrder.AmountToPay * 100
+	razopayOrderId, err := utils.GenerateRazorpayOrder(razorPayAmount, "test reciept")
+	if err != nil {
+		return razorpayOrder, err
+	}
+
+	// set all details on razopay order
+	razorpayOrder.AmountToPay = userOrder.AmountToPay
+	razorpayOrder.RazorpayAmount = razorPayAmount
+
+	razorpayOrder.RazorpayKey = config.GetCofig().RazorPayKey
+
+	razorpayOrder.UserID = userID
+	razorpayOrder.RazorpayOrderID = razopayOrderId
+	razorpayOrder.CouponID = userOrder.CouponID
+
+	razorpayOrder.Email = emailAnPhone.Email
+	razorpayOrder.Phone = emailAnPhone.Phone
+
+	return razorpayOrder, nil
 }
 
 // save order as pending then after vefication change order status to order placed
@@ -314,7 +350,7 @@ func (c *OrderUseCase) SaveOrder(ctx context.Context, shopOrder domain.ShopOrder
 	return shopOrder.ID, nil
 }
 
-// approve the order from payment pending to 
+// approve the order from payment pending to
 func (c *OrderUseCase) ApproveOrderAndClearCart(ctx context.Context, userID, shopOrderID, couponID uint) error {
 
 	//find order status for order order placed
@@ -331,8 +367,11 @@ func (c *OrderUseCase) ApproveOrderAndClearCart(ctx context.Context, userID, sho
 	}
 
 	//update the coupon status as used
-	if err := c.orderRepo.UpdateCouponUsedForUser(ctx, userID, couponID); err != nil {
-		return err
+	if couponID != 0 {
+		err = c.orderRepo.UpdateCouponUsedForUser(ctx, userID, couponID)
+		if err != nil {
+			return err
+		}
 	}
 
 	// delete ordered items from cart

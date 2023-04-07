@@ -14,9 +14,12 @@ type OrderUseCase interface {
 	GetAllPaymentMethods(ctx context.Context) ([]domain.PaymentMethod, error)
 	GetPaymentMethodByID(ctx context.Context, paymentMethodID uint) (domain.PaymentMethod, error)
 
+	// razorpay
+	GetRazorpayOrder(ctx context.Context, userID uint, userOrder res.ResUserOrder) (razorpayOrder res.ResRazorpayOrder, err error)
+
 	// order placement
-	GetOrderDetails(ctx context.Context, userID uint, body req.ReqPlaceOrder) (userOrder res.UserOrderCOD, err error)
-	SaveOrder(ctx context.Context, checkoutValues domain.ShopOrder) (shopOrderID uint, err error)
+	GetOrderDetails(ctx context.Context, userID uint, body req.ReqPlaceOrder) (userOrder res.ResUserOrder, err error)
+	SaveOrder(ctx context.Context, shopOrder domain.ShopOrder) (shopOrderID uint, err error)
 	ApproveOrderAndClearCart(ctx context.Context, userID, shopOrderID, couponID uint) error
 	// end
 

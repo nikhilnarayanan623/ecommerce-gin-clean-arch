@@ -53,8 +53,8 @@ func UserRoutes(api *gin.RouterGroup, userHandler *handler.UserHandler, ProductH
 			cart.GET("/checkout/payemt-select-page", orderHandler.CartOrderPayementSelectPage)
 
 			// make razorpay order and verify
-			//cart.POST("/place-order/razorpay-checkout", orderHandler.RazorpayCheckout)
-			//cart.POST("/place-order/razorpay-verify", orderHandler.RazorpayVerify, couponHandler.CheckUserCouponChance)
+			cart.POST("/place-order/razorpay-checkout", orderHandler.RazorpayCheckout)
+			cart.POST("/place-order/razorpay-verify", orderHandler.RazorpayVerify)
 		}
 
 		//wishlist

@@ -202,6 +202,17 @@ func (c *OrderDatabase) ValidateAddressID(ctx context.Context, addressID uint) e
 	return nil
 }
 
+// get user email and phone
+func (c *OrderDatabase) GetUserEmailAndPhone(ctx context.Context, userID uint) (emailAndPhone res.ResEmailAndPhone, err error) {
+
+	query := `SELECT email,phone FROM users WHERE id = $1`
+	err = c.DB.Raw(query, userID).Scan(&emailAndPhone).Error
+	if err != nil {
+		return emailAndPhone, fmt.Errorf("faild to find email and phone of user with user_id %v", userID)
+	}
+	return emailAndPhone, nil
+}
+
 //!end
 
 // find order status
