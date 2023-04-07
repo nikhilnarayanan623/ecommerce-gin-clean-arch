@@ -29,10 +29,10 @@ type ResCartItem struct {
 }
 
 type ResCart struct {
-	CartItems         []ResCartItem
-	AppliedCouponCode string `json:"applied_coupon_code"`
-	TotalPrice        uint   `json:"total_price"`
-	DiscountAmount    uint   `json:"discount_amount"`
+	CartItems       []ResCartItem
+	AppliedCouponID uint `json:"applied_coupon_id"`
+	TotalPrice      uint `json:"total_price"`
+	DiscountAmount  uint `json:"discount_amount"`
 }
 
 // address

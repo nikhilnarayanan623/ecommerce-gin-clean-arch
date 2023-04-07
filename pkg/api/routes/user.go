@@ -44,14 +44,13 @@ func UserRoutes(api *gin.RouterGroup, userHandler *handler.UserHandler, ProductH
 			cart.PUT("/", userHandler.UpdateCart)
 			cart.DELETE("/", userHandler.RemoveFromCart)
 
-			// place order by cart
-			cart.GET("/checkout", userHandler.CheckOutCart, orderHandler.GetAllPaymentMethods)
 			cart.PATCH("/apply-coupon", couponHandler.ApplyCouponToCart)
-			
+			cart.POST("/place-order/cod", orderHandler.PlaceOrderCartCOD) // place an order
+
+			//cart.GET("/checkout", userHandler.CheckOutCart, orderHandler.GetAllPaymentMethods)
+
 			// page for select payment method
 			cart.GET("/checkout/payemt-select-page", orderHandler.CartOrderPayementSelectPage)
-			// for submit order
-			//cart.POST("/place-order/cod", orderHandler.PlaceOrderForCartCOD, couponHandler.CheckUserCouponChance) // place an order
 
 			// make razorpay order and verify
 			//cart.POST("/place-order/razorpay-checkout", orderHandler.RazorpayCheckout)

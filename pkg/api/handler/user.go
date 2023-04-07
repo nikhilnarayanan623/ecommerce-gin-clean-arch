@@ -386,10 +386,10 @@ func (u *UserHandler) UserCart(ctx *gin.Context) {
 	}
 
 	resposeCart := res.ResCart{
-		CartItems:         cartItems,
-		AppliedCouponCode: cart.AppliedCouponCode,
-		TotalPrice:        cart.TotalPrice,
-		DiscountAmount:    cart.DiscountAmount,
+		CartItems:       cartItems,
+		AppliedCouponID: cart.AppliedCouponID,
+		TotalPrice:      cart.TotalPrice,
+		DiscountAmount:  cart.DiscountAmount,
 	}
 
 	response := res.SuccessResponse(200, "successfully got user cart items", resposeCart)

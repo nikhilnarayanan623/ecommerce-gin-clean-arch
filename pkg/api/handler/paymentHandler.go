@@ -1,15 +1,10 @@
 package handler
 
 import (
-	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/config"
-	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/utils"
-	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/utils/req"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/utils/res"
-	"github.com/razorpay/razorpay-go"
 )
 
 func (c *OrderHandler) GetAllPaymentMethods(ctx *gin.Context) {
@@ -138,75 +133,74 @@ func (c *OrderHandler) GetAllPaymentMethods(ctx *gin.Context) {
 // 	ctx.JSON(200, response)
 // }
 
-// razorpay verification
+// // razorpay verification
 
-// RazorpayVerify godoc
-// @summary api user for verify razorpay payment
-// @security ApiKeyAuth
-// @tags User Order
-// @id RazorpayVerify
-// @Param payment_method_id formData uint true "Payment Method ID"
-// @Param address_id formData uint true "Address ID"
-// @Param coupon_code formData string false "Coupon Code"
-// @Router /carts/place-order/razorpay-verify [post]
-// @Success 200 {object} res.Response{} "faild to veify payment"
-// @Failure 400 {object} res.Response{}  "successfully payment completed and order approved"
-func (c *OrderHandler) RazorpayVerify(ctx *gin.Context) {
+// // RazorpayVerify godoc
+// // @summary api user for verify razorpay payment
+// // @security ApiKeyAuth
+// // @tags User Order
+// // @id RazorpayVerify
+// // @Param payment_method_id formData uint true "Payment Method ID"
+// // @Param address_id formData uint true "Address ID"
+// // @Param coupon_code formData string false "Coupon Code"
+// // @Router /carts/place-order/razorpay-verify [post]
+// // @Success 200 {object} res.Response{} "faild to veify payment"
+// // @Failure 400 {object} res.Response{}  "successfully payment completed and order approved"
+// func (c *OrderHandler) RazorpayVerify(ctx *gin.Context) {
 
-	// struct of razorpay varification
-	var (
-		body req.ReqRazorpayVeification
-		err  error
-	)
+// 	// struct of razorpay varification
+// 	var (
+// 		body req.ReqRazorpayVeification
+// 		err  error
+// 	)
 
-	body.UserID = utils.GetUserIdFromContext(ctx)
+// 	body.UserID = utils.GetUserIdFromContext(ctx)
 
-	// take value as form value from ajax call
-	body.RazorpayPaymentID = ctx.Request.PostFormValue("razorpay_payment_id")
-	body.RazorpayOrderID = ctx.Request.PostFormValue("razorpay_order_id")
-	body.RazorpaySignature = ctx.Request.PostFormValue("razorpay_signature")
-	body.ShopOrderID, err = utils.StringToUint(ctx.Request.PostFormValue("shop_order_id"))
-	couponCode := ctx.Request.PostFormValue("coupon_code")
-	fmt.Println("coupon code ", couponCode)
-	if err != nil {
-		response := res.ErrorResponse(400, "can't make order", "shop_order id is not valid", nil)
-		ctx.JSON(400, response)
-		return
-	}
+// 	// take value as form value from ajax call
+// 	body.RazorpayPaymentID = ctx.Request.PostFormValue("razorpay_payment_id")
+// 	body.RazorpayOrderID = ctx.Request.PostFormValue("razorpay_order_id")
+// 	body.RazorpaySignature = ctx.Request.PostFormValue("razorpay_signature")
+// 	body.ShopOrderID, err1 = utils.StringToUint(ctx.Request.PostFormValue("shop_order_id"))
+// 	couponID, err2 := utils.StringToUint(ctx.Request.PostFormValue("coupon_id"))
+// 	if err != nil {
+// 		response := res.ErrorResponse(400, "can't make order", "shop_order id is not valid", nil)
+// 		ctx.JSON(400, response)
+// 		return
+// 	}
 
-	//verify the razorpay signature
-	err = utils.VeifyRazorPaySignature(body.RazorpayOrderID, body.RazorpayPaymentID, body.RazorpaySignature)
-	if err != nil {
-		respones := res.ErrorResponse(400, "faild to veify payment", err.Error(), nil)
-		ctx.JSON(http.StatusBadRequest, respones)
-		return
-	}
+// 	//verify the razorpay signature
+// 	err = utils.VeifyRazorPaySignature(body.RazorpayOrderID, body.RazorpayPaymentID, body.RazorpaySignature)
+// 	if err != nil {
+// 		respones := res.ErrorResponse(400, "faild to veify payment", err.Error(), nil)
+// 		ctx.JSON(http.StatusBadRequest, respones)
+// 		return
+// 	}
 
-	// get razorpay key and secret
-	razorpayKey, razorPaySecret := config.GetCofig().RazorPayKey, config.GetCofig().RazorPaySecret
-	// create a new razorpay client
-	razorpayClient := razorpay.NewClient(razorpayKey, razorPaySecret)
-	payment, err := razorpayClient.Payment.Fetch(body.RazorpayPaymentID, nil, nil)
-	if err != nil {
-		response := res.ErrorResponse(400, "faild to get payment details", err.Error(), nil)
-		ctx.JSON(400, response)
-		return
-	}
+// 	// get razorpay key and secret
+// 	razorpayKey, razorPaySecret := config.GetCofig().RazorPayKey, config.GetCofig().RazorPaySecret
+// 	// create a new razorpay client
+// 	razorpayClient := razorpay.NewClient(razorpayKey, razorPaySecret)
+// 	payment, err := razorpayClient.Payment.Fetch(body.RazorpayPaymentID, nil, nil)
+// 	if err != nil {
+// 		response := res.ErrorResponse(400, "faild to get payment details", err.Error(), nil)
+// 		ctx.JSON(400, response)
+// 		return
+// 	}
 
-	if payment["status"] != "captured" {
-		response := res.ErrorResponse(400, "payment faild", "payment not got on razorpay", payment)
-		ctx.JSON(400, response)
-		return
-	}
+// 	if payment["status"] != "captured" {
+// 		response := res.ErrorResponse(400, "payment faild", "payment not got on razorpay", payment)
+// 		ctx.JSON(400, response)
+// 		return
+// 	}
 
-	// approve the order using order id
-	err = c.orderUseCase.ApproveOrder(ctx, body.UserID, body.ShopOrderID, couponCode)
-	if err != nil {
-		response := res.ErrorResponse(400, "faild to place order on Razorpay for approve", err.Error(), nil)
-		ctx.AbortWithStatusJSON(http.StatusBadRequest, response)
-		return
-	}
+// 	// approve the order using order id
+// 	err = c.orderUseCase.ApproveOrder(ctx, body.UserID, body.ShopOrderID)
+// 	if err != nil {
+// 		response := res.ErrorResponse(400, "faild to place order on Razorpay for approve", err.Error(), nil)
+// 		ctx.AbortWithStatusJSON(http.StatusBadRequest, response)
+// 		return
+// 	}
 
-	response := res.SuccessResponse(200, "successfully payment completed and order approved", payment)
-	ctx.JSON(200, response)
-}
+// 	response := res.SuccessResponse(200, "successfully payment completed and order approved", payment)
+// 	ctx.JSON(200, response)
+// }

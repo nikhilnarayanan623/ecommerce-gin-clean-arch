@@ -100,7 +100,33 @@ func (c *OrderDatabase) FindAllOrdersItemsByShopOrderID(ctx context.Context, sho
 	return orderList, nil
 }
 
-// !cart to order
+// ! order place
+func (c *OrderDatabase) CheckcartIsValidForOrder(ctx context.Context, userID uint) (cart domain.Cart, err error) {
+
+	query := `SELECT * FROM carts WHERE user_id = ?`
+	if c.DB.Raw(query, userID).Scan(&cart).Error != nil {
+		return cart, errors.New("faild to get cartItem of user")
+	}
+
+	// check any of the product is out of stock in cart
+	var idOfOneOutOfStockProduct uint
+	query = `SELECT DISTINCT pi.id FROM product_items pi 
+	INNER JOIN cart_items ci ON pi.id = ci.product_item_id 
+	INNER JOIN carts c ON ci.cart_id = c.cart_id 
+	 WHERE c.user_id = 2 AND pi.qty_in_stock <= 0`
+
+	err = c.DB.Raw(query).Scan(&idOfOneOutOfStockProduct).Error
+	if err != nil {
+		return cart, fmt.Errorf("faild to check out of stock product in user cart with usre_id %d", userID)
+	}
+
+	if idOfOneOutOfStockProduct != 0 {
+		return cart, fmt.Errorf("there is an out of stock product is in cart remove it to place order")
+	}
+
+	return cart, nil
+}
+
 func (c *OrderDatabase) SaveShopOrder(ctx context.Context, shopOrder domain.ShopOrder) (domain.ShopOrder, error) {
 	trx := c.DB.Begin()
 
@@ -116,31 +142,19 @@ func (c *OrderDatabase) SaveShopOrder(ctx context.Context, shopOrder domain.Shop
 	}
 
 	if trx.Commit().Error != nil {
+		trx.Rollback()
 		return shopOrder, errors.New("faild to complete save shop_order")
 	}
 
 	return shopOrder, nil
 }
 
-func (c *OrderDatabase) FindCartTotalPrice(ctx context.Context, userID uint) (uint, error) {
-	// find totalPrice of cart
-	var orderTotalPrice uint
-	query := `SELECT SUM( CASE WHEN pi.discount_price > 0 THEN pi.discount_price * c.qty ELSE pi.price * c.qty END) 
-	AS order_total_price FROM carts c 
-	INNER JOIN product_items pi ON c.product_item_id = pi.id 
-	AND pi.qty_in_stock >= c.qty AND c.user_id = $1 
-	GROUP BY c.user_id`
-	if c.DB.Raw(query, userID).Scan(&orderTotalPrice).Error != nil {
-		return 0, errors.New("faild to calculate total price of cart")
-	}
-	return orderTotalPrice, nil
-}
-
 func (c *OrderDatabase) CartItemToOrderLines(ctx context.Context, userID uint) ([]domain.OrderLine, error) {
 	var orderLines []domain.OrderLine
-	query := `SELECT c.product_item_id, c.qty, CASE WHEN pi.discount_price > 0 THEN pi.discount_price ELSE pi.price END 
-	FROM carts c INNER JOIN product_items pi ON c.product_item_id = pi.id 
-	AND pi.qty_in_stock > c.qty AND c.user_id = $1`
+	query := `SELECT ci.product_item_id, ci.qty, CASE WHEN pi.discount_price > 0 THEN pi.discount_price ELSE pi.price END 
+	FROM cart_items ci INNER JOIN product_items pi ON ci.product_item_id = pi.id 
+	INNER JOIN carts c ON ci.cart_id = c.cart_id  
+	WHERE c.user_id = $1`
 	if c.DB.Raw(query, userID).Scan(&orderLines).Error != nil {
 		return orderLines, errors.New("faild to convert cart_item to order_lines")
 	}
@@ -159,29 +173,20 @@ func (c *OrderDatabase) SaveOrderLine(ctx context.Context, orderLine domain.Orde
 
 func (c *OrderDatabase) DeleteOrderedCartItems(ctx context.Context, userID uint) error {
 
-	query := `DELETE FROM carts c USING product_items pi 
-	WHERE c.product_item_id = pi.id AND pi.qty_in_stock > c.qty AND c.user_id = $1`
+	query := ` DELETE FROM cart_items ci USING carts c WHERE c.cart_id = ci.cart_id AND c.user_id = $1`
 	if c.DB.Exec(query, userID).Error != nil {
 		return errors.New("faild to remove cart_items on order")
 	}
 	return nil
 }
 
-// func (c *OrderDatabase) FindUserCoupon(ctx context.Context, couponCode string) (domain.UserCoupon, error) {
-// 	var userCoupon domain.UserCoupon
+func (c *OrderDatabase) UpdateCouponUsedForUser(ctx context.Context, userID, couponID uint) error {
 
-// 	query := `SELECT * FROM user_coupons WHERE coupon_code = $1`
-// 	if c.DB.Raw(query, couponCode).Scan(&userCoupon).Error != nil {
-// 		return userCoupon, errors.New("faild to get user_coupon disocunt_amount")
-// 	}
-// 	return userCoupon, nil
-// }
-
-func (c *OrderDatabase) UpdteUserCouponAsused(ctx context.Context, couponCode string) error {
-
-	query := `UPDATE user_coupons SET used = 'T' WHERE coupon_code = $1`
-	if c.DB.Exec(query, couponCode).Error != nil {
-		return errors.New("faild to updte user_coupon as used")
+	query := `INSERT INTO coupon_uses (coupon_id, user_id, used_at) VALUES ($1, $2, $3)`
+	usedAt := time.Now()
+	err := c.DB.Exec(query, couponID, userID, usedAt).Error
+	if err != nil {
+		return errors.New("faild to updte user as couon useed")
 	}
 	return nil
 }

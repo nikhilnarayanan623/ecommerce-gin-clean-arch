@@ -13,9 +13,10 @@ type OrderRepository interface {
 	//!
 	SaveShopOrder(ctx context.Context, shopOrder domain.ShopOrder) (domain.ShopOrder, error)
 
-	FindCartTotalPrice(ctx context.Context, userID uint) (uint, error)
+	CheckcartIsValidForOrder(ctx context.Context, userID uint) (cart domain.Cart, err error)
+
 	//FindUserCoupon(ctx context.Context, couponCode string) (domain.UserCoupon, error)
-	UpdteUserCouponAsused(ctx context.Context, couponCode string) error
+	UpdateCouponUsedForUser(ctx context.Context, userID, couponID uint) error
 	ValidateAddressID(ctx context.Context, addressID uint) error
 
 	CartItemToOrderLines(ctx context.Context, userID uint) ([]domain.OrderLine, error)

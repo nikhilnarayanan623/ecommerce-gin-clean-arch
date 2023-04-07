@@ -6,7 +6,13 @@ import (
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/domain"
 )
 
-type ResOrderCheckout struct {
+type UserOrderCOD struct {
+	AmountToPay uint `json:"amount_to_pay"`
+	Discount    uint `json:"discount"`
+	CouponID    uint `json:"coupon_id"`
+}
+
+type PlaceOrder struct {
 	UserID          uint   `json:"user_id"`
 	PaymentMethodID uint   `json:"payment_method_id"`
 	PaymentType     string `json:"payment_type"`

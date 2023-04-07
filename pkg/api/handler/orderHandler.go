@@ -2,8 +2,10 @@ package handler
 
 import (
 	"net/http"
+	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/domain"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/usecase/interfaces"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/utils"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/utils/req"
@@ -27,6 +29,71 @@ func (c *OrderHandler) CartOrderPayementSelectPage(ctx *gin.Context) {
 	}
 
 	ctx.HTML(200, "paymentForm.html", Payments)
+}
+
+func (c *OrderHandler) PlaceOrderCartCOD(ctx *gin.Context) {
+
+	var body req.ReqPlaceOrder
+	if err := ctx.ShouldBindJSON(&body); err != nil {
+		response := res.ErrorResponse(400, "invalid input", err.Error(), body)
+		ctx.JSON(http.StatusBadRequest, response)
+		return
+	}
+	userID := utils.GetUserIdFromContext(ctx)
+
+	//get the payment method of given payment_id and validate it COD or not
+	paymentMethod, err := c.orderUseCase.GetPaymentMethodByID(ctx, body.PaymentMethodID)
+	if err != nil {
+		response := res.ErrorResponse(400, "faild to place order on COD", err.Error(), nil)
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, response)
+		return
+	}
+	// check payment type is  razorpay or not
+	if paymentMethod.PaymentType != "COD" {
+		respones := res.ErrorResponse(400, "can't place order order", "selected payment_method_id is not for COD ", nil)
+		ctx.AbortWithStatusJSON(400, respones)
+		return
+	}
+
+	// get order details of user
+	userOrder, err := c.orderUseCase.GetOrderDetails(ctx, userID, body)
+	if err != nil {
+		response := res.ErrorResponse(400, "faild to place order", err.Error(), nil)
+		ctx.JSON(http.StatusBadRequest, response)
+		return
+	}
+
+	// save shopOrder
+	// make a shopOrder
+	shopOrder := domain.ShopOrder{
+		UserID:          userID,
+		PaymentMethodID: body.PaymentMethodID,
+		AddressID:       body.AddressID,
+		OrderTotalPrice: userOrder.AmountToPay,
+		Discount:        userOrder.Discount,
+		OrderDate:       time.Now(),
+	}
+
+	// save order details
+	shopOrderID, err := c.orderUseCase.SaveOrder(ctx, shopOrder)
+	if err != nil {
+		shopOrder.ID = shopOrderID
+		response := res.ErrorResponse(500, "faild to save shop order", err.Error(), shopOrder)
+		ctx.JSON(http.StatusInternalServerError, response)
+		return
+	}
+
+	// approve the order and clear the user cart
+	err = c.orderUseCase.ApproveOrderAndClearCart(ctx, userID, shopOrderID, userOrder.CouponID)
+
+	if err != nil {
+		respnose := res.ErrorResponse(500, "faild to update approve order and clear cart", err.Error(), nil)
+		ctx.JSON(http.StatusInternalServerError, respnose)
+		return
+	}
+
+	response := res.SuccessResponse(200, "successfully order placed in COD", nil)
+	ctx.JSON(http.StatusOK, response)
 }
 
 // // PlaceOrderForCart godoc
