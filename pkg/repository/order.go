@@ -167,15 +167,15 @@ func (c *OrderDatabase) DeleteOrderedCartItems(ctx context.Context, userID uint)
 	return nil
 }
 
-func (c *OrderDatabase) FindUserCoupon(ctx context.Context, couponCode string) (domain.UserCoupon, error) {
-	var userCoupon domain.UserCoupon
+// func (c *OrderDatabase) FindUserCoupon(ctx context.Context, couponCode string) (domain.UserCoupon, error) {
+// 	var userCoupon domain.UserCoupon
 
-	query := `SELECT * FROM user_coupons WHERE coupon_code = $1`
-	if c.DB.Raw(query, couponCode).Scan(&userCoupon).Error != nil {
-		return userCoupon, errors.New("faild to get user_coupon disocunt_amount")
-	}
-	return userCoupon, nil
-}
+// 	query := `SELECT * FROM user_coupons WHERE coupon_code = $1`
+// 	if c.DB.Raw(query, couponCode).Scan(&userCoupon).Error != nil {
+// 		return userCoupon, errors.New("faild to get user_coupon disocunt_amount")
+// 	}
+// 	return userCoupon, nil
+// }
 
 func (c *OrderDatabase) UpdteUserCouponAsused(ctx context.Context, couponCode string) error {
 

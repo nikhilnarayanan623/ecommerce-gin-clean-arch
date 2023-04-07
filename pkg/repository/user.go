@@ -41,9 +41,15 @@ func (c *userDatabse) FindUserExceptID(ctx context.Context, user domain.User) (d
 func (c *userDatabse) SaveUser(ctx context.Context, user domain.User) error {
 
 	//save the user details
-	err := c.DB.Save(&user).Error
+	query := `INSERT INTO TABLE users (user_name, first_name, last_name, age, email, phone, password,block_status) 
+	VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`
+	err := c.DB.Exec(query, user.UserName, user.FirstName, user.LastName,
+		user.Age, user.Phone, user.Password, user.BlockStatus).Error
 
-	return err
+	if err != nil {
+		return fmt.Errorf("faild to save user %s", user.UserName)
+	}
+	return nil
 }
 
 func (c *userDatabse) EditUser(ctx context.Context, user domain.User) error {

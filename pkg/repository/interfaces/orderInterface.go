@@ -14,7 +14,7 @@ type OrderRepository interface {
 	SaveShopOrder(ctx context.Context, shopOrder domain.ShopOrder) (domain.ShopOrder, error)
 
 	FindCartTotalPrice(ctx context.Context, userID uint) (uint, error)
-	FindUserCoupon(ctx context.Context, couponCode string) (domain.UserCoupon, error)
+	//FindUserCoupon(ctx context.Context, couponCode string) (domain.UserCoupon, error)
 	UpdteUserCouponAsused(ctx context.Context, couponCode string) error
 	ValidateAddressID(ctx context.Context, addressID uint) error
 

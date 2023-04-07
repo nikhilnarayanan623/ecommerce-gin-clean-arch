@@ -64,7 +64,7 @@ func ConnectDatbase(cfg config.Config) (*gorm.DB, error) {
 
 		// coupon
 		domain.Coupon{},
-		domain.UserCoupon{},
+		domain.CouponUses{},
 	)
 
 	// setup the triggers

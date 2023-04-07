@@ -1,7 +1,6 @@
 package handler
 
 import (
-	"errors"
 	"fmt"
 	"net/http"
 
@@ -26,118 +25,118 @@ func (c *OrderHandler) GetAllPaymentMethods(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, response)
 }
 
-// RazorpayPage godoc
-// @summary api for create an razorpay order
-// @security ApiKeyAuth
-// @tags User Order
-// @id RazorpayPage
-// @Param payment_method_id formData uint true "Payment Method ID"
-// @Param address_id formData uint true "Address ID"
-// @Param coupon_code formData string false "Coupon Code"
-// @Router /carts/place-order/razorpay-checkout [post]
-// @Success 200 {object} res.Response{} "place order"
-// @Failure 400 {object} res.Response{}  "faill place order"
-func (c *OrderHandler) RazorpayCheckout(ctx *gin.Context) {
+// // RazorpayPage godoc
+// // @summary api for create an razorpay order
+// // @security ApiKeyAuth
+// // @tags User Order
+// // @id RazorpayPage
+// // @Param payment_method_id formData uint true "Payment Method ID"
+// // @Param address_id formData uint true "Address ID"
+// // @Param coupon_code formData string false "Coupon Code"
+// // @Router /carts/place-order/razorpay-checkout [post]
+// // @Success 200 {object} res.Response{} "place order"
+// // @Failure 400 {object} res.Response{}  "faill place order"
+// func (c *OrderHandler) RazorpayCheckout(ctx *gin.Context) {
 
-	paymentMethodID, err1 := utils.StringToUint(ctx.Request.PostFormValue("payment_method_id"))
-	addressID, err2 := utils.StringToUint(ctx.Request.PostFormValue("address_id"))
-	couponCode := ctx.Request.PostFormValue("coupon_code")
+// 	paymentMethodID, err1 := utils.StringToUint(ctx.Request.PostFormValue("payment_method_id"))
+// 	addressID, err2 := utils.StringToUint(ctx.Request.PostFormValue("address_id"))
+// 	couponCode := ctx.Request.PostFormValue("coupon_code")
 
-	err := errors.Join(err1, err2)
-	if err != nil {
-		fmt.Println(err)
-		response := res.ErrorResponse(400, "invalid inputs", err.Error(), nil)
-		ctx.AbortWithStatusJSON(http.StatusBadRequest, response)
-		return
-	}
+// 	err := errors.Join(err1, err2)
+// 	if err != nil {
+// 		fmt.Println(err)
+// 		response := res.ErrorResponse(400, "invalid inputs", err.Error(), nil)
+// 		ctx.AbortWithStatusJSON(http.StatusBadRequest, response)
+// 		return
+// 	}
 
-	UserID := utils.GetUserIdFromContext(ctx)
+// 	UserID := utils.GetUserIdFromContext(ctx)
 
-	var body = req.ReqCheckout{
-		UserID:          UserID,
-		PaymentMethodID: paymentMethodID,
-		CouponCode:      couponCode,
-		AddressID:       addressID,
-	}
+// 	var body = req.ReqCheckout{
+// 		UserID:          UserID,
+// 		PaymentMethodID: paymentMethodID,
+// 		CouponCode:      couponCode,
+// 		AddressID:       addressID,
+// 	}
 
-	paymentMethod, err := c.orderUseCase.GetPaymentMethodByID(ctx, body.PaymentMethodID)
-	if err != nil {
-		response := res.ErrorResponse(400, "faild to place order on razor pay", err.Error(), nil)
-		ctx.AbortWithStatusJSON(http.StatusBadRequest, response)
-		return
-	}
-	// check payment type is  razorpay or not
-	if paymentMethod.PaymentType != "Razorpay" {
-		respones := res.ErrorResponse(400, "can't place order order", "selected payment_method_id is not for RazorPay ", nil)
-		ctx.AbortWithStatusJSON(400, respones)
-		return
-	}
+// 	paymentMethod, err := c.orderUseCase.GetPaymentMethodByID(ctx, body.PaymentMethodID)
+// 	if err != nil {
+// 		response := res.ErrorResponse(400, "faild to place order on razor pay", err.Error(), nil)
+// 		ctx.AbortWithStatusJSON(http.StatusBadRequest, response)
+// 		return
+// 	}
+// 	// check payment type is  razorpay or not
+// 	if paymentMethod.PaymentType != "Razorpay" {
+// 		respones := res.ErrorResponse(400, "can't place order order", "selected payment_method_id is not for RazorPay ", nil)
+// 		ctx.AbortWithStatusJSON(400, respones)
+// 		return
+// 	}
 
-	// checkout the order
-	resCheckout, err := c.orderUseCase.OrderCheckOut(ctx, body)
-	if err != nil {
-		response := res.ErrorResponse(400, "faild to place order on razor pay", err.Error(), body)
-		ctx.AbortWithStatusJSON(http.StatusBadRequest, response)
-		return
-	}
+// 	// checkout the order
+// 	resCheckout, err := c.orderUseCase.OrderCheckOut(ctx, body)
+// 	if err != nil {
+// 		response := res.ErrorResponse(400, "faild to place order on razor pay", err.Error(), body)
+// 		ctx.AbortWithStatusJSON(http.StatusBadRequest, response)
+// 		return
+// 	}
 
-	// check payment type is  razorpay or not
-	if resCheckout.PaymentType != "Razorpay" {
-		respones := res.ErrorResponse(400, "can't place order order", "selected payment_method_id is not for RazorPay", resCheckout.PaymentType)
-		ctx.AbortWithStatusJSON(400, respones)
-		return
-	}
+// 	// check payment type is  razorpay or not
+// 	if resCheckout.PaymentType != "Razorpay" {
+// 		respones := res.ErrorResponse(400, "can't place order order", "selected payment_method_id is not for RazorPay", resCheckout.PaymentType)
+// 		ctx.AbortWithStatusJSON(400, respones)
+// 		return
+// 	}
 
-	// frist get razor pay key and secret
-	razorPaykey := config.GetCofig().RazorPayKey
-	razorPaysecret := config.GetCofig().RazorPaySecret
+// 	// frist get razor pay key and secret
+// 	razorPaykey := config.GetCofig().RazorPayKey
+// 	razorPaysecret := config.GetCofig().RazorPaySecret
 
-	// create a new client
-	client := razorpay.NewClient(razorPaykey, razorPaysecret)
+// 	// create a new client
+// 	client := razorpay.NewClient(razorPaykey, razorPaysecret)
 
-	razorPayAmount := resCheckout.AmountToPay * 100
+// 	razorPayAmount := resCheckout.AmountToPay * 100
 
-	data := map[string]interface{}{
-		"amount":   razorPayAmount,
-		"currency": "INR",
-		"receipt":  "some_receipt_id",
-	}
+// 	data := map[string]interface{}{
+// 		"amount":   razorPayAmount,
+// 		"currency": "INR",
+// 		"receipt":  "some_receipt_id",
+// 	}
 
-	razorPayRes, err := client.Order.Create(data, nil)
-	if err != nil {
-		response := res.ErrorResponse(500, "faild to create razor pay order", err.Error(), nil)
-		ctx.AbortWithStatusJSON(500, response)
-		return
-	}
+// 	razorPayRes, err := client.Order.Create(data, nil)
+// 	if err != nil {
+// 		response := res.ErrorResponse(500, "faild to create razor pay order", err.Error(), nil)
+// 		ctx.AbortWithStatusJSON(500, response)
+// 		return
+// 	}
 
-	// save order as pending
-	shopOrderID, err := c.orderUseCase.SaveOrder(ctx, resCheckout)
-	if err != nil {
-		response := res.ErrorResponse(400, "faild to place order on COD for save order", err.Error(), nil)
-		ctx.AbortWithStatusJSON(http.StatusBadRequest, response)
-		return
-	}
-	// create razorpay order
-	Order := gin.H{
-		"Key":           razorPaykey,
-		"UserID":        resCheckout.UserID,
-		"AmountToPay":   resCheckout.AmountToPay,
-		"RazorpayAmout": razorPayAmount,
-		"OrderID":       razorPayRes["id"],
-		"Email":         "nikhil@gmail.com",
-		"Phone":         "62385893260",
-		"ShopOrderID":   shopOrderID,
-		"CouponCode":    resCheckout.CouponCode,
-	}
+// 	// save order as pending
+// 	shopOrderID, err := c.orderUseCase.SaveOrder(ctx, resCheckout)
+// 	if err != nil {
+// 		response := res.ErrorResponse(400, "faild to place order on COD for save order", err.Error(), nil)
+// 		ctx.AbortWithStatusJSON(http.StatusBadRequest, response)
+// 		return
+// 	}
+// 	// create razorpay order
+// 	Order := gin.H{
+// 		"Key":           razorPaykey,
+// 		"UserID":        resCheckout.UserID,
+// 		"AmountToPay":   resCheckout.AmountToPay,
+// 		"RazorpayAmout": razorPayAmount,
+// 		"OrderID":       razorPayRes["id"],
+// 		"Email":         "nikhil@gmail.com",
+// 		"Phone":         "62385893260",
+// 		"ShopOrderID":   shopOrderID,
+// 		"CouponCode":    resCheckout.CouponCode,
+// 	}
 
-	// make a respone of order and and razorpay for fron-end validation
-	response := gin.H{
-		"Razorpay": true,
-		"Order":    Order,
-	}
+// 	// make a respone of order and and razorpay for fron-end validation
+// 	response := gin.H{
+// 		"Razorpay": true,
+// 		"Order":    Order,
+// 	}
 
-	ctx.JSON(200, response)
-}
+// 	ctx.JSON(200, response)
+// }
 
 // razorpay verification
 

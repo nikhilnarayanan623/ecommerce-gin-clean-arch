@@ -52,9 +52,10 @@ type WishList struct {
 }
 
 type Cart struct {
-	CartID     uint `json:"cart_id" gorm:"primaryKey;not null"`
-	UserID     uint `json:"user_id" gorm:"not null"`
-	TotalPrice uint `json:"total_price" gorm:"not null"`
+	CartID            uint   `json:"cart_id" gorm:"primaryKey;not null"`
+	UserID            uint   `json:"user_id" gorm:"not null"`
+	TotalPrice        uint   `json:"total_price" gorm:"not null"`
+	AppliedCouponCode string `json:"applied_coupon_code"`
 }
 
 type CartItem struct {

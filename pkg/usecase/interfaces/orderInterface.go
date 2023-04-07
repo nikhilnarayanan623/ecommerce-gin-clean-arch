@@ -15,7 +15,7 @@ type OrderUseCase interface {
 	GetPaymentMethodByID(ctx context.Context, paymentMethodID uint) (domain.PaymentMethod, error)
 
 	// order placement
-	OrderCheckOut(ctx context.Context, body req.ReqCheckout) (res.ResOrderCheckout, error)
+	//OrderCheckOut(ctx context.Context, body req.ReqCheckout) (res.ResOrderCheckout, error)
 	SaveOrder(ctx context.Context, checkoutValues res.ResOrderCheckout) (uint, error)
 	ApproveOrder(ctx context.Context, userID, shopOrderID uint, couponCode string) error
 	// end

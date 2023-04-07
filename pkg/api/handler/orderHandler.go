@@ -4,10 +4,10 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/usecase/interfaces"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/utils"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/utils/req"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/utils/res"
-	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/usecase/interfaces"
 )
 
 type OrderHandler struct {
@@ -29,60 +29,60 @@ func (c *OrderHandler) CartOrderPayementSelectPage(ctx *gin.Context) {
 	ctx.HTML(200, "paymentForm.html", Payments)
 }
 
-// PlaceOrderForCart godoc
-// @summary api cart order
-// @security ApiKeyAuth
-// @tags User Order
-// @id PlaceOrderForCart
-// @Param        inputs   body     req.ReqCheckout{}   true  "Input Field"
-// @Router /carts/place-order/cod [post]
-// @Success 200 {object} res.Response{} "place order"
-// @Failure 400 {object} res.Response{}  "faill place order"
-func (c *OrderHandler) PlaceOrderForCartCOD(ctx *gin.Context) {
+// // PlaceOrderForCart godoc
+// // @summary api cart order
+// // @security ApiKeyAuth
+// // @tags User Order
+// // @id PlaceOrderForCart
+// // @Param        inputs   body     req.ReqCheckout{}   true  "Input Field"
+// // @Router /carts/place-order/cod [post]
+// // @Success 200 {object} res.Response{} "place order"
+// // @Failure 400 {object} res.Response{}  "faill place order"
+// func (c *OrderHandler) PlaceOrderForCartCOD(ctx *gin.Context) {
 
-	var body req.ReqCheckout
-	if err := ctx.ShouldBindJSON(&body); err != nil {
-		response := res.ErrorResponse(400, "invalid inputs", err.Error(), body)
-		ctx.AbortWithStatusJSON(http.StatusBadRequest, response)
-		return
-	}
+// 	var body req.ReqCheckout
+// 	if err := ctx.ShouldBindJSON(&body); err != nil {
+// 		response := res.ErrorResponse(400, "invalid inputs", err.Error(), body)
+// 		ctx.AbortWithStatusJSON(http.StatusBadRequest, response)
+// 		return
+// 	}
 
-	body.UserID = utils.GetUserIdFromContext(ctx)
+// 	body.UserID = utils.GetUserIdFromContext(ctx)
 
-	// checkout the order
-	resCheckout, err := c.orderUseCase.OrderCheckOut(ctx, body)
-	if err != nil {
-		response := res.ErrorResponse(400, "faild to place order on COD", err.Error(), body)
-		ctx.AbortWithStatusJSON(http.StatusBadRequest, response)
-		return
-	}
+// 	// checkout the order
+// 	resCheckout, err := c.orderUseCase.OrderCheckOut(ctx, body)
+// 	if err != nil {
+// 		response := res.ErrorResponse(400, "faild to place order on COD", err.Error(), body)
+// 		ctx.AbortWithStatusJSON(http.StatusBadRequest, response)
+// 		return
+// 	}
 
-	// check payment status is COD or not
-	if resCheckout.PaymentType != "COD" {
-		respones := res.ErrorResponse(400, "can't place order order", "payement type is not COD", nil)
-		ctx.AbortWithStatusJSON(400, respones)
-		return
-	}
-	// place order on COD
-	shopOrderID, err := c.orderUseCase.SaveOrder(ctx, resCheckout)
-	if err != nil {
-		response := res.ErrorResponse(400, "faild to place order on COD", err.Error(), nil)
-		ctx.AbortWithStatusJSON(http.StatusBadRequest, response)
-		return
-	}
+// 	// check payment status is COD or not
+// 	if resCheckout.PaymentType != "COD" {
+// 		respones := res.ErrorResponse(400, "can't place order order", "payement type is not COD", nil)
+// 		ctx.AbortWithStatusJSON(400, respones)
+// 		return
+// 	}
+// 	// place order on COD
+// 	shopOrderID, err := c.orderUseCase.SaveOrder(ctx, resCheckout)
+// 	if err != nil {
+// 		response := res.ErrorResponse(400, "faild to place order on COD", err.Error(), nil)
+// 		ctx.AbortWithStatusJSON(http.StatusBadRequest, response)
+// 		return
+// 	}
 
-	//this is COD so approve the order as instand
-	err = c.orderUseCase.ApproveOrder(ctx, body.UserID, shopOrderID, resCheckout.CouponCode)
-	if err != nil {
-		response := res.ErrorResponse(400, "faild to place order on COD for approve", err.Error(), nil)
-		ctx.AbortWithStatusJSON(http.StatusBadRequest, response)
-		return
-	}
+// 	//this is COD so approve the order as instand
+// 	err = c.orderUseCase.ApproveOrder(ctx, body.UserID, shopOrderID, resCheckout.CouponCode)
+// 	if err != nil {
+// 		response := res.ErrorResponse(400, "faild to place order on COD for approve", err.Error(), nil)
+// 		ctx.AbortWithStatusJSON(http.StatusBadRequest, response)
+// 		return
+// 	}
 
-	response := res.SuccessResponse(200, "successfully placed order for COD")
-	ctx.JSON(http.StatusOK, response)
+// 	response := res.SuccessResponse(200, "successfully placed order for COD")
+// 	ctx.JSON(http.StatusOK, response)
 
-}
+// }
 
 // GetUserOrder godoc
 // @summary api for showing user order list

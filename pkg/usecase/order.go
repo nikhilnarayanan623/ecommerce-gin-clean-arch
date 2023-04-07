@@ -238,67 +238,67 @@ func (c *OrderUseCase) UpdateReturnRequest(ctx context.Context, body req.ReqUpda
 	return c.orderRepo.UpdateOrderReturn(ctx, body)
 }
 
-func (c *OrderUseCase) OrderCheckOut(ctx context.Context, body req.ReqCheckout) (res.ResOrderCheckout, error) {
+// func (c *OrderUseCase) OrderCheckOut(ctx context.Context, body req.ReqCheckout) (res.ResOrderCheckout, error) {
 
-	// find the payment method
-	paymentMethod, err := c.orderRepo.FindPaymentMethodByID(ctx, body.PaymentMethodID)
-	if err != nil {
-		return res.ResOrderCheckout{}, err
-	} else if paymentMethod.PaymentType == "" {
-		return res.ResOrderCheckout{}, errors.New("invalid payment_method_id")
-	} else if paymentMethod.BlockStatus {
-		return res.ResOrderCheckout{}, errors.New("payment status is blocked use another payment method")
-	}
+// 	// find the payment method
+// 	paymentMethod, err := c.orderRepo.FindPaymentMethodByID(ctx, body.PaymentMethodID)
+// 	if err != nil {
+// 		return res.ResOrderCheckout{}, err
+// 	} else if paymentMethod.PaymentType == "" {
+// 		return res.ResOrderCheckout{}, errors.New("invalid payment_method_id")
+// 	} else if paymentMethod.BlockStatus {
+// 		return res.ResOrderCheckout{}, errors.New("payment status is blocked use another payment method")
+// 	}
 
-	// find the total price of cart of user
-	cartTotalPrice, err := c.orderRepo.FindCartTotalPrice(ctx, body.UserID)
-	if err != nil {
-		return res.ResOrderCheckout{}, err
-	} else if cartTotalPrice == 0 {
-		return res.ResOrderCheckout{}, errors.New("there is no product_items eligible for place order in cart \nadd product to cart")
-	}
+// 	// find the total price of cart of user
+// 	cartTotalPrice, err := c.orderRepo.FindCartTotalPrice(ctx, body.UserID)
+// 	if err != nil {
+// 		return res.ResOrderCheckout{}, err
+// 	} else if cartTotalPrice == 0 {
+// 		return res.ResOrderCheckout{}, errors.New("there is no product_items eligible for place order in cart \nadd product to cart")
+// 	}
 
-	// compare payement max_amount with total price
-	if cartTotalPrice > paymentMethod.MaximumAmount {
-		return res.ResOrderCheckout{}, fmt.Errorf("cart order total price is more than payment max amount %d", paymentMethod.MaximumAmount)
-	}
+// 	// compare payement max_amount with total price
+// 	if cartTotalPrice > paymentMethod.MaximumAmount {
+// 		return res.ResOrderCheckout{}, fmt.Errorf("cart order total price is more than payment max amount %d", paymentMethod.MaximumAmount)
+// 	}
 
-	var discountAmount uint
-	// if couponCode exist then check coupon code is valid or not
-	if body.CouponCode != "" {
-		userCoupon, err := c.orderRepo.FindUserCoupon(ctx, body.CouponCode)
-		if err != nil {
-			return res.ResOrderCheckout{}, err
-		} else if userCoupon.ID == 0 { // validate coupon
-			return res.ResOrderCheckout{}, errors.New("invalid coupon code \nplease enter valid coupon code")
-		} else if time.Since(userCoupon.ExpireDate) > 0 { // check expire date
-			return res.ResOrderCheckout{}, errors.New("can't use coupon code \ncoupon code is expired")
-		} else if userCoupon.Used { // check couponCode already used
-			return res.ResOrderCheckout{}, errors.New("can't user coupon code \nthis coupon already used")
-		} else if userCoupon.DiscountAmount == 0 { // check coupon applied on cart
-			return res.ResOrderCheckout{}, errors.New("given coupon_code is not applied apply on cart checkout")
-		} else if userCoupon.CartPrice != cartTotalPrice { // check coupon applied time cart price and current cart price
-			return res.ResOrderCheckout{}, errors.New("coupon applied cart price and order time cart price not matching")
-		}
-		discountAmount = userCoupon.DiscountAmount // discount check coupon applied or not
-	}
+// 	var discountAmount uint
+// 	// if couponCode exist then check coupon code is valid or not
+// 	if body.CouponCode != "" {
+// 		userCoupon, err := c.orderRepo.FindUserCoupon(ctx, body.CouponCode)
+// 		if err != nil {
+// 			return res.ResOrderCheckout{}, err
+// 		} else if userCoupon.ID == 0 { // validate coupon
+// 			return res.ResOrderCheckout{}, errors.New("invalid coupon code \nplease enter valid coupon code")
+// 		} else if time.Since(userCoupon.ExpireDate) > 0 { // check expire date
+// 			return res.ResOrderCheckout{}, errors.New("can't use coupon code \ncoupon code is expired")
+// 		} else if userCoupon.Used { // check couponCode already used
+// 			return res.ResOrderCheckout{}, errors.New("can't user coupon code \nthis coupon already used")
+// 		} else if userCoupon.DiscountAmount == 0 { // check coupon applied on cart
+// 			return res.ResOrderCheckout{}, errors.New("given coupon_code is not applied apply on cart checkout")
+// 		} else if userCoupon.CartPrice != cartTotalPrice { // check coupon applied time cart price and current cart price
+// 			return res.ResOrderCheckout{}, errors.New("coupon applied cart price and order time cart price not matching")
+// 		}
+// 		discountAmount = userCoupon.DiscountAmount // discount check coupon applied or not
+// 	}
 
-	// validate the address_id
-	if err := c.orderRepo.ValidateAddressID(ctx, body.AddressID); err != nil {
-		return res.ResOrderCheckout{}, err
-	}
+// 	// validate the address_id
+// 	if err := c.orderRepo.ValidateAddressID(ctx, body.AddressID); err != nil {
+// 		return res.ResOrderCheckout{}, err
+// 	}
 
-	//create a resCheckout and return
-	return res.ResOrderCheckout{
-		UserID:          body.UserID,
-		PaymentMethodID: paymentMethod.ID,
-		PaymentType:     paymentMethod.PaymentType,
-		AmountToPay:     cartTotalPrice - discountAmount, // subtract discount price on total price
-		Discount:        discountAmount,
-		AddressID:       body.AddressID,
-		CouponCode:      body.CouponCode,
-	}, nil
-}
+// 	//create a resCheckout and return
+// 	return res.ResOrderCheckout{
+// 		UserID:          body.UserID,
+// 		PaymentMethodID: paymentMethod.ID,
+// 		PaymentType:     paymentMethod.PaymentType,
+// 		AmountToPay:     cartTotalPrice - discountAmount, // subtract discount price on total price
+// 		Discount:        discountAmount,
+// 		AddressID:       body.AddressID,
+// 		CouponCode:      body.CouponCode,
+// 	}, nil
+// }
 
 // save order as pending then after vefication change order status to placed
 func (c *OrderUseCase) SaveOrder(ctx context.Context, checkoutValues res.ResOrderCheckout) (uint, error) {

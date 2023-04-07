@@ -46,15 +46,16 @@ func UserRoutes(api *gin.RouterGroup, userHandler *handler.UserHandler, ProductH
 
 			// place order by cart
 			cart.GET("/checkout", userHandler.CheckOutCart, orderHandler.GetAllPaymentMethods)
-			cart.PATCH("/apply-coupon", couponHandler.ApplyUserCoupon)
+			cart.PATCH("/apply-coupon", couponHandler.ApplyCouponToCart)
+			
 			// page for select payment method
 			cart.GET("/checkout/payemt-select-page", orderHandler.CartOrderPayementSelectPage)
 			// for submit order
-			cart.POST("/place-order/cod", orderHandler.PlaceOrderForCartCOD, couponHandler.CheckUserCouponChance) // place an order
+			//cart.POST("/place-order/cod", orderHandler.PlaceOrderForCartCOD, couponHandler.CheckUserCouponChance) // place an order
 
 			// make razorpay order and verify
-			cart.POST("/place-order/razorpay-checkout", orderHandler.RazorpayCheckout)
-			cart.POST("/place-order/razorpay-verify", orderHandler.RazorpayVerify, couponHandler.CheckUserCouponChance)
+			//cart.POST("/place-order/razorpay-checkout", orderHandler.RazorpayCheckout)
+			//cart.POST("/place-order/razorpay-verify", orderHandler.RazorpayVerify, couponHandler.CheckUserCouponChance)
 		}
 
 		//wishlist
@@ -89,10 +90,10 @@ func UserRoutes(api *gin.RouterGroup, userHandler *handler.UserHandler, ProductH
 		}
 
 		// coupons
-		coupons := api.Group("/coupons")
-		{
-			coupons.GET("/", couponHandler.GetAllUserCoupons)
-		}
+		// coupons := api.Group("/coupons")
+		// {
+		// 	coupons.GET("/", couponHandler.GetAllUserCoupons)
+		// }
 
 	}
 

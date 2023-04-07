@@ -51,7 +51,7 @@ func CheckProbability(channce float64) bool {
 }
 
 // random coupons
-func CreateRandomCouponCode(couponCodeLenth int) string {
+func GenerateCouponCode(couponCodeLenth int) string {
 	// letter for coupns
 	letters := `ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890`
 	rand.Seed(time.Now().UnixMilli())
