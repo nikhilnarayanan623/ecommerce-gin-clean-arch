@@ -132,7 +132,7 @@ func (c *CouponHandler) ApplyCouponToCart(ctx *gin.Context) {
 		return
 	}
 
-	response := res.SuccessResponse(200, "successfully updated the coupon code", gin.H{"discount_price": discountPrice})
+	response := res.SuccessResponse(200, "successfully updated the coupon code", gin.H{"discount_amount": discountPrice})
 	ctx.JSON(http.StatusOK, response)
 }
 

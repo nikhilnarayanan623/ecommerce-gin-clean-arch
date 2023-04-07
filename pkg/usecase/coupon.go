@@ -76,48 +76,48 @@ func (c *couponUseCase) UpdateCoupon(ctx context.Context, coupon domain.Coupon) 
 }
 
 // apply coupon
-func (c *couponUseCase) ApplyCouponToCart(ctx context.Context, userID uint, couponCode string) (discountPrice uint, err error) {
+func (c *couponUseCase) ApplyCouponToCart(ctx context.Context, userID uint, couponCode string) (discountAmount uint, err error) {
 
 	// get the coupon with given coupon code
 	coupon, err := c.couponRepo.FindCouponByCouponCode(ctx, couponCode)
 	if err != nil {
-		return discountPrice, err
+		return discountAmount, err
 	} else if coupon.CouponID == 0 {
-		return discountPrice, fmt.Errorf("invalid coupon_code %s", couponCode)
+		return discountAmount, fmt.Errorf("invalid coupon_code %s", couponCode)
 	}
 
 	// get the cart of user
 	cart, err := c.couponRepo.FindCartByUserID(ctx, userID)
 	if err != nil {
-		return discountPrice, err
+		return discountAmount, err
 	} else if cart.CartID == 0 {
-		return discountPrice, fmt.Errorf("there is no cart_items avialable for user with user_id %d", userID)
+		return discountAmount, fmt.Errorf("there is no cart_items avialable for user with user_id %d", userID)
 	}
 
 	// then check the cart have already a coupon applied
 	if cart.AppliedCouponCode != "" {
-		return discountPrice, fmt.Errorf("cart have already a coupon applied %s", cart.AppliedCouponCode)
+		return discountAmount, fmt.Errorf("cart have already a coupon applied %s", cart.AppliedCouponCode)
 	}
 
 	// validate the coupon expire date and cart price
 	if time.Since(coupon.ExpireDate) > 0 {
-		return discountPrice, fmt.Errorf("can't apply coupn \ncoupn expired")
+		return discountAmount, fmt.Errorf("can't apply coupn \ncoupn expired")
 	}
 	if cart.TotalPrice < coupon.MinimumCartPrice {
-		return discountPrice, fmt.Errorf("can't apply coupn \ncoupn minimum cart_amount %d not met with user cart total price %d",
+		return discountAmount, fmt.Errorf("can't apply coupn \ncoupn minimum cart_amount %d not met with user cart total price %d",
 			coupon.MinimumCartPrice, cart.TotalPrice)
 	}
 
-	// calculate a discount price and update it cart with coupn codeconst
-	discountPrice = (cart.TotalPrice * (100 - coupon.DiscountRate)) / 100
+	// calculate a discount for cart
+	discountAmount = (cart.TotalPrice * coupon.DiscountRate) / 100
 	// update the cart
-	err = c.couponRepo.UpdateCart(ctx, cart.CartID, discountPrice, couponCode)
+	err = c.couponRepo.UpdateCart(ctx, cart.CartID, discountAmount, couponCode)
 	if err != nil {
-		return discountPrice, err
+		return discountAmount, err
 	}
 
-	log.Printf("successfully updated the cart price with dicount price %d", discountPrice)
-	return discountPrice, nil
+	log.Printf("successfully updated the cart price with dicount price %d", discountAmount)
+	return discountAmount, nil
 }
 
 // // save coupon code for user

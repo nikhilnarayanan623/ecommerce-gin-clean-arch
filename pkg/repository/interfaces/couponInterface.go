@@ -20,6 +20,6 @@ type CouponRepository interface {
 
 	//!cart
 	FindCartByUserID(ctx context.Context, userID uint) (cart domain.Cart, err error)
-	UpdateCart(ctx context.Context, cartId, totalPrice uint, couponCode string) error
+	UpdateCart(ctx context.Context, cartId, discountAmount uint, couponCode string) error
 	//!end
 }

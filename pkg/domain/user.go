@@ -56,6 +56,7 @@ type Cart struct {
 	UserID            uint   `json:"user_id" gorm:"not null"`
 	TotalPrice        uint   `json:"total_price" gorm:"not null"`
 	AppliedCouponCode string `json:"applied_coupon_code"`
+	DiscountAmount    uint   `json:"discount_amount"`
 }
 
 type CartItem struct {
