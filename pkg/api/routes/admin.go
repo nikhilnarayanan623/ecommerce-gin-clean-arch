@@ -55,7 +55,6 @@ func AdminRoutes(api *gin.RouterGroup, adminHandler *handler.AdminHandler,
 
 			product.GET("/product-item/:product_id", productHandler.GetProductItems)
 			product.POST("/product-item", productHandler.AddProductItem)
-
 		}
 		// order
 		order := api.Group("/orders")

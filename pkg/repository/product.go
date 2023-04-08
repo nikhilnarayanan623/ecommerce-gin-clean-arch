@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"time"
 
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/domain"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/repository/interfaces"
@@ -119,7 +120,14 @@ func (c *productDatabase) AddVariationOption(ctx context.Context, variationOptio
 
 	return variationOption, nil
 }
-
+func (c *productDatabase) FindProductByID(ctx context.Context, productID uint) (product domain.Product, err error) {
+	query := `SELECT * FROM prodcuts WHERE id = $1`
+	err = c.DB.Raw(query, productID).Error
+	if err != nil {
+		return product, fmt.Errorf("faild find product with prduct_id %v", productID)
+	}
+	return product, nil
+}
 func (c *productDatabase) FindProduct(ctx context.Context, product domain.Product) (domain.Product, error) {
 
 	if c.DB.Raw("SELECT * FROM products WHERE id = ? OR product_name=?", product.ID, product.ProductName).Scan(&product).Error != nil {
@@ -130,9 +138,10 @@ func (c *productDatabase) FindProduct(ctx context.Context, product domain.Produc
 
 // to add a new product in database
 func (c *productDatabase) SaveProduct(ctx context.Context, product domain.Product) error {
-
-	querry := `INSERT INTO products (product_name,description,category_id,price,image)VALUES($1,$2,$3,$4,$5) RETURNING id,product_name,description,category_id,price,image`
-	if c.DB.Raw(querry, product.ProductName, product.Description, product.CategoryID, product.Price, product.Image).Scan(&product).Error != nil {
+	crateddAt := time.Now()
+	querry := `INSERT INTO products (product_name, description, category_id, price, image, created_at) 
+	VALUES($1, $2, $3, $4, $5, $6)`
+	if c.DB.Exec(querry, product.ProductName, product.Description, product.CategoryID, product.Price, product.Image, crateddAt).Error != nil {
 		return errors.New("faild to insert product on database")
 	}
 
@@ -152,13 +161,17 @@ func (c *productDatabase) UpdateProduct(ctx context.Context, product domain.Prod
 }
 
 // get all products from database
-func (c *productDatabase) FindAllProducts(ctx context.Context) ([]res.ResponseProduct, error) {
+func (c *productDatabase) FindAllProducts(ctx context.Context, pagination req.ReqPagination) (products []res.ResponseProduct, err error) {
 
-	var products []res.ResponseProduct
+	limit := pagination.Count
+	offset := (pagination.PageNumber - 1) * limit
+
 	// aliase :: p := product; c := category
-	querry := `SELECT p.id,p.product_name,p.description,p.price,p.discount_price,p.image,p.category_id,p.image,c.category_name FROM products p LEFT JOIN categories c ON p.category_id=c.id`
+	querry := `SELECT p.id,p.product_name,p.description,p.price,p.discount_price,p.image,p.category_id,p.image,c.category_name 
+	FROM products p LEFT JOIN categories c ON p.category_id=c.id 
+	ORDER BY price DESC LIMIT $1 OFFSET $2`
 
-	if c.DB.Raw(querry).Scan(&products).Error != nil {
+	if c.DB.Raw(querry, limit, offset).Scan(&products).Error != nil {
 		return products, errors.New("faild to get products from database")
 	}
 
@@ -166,33 +179,35 @@ func (c *productDatabase) FindAllProducts(ctx context.Context) ([]res.ResponsePr
 }
 
 // add a new product Items on database
-func (c *productDatabase) AddProductItem(ctx context.Context, reqProductItem req.ReqProductItem) (domain.ProductItem, error) {
+func (c *productDatabase) SaveProductItem(ctx context.Context, reqProductItem req.ReqProductItem) error {
 
-	// first check the given product id is valid or not
-	var product domain.Product
-	if c.DB.Raw("SELECT * FROM products WHERE id=?", reqProductItem.ProductID).Scan(&product).Error != nil {
-		return domain.ProductItem{}, errors.New("faild to get the product")
-	} else if product.ProductName == "" {
-		return domain.ProductItem{}, errors.New("invalid product id there is no product with this id")
-	}
-	var productItem domain.ProductItem
+	trx := c.DB.Begin()
+
+	var productItemItemID uint
 	// first check the product item already exist
 
-	querry := `SELECT * FROM product_items p JOIN product_configurations pc ON p.id=pc.product_item_id AND pc.variation_option_id=? AND p.product_id=?`
-	if c.DB.Raw(querry, reqProductItem.VariationOptionID, product.ID).Scan(&productItem).Error != nil {
-		return productItem, errors.New("faild to get product item")
+	querry := ` SELECT pi.id FROM product_items pi INNER JOIN product_configurations pc ON p.id = pc.product_item_id 
+	WHERE pi.product_id= $1 AND pc.variation_option_id= $1`
+	if trx.Raw(querry, reqProductItem.VariationOptionID, reqProductItem.ProductID).Scan(&productItemItemID).Error != nil {
+		trx.Rollback()
+		return errors.New("faild to check product_item already exist with this configuration")
 	}
 
 	// if product item already exist with this productId
-	if productItem.ID != 0 && productItem.ProductID == reqProductItem.ProductID {
-		return productItem, errors.New("this product configuration already exist")
+	if productItemItemID != 0 {
+		trx.Rollback()
+		return fmt.Errorf("a product_item already exist for this product with product_item_id %v", productItemItemID)
 	}
 
 	//then insert product_id ,quantity and price
+	createdAt := time.Now()
 	// var productItem domain.ProductItem
-	querry = `INSERT INTO product_items (product_id,qty_in_stock,price) VALUES ($1,$2,$3) RETURNING id, product_id, qty_in_stock, price`
-	if c.DB.Raw(querry, reqProductItem.ProductID, reqProductItem.QtyInStock, reqProductItem.Price).Scan(&productItem).Error != nil {
-		return productItem, errors.New("faild to add product item in database")
+	querry = `INSERT INTO product_items (product_id,qty_in_stock,price, created_at) 
+	VALUES ($1, $2, $3, $4) RETURNING id `
+	err := c.DB.Raw(querry, reqProductItem.ProductID, reqProductItem.QtyInStock, reqProductItem.Price, createdAt).Scan(&productItemItemID).Error
+	if err != nil {
+		trx.Rollback()
+		return fmt.Errorf("faild to save product_item for product with product_id %v", reqProductItem.ProductID)
 	}
 
 	// add all images in db with this productItemID
@@ -201,19 +216,25 @@ func (c *productDatabase) AddProductItem(ctx context.Context, reqProductItem req
 
 	// loop to insert all images from the array
 	for _, img := range reqProductItem.Images {
-		if c.DB.Raw(querry, productItem.ID, img).Scan(&producImage).Error != nil {
-			return productItem, errors.New("faild to add image in database")
+		if c.DB.Raw(querry, productItemItemID, img).Scan(&producImage).Error != nil {
+			trx.Rollback()
+			return fmt.Errorf("faid to add image for product_item of product with product_id %v", reqProductItem.ProductID)
 		}
 	}
 
-	// atlast cofigure productItem in productConfiguration
-	var pCofig domain.ProductConfiguration
-	querry = `INSERT INTO product_configurations (product_item_id,variation_option_id) VALUES ($1,$2) RETURNING product_item_id,variation_option_id`
-	if c.DB.Raw(querry, productItem.ID, reqProductItem.VariationOptionID).Scan(&pCofig).Error != nil {
-		return productItem, errors.New("faild to add product configuration on database")
+	querry = `INSERT INTO product_configurations (product_item_id, variation_option_id) VALUES ($1, $2)`
+	if c.DB.Raw(querry, productItemItemID, reqProductItem.VariationOptionID).Error != nil {
+		trx.Rollback()
+		return fmt.Errorf("faild to add product configuration of product_item for product with prodcut_id %v", reqProductItem.ProductID)
 	}
 
-	return productItem, nil
+	err = trx.Commit().Error
+	if err != nil {
+		trx.Rollback()
+		return fmt.Errorf("faild to complete the product_item save for product with product_id %v", reqProductItem.ProductID)
+	}
+
+	return nil
 }
 
 // for get all products items for a product
