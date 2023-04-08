@@ -7,9 +7,9 @@ import (
 	"time"
 
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/domain"
-	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/helper/req"
-	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/helper/res"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/repository/interfaces"
+	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/utils/req"
+	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/utils/res"
 	"gorm.io/gorm"
 )
 
@@ -33,14 +33,17 @@ func (c *OrderDatabase) FindShopOrderByShopOrderID(ctx context.Context, shopOrde
 }
 
 // get all shop order of user
-func (c *OrderDatabase) FindAllShopOrdersByUserID(ctx context.Context, userID uint) ([]res.ResShopOrder, error) {
+func (c *OrderDatabase) FindAllShopOrdersByUserID(ctx context.Context, userID uint, pagination req.ReqPagination) ([]res.ResShopOrder, error) {
+
+	limit := pagination.Count
+	offset := (pagination.PageNumber - 1) * limit
 
 	var shopOrders []res.ResShopOrder
 	query := `SELECT so.user_id, so.id AS shop_order_id, so.order_date, so.order_total_price,so.discount, 
 	so.order_status_id, os.status AS order_status,so.address_id,so.payment_method_id, pm.payment_type  
 	FROM shop_orders so JOIN order_statuses os ON so.order_status_id = os.id 
-	INNER JOIN payment_methods pm ON so.payment_method_id = pm.id WHERE user_id = ?`
-	if c.DB.Raw(query, userID).Scan(&shopOrders).Error != nil {
+	INNER JOIN payment_methods pm ON so.payment_method_id = pm.id WHERE user_id = $1 ORDER BY order_date DESC LIMIT $2 OFFSET  $3`
+	if c.DB.Raw(query, userID, limit, offset).Scan(&shopOrders).Error != nil {
 		return shopOrders, errors.New("faild to get user shop order")
 	}
 
@@ -60,14 +63,17 @@ func (c *OrderDatabase) FindAllShopOrdersByUserID(ctx context.Context, userID ui
 }
 
 // find all shop orders with user
-func (c *OrderDatabase) FindAllShopOrders(ctx context.Context) ([]res.ResShopOrder, error) {
+func (c *OrderDatabase) FindAllShopOrders(ctx context.Context, pagination req.ReqPagination) (shopOrders []res.ResShopOrder, err error) {
 
-	var shopOrders []res.ResShopOrder
+	limit := pagination.Count
+	offset := (pagination.PageNumber - 1) * limit
+
 	query := `SELECT so.user_id, so.id AS shop_order_id, so.order_date, so.order_total_price,so.discount, 
 	so.order_status_id, os.status AS order_status,so.address_id,so.payment_method_id, pm.payment_type  
 	FROM shop_orders so JOIN order_statuses os ON so.order_status_id = os.id 
-	INNER JOIN payment_methods pm ON so.payment_method_id = pm.id `
-	if c.DB.Raw(query).Scan(&shopOrders).Error != nil {
+	INNER JOIN payment_methods pm ON so.payment_method_id = pm.id 
+	ORDER BY so.order_date DESC LIMIT $1 OFFSET $2`
+	if c.DB.Raw(query, limit, offset).Scan(&shopOrders).Error != nil {
 		return shopOrders, errors.New("faild to get order list")
 	}
 
@@ -86,21 +92,49 @@ func (c *OrderDatabase) FindAllShopOrders(ctx context.Context) ([]res.ResShopOrd
 }
 
 // get order items of a specific order
-func (c *OrderDatabase) FindAllOrdersItemsByShopOrderID(ctx context.Context, shopOrderID uint) ([]res.ResOrder, error) {
+func (c *OrderDatabase) FindAllOrdersItemsByShopOrderID(ctx context.Context, shopOrderID uint, pagination req.ReqPagination) (orderItems []res.ResOrderItem, err error) {
 
-	var orderList []res.ResOrder
+	limit := pagination.Count
+	offset := (pagination.PageNumber - 1) * limit
 
 	query := `SELECT ol.product_item_id,p.product_name,p.image,ol.price, so.order_date, os.status,ol.qty, (ol.price * ol.qty) AS sub_total FROM  order_lines ol 
 	JOIN shop_orders so ON ol.shop_order_id = so.id JOIN product_items pi ON ol.product_item_id = pi.id
-	JOIN products p ON pi.product_id = p.id JOIN order_statuses os ON so.order_status_id = os.id AND ol.shop_order_id= ?`
+	JOIN products p ON pi.product_id = p.id JOIN order_statuses os ON so.order_status_id = os.id AND ol.shop_order_id= $1 
+	ORDER BY ol.qty DESC LIMIT $2 OFFSET $3`
 
-	if c.DB.Raw(query, shopOrderID).Scan(&orderList).Error != nil {
-		return orderList, errors.New("faild to get users order list")
+	if c.DB.Raw(query, shopOrderID, limit, offset).Scan(&orderItems).Error != nil {
+		return orderItems, errors.New("faild to get users order list")
 	}
-	return orderList, nil
+	return orderItems, nil
 }
 
-// !cart to order
+// ! order place
+func (c *OrderDatabase) CheckcartIsValidForOrder(ctx context.Context, userID uint) (cart domain.Cart, err error) {
+
+	query := `SELECT * FROM carts WHERE user_id = ?`
+	if c.DB.Raw(query, userID).Scan(&cart).Error != nil {
+		return cart, errors.New("faild to get cartItem of user")
+	}
+
+	// check any of the product is out of stock in cart
+	var idOfOneOutOfStockProduct uint
+	query = `SELECT DISTINCT pi.id FROM product_items pi 
+	INNER JOIN cart_items ci ON pi.id = ci.product_item_id 
+	INNER JOIN carts c ON ci.cart_id = c.cart_id 
+	 WHERE c.user_id = 2 AND pi.qty_in_stock <= 0`
+
+	err = c.DB.Raw(query).Scan(&idOfOneOutOfStockProduct).Error
+	if err != nil {
+		return cart, fmt.Errorf("faild to check out of stock product in user cart with usre_id %d", userID)
+	}
+
+	if idOfOneOutOfStockProduct != 0 {
+		return cart, fmt.Errorf("there is an out of stock product is in cart remove it to place order")
+	}
+
+	return cart, nil
+}
+
 func (c *OrderDatabase) SaveShopOrder(ctx context.Context, shopOrder domain.ShopOrder) (domain.ShopOrder, error) {
 	trx := c.DB.Begin()
 
@@ -116,31 +150,19 @@ func (c *OrderDatabase) SaveShopOrder(ctx context.Context, shopOrder domain.Shop
 	}
 
 	if trx.Commit().Error != nil {
+		trx.Rollback()
 		return shopOrder, errors.New("faild to complete save shop_order")
 	}
 
 	return shopOrder, nil
 }
 
-func (c *OrderDatabase) FindCartTotalPrice(ctx context.Context, userID uint) (uint, error) {
-	// find totalPrice of cart
-	var orderTotalPrice uint
-	query := `SELECT SUM( CASE WHEN pi.discount_price > 0 THEN pi.discount_price * c.qty ELSE pi.price * c.qty END) 
-	AS order_total_price FROM carts c 
-	INNER JOIN product_items pi ON c.product_item_id = pi.id 
-	AND pi.qty_in_stock >= c.qty AND c.user_id = $1 
-	GROUP BY c.user_id`
-	if c.DB.Raw(query, userID).Scan(&orderTotalPrice).Error != nil {
-		return 0, errors.New("faild to calculate total price of cart")
-	}
-	return orderTotalPrice, nil
-}
-
 func (c *OrderDatabase) CartItemToOrderLines(ctx context.Context, userID uint) ([]domain.OrderLine, error) {
 	var orderLines []domain.OrderLine
-	query := `SELECT c.product_item_id, c.qty, CASE WHEN pi.discount_price > 0 THEN pi.discount_price ELSE pi.price END 
-	FROM carts c INNER JOIN product_items pi ON c.product_item_id = pi.id 
-	AND pi.qty_in_stock > c.qty AND c.user_id = $1`
+	query := `SELECT ci.product_item_id, ci.qty, CASE WHEN pi.discount_price > 0 THEN pi.discount_price ELSE pi.price END 
+	FROM cart_items ci INNER JOIN product_items pi ON ci.product_item_id = pi.id 
+	INNER JOIN carts c ON ci.cart_id = c.cart_id  
+	WHERE c.user_id = $1`
 	if c.DB.Raw(query, userID).Scan(&orderLines).Error != nil {
 		return orderLines, errors.New("faild to convert cart_item to order_lines")
 	}
@@ -159,29 +181,20 @@ func (c *OrderDatabase) SaveOrderLine(ctx context.Context, orderLine domain.Orde
 
 func (c *OrderDatabase) DeleteOrderedCartItems(ctx context.Context, userID uint) error {
 
-	query := `DELETE FROM carts c USING product_items pi 
-	WHERE c.product_item_id = pi.id AND pi.qty_in_stock > c.qty AND c.user_id = $1`
+	query := ` DELETE FROM cart_items ci USING carts c WHERE c.cart_id = ci.cart_id AND c.user_id = $1`
 	if c.DB.Exec(query, userID).Error != nil {
 		return errors.New("faild to remove cart_items on order")
 	}
 	return nil
 }
 
-func (c *OrderDatabase) FindUserCoupon(ctx context.Context, couponCode string) (domain.UserCoupon, error) {
-	var userCoupon domain.UserCoupon
+func (c *OrderDatabase) UpdateCouponUsedForUser(ctx context.Context, userID, couponID uint) error {
 
-	query := `SELECT * FROM user_coupons WHERE coupon_code = $1`
-	if c.DB.Raw(query, couponCode).Scan(&userCoupon).Error != nil {
-		return userCoupon, errors.New("faild to get user_coupon disocunt_amount")
-	}
-	return userCoupon, nil
-}
-
-func (c *OrderDatabase) UpdteUserCouponAsused(ctx context.Context, couponCode string) error {
-
-	query := `UPDATE user_coupons SET used = 'T' WHERE coupon_code = $1`
-	if c.DB.Exec(query, couponCode).Error != nil {
-		return errors.New("faild to updte user_coupon as used")
+	query := `INSERT INTO coupon_uses (coupon_id, user_id, used_at) VALUES ($1, $2, $3)`
+	usedAt := time.Now()
+	err := c.DB.Exec(query, couponID, userID, usedAt).Error
+	if err != nil {
+		return errors.New("faild to updte user as couon useed")
 	}
 	return nil
 }
@@ -195,6 +208,17 @@ func (c *OrderDatabase) ValidateAddressID(ctx context.Context, addressID uint) e
 		return errors.New("invlaid address_id")
 	}
 	return nil
+}
+
+// get user email and phone
+func (c *OrderDatabase) GetUserEmailAndPhone(ctx context.Context, userID uint) (emailAndPhone res.ResEmailAndPhone, err error) {
+
+	query := `SELECT email,phone FROM users WHERE id = $1`
+	err = c.DB.Raw(query, userID).Scan(&emailAndPhone).Error
+	if err != nil {
+		return emailAndPhone, fmt.Errorf("faild to find email and phone of user with user_id %v", userID)
+	}
+	return emailAndPhone, nil
 }
 
 //!end
@@ -237,9 +261,10 @@ func (c *OrderDatabase) FindOrderReturn(ctx context.Context, orderReturn domain.
 	return orderReturn, nil
 }
 
-func (c *OrderDatabase) FindAllOrderReturns(ctx context.Context, onlyPending bool) ([]res.ResOrderReturn, error) {
+func (c *OrderDatabase) FindAllOrderReturns(ctx context.Context, onlyPending bool, pagination req.ReqPagination) (orderReturns []res.ResOrderReturn, errr error) {
 
-	var orderReturns []res.ResOrderReturn
+	limit := pagination.Count
+	offset := (pagination.PageNumber - 1) * limit
 
 	// var query string
 	if onlyPending { // find all request which are not returned completed
@@ -251,16 +276,18 @@ func (c *OrderDatabase) FindAllOrderReturns(ctx context.Context, onlyPending boo
 		query := `SELECT ors.id AS order_return_id, ors.shop_order_id, ors.request_date, ors.return_reason, 
 		os.id AS order_status_id, os.status AS order_status,ors.refund_amount  
 		FROM order_returns ors INNER JOIN shop_orders so ON ors.shop_order_id =  so.id 
-		INNER JOIN order_statuses os ON so.order_status_id = os.id WHERE so.order_status_id = ?`
-		if c.DB.Raw(query, orderStatusID).Scan(&orderReturns).Error != nil {
+		INNER JOIN order_statuses os ON so.order_status_id = os.id WHERE so.order_status_id = $1 
+		ORDER BY ors.request_date DESC LIMIT $2 OFFSET $3`
+		if c.DB.Raw(query, orderStatusID, limit, offset).Scan(&orderReturns).Error != nil {
 			return orderReturns, errors.New("faild to find orders of return requested")
 		}
 	} else {
 		query := `SELECT ors.id AS order_return_id, ors.shop_order_id, ors.request_date, ors.return_reason, 
 		os.id AS order_status_id, os.status AS order_status,ors.refund_amount, ors.admin_comment,ors.is_approved, ors.return_date 
 		FROM order_returns ors INNER JOIN shop_orders so ON ors.shop_order_id =  so.id 
-		INNER JOIN order_statuses os ON so.order_status_id = os.id`
-		if c.DB.Raw(query).Scan(&orderReturns).Error != nil {
+		INNER JOIN order_statuses os ON so.order_status_id = os.id 
+		ORDER BY ors.request_date LIMIT $1 OFFSET $2`
+		if c.DB.Raw(query, limit, offset).Scan(&orderReturns).Error != nil {
 			return orderReturns, errors.New("faild to get order returns")
 		}
 	}
@@ -306,7 +333,7 @@ func (c *OrderDatabase) SaveOrderReturn(ctx context.Context, orderReturn domain.
 }
 
 // update the order return
-func (c *OrderDatabase) UpdateOrderReturn(ctx context.Context, body req.ReqUpdatReturnReq) error {
+func (c *OrderDatabase) UpdateOrderReturn(ctx context.Context, body req.ReqUpdatReturnOrder) error {
 	trx := c.DB.Begin()
 
 	// find the orderStatus that admin given

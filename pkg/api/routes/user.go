@@ -44,17 +44,17 @@ func UserRoutes(api *gin.RouterGroup, userHandler *handler.UserHandler, ProductH
 			cart.PUT("/", userHandler.UpdateCart)
 			cart.DELETE("/", userHandler.RemoveFromCart)
 
-			// place order by cart
-			cart.GET("/checkout", userHandler.CheckOutCart, orderHandler.GetAllPaymentMethods)
-			cart.PATCH("/apply-coupon", couponHandler.ApplyUserCoupon)
+			cart.PATCH("/apply-coupon", couponHandler.ApplyCouponToCart)
+			cart.POST("/place-order/cod", orderHandler.PlaceOrderCartCOD) // place an order
+
+			//cart.GET("/checkout", userHandler.CheckOutCart, orderHandler.GetAllPaymentMethods)
+
 			// page for select payment method
 			cart.GET("/checkout/payemt-select-page", orderHandler.CartOrderPayementSelectPage)
-			// for submit order
-			cart.POST("/place-order/cod", orderHandler.PlaceOrderForCartCOD, couponHandler.CheckUserCouponChance) // place an order
 
 			// make razorpay order and verify
 			cart.POST("/place-order/razorpay-checkout", orderHandler.RazorpayCheckout)
-			cart.POST("/place-order/razorpay-verify", orderHandler.RazorpayVerify, couponHandler.CheckUserCouponChance)
+			cart.POST("/place-order/razorpay-verify", orderHandler.RazorpayVerify)
 		}
 
 		//wishlist
@@ -80,19 +80,19 @@ func UserRoutes(api *gin.RouterGroup, userHandler *handler.UserHandler, ProductH
 		// order
 		orders := api.Group("/orders")
 		{
-			orders.GET("/", orderHandler.GetUserOrder)                             // get all order list for user
-			orders.GET("/items/:shop_order_id", orderHandler.GetOrderItemsForUser) //get order items for specific order
+			orders.GET("/", orderHandler.GetUserOrder)                       // get all order list for user
+			orders.GET("/items", orderHandler.GetOrderItemsByShopOrderItems) //get order items for specific order
 
-			orders.PUT("/return", orderHandler.SubmitReturnRequest)
+			orders.POST("/return", orderHandler.SubmitReturnRequest)
 
-			orders.PUT("/cancel/:shop_order_id", orderHandler.CancellOrder) // cancell an order
+			orders.POST("/cancel/:shop_order_id", orderHandler.CancellOrder) // cancell an order
 		}
 
 		// coupons
-		coupons := api.Group("/coupons")
-		{
-			coupons.GET("/", couponHandler.GetAllUserCoupons)
-		}
+		// coupons := api.Group("/coupons")
+		// {
+		// 	coupons.GET("/", couponHandler.GetAllUserCoupons)
+		// }
 
 	}
 

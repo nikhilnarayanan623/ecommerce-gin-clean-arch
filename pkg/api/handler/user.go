@@ -9,11 +9,11 @@ import (
 	"github.com/jinzhu/copier"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/auth"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/domain"
-	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/helper"
-	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/helper/req"
-	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/helper/res"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/usecase/interfaces"
 	service "github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/usecase/interfaces"
+	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/utils"
+	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/utils/req"
+	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/utils/res"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/varify"
 )
 
@@ -30,26 +30,31 @@ func NewUserHandler(userUsecase interfaces.UserUseCase) *UserHandler {
 // @security ApiKeyAuth
 // @id UserSignUp
 // @tags User Signup
+// @Param input body req.ReqUserSignUp{} true "Input Fields"
 // @Router /signup [post]
 // @Success 200 "Successfully account created for user"
 // @Failure 400 "invalid input"
 func (u *UserHandler) UserSignUp(ctx *gin.Context) {
 
-	var user domain.User
-	if err := ctx.ShouldBindJSON(&user); err != nil {
-		response := res.ErrorResponse(400, "invalid input", err.Error(), nil)
+	var body req.ReqUserSignUp
+
+	if err := ctx.ShouldBindJSON(&body); err != nil {
+		response := res.ErrorResponse(400, "invalid input", err.Error(), body)
 
 		ctx.JSON(http.StatusBadRequest, response)
 		return
 	}
+
+	var user domain.User
+	copier.Copy(&user, body)
 
 	if err := u.userUseCase.Signup(ctx, user); err != nil {
-		response := res.ErrorResponse(400, "faild to signup", err.Error(), nil)
+		response := res.ErrorResponse(400, "faild to signup", err.Error(), body)
 		ctx.JSON(http.StatusBadRequest, response)
 		return
 	}
 
-	response := res.SuccessResponse(200, "Successfully Account Created", nil)
+	response := res.SuccessResponse(200, "Successfully Account Created", body)
 	ctx.JSON(200, response)
 }
 
@@ -255,7 +260,7 @@ func (u *UserHandler) AddToCart(ctx *gin.Context) {
 	}
 
 	// get userId and add to body
-	body.UserID = helper.GetUserIdFromContext(ctx)
+	body.UserID = utils.GetUserIdFromContext(ctx)
 
 	err := u.userUseCase.SaveToCart(ctx, body)
 
@@ -289,7 +294,7 @@ func (u UserHandler) RemoveFromCart(ctx *gin.Context) {
 		return
 	}
 
-	body.UserID = helper.GetUserIdFromContext(ctx)
+	body.UserID = utils.GetUserIdFromContext(ctx)
 
 	err := u.userUseCase.RemoveCartItem(ctx, body)
 
@@ -324,7 +329,7 @@ func (u *UserHandler) UpdateCart(ctx *gin.Context) {
 		return
 	}
 
-	body.UserID = helper.GetUserIdFromContext(ctx)
+	body.UserID = utils.GetUserIdFromContext(ctx)
 
 	err := u.userUseCase.UpdateCartItem(ctx, body)
 
@@ -349,22 +354,45 @@ func (u *UserHandler) UpdateCart(ctx *gin.Context) {
 // @Failure 500 {object} res.Response{} "faild to get cart items"
 func (u *UserHandler) UserCart(ctx *gin.Context) {
 
-	userId := helper.GetUserIdFromContext(ctx)
+	userId := utils.GetUserIdFromContext(ctx)
 
-	resCart, err := u.userUseCase.GetCartItems(ctx, userId)
+	// first get cart of user
+	cart, err := u.userUseCase.GetUserCart(ctx, userId)
+	if err != nil {
+		response := res.ErrorResponse(500, "faild to get user cart", err.Error(), nil)
+		ctx.JSON(http.StatusInternalServerError, response)
+		return
+	}
+
+	// user have not cart created
+	if cart.CartID == 0 {
+		respone := res.SuccessResponse(200, "user didn't add any product in cart", nil)
+		ctx.JSON(http.StatusOK, respone)
+		return
+	}
+
+	// get user cart items
+	cartItems, err := u.userUseCase.GetUserCartItems(ctx, cart.CartID)
 	if err != nil {
 		response := res.ErrorResponse(500, "faild to get cart items", err.Error(), nil)
 		ctx.JSON(http.StatusInternalServerError, response)
 		return
 	}
 
-	if resCart.CartItems == nil {
+	if cartItems == nil {
 		response := res.SuccessResponse(200, "there is no productItems in the cart", nil)
 		ctx.JSON(http.StatusOK, response)
 		return
 	}
 
-	response := res.SuccessResponse(200, "successfully got user cart items", resCart)
+	resposeCart := res.ResCart{
+		CartItems:       cartItems,
+		AppliedCouponID: cart.AppliedCouponID,
+		TotalPrice:      cart.TotalPrice,
+		DiscountAmount:  cart.DiscountAmount,
+	}
+
+	response := res.SuccessResponse(200, "successfully got user cart items", resposeCart)
 	ctx.JSON(http.StatusOK, response)
 }
 
@@ -380,24 +408,24 @@ func (u *UserHandler) UserCart(ctx *gin.Context) {
 // @Failure 500 {object} res.Response{} "faild to get checkout items"
 func (c *UserHandler) CheckOutCart(ctx *gin.Context) {
 
-	userId := helper.GetUserIdFromContext(ctx)
+	// userId := utils.GetUserIdFromContext(ctx)
 
-	resCheckOut, err := c.userUseCase.CheckOutCart(ctx, userId)
+	// resCheckOut, err := c.userUseCase.CheckOutCart(ctx, userId)
 
-	if err != nil {
-		response := res.ErrorResponse(500, "faild to get checkout items", err.Error(), nil)
-		ctx.AbortWithStatusJSON(http.StatusInternalServerError, response)
-		return
-	}
+	// if err != nil {
+	// 	response := res.ErrorResponse(500, "faild to get checkout items", err.Error(), nil)
+	// 	ctx.AbortWithStatusJSON(http.StatusInternalServerError, response)
+	// 	return
+	// }
 
-	if resCheckOut.ProductItems == nil {
-		response := res.ErrorResponse(401, "cart is empty can't checkout cart", "", nil)
-		ctx.AbortWithStatusJSON(http.StatusUnauthorized, response)
-		return
-	}
+	// if resCheckOut.ProductItems == nil {
+	// 	response := res.ErrorResponse(401, "cart is empty can't checkout cart", "", nil)
+	// 	ctx.AbortWithStatusJSON(http.StatusUnauthorized, response)
+	// 	return
+	// }
 
-	responser := res.SuccessResponse(200, "successfully got checkout data", resCheckOut)
-	ctx.JSON(http.StatusOK, responser)
+	// responser := res.SuccessResponse(200, "successfully got checkout data", resCheckOut)
+	// ctx.JSON(http.StatusOK, responser)
 }
 
 // ! ***** for user account ***** //
@@ -411,7 +439,7 @@ func (c *UserHandler) CheckOutCart(ctx *gin.Context) {
 // @Failure 500 {object} res.Response{} "faild to show user details"
 func (u *UserHandler) Account(ctx *gin.Context) {
 
-	userID := helper.GetUserIdFromContext(ctx)
+	userID := utils.GetUserIdFromContext(ctx)
 
 	user, err := u.userUseCase.Account(ctx, userID)
 	if err != nil {
@@ -433,14 +461,14 @@ func (u *UserHandler) Account(ctx *gin.Context) {
 // @security ApiKeyAuth
 // @id UpateAccount
 // @tags User Account
-// @Param input body req.ReqUser true "input field"
+// @Param input body req.ReqUserSignUp{} true "input field"
 // @Router /account [put]
 // @Success 200 {object} res.Response{} "successfully updated user details"
 // @Failure 400 {object} res.Response{} "invalid input"
 func (u *UserHandler) UpateAccount(ctx *gin.Context) {
-	userID := helper.GetUserIdFromContext(ctx)
+	userID := utils.GetUserIdFromContext(ctx)
 
-	var body req.ReqUser
+	var body req.ReqUserSignUp
 
 	if err := ctx.ShouldBindJSON(&body); err != nil {
 		response := res.ErrorResponse(400, "invalid input", err.Error(), nil)
@@ -470,18 +498,18 @@ func (u *UserHandler) UpateAccount(ctx *gin.Context) {
 // @security ApiKeyAuth
 // @id AddAddress
 // @tags User Address
-// @Param inputs body req.ReqAddress{} true "Input Field"
+// @Param inputs body req.Address{} true "Input Field"
 // @Router /account/address [post]
 // @Success 200 {object} res.Response{} "Successfully address added"
 // @Failure 400 {object} res.Response{} "inavlid input"
 func (u *UserHandler) AddAddress(ctx *gin.Context) {
-	var body req.ReqAddress
+	var body req.Address
 	if err := ctx.ShouldBindJSON(&body); err != nil {
 		response := res.ErrorResponse(400, "inavlid input", err.Error(), nil)
 		ctx.JSON(http.StatusBadRequest, response)
 		return
 	}
-	userID := helper.GetUserIdFromContext(ctx)
+	userID := utils.GetUserIdFromContext(ctx)
 
 	var address domain.Address
 
@@ -510,7 +538,7 @@ func (u *UserHandler) AddAddress(ctx *gin.Context) {
 // @Failure 500 {object} res.Response{} "faild to show user addresses"
 func (u *UserHandler) GetAddresses(ctx *gin.Context) {
 
-	userID := helper.GetUserIdFromContext(ctx)
+	userID := utils.GetUserIdFromContext(ctx)
 
 	addresses, err := u.userUseCase.GetAddresses(ctx, userID)
 
@@ -521,7 +549,7 @@ func (u *UserHandler) GetAddresses(ctx *gin.Context) {
 	}
 
 	if addresses == nil {
-		response := res.SuccessResponse(200, "there is no product items to show", nil)
+		response := res.SuccessResponse(200, "there is no addresses to show")
 		ctx.JSON(http.StatusOK, response)
 		return
 	}
@@ -536,13 +564,13 @@ func (u *UserHandler) GetAddresses(ctx *gin.Context) {
 // @security ApiKeyAuth
 // @id EditAddress
 // @tags User Address
-// @Param input body req.ReqEditAddress true "Input Field"
+// @Param input body req.Address true "Input Field"
 // @Router /account/address [put]
 // @Success 200 {object} res.Response{} "successfully addresses updated"
 // @Failure 400 {object} res.Response{} "can't update the address"
 func (u *UserHandler) EditAddress(ctx *gin.Context) {
 
-	var body req.ReqEditAddress
+	var body req.Address
 
 	if err := ctx.ShouldBindJSON(&body); err != nil {
 		respone := res.ErrorResponse(400, "invalid input", err.Error(), nil)
@@ -550,7 +578,7 @@ func (u *UserHandler) EditAddress(ctx *gin.Context) {
 		return
 	}
 
-	userID := helper.GetUserIdFromContext(ctx)
+	userID := utils.GetUserIdFromContext(ctx)
 	if err := u.userUseCase.EditAddress(ctx, body, userID); err != nil {
 		response := res.ErrorResponse(400, "faild to update user address", err.Error(), nil)
 		ctx.JSON(http.StatusBadRequest, response)
@@ -580,7 +608,7 @@ func (u *UserHandler) DeleteAddress(ctx *gin.Context) {
 // @Failure 400 {object} res.Response{} "invalid input"
 func (u *UserHandler) AddToWishList(ctx *gin.Context) {
 	// get productItemID using parmas
-	productItemID, err := helper.StringToUint(ctx.Param("id"))
+	productItemID, err := utils.StringToUint(ctx.Param("id"))
 
 	if err != nil {
 		reponse := res.ErrorResponse(400, "invalid input", err.Error(), nil)
@@ -588,7 +616,7 @@ func (u *UserHandler) AddToWishList(ctx *gin.Context) {
 		return
 	}
 
-	userID := helper.GetUserIdFromContext(ctx)
+	userID := utils.GetUserIdFromContext(ctx)
 
 	var wishList = domain.WishList{
 		ProductItemID: productItemID,
@@ -619,7 +647,7 @@ func (u *UserHandler) AddToWishList(ctx *gin.Context) {
 func (u *UserHandler) RemoveFromWishList(ctx *gin.Context) {
 
 	// get productItemID using parmas
-	productItemID, err := helper.StringToUint(ctx.Param("id"))
+	productItemID, err := utils.StringToUint(ctx.Param("id"))
 
 	if err != nil {
 		response := res.ErrorResponse(400, "invalid input", err.Error(), nil)
@@ -627,7 +655,7 @@ func (u *UserHandler) RemoveFromWishList(ctx *gin.Context) {
 		return
 	}
 
-	userID := helper.GetUserIdFromContext(ctx)
+	userID := utils.GetUserIdFromContext(ctx)
 
 	var wishList = domain.WishList{
 		ProductItemID: productItemID,
@@ -657,7 +685,7 @@ func (u *UserHandler) RemoveFromWishList(ctx *gin.Context) {
 // @Failure 400  "faild to get user wish list items"
 func (u *UserHandler) GetWishListI(ctx *gin.Context) {
 
-	userID := helper.GetUserIdFromContext(ctx)
+	userID := utils.GetUserIdFromContext(ctx)
 	data, err := u.userUseCase.GetWishListItems(ctx, userID)
 
 	if err != nil {

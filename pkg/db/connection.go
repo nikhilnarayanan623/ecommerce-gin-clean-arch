@@ -49,6 +49,7 @@ func ConnectDatbase(cfg config.Config) (*gorm.DB, error) {
 
 		// cart
 		domain.Cart{},
+		domain.CartItem{},
 
 		// order
 		domain.OrderStatus{},
@@ -63,8 +64,14 @@ func ConnectDatbase(cfg config.Config) (*gorm.DB, error) {
 
 		// coupon
 		domain.Coupon{},
-		domain.UserCoupon{},
+		domain.CouponUses{},
 	)
+
+	// setup the triggers
+	if err := SetUpDBTriggers(db); err != nil {
+		log.Printf("faild to setup dabase triggers")
+		return db, err
+	}
 
 	return db, err
 }

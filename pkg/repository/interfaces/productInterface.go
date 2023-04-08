@@ -4,19 +4,21 @@ import (
 	"context"
 
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/domain"
-	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/helper/req"
-	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/helper/res"
+	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/utils/req"
+	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/utils/res"
 )
 
 type ProductRepository interface {
+	FindProductByID(ctx context.Context, productID uint) (product domain.Product, err error)
 	FindProduct(ctx context.Context, product domain.Product) (domain.Product, error)
-	FindAllProducts(ctx context.Context) ([]res.ResponseProduct, error)
+
+	FindAllProducts(ctx context.Context, pagination req.ReqPagination) (products []res.ResponseProduct, err error)
 	SaveProduct(ctx context.Context, product domain.Product) error
 	UpdateProduct(ctx context.Context, product domain.Product) error
 
 	// product items
 	FindAllProductItems(ctx context.Context, productID uint) ([]res.RespProductItems, error)
-	AddProductItem(ctx context.Context, productItem req.ReqProductItem) (domain.ProductItem, error)
+	SaveProductItem(ctx context.Context, productItem req.ReqProductItem) error
 
 	// category
 	FindCategory(ctx context.Context, category domain.Category) (domain.Category, error)

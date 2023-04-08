@@ -1,16 +1,17 @@
 package handler
 
 import (
+	"errors"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/copier"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/domain"
-	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/helper"
-	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/helper/req"
-	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/helper/res"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/usecase/interfaces"
 	service "github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/usecase/interfaces"
+	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/utils"
+	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/utils/req"
+	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/utils/res"
 )
 
 type ProductHandler struct {
@@ -151,17 +152,44 @@ func (p *ProductHandler) AddVariationOption(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, response)
 }
 
-// ListProducts godoc
-// @summary api for admin and user to show products
+// ListProducts-Admin godoc
+// @summary api for admin to show products
+// @security ApiKeyAuth
+// @tags Admin Products
+// @id ListProducts-Admin
+// @Param page_number query int false "Page Number"
+// @Param count query int false "Count Of Order"
+// @Router /admin/products [get]
+// @Success 200 {object} res.Response{} "successfully got all products"
+// @Failure 500 {object} res.Response{}  "faild to get all products"
+
+// ListProducts-User godoc
+// @summary api for user to show products
 // @security ApiKeyAuth
 // @tags User Products
-// @id ListProducts
+// @id ListProducts-User
+// @Param page_number query int false "Page Number"
+// @Param count query int false "Count Of Order"
 // @Router /products [get]
 // @Success 200 {object} res.Response{} "successfully got all products"
 // @Failure 500 {object} res.Response{}  "faild to get all products"
 func (p *ProductHandler) ListProducts(ctx *gin.Context) {
 
-	products, err := p.productUseCase.GetProducts(ctx)
+	count, err1 := utils.StringToUint(ctx.Query("count"))
+	pageNumber, err2 := utils.StringToUint(ctx.Query("page_number"))
+
+	err1 = errors.Join(err1, err2)
+	if err1 != nil {
+		response := res.ErrorResponse(400, "invalid inputs", err1.Error(), nil)
+		ctx.JSON(http.StatusBadRequest, response)
+		return
+	}
+	pagination := req.ReqPagination{
+		PageNumber: pageNumber,
+		Count:      count,
+	}
+
+	products, err := p.productUseCase.GetProducts(ctx, pagination)
 
 	if err != nil {
 		response := res.ErrorResponse(500, "faild to get all products", err.Error(), nil)
@@ -265,7 +293,7 @@ func (p *ProductHandler) AddProductItem(ctx *gin.Context) {
 		return
 	}
 
-	_, err := p.productUseCase.AddProductItem(ctx, body)
+	err := p.productUseCase.AddProductItem(ctx, body)
 
 	if err != nil {
 		response := res.ErrorResponse(400, "faild to add product_item", err.Error(), body)
@@ -286,7 +314,7 @@ func (p *ProductHandler) AddProductItem(ctx *gin.Context) {
 // @Failure 400 {object} res.Response{} "invalid input on params"
 func (p *ProductHandler) GetProductItems(ctx *gin.Context) {
 
-	productID, err := helper.StringToUint(ctx.Param("product_id"))
+	productID, err := utils.StringToUint(ctx.Param("product_id"))
 
 	if err != nil {
 		response := res.ErrorResponse(400, "invalid input on params", err.Error(), nil)

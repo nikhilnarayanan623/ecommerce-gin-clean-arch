@@ -4,8 +4,8 @@ import (
 	"context"
 
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/domain"
-	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/helper/req"
-	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/helper/res"
+	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/utils/req"
+	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/utils/res"
 )
 
 type ProductUseCase interface {
@@ -16,11 +16,11 @@ type ProductUseCase interface {
 	AddVariationOption(ctx context.Context, variationOption domain.VariationOption) (domain.VariationOption, error)
 
 	// products
-	GetProducts(ctx context.Context) ([]res.ResponseProduct, error)
+	GetProducts(ctx context.Context, pagination req.ReqPagination) (products []res.ResponseProduct, err error)
 	AddProduct(ctx context.Context, product domain.Product) error
 	UpdateProduct(ctx context.Context, product domain.Product) error
 
-	AddProductItem(ctx context.Context, productItem req.ReqProductItem) (domain.ProductItem, error)
+	AddProductItem(ctx context.Context, productItem req.ReqProductItem) error
 	GetProductItems(ctx context.Context, productID uint) ([]res.RespProductItems, error)
 
 	// offer

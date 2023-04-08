@@ -6,8 +6,8 @@ import (
 	"fmt"
 
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/domain"
-	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/helper/res"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/repository/interfaces"
+	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/utils/res"
 	"gorm.io/gorm"
 )
 
@@ -41,9 +41,15 @@ func (c *userDatabse) FindUserExceptID(ctx context.Context, user domain.User) (d
 func (c *userDatabse) SaveUser(ctx context.Context, user domain.User) error {
 
 	//save the user details
-	err := c.DB.Save(&user).Error
+	query := `INSERT INTO users (user_name, first_name, last_name, age, email, phone, password,block_status) 
+	VALUES ($1, $2, $3, $4, $5, $6, $7, $8) `
+	err := c.DB.Exec(query, user.UserName, user.FirstName, user.LastName,
+		user.Age, user.Email, user.Phone, user.Password, user.BlockStatus).Error
 
-	return err
+	if err != nil {
+		return fmt.Errorf("faild to save user %s", user.UserName)
+	}
+	return nil
 }
 
 func (c *userDatabse) EditUser(ctx context.Context, user domain.User) error {
@@ -66,93 +72,117 @@ func (c *userDatabse) FindProductItem(ctx context.Context, productItemID uint) (
 }
 
 // find a cartItem
-func (c *userDatabse) FindCart(ctx context.Context, cart domain.Cart) (domain.Cart, error) {
+func (c *userDatabse) FindCartByUserID(ctx context.Context, userID uint) (cart domain.Cart, err error) {
 
-	query := `SELECT * FROM carts WHERE cart_id = ? OR user_id=? AND product_item_id=?`
-	if c.DB.Raw(query, cart.CartID, cart.UserID, cart.ProductItemID).Scan(&cart).Error != nil {
+	query := `SELECT * FROM carts WHERE user_id = ?`
+	if c.DB.Raw(query, userID).Scan(&cart).Error != nil {
 		return cart, errors.New("faild to get cartItem of user")
 	}
 	return cart, nil
 }
 
-// add a productItem to cartitem
-func (c *userDatabse) SaveCartItem(ctx context.Context, cart domain.Cart) error {
+// save cart for user
+func (c *userDatabse) SaveCart(ctx context.Context, userID uint) (cart domain.Cart, err error) {
+	query := `INSERT INTO carts (user_id,total_price) VALUES($1, $2) RETURNING *`
+	if c.DB.Raw(query, userID, 0).Scan(&cart).Error != nil {
+		return cart, fmt.Errorf("faild to save cart for user")
+	}
 
-	querry := `INSERT INTO carts (user_id,product_item_id,qty) VALUES ($1,$2,$3)`
-	if c.DB.Exec(querry, cart.UserID, cart.ProductItemID, 1).Error != nil {
+	return cart, nil
+}
+
+// find cart_items
+func (c *userDatabse) FindCartItemByID(ctx context.Context, cartItemID uint) (cartItem domain.CartItem, err error) {
+	query := `SELECT * FROM cart_items WHERE cart_item_id = ?`
+	if c.DB.Raw(query, cartItemID).Scan(&cartItem).Error != nil {
+		return cartItem, errors.New("faild to find cart_item with cart_item_id")
+	}
+
+	return cartItem, nil
+}
+
+// find cart_item by cart_id and product_item id (can use for checking proudct already exit )
+func (c *userDatabse) FindCartItemByCartAndProductItemID(ctx context.Context, cartID, productItemID uint) (cartItem domain.CartItem, err error) {
+	query := `SELECT * FROM cart_items WHERE cart_id = $1 AND product_item_id = $2`
+	if c.DB.Raw(query, cartID, productItemID).Scan(&cartItem).Error != nil {
+		return cartItem, errors.New("faild to find cart_item with given cart_id and product_item_id")
+	}
+	return cartItem, nil
+}
+
+// add a productItem to cartitem
+func (c *userDatabse) SaveCartItem(ctx context.Context, cartId, productItemId uint) error {
+
+	querry := `INSERT INTO cart_items (cart_id, product_item_id, qty) VALUES ($1, $2, $3)`
+	if c.DB.Exec(querry, cartId, productItemId, 1).Error != nil {
 		return errors.New("faild to save cart_items")
 	}
 
 	return nil
 }
 
-func (c *userDatabse) RemoveCartItem(ctx context.Context, cart domain.Cart) error {
+func (c *userDatabse) DeleteCartItem(ctx context.Context, cartItemID uint) error {
 	// delete productItem from cart
-	query := `DELETE FROM carts WHERE cart_id = $1`
-	if c.DB.Exec(query, cart.CartID).Error != nil {
+	query := `DELETE FROM cart_items WHERE cart_item_id = $1`
+	if c.DB.Exec(query, cartItemID).Error != nil {
 		return errors.New("faild to remove product_items from cart")
 	}
 
 	return nil
 }
 
-func (c *userDatabse) UpdateCartItem(ctx context.Context, cart domain.Cart) error {
+func (c *userDatabse) UpdateCartItemQty(ctx context.Context, cartItemId, qty uint) error {
 
-	query := `UPDATE carts SET qty = $1 WHERE user_id = $2`
-	if c.DB.Exec(query, cart.Qty, cart.UserID).Error != nil {
-		return errors.New("faild to update the qty of product_item on cart")
+	query := `UPDATE cart_items SET qty = $1 WHERE cart_item_id = $2`
+	if c.DB.Exec(query, qty, cartItemId).Error != nil {
+		return errors.New("faild to update the qty of cart_item")
 	}
 	return nil
 }
 
-// find total price of cart include out of stock or not
-func (c *userDatabse) FindCartTotalPrice(ctx context.Context, userID uint, includeOutOfStck bool) (uint, error) {
-	var (
-		totalPrice uint
-		query      string
-	)
+// // find total price of cart include out of stock or not
+// func (c *userDatabse) FindCartTotalPrice(ctx context.Context, cart domain.Cart, includeOutOfStck bool) (uint, error) {
+// 	var (
+// 		totalPrice uint
+// 		query      string
+// 	)
 
-	if includeOutOfStck { // for all cart items
-		query = `SELECT SUM( CASE WHEN pi.discount_price > 0 THEN pi.discount_price * c.qty ELSE pi.price * c.qty END) AS total_price 
-		FROM carts c INNER JOIN product_items pi ON c.product_item_id = pi.id 
-		AND c.user_id = $1 
-		GROUP BY c.user_id`
-	} else { // for all cart_items which are in stock
-		query = `SELECT SUM( CASE WHEN pi.discount_price > 0 THEN pi.discount_price * c.qty ELSE pi.price * c.qty END) AS total_price 
-		FROM carts c INNER JOIN product_items pi ON c.product_item_id = pi.id 
-		AND pi.qty_in_stock > 0 AND c.user_id = $1 
-		GROUP BY c.user_id`
-	}
+// 	// if includeOutOfStck { // for all cart items
+// 	// 	query = `SELECT SUM( CASE WHEN pi.discount_price > 0 THEN pi.discount_price * c.qty ELSE pi.price * c.qty END) AS total_price
+// 	// 	FROM carts c INNER JOIN product_items pi ON c.product_item_id = pi.id
+// 	// 	AND c.user_id = $1
+// 	// 	GROUP BY c.user_id`
+// 	// } else { // for all cart_items which are in stock
+// 	// 	query = `SELECT SUM( CASE WHEN pi.discount_price > 0 THEN pi.discount_price * c.qty ELSE pi.price * c.qty END) AS total_price
+// 	// 	FROM carts c INNER JOIN product_items pi ON c.product_item_id = pi.id
+// 	// 	AND pi.qty_in_stock > 0 AND c.user_id = $1
+// 	// 	GROUP BY c.user_id`
+// 	// }
 
-	if c.DB.Raw(query, userID).Scan(&totalPrice).Error != nil {
-		return totalPrice, errors.New("faild to calculate total price for user cart")
-	}
+// 	// if c.DB.Raw(query, userID).Scan(&totalPrice).Error != nil {
+// 	// 	return totalPrice, errors.New("faild to calculate total price for user cart")
+// 	// }
 
-	fmt.Println(totalPrice, "total price")
+// 	// fmt.Println(totalPrice, "total price")
 
-	return totalPrice, nil
-}
+// 	return totalPrice, nil
+// }
 
 // get all itmes from cart
-func (c *userDatabse) FindAllCartItems(ctx context.Context, userID uint) ([]res.ResCartItem, error) {
-
-	var (
-		response []res.ResCartItem
-		err      error
-	)
+func (c *userDatabse) FindAllCartItemsByCartID(ctx context.Context, cartID uint) (cartItems []res.ResCartItem, err error) {
 
 	// get the cartItem of all user with subtotal
-	query := `SELECT c.product_item_id, p.product_name, c.qty,pi.price ,
-	 pi.discount_price, CASE WHEN pi.discount_price > 0 THEN pi.discount_price * c.qty ELSE pi.price * c.qty END AS sub_total,  
+	query := `SELECT ci.product_item_id, p.product_name, ci.qty,pi.price ,
+	 pi.discount_price, CASE WHEN pi.discount_price > 0 THEN pi.discount_price * ci.qty ELSE pi.price * ci.qty END AS sub_total,  
 	 pi.qty_in_stock 
-	 FROM carts c JOIN product_items pi ON c.product_item_id = pi.id 
-	JOIN products p ON pi.product_id = p.id AND c.user_id=?`
+	 FROM cart_items ci INNER JOIN product_items pi ON ci.product_item_id = pi.id 
+	 INNER JOIN products p ON pi.product_id = p.id AND ci.cart_id=?`
 
-	if c.DB.Raw(query, userID).Scan(&response).Error != nil {
-		return response, errors.New("faild to get product_items from cart")
+	if c.DB.Raw(query, cartID).Scan(&cartItems).Error != nil {
+		return cartItems, fmt.Errorf("faild to get cart_items from cart with cart_id %v", cartID)
 	}
 
-	return response, err
+	return cartItems, err
 }
 
 func (c *userDatabse) FindAddressByID(ctx context.Context, addressID uint) (domain.Address, error) {
@@ -308,32 +338,4 @@ func (c *userDatabse) RemoveWishListItem(ctx context.Context, wishList domain.Wi
 		return errors.New("faild to delete productItem from database")
 	}
 	return nil
-}
-
-// checkout page
-func (c *userDatabse) CheckOutCart(ctx context.Context, userID uint) (res.ResCheckOut, error) {
-
-	var resCheckOut res.ResCheckOut
-	// get all cartItems of user which are not out of stock
-	query := `SELECT c.product_item_id, p.product_name,pi.price,pi.discount_price, pi.qty_in_stock, c.qty, 
-	CASE WHEN pi.discount_price > 0 THEN (c.qty * pi.discount_price) ELSE (c.qty * pi.price) END AS sub_total  
-	FROM carts c JOIN product_items pi ON c.product_item_id = pi.id 
-	AND pi.qty_in_stock >= qty 
-	JOIN products p ON pi.product_id = p.id AND c.user_id = ?`
-
-	if c.DB.Raw(query, userID).Scan(&resCheckOut.ProductItems).Error != nil {
-		return resCheckOut, errors.New("faild to get cartItems for checkout")
-	}
-
-	// get user addresses
-	adresses, err := c.FindAllAddressByUserID(ctx, userID)
-	if err != nil {
-		return resCheckOut, errors.New("faild to get user addrss for checkout")
-	}
-	resCheckOut.Addresses = adresses
-
-	// find total price
-	resCheckOut.TotalPrice, err = c.FindCartTotalPrice(ctx, userID, false)
-
-	return resCheckOut, err
 }

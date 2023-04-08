@@ -10,9 +10,9 @@ import (
 	"github.com/jinzhu/copier"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/auth"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/domain"
-	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/helper/req"
-	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/helper/res"
 	service "github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/usecase/interfaces"
+	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/utils/req"
+	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/utils/res"
 )
 
 type AdminHandler struct {
@@ -23,49 +23,35 @@ func NewAdminHandler(adminUsecase service.AdminUseCase) *AdminHandler {
 	return &AdminHandler{adminUseCase: adminUsecase}
 }
 
-// // AdminSignupGet godoc
+// // AdminSignUp godoc
 // // @summary api for admin to login
-// // @id AdminSignupGet
+// // @id AdminSignUp
 // // @tags Admin Login
 // // @Param input body domain.Admin{} true "inputs"
 // // @Router /admin/login [post]
 // // @Success 200 {object} res.Response{} "successfully logged in"
 // // @Failure 400 {object} res.Response{} "invalid input"
 // // @Failure 500 {object} res.Response{} "faild to generate jwt token"
+func (a *AdminHandler) AdminSignUp(ctx *gin.Context) {
 
-// func (a *AdminHandler) AdminS(ctx *gin.Context) {
+	var admin domain.Admin
 
-// 	var admin domain.Admin
+	if err := ctx.ShouldBindJSON(&admin); err != nil {
+		response := res.ErrorResponse(400, "invlaid inputs", err.Error(), admin)
+		ctx.JSON(http.StatusBadRequest, response)
+		return
+	}
 
-// 	if ctx.ShouldBindJSON(&admin) != nil {
-// 		ctx.JSON(http.StatusBadRequest, gin.H{
-// 			"StatusCode": 500,
-// 			"msg":        "Can't signup admin",
-// 			"error":      "Invalid input can't bind JSON",
-// 		})
-// 		return
-// 	}
+	err := a.adminUseCase.SignUp(ctx, admin)
+	if err != nil {
+		response := res.ErrorResponse(400, "faild to create account fo admin", err.Error(), nil)
+		ctx.JSON(http.StatusBadRequest, response)
+		return
+	}
 
-// 	admin, err := a.adminUseCase.SignUp(ctx, admin)
-// 	if err != nil {
-// 		ctx.JSON(http.StatusBadRequest, gin.H{
-// 			"StatusCode": 500,
-// 			"msg":        "Can't signup admin",
-// 			"error":      err.Error(),
-// 		})
-// 		return
-// 	}
-
-// 	var response res.ResAdminLogin
-
-// 	copier.Copy(&response, &admin)
-
-// 	ctx.JSON(http.StatusOK, gin.H{
-// 		"StatusCode": 200,
-// 		"msg":        "Successfully account creatd for admin",
-// 		"admin":      response,
-// 	})
-// }
+	respone := res.SuccessResponse(200, "successfully account created for admin", nil)
+	ctx.JSON(http.StatusOK, respone)
+}
 
 // AdminLogin godoc
 // @summary api for admin to login

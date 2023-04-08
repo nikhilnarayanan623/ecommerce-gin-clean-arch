@@ -17,11 +17,10 @@ func AdminRoutes(api *gin.RouterGroup, adminHandler *handler.AdminHandler,
 		login.POST("/", adminHandler.AdminLogin)
 	}
 	// signup
-	// signup := api.Group("/signup")
-	// {
-	// 	signup.GET("/", adminHandler.AdminSignupGet)
-	// 	signup.POST("/", adminHandler.SignUpPost)
-	// }
+	signup := api.Group("/signup")
+	{
+		signup.POST("/", adminHandler.AdminSignUp)
+	}
 
 	api.Use(middleware.AuthenticateAdmin)
 	{
@@ -56,13 +55,15 @@ func AdminRoutes(api *gin.RouterGroup, adminHandler *handler.AdminHandler,
 
 			product.GET("/product-item/:product_id", productHandler.GetProductItems)
 			product.POST("/product-item", productHandler.AddProductItem)
-
 		}
 		// order
 		order := api.Group("/orders")
 		{
 			order.GET("/", orderHandler.GetAllShopOrders)
+			order.GET("items", orderHandler.GetOrderItemsByShopOrderItems)
 			order.PUT("/", orderHandler.UdateOrderStatus)
+
+			order.GET("/statuses", orderHandler.GetAllOrderStatuses)
 
 			//return requests
 			order.GET("/returns", orderHandler.GetAllOrderReturns)
