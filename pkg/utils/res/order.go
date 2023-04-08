@@ -2,8 +2,6 @@ package res
 
 import (
 	"time"
-
-	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/domain"
 )
 
 type ResEmailAndPhone struct {
@@ -27,7 +25,7 @@ type PlaceOrder struct {
 	AddressID       uint   `json:"address_id"`
 }
 
-type ResOrder struct {
+type ResOrderItem struct {
 	ProductItemID uint   `json:"product_item_id"`
 	ProductName   string `json:"product_name"`
 	Image         string `json:""`
@@ -50,12 +48,6 @@ type ResShopOrder struct {
 	OrderStatus     string     `json:"order_status"`
 	PaymentMethodID uint       `json:"payment_method_id" gorm:"primaryKey;not null"`
 	PaymentType     string     `json:"" gorm:"unique;not null"`
-}
-
-// admin side
-type ResShopOrdersPage struct {
-	Orders   []ResShopOrder
-	Statuses []domain.OrderStatus
 }
 
 // checkout
@@ -93,4 +85,3 @@ type ResRazorpayOrder struct {
 	ShopOrderID     uint        `json:"shop_order_id"`
 	CouponID        uint        `json:"coupon_id"`
 }
-

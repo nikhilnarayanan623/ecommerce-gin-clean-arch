@@ -60,7 +60,7 @@ func (c *CouponHandler) AddCoupon(ctx *gin.Context) {
 // @tags Admin Coupon
 // @id GetAllCoupons
 // @Router /admin/coupons [get]
-// @Success 200 {object} res.Response{} "successfully update the coupon"
+// @Success 200 {object} res.Response{} "successfully go all the coupons
 // @Failure 500 {object} res.Response{}  "faild to get all coupons"
 func (c *CouponHandler) GetAllCoupons(ctx *gin.Context) {
 	coupons, err := c.couponUseCase.GetAllCoupons(ctx)
@@ -115,11 +115,11 @@ func (c *CouponHandler) UpdateCoupon(ctx *gin.Context) {
 }
 
 // !
-// UpdateCoupon godoc
+// ApplyCouponToCart godoc
 // @summary api for user to apply coupon on cart
 // @security ApiKeyAuth
-// @tags User Coupon
-// @id UpdateCoupon
+// @tags User Cart
+// @id ApplyCouponToCart
 // @Param        inputs   body     req.ReqApplyCoupon{}   true  "Input Field"
 // @Router /carts/coupons [patch]
 // @Success 200 {object} res.Response{} "successfully updated the coupon code"

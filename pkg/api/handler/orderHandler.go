@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"errors"
 	"net/http"
 	"time"
 
@@ -20,6 +21,28 @@ func NewOrderHandler(orderUseCase interfaces.OrderUseCase) *OrderHandler {
 	return &OrderHandler{orderUseCase: orderUseCase}
 }
 
+// GetAllOrderStatuses godoc
+// @summary api for admin to see all order statues for changing order's statuses
+// @security ApiKeyAuth
+// @tags Admin Orders
+// @id GetAllOrderStatuses
+// @Router /admin/orders/statuses [get]
+// @Success 200 {object} res.Response{} "successfully got all order statueses"
+// @Failure 500 {object} res.Response{}  "faild to get order statuses"
+func (c *OrderHandler) GetAllOrderStatuses(ctx *gin.Context) {
+
+	orderStatuses, err := c.orderUseCase.GetAllOrderStatuses(ctx)
+
+	if err != nil {
+		response := res.ErrorResponse(500, "faild to get order statuses", err.Error(), nil)
+		ctx.JSON(http.StatusInternalServerError, response)
+		return
+	}
+
+	response := res.SuccessResponse(200, "successfully got all order statueses", orderStatuses)
+	ctx.JSON(http.StatusOK, response)
+}
+
 func (c *OrderHandler) CartOrderPayementSelectPage(ctx *gin.Context) {
 
 	Payments, err := c.orderUseCase.GetAllPaymentMethods(ctx)
@@ -34,7 +57,7 @@ func (c *OrderHandler) CartOrderPayementSelectPage(ctx *gin.Context) {
 // PlaceOrderCartCOD godoc
 // @summary api for user to place an order on cart with COD
 // @security ApiKeyAuth
-// @tags User Order
+// @tags User Cart
 // @id PlaceOrderCartCOD
 // @Param        inputs   body     req.ReqPlaceOrder{}   true  "Input Field"
 // @Router /carts/place-order/cod [post]
@@ -107,18 +130,33 @@ func (c *OrderHandler) PlaceOrderCartCOD(ctx *gin.Context) {
 }
 
 // GetUserOrder godoc
-// @summary api for showing user order list
-// @description user can see all user order history
+// @summary api for showing User Orders list
+// @description user can see all User Orders history
 // @id GetUserOrder
-// @tags User Order
+// @tags User Orders
+// @Param page_number query int false "Page Number"
+// @Param count query int false "Count Of Order"
 // @Router /orders [get]
 // @Success 200 {object} res.Response{} "successfully got shop order list of user"
 // @Failure 500 {object} res.Response{} "faild to get user shop order list"
 func (c *OrderHandler) GetUserOrder(ctx *gin.Context) {
 
 	userId := utils.GetUserIdFromContext(ctx)
+	count, err1 := utils.StringToUint(ctx.Query("count"))
+	pageNumber, err2 := utils.StringToUint(ctx.Query("page_number"))
 
-	orders, err := c.orderUseCase.GetUserShopOrder(ctx, userId)
+	err1 = errors.Join(err1, err2)
+	if err1 != nil {
+		response := res.ErrorResponse(400, "invalid inputs", err1.Error(), nil)
+		ctx.JSON(http.StatusBadRequest, response)
+		return
+	}
+	pagination := req.ReqPagination{
+		PageNumber: pageNumber,
+		Count:      count,
+	}
+
+	orders, err := c.orderUseCase.GetUserShopOrder(ctx, userId, pagination)
 
 	if err != nil {
 		response := res.ErrorResponse(500, "faild to get user shop order list", err.Error(), nil)
@@ -137,20 +175,47 @@ func (c *OrderHandler) GetUserOrder(ctx *gin.Context) {
 
 }
 
-// GetOrderItemsForUser godoc
+// GetOrderItemsByShopOrderItems godoc
+// @summary api for admin to se order items of an order
+// @id GetOrderItemsByShopOrderItems
+// @tags User Orders
+// @Param shop_order_id query int false "Shop Order ID"
+// @Param page_number query int false "Page Number"
+// @Param count query int false "Count Of Order"
+// @Router /admin/orders/items [get]
+// @Success 200 {object} res.Response{} "successfully got order items"
+// @Failure 500 {object} res.Response{} "faild to get order list of user"
+
+// GetOrderItemsByShopOrderItems godoc
 // @summary api for show order items of a specific order
-// @description user can place after checkout
-// @id GetOrderItemsForUser
-// @tags User Order
-// @Params shop_order_id path int true "shop_order_id"
+// @id GetOrderItemsByShopOrderItems
+// @tags User Orders
+// @Param shop_order_id query int false "Shop Order ID"
+// @Param page_number query int false "Page Number"
+// @Param count query int false "Count Of Order"
 // @Router /orders/items [get]
 // @Success 200 {object} res.Response{} "successfully got order items"
 // @Failure 500 {object} res.Response{} "faild to get order list of user"
-func (c *OrderHandler) GetOrderItemsForUser(ctx *gin.Context) {
+func (c *OrderHandler) GetOrderItemsByShopOrderItems(ctx *gin.Context) {
 
-	shopOrderID, _ := utils.StringToUint(ctx.Param("shop_order_id"))
+	shopOrderID, err1 := utils.StringToUint(ctx.Query("shop_order_id"))
+	count, err2 := utils.StringToUint(ctx.Query("count"))
+	pageNumber, err3 := utils.StringToUint(ctx.Query("page_number"))
 
-	orderItems, err := c.orderUseCase.GetOrderItemsByShopOrderID(ctx, shopOrderID)
+	err1 = errors.Join(err1, err2, err3)
+
+	if err1 != nil {
+		response := res.ErrorResponse(400, "invalid inputs", err1.Error(), nil)
+		ctx.JSON(400, response)
+		return
+	}
+
+	pagination := req.ReqPagination{
+		PageNumber: pageNumber,
+		Count:      count,
+	}
+
+	orderItems, err := c.orderUseCase.GetOrderItemsByShopOrderID(ctx, shopOrderID, pagination)
 
 	if err != nil {
 		response := res.ErrorResponse(500, "faild to get order list of user", err.Error(), nil)
@@ -159,7 +224,7 @@ func (c *OrderHandler) GetOrderItemsForUser(ctx *gin.Context) {
 	}
 
 	if orderItems == nil {
-		response := res.SuccessResponse(200, "user order list is empty", nil)
+		response := res.SuccessResponse(200, "User Orders list is empty", nil)
 		ctx.JSON(http.StatusOK, response)
 		return
 	}
@@ -170,11 +235,11 @@ func (c *OrderHandler) GetOrderItemsForUser(ctx *gin.Context) {
 
 // UdateOrderStatus godoc
 // @summary api for admin to change the status of order
-// @description admin can change user order status
+// @description admin can change User Orders status
 // @id UdateOrderStatus
 // @tags Admin Orders
 // @Param input body req.ReqUpdateOrder true "input field"
-// @Router /orders/ [put]
+// @Router /admin/orders/ [put]
 // @Success 200 {object} res.Response{} "successfully got order items"
 // @Failure 400 {object} res.Response{} "invalid input"
 func (c *OrderHandler) UdateOrderStatus(ctx *gin.Context) {
@@ -202,9 +267,9 @@ func (c *OrderHandler) UdateOrderStatus(ctx *gin.Context) {
 // @summary api for user to cancell the order
 // @description user can cancell the order if it's not placed
 // @id CancellOrder
-// @tags User Order
+// @tags User Orders
 // @Params shop_order_id path int true "shop_order_id"
-// @Router /orders [put]
+// @Router /orders [post]
 // @Success 200 {object} res.Response{} "Successfully order cancelled"
 // @Failure 400 {object} res.Response{} "invalid input on param"
 func (c *OrderHandler) CancellOrder(ctx *gin.Context) {
@@ -231,25 +296,43 @@ func (c *OrderHandler) CancellOrder(ctx *gin.Context) {
 // @description admin can see all orders in application
 // @id GetAllShopOrders
 // @tags Admin Orders
+// @Param page_number query int false "Page Number"
+// @Param count query int false "Count Of Order"
 // @Router /admin/orders [get]
 // @Success 200 {object} res.Response{} "successfully order list got"
 // @Failure 500 {object} res.Response{} "faild to get shop order data"
 func (c *OrderHandler) GetAllShopOrders(ctx *gin.Context) {
 
-	resShopOrdersPage, err := c.orderUseCase.GetAllShopOrders(ctx)
+	pageNumber, err1 := utils.StringToUint(ctx.Query("page_number"))
+	count, err2 := utils.StringToUint(ctx.Query("count"))
+
+	err1 = errors.Join(err1, err2)
+
+	if err1 != nil {
+		response := res.ErrorResponse(400, "invalid inputs", err1.Error(), nil)
+		ctx.JSON(http.StatusBadRequest, response)
+		return
+	}
+
+	pagination := req.ReqPagination{
+		PageNumber: pageNumber,
+		Count:      count,
+	}
+
+	shopOrders, err := c.orderUseCase.GetAllShopOrders(ctx, pagination)
 	if err != nil {
 		response := res.ErrorResponse(500, "faild to get shop order data", err.Error(), nil)
 		ctx.JSON(http.StatusInternalServerError, response)
 		return
 	}
 
-	if resShopOrdersPage.Orders == nil {
+	if shopOrders == nil {
 		response := res.SuccessResponse(200, "order list is empty", nil)
 		ctx.JSON(200, response)
 		return
 	}
 
-	response := res.SuccessResponse(200, "successfully order list got", resShopOrdersPage)
+	response := res.SuccessResponse(200, "successfully order list got", shopOrders)
 	ctx.JSON(http.StatusOK, response)
 }
 
@@ -257,8 +340,9 @@ func (c *OrderHandler) GetAllShopOrders(ctx *gin.Context) {
 // @summary api for user to request a return for an order
 // @description user can request return for placed orders
 // @id SubmitReturnRequest
-// @tags User Order
-// @Router /orders/return [put]
+// @tags User Orders
+// @Param input body req.ReqReturn true "Input Fields"
+// @Router /orders/return [post]
 // @Success 200 {object} res.Response{} "successfully submited return request for order"
 // @Failure 400 {object} res.Response{} "invalid input"
 func (c OrderHandler) SubmitReturnRequest(ctx *gin.Context) {
@@ -284,12 +368,30 @@ func (c OrderHandler) SubmitReturnRequest(ctx *gin.Context) {
 // @summary api for admin to see all order reutns
 // @id GetAllOrderReturns
 // @tags Admin Orders
-// @Router /orders/returns [get]
+// @Param page_number query int false "Page Number"
+// @Param count query int false "Count Of Order"
+// @Router /admin/orders/returns [get]
 // @Success 200 {object} res.Response{} "successfully got all order returns"
 // @Failure 500 {object} res.Response{} "faild to get order returns"
 func (c *OrderHandler) GetAllOrderReturns(ctx *gin.Context) {
 
-	orderReturns, err := c.orderUseCase.GetAllOrderReturns(ctx)
+	pageNumber, err1 := utils.StringToUint(ctx.Query("page_number"))
+	count, err2 := utils.StringToUint(ctx.Query("count"))
+
+	err1 = errors.Join(err1, err2)
+
+	if err1 != nil {
+		response := res.ErrorResponse(400, "invalid inputs", err1.Error(), nil)
+		ctx.JSON(http.StatusBadRequest, response)
+		return
+	}
+
+	pagination := req.ReqPagination{
+		PageNumber: pageNumber,
+		Count:      count,
+	}
+
+	orderReturns, err := c.orderUseCase.GetAllOrderReturns(ctx, pagination)
 	if err != nil {
 		response := res.ErrorResponse(500, "faild to get order returns", err.Error(), nil)
 		ctx.JSON(http.StatusInternalServerError, response)
@@ -311,12 +413,30 @@ func (c *OrderHandler) GetAllOrderReturns(ctx *gin.Context) {
 // @description admin can see the pending return request and accept it or not
 // @id GetAllPendingReturns
 // @tags Admin Orders
+// @Param page_number query int false "Page Number"
+// @Param count query int false "Count Of Order"
 // @Router /admin/orders/returns/pending [get]
 // @Success 200 {object} res.Response{} "successfully got  pending orders return request"
 // @Failure 500 {object} res.Response{} "faild to get pending order return requests"
 func (c *OrderHandler) GetAllPendingReturns(ctx *gin.Context) {
 
-	orderReturns, err := c.orderUseCase.GetAllPendingOrderReturns(ctx)
+	pageNumber, err1 := utils.StringToUint(ctx.Query("page_number"))
+	count, err2 := utils.StringToUint(ctx.Query("count"))
+
+	err1 = errors.Join(err1, err2)
+
+	if err1 != nil {
+		response := res.ErrorResponse(400, "invalid inputs", err1.Error(), nil)
+		ctx.JSON(http.StatusBadRequest, response)
+		return
+	}
+
+	pagination := req.ReqPagination{
+		PageNumber: pageNumber,
+		Count:      count,
+	}
+
+	orderReturns, err := c.orderUseCase.GetAllPendingOrderReturns(ctx, pagination)
 	if err != nil {
 		response := res.ErrorResponse(500, "faild to get pending order return requests", err.Error(), nil)
 		ctx.JSON(http.StatusInternalServerError, response)
@@ -335,15 +455,16 @@ func (c *OrderHandler) GetAllPendingReturns(ctx *gin.Context) {
 
 // UpdategReturnRequest godoc
 // @summary api for admin to supdate the order_return request from user
-// @description admin can approve, cancell etc. updation on user order_return
+// @description admin can approve, cancell etc. updation on User Orders_return
 // @id UpdategReturnRequest
 // @tags Admin Orders
-// @Router /admin/orders/returns/penging [put]
+// @Param input body req.ReqUpdatReturnOrder{} true "Input Fiields"
+// @Router /admin/orders/returns/pending [put]
 // @Success 200 {object} res.Response{} "successfully order_response updated"
 // @Failure 500 {object} res.Response{} "invalid input"
 func (c *OrderHandler) UpdateReturnRequest(ctx *gin.Context) {
 
-	var body req.ReqUpdatReturnReq
+	var body req.ReqUpdatReturnOrder
 	if err := ctx.ShouldBindJSON(&body); err != nil {
 		response := res.ErrorResponse(400, "invalid input", err.Error(), nil)
 		ctx.JSON(http.StatusBadRequest, response)

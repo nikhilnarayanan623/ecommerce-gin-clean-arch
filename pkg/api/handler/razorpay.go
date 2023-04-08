@@ -29,7 +29,7 @@ func (c *OrderHandler) GetAllPaymentMethods(ctx *gin.Context) {
 // RazorpayPage godoc
 // @summary api for create an razorpay order
 // @security ApiKeyAuth
-// @tags User Order
+// @tags User Cart
 // @id RazorpayPage
 // @Param payment_method_id formData uint true "Payment Method ID"
 // @Param address_id formData uint true "Address ID"
@@ -117,7 +117,7 @@ func (c *OrderHandler) RazorpayCheckout(ctx *gin.Context) {
 // RazorpayVerify godoc
 // @summary api user for verify razorpay payment
 // @security ApiKeyAuth
-// @tags User Order
+// @tags User Cart
 // @id RazorpayVerify
 // @Param payment_method_id formData uint true "Payment Method ID"
 // @Param address_id formData uint true "Address ID"

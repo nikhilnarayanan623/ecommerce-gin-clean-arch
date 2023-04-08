@@ -24,17 +24,18 @@ type OrderUseCase interface {
 	// end
 
 	// get order and orde items
-	GetAllShopOrders(ctx context.Context) (res.ResShopOrdersPage, error)
-	GetUserShopOrder(ctx context.Context, userID uint) ([]res.ResShopOrder, error)
-	GetOrderItemsByShopOrderID(ctx context.Context, shopOrderID uint) ([]res.ResOrder, error)
+	GetAllShopOrders(ctx context.Context, pagination req.ReqPagination) (shopOrders []res.ResShopOrder, err error)
+	GetUserShopOrder(ctx context.Context, userID uint, pagination req.ReqPagination) ([]res.ResShopOrder, error)
+	GetOrderItemsByShopOrderID(ctx context.Context, shopOrderID uint, pagination req.ReqPagination) ([]res.ResOrderItem, error)
 
 	// cancell order and change order status
+	GetAllOrderStatuses(ctx context.Context) (orderStatuses []domain.OrderStatus, err error)
 	ChangeOrderStatus(ctx context.Context, shopOrderID, changeStatusID uint) error
 	CancellOrder(ctx context.Context, shopOrderID uint) error
 
 	// return order and updte
 	SubmitReturnRequest(ctx context.Context, body req.ReqReturn) error
-	GetAllPendingOrderReturns(ctx context.Context) ([]res.ResOrderReturn, error)
-	GetAllOrderReturns(ctx context.Context) ([]res.ResOrderReturn, error)
-	UpdateReturnRequest(ctx context.Context, body req.ReqUpdatReturnReq) error
+	GetAllPendingOrderReturns(ctx context.Context, pagination req.ReqPagination) (orderReturns []res.ResOrderReturn, err error)
+	GetAllOrderReturns(ctx context.Context, pagination req.ReqPagination) (orderReturns []res.ResOrderReturn, err error)
+	UpdateReturnRequest(ctx context.Context, body req.ReqUpdatReturnOrder) error
 }

@@ -24,40 +24,47 @@ func NewOrderUseCase(orderRepo interfaces.OrderRepository) service.OrderUseCase 
 	return &OrderUseCase{orderRepo: orderRepo}
 }
 
+// get all order statuses
+func (c *OrderUseCase) GetAllOrderStatuses(ctx context.Context) (orderStatuses []domain.OrderStatus, err error) {
+	orderStatuses, err = c.orderRepo.FindAllOrderStauses(ctx)
+	if err != nil {
+		return orderStatuses, err
+	}
+
+	return orderStatuses, nil
+}
+
 // func to get all shop order
-func (c *OrderUseCase) GetAllShopOrders(ctx context.Context) (res.ResShopOrdersPage, error) {
-	var (
-		resShopOrdersPage res.ResShopOrdersPage
-		err               error
-	)
+func (c *OrderUseCase) GetAllShopOrders(ctx context.Context, pagination req.ReqPagination) (shopOrders []res.ResShopOrder, err error) {
+
 	// first find all shopOrders
-	if resShopOrdersPage.Orders, err = c.orderRepo.FindAllShopOrders(ctx); err != nil {
-		return resShopOrdersPage, err
+	if shopOrders, err = c.orderRepo.FindAllShopOrders(ctx, pagination); err != nil {
+		return shopOrders, err
 	}
-
-	// then get all  orderStatus
-	if resShopOrdersPage.Statuses, err = c.orderRepo.FindAllOrderStauses(ctx); err != nil {
-		return resShopOrdersPage, err
-	}
-
-	return resShopOrdersPage, nil
+	return shopOrders, nil
 }
 
 // get order items of a spicific order
-func (c *OrderUseCase) GetOrderItemsByShopOrderID(ctx context.Context, shopOrderID uint) ([]res.ResOrder, error) {
+func (c *OrderUseCase) GetOrderItemsByShopOrderID(ctx context.Context, shopOrderID uint, pagination req.ReqPagination) (orderItems []res.ResOrderItem, err error) {
 	//validate the shopOrderId
 	shopOdrer, err := c.orderRepo.FindShopOrderByShopOrderID(ctx, shopOrderID)
 	if err != nil {
-		return nil, err
+		return orderItems, err
 	} else if shopOdrer.ID == 0 {
-		return nil, errors.New("invalid shopOrder id")
+		return orderItems, errors.New("invalid shopOrder id")
 	}
-	return c.orderRepo.FindAllOrdersItemsByShopOrderID(ctx, shopOrderID)
+	orderItems, err = c.orderRepo.FindAllOrdersItemsByShopOrderID(ctx, shopOrderID, pagination)
+	if err != nil {
+		return orderItems, err
+	}
+
+	log.Printf("\n\n successfully got all order items with shop_order_id %v \n\n", shopOrderID)
+	return orderItems, nil
 }
 
 // get all orders of user
-func (c *OrderUseCase) GetUserShopOrder(ctx context.Context, userID uint) ([]res.ResShopOrder, error) {
-	return c.orderRepo.FindAllShopOrdersByUserID(ctx, userID)
+func (c *OrderUseCase) GetUserShopOrder(ctx context.Context, userID uint, pagination req.ReqPagination) ([]res.ResShopOrder, error) {
+	return c.orderRepo.FindAllShopOrdersByUserID(ctx, userID, pagination)
 }
 
 // update order
@@ -142,15 +149,15 @@ func (c *OrderUseCase) CancellOrder(ctx context.Context, shopOrderID uint) error
 }
 
 // to get pending order returns
-func (c *OrderUseCase) GetAllPendingOrderReturns(ctx context.Context) ([]res.ResOrderReturn, error) {
+func (c *OrderUseCase) GetAllPendingOrderReturns(ctx context.Context, pagination req.ReqPagination) (orderReturns []res.ResOrderReturn, err error) {
 
-	return c.orderRepo.FindAllOrderReturns(ctx, true) // true for only pending
+	return c.orderRepo.FindAllOrderReturns(ctx, true, pagination) // true for only pending
 }
 
 // to get all order return
-func (c *OrderUseCase) GetAllOrderReturns(ctx context.Context) ([]res.ResOrderReturn, error) {
+func (c *OrderUseCase) GetAllOrderReturns(ctx context.Context, pagination req.ReqPagination) (orderReturns []res.ResOrderReturn, err error) {
 
-	return c.orderRepo.FindAllOrderReturns(ctx, false) // false for  not only pending
+	return c.orderRepo.FindAllOrderReturns(ctx, false, pagination) // false for  not only pending
 }
 
 // return request
@@ -189,7 +196,7 @@ func (c *OrderUseCase) SubmitReturnRequest(ctx context.Context, body req.ReqRetu
 }
 
 // admin to change the update the return request
-func (c *OrderUseCase) UpdateReturnRequest(ctx context.Context, body req.ReqUpdatReturnReq) error {
+func (c *OrderUseCase) UpdateReturnRequest(ctx context.Context, body req.ReqUpdatReturnOrder) error {
 
 	//validate the order_retun_id
 	var orderReturn = domain.OrderReturn{ID: body.OrderReturnID}

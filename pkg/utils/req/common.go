@@ -19,8 +19,10 @@ type OTPVerifyStruct struct {
 }
 
 type BlockStruct struct {
-	UserID uint `json:"-" binding:"required,numeric"`
+	UserID uint `json:"user_id" binding:"required,numeric"`
 }
 
-
-
+type ReqPagination struct {
+	Count      uint `json:"count" binding:"required,min=1"`
+	PageNumber uint `json:"page_number" binding:"required,min=1"`
+}

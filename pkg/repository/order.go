@@ -33,14 +33,17 @@ func (c *OrderDatabase) FindShopOrderByShopOrderID(ctx context.Context, shopOrde
 }
 
 // get all shop order of user
-func (c *OrderDatabase) FindAllShopOrdersByUserID(ctx context.Context, userID uint) ([]res.ResShopOrder, error) {
+func (c *OrderDatabase) FindAllShopOrdersByUserID(ctx context.Context, userID uint, pagination req.ReqPagination) ([]res.ResShopOrder, error) {
+
+	limit := pagination.Count
+	offset := (pagination.PageNumber - 1) * limit
 
 	var shopOrders []res.ResShopOrder
 	query := `SELECT so.user_id, so.id AS shop_order_id, so.order_date, so.order_total_price,so.discount, 
 	so.order_status_id, os.status AS order_status,so.address_id,so.payment_method_id, pm.payment_type  
 	FROM shop_orders so JOIN order_statuses os ON so.order_status_id = os.id 
-	INNER JOIN payment_methods pm ON so.payment_method_id = pm.id WHERE user_id = ?`
-	if c.DB.Raw(query, userID).Scan(&shopOrders).Error != nil {
+	INNER JOIN payment_methods pm ON so.payment_method_id = pm.id WHERE user_id = $1 ORDER BY order_date DESC LIMIT $2 OFFSET  $3`
+	if c.DB.Raw(query, userID, limit, offset).Scan(&shopOrders).Error != nil {
 		return shopOrders, errors.New("faild to get user shop order")
 	}
 
@@ -60,14 +63,17 @@ func (c *OrderDatabase) FindAllShopOrdersByUserID(ctx context.Context, userID ui
 }
 
 // find all shop orders with user
-func (c *OrderDatabase) FindAllShopOrders(ctx context.Context) ([]res.ResShopOrder, error) {
+func (c *OrderDatabase) FindAllShopOrders(ctx context.Context, pagination req.ReqPagination) (shopOrders []res.ResShopOrder, err error) {
 
-	var shopOrders []res.ResShopOrder
+	limit := pagination.Count
+	offset := (pagination.PageNumber - 1) * limit
+
 	query := `SELECT so.user_id, so.id AS shop_order_id, so.order_date, so.order_total_price,so.discount, 
 	so.order_status_id, os.status AS order_status,so.address_id,so.payment_method_id, pm.payment_type  
 	FROM shop_orders so JOIN order_statuses os ON so.order_status_id = os.id 
-	INNER JOIN payment_methods pm ON so.payment_method_id = pm.id `
-	if c.DB.Raw(query).Scan(&shopOrders).Error != nil {
+	INNER JOIN payment_methods pm ON so.payment_method_id = pm.id 
+	ORDER BY so.order_date DESC LIMIT $1 OFFSET $2`
+	if c.DB.Raw(query, limit, offset).Scan(&shopOrders).Error != nil {
 		return shopOrders, errors.New("faild to get order list")
 	}
 
@@ -86,18 +92,20 @@ func (c *OrderDatabase) FindAllShopOrders(ctx context.Context) ([]res.ResShopOrd
 }
 
 // get order items of a specific order
-func (c *OrderDatabase) FindAllOrdersItemsByShopOrderID(ctx context.Context, shopOrderID uint) ([]res.ResOrder, error) {
+func (c *OrderDatabase) FindAllOrdersItemsByShopOrderID(ctx context.Context, shopOrderID uint, pagination req.ReqPagination) (orderItems []res.ResOrderItem, err error) {
 
-	var orderList []res.ResOrder
+	limit := pagination.Count
+	offset := (pagination.PageNumber - 1) * limit
 
 	query := `SELECT ol.product_item_id,p.product_name,p.image,ol.price, so.order_date, os.status,ol.qty, (ol.price * ol.qty) AS sub_total FROM  order_lines ol 
 	JOIN shop_orders so ON ol.shop_order_id = so.id JOIN product_items pi ON ol.product_item_id = pi.id
-	JOIN products p ON pi.product_id = p.id JOIN order_statuses os ON so.order_status_id = os.id AND ol.shop_order_id= ?`
+	JOIN products p ON pi.product_id = p.id JOIN order_statuses os ON so.order_status_id = os.id AND ol.shop_order_id= $1 
+	ORDER BY ol.qty DESC LIMIT $2 OFFSET $3`
 
-	if c.DB.Raw(query, shopOrderID).Scan(&orderList).Error != nil {
-		return orderList, errors.New("faild to get users order list")
+	if c.DB.Raw(query, shopOrderID, limit, offset).Scan(&orderItems).Error != nil {
+		return orderItems, errors.New("faild to get users order list")
 	}
-	return orderList, nil
+	return orderItems, nil
 }
 
 // ! order place
@@ -253,9 +261,10 @@ func (c *OrderDatabase) FindOrderReturn(ctx context.Context, orderReturn domain.
 	return orderReturn, nil
 }
 
-func (c *OrderDatabase) FindAllOrderReturns(ctx context.Context, onlyPending bool) ([]res.ResOrderReturn, error) {
+func (c *OrderDatabase) FindAllOrderReturns(ctx context.Context, onlyPending bool, pagination req.ReqPagination) (orderReturns []res.ResOrderReturn, errr error) {
 
-	var orderReturns []res.ResOrderReturn
+	limit := pagination.Count
+	offset := (pagination.PageNumber - 1) * limit
 
 	// var query string
 	if onlyPending { // find all request which are not returned completed
@@ -267,16 +276,18 @@ func (c *OrderDatabase) FindAllOrderReturns(ctx context.Context, onlyPending boo
 		query := `SELECT ors.id AS order_return_id, ors.shop_order_id, ors.request_date, ors.return_reason, 
 		os.id AS order_status_id, os.status AS order_status,ors.refund_amount  
 		FROM order_returns ors INNER JOIN shop_orders so ON ors.shop_order_id =  so.id 
-		INNER JOIN order_statuses os ON so.order_status_id = os.id WHERE so.order_status_id = ?`
-		if c.DB.Raw(query, orderStatusID).Scan(&orderReturns).Error != nil {
+		INNER JOIN order_statuses os ON so.order_status_id = os.id WHERE so.order_status_id = $1 
+		ORDER BY ors.request_date DESC LIMIT $2 OFFSET $3`
+		if c.DB.Raw(query, orderStatusID, limit, offset).Scan(&orderReturns).Error != nil {
 			return orderReturns, errors.New("faild to find orders of return requested")
 		}
 	} else {
 		query := `SELECT ors.id AS order_return_id, ors.shop_order_id, ors.request_date, ors.return_reason, 
 		os.id AS order_status_id, os.status AS order_status,ors.refund_amount, ors.admin_comment,ors.is_approved, ors.return_date 
 		FROM order_returns ors INNER JOIN shop_orders so ON ors.shop_order_id =  so.id 
-		INNER JOIN order_statuses os ON so.order_status_id = os.id`
-		if c.DB.Raw(query).Scan(&orderReturns).Error != nil {
+		INNER JOIN order_statuses os ON so.order_status_id = os.id 
+		ORDER BY ors.request_date LIMIT $1 OFFSET $2`
+		if c.DB.Raw(query, limit, offset).Scan(&orderReturns).Error != nil {
 			return orderReturns, errors.New("faild to get order returns")
 		}
 	}
@@ -322,7 +333,7 @@ func (c *OrderDatabase) SaveOrderReturn(ctx context.Context, orderReturn domain.
 }
 
 // update the order return
-func (c *OrderDatabase) UpdateOrderReturn(ctx context.Context, body req.ReqUpdatReturnReq) error {
+func (c *OrderDatabase) UpdateOrderReturn(ctx context.Context, body req.ReqUpdatReturnOrder) error {
 	trx := c.DB.Begin()
 
 	// find the orderStatus that admin given

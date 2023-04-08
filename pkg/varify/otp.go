@@ -12,9 +12,8 @@ var (
 	AUTHTOKEN  string
 	ACCOUNTSID string
 	SERVICESID string
+	client     *twilio.RestClient
 )
-
-var client *twilio.RestClient
 
 func SetClient(cfg config.Config) {
 	client = twilio.NewRestClientWithParams(twilio.ClientParams{

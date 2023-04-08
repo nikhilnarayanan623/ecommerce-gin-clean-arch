@@ -61,7 +61,10 @@ func AdminRoutes(api *gin.RouterGroup, adminHandler *handler.AdminHandler,
 		order := api.Group("/orders")
 		{
 			order.GET("/", orderHandler.GetAllShopOrders)
+			order.GET("items", orderHandler.GetOrderItemsByShopOrderItems)
 			order.PUT("/", orderHandler.UdateOrderStatus)
+
+			order.GET("/statuses", orderHandler.GetAllOrderStatuses)
 
 			//return requests
 			order.GET("/returns", orderHandler.GetAllOrderReturns)
