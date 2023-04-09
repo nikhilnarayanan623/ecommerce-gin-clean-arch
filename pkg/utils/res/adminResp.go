@@ -23,6 +23,8 @@ type RespCategory struct {
 
 type SalesReport struct {
 	UserID          uint      `json:"user_id"`
+	FirstName       string    `json:"first_name"`
+	Email           string    `json:"email"`
 	ShopOrderID     uint      `json:"order_id"`
 	OrderDate       time.Time `json:"order_date"`
 	OrderTotalPrice uint      `json:"order_total_price"`

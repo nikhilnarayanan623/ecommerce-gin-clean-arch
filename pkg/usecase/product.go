@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"log"
 
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/domain"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/repository/interfaces"
@@ -65,8 +66,12 @@ func (c *productUseCase) AddCategory(ctx context.Context, category domain.Catego
 			return errors.New("invalid categoyr id")
 		}
 	}
+	err := c.productRepo.SaveCategory(ctx, category)
+	if err != nil {
+		return err
+	}
 
-	return c.productRepo.SaveCategory(ctx, category)
+	return nil
 }
 
 // to add new variation for a category
@@ -81,8 +86,8 @@ func (c *productUseCase) AddVariationOption(ctx context.Context, variationOption
 }
 
 // to get all product
-func (c *productUseCase) GetProducts(ctx context.Context) ([]res.ResponseProduct, error) {
-	return c.productRepo.FindAllProducts(ctx)
+func (c *productUseCase) GetProducts(ctx context.Context, pagination req.ReqPagination) (products []res.ResponseProduct, err error) {
+	return c.productRepo.FindAllProducts(ctx, pagination)
 }
 
 // to add new product
@@ -93,16 +98,33 @@ func (c *productUseCase) AddProduct(ctx context.Context, product domain.Product)
 	} else if product.ID != 0 {
 		return fmt.Errorf("product already exist with %s product name", product.ProductName)
 	}
+	log.Printf("successfully product saved\n\n")
 	return c.productRepo.SaveProduct(ctx, product)
 }
 
 // for add new productItem for a speicific product
-func (c *productUseCase) AddProductItem(ctx context.Context, productItem req.ReqProductItem) (domain.ProductItem, error) {
-	return c.productRepo.AddProductItem(ctx, productItem)
+func (c *productUseCase) AddProductItem(ctx context.Context, productItem req.ReqProductItem) error {
+
+	// validate the product_id
+	product, err := c.productRepo.FindProductByID(ctx, productItem.ProductID)
+	if err != nil {
+		return err
+	} else if product.ID == 0 {
+		return fmt.Errorf("invalid product_id %v", productItem.ProductID)
+	}
+
+	// save the product item
+	err = c.productRepo.SaveProductItem(ctx, productItem)
+	if err != nil {
+		return err
+	}
+
+	log.Printf("successfully product_item saved for product_id %v\n\n", productItem.ProductID)
+	return nil
 }
 
 // for get all productItem for a specific product
-func (c *productUseCase) GetProductItems(ctx context.Context, productID uint) ([]res.RespProductItems, error) {
+func (c *productUseCase) GetProductItems(ctx context.Context, productID uint) (productItems []res.RespProductItems, err error) {
 
 	//validate the productID
 	if product, err := c.productRepo.FindProduct(ctx, domain.Product{ID: productID}); err != nil {
@@ -111,7 +133,22 @@ func (c *productUseCase) GetProductItems(ctx context.Context, productID uint) ([
 		return []res.RespProductItems{}, errors.New("invalid product_id")
 	}
 
-	return c.productRepo.FindAllProductItems(ctx, productID)
+	productItems, err = c.productRepo.FindAllProductItems(ctx, productID)
+	if err != nil {
+		return productItems, err
+	}
+
+	// for _, productItem := range productItems {
+	// 	images, err := c.productRepo.FindAllProductItemImages(ctx, productItem.ID)
+
+	// 	if err != nil {
+	// 		return productItems, err
+	// 	}
+	// 	fmt.Println(images, "images")
+	// }
+
+	log.Printf("successfully got all prouctItems for product_id %v", productID)
+	return productItems, nil
 }
 
 func (c *productUseCase) UpdateProduct(ctx context.Context, product domain.Product) error {

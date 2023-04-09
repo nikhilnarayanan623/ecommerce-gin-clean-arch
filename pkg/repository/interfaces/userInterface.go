@@ -9,9 +9,9 @@ import (
 
 type UserRepository interface {
 	FindUser(ctx context.Context, user domain.User) (domain.User, error)
-	FindUserExceptID(ctx context.Context, user domain.User) (domain.User, error) // find user exept this id
+	CheckOtherUserWithDetails(ctx context.Context, user domain.User) (domain.User, error) // find user exept this id
 	SaveUser(ctx context.Context, user domain.User) error
-	EditUser(ctx context.Context, user domain.User) error
+	UpdateUser(ctx context.Context, user domain.User) (err error)
 
 	// cart
 	FindProductItem(ctx context.Context, productItemID uint) (domain.ProductItem, error)
@@ -33,10 +33,10 @@ type UserRepository interface {
 	FindAddressByID(ctx context.Context, addressID uint) (domain.Address, error)                          // find address by id
 	FindAddressByUserID(ctx context.Context, address domain.Address, userID uint) (domain.Address, error) // find address with userID and addres values
 	FindAllAddressByUserID(ctx context.Context, userID uint) ([]res.ResAddress, error)                    // to get all address of user
-	SaveAddress(ctx context.Context, address domain.Address) (domain.Address, error)                      // save a full address
+	SaveAddress(ctx context.Context, address domain.Address) (addressID uint, err error)                  // save a full address
 	UpdateAddress(ctx context.Context, address domain.Address) error
 	// address join table
-	SaveUserAddress(ctx context.Context, userAdress domain.UserAddress) (domain.UserAddress, error) // save address for user(join table)
+	SaveUserAddress(ctx context.Context, userAdress domain.UserAddress) error // save address for user(join table)
 	UpdateUserAddress(ctx context.Context, userAddress domain.UserAddress) error
 
 	//wishlist

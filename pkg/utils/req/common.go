@@ -1,5 +1,7 @@
 package req
 
+import "time"
+
 // login struct for user and admin
 type LoginStruct struct {
 	UserName string `json:"user_name" binding:"omitempty,min=3,max=15"`
@@ -23,6 +25,12 @@ type BlockStruct struct {
 }
 
 type ReqPagination struct {
-	Count      uint `json:"count" binding:"required,min=1"`
-	PageNumber uint `json:"page_number" binding:"required,min=1"`
+	Count      uint `json:"count"`
+	PageNumber uint `json:"page_number"`
+}
+
+type ReqSalesReport struct {
+	StartDate  time.Time     `json:"start_date"`
+	EndDate    time.Time     `json:"end_date"`
+	Pagination ReqPagination `json:"pagination"`
 }

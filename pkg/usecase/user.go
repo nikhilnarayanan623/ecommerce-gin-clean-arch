@@ -96,15 +96,31 @@ func (c *userUserCase) Account(ctx context.Context, userID uint) (domain.User, e
 func (c *userUserCase) EditAccount(ctx context.Context, user domain.User) error {
 
 	// first check any other user exist with this entered unique fields
-	checkUser, err := c.userRepo.FindUserExceptID(ctx, user)
+	checkUser, err := c.userRepo.CheckOtherUserWithDetails(ctx, user)
 	if err != nil {
 		return err
-	} else if checkUser.ID == 0 { // if there is no other user exist with this detail then update it
-		return c.userRepo.EditUser(ctx, user)
+	} else if checkUser.ID != 0 { // if there is an user exist with given details then make it as error
+		err = utils.CompareUsers(user, checkUser)
+		return err
 	}
 
-	// if any user exist with this field then show wich field is exis
-	return utils.CompareUsers(user, checkUser)
+	// if user password given then hash the password
+	if user.Password != "" {
+		hash, err := bcrypt.GenerateFromPassword([]byte(user.Password), 10)
+		if err != nil {
+			return fmt.Errorf("faild to generate hash password for user")
+		}
+		user.Password = string(hash)
+	}
+
+	err = c.userRepo.UpdateUser(ctx, user)
+
+	if err != nil {
+		return err
+	}
+
+	log.Printf("successfully user details updaed for user with user_id %v", user.ID)
+	return nil
 }
 
 // get user cart(it include total price and cartId)
@@ -254,43 +270,47 @@ func (c *userUserCase) GetUserCartItems(ctx context.Context, cartId uint) (cartI
 }
 
 // adddress
-func (c *userUserCase) SaveAddress(ctx context.Context, address domain.Address, userID uint, isDefault bool) (domain.Address, error) {
+func (c *userUserCase) SaveAddress(ctx context.Context, userID uint, address domain.Address, isDefault bool) error {
 	//check the address is already exist for the user
 	address, err := c.userRepo.FindAddressByUserID(ctx, address, userID)
 	if err != nil {
-		return address, err
+		return err
 	} else if address.ID != 0 { // user have already this address exist
-		return address, errors.New("user have already this address exist with same details")
+		return errors.New("user have already this address exist with same details")
 	}
 
 	//this address not exist then create it
 	country, err := c.userRepo.FindCountryByID(ctx, address.CountryID)
 	if err != nil {
-		return address, err
+		return err
 	} else if country.ID == 0 {
-		return address, errors.New("invalid country id")
+		return errors.New("invalid country id")
 	}
 
 	// save the address on database
-	address, err = c.userRepo.SaveAddress(ctx, address)
+	addressID, err := c.userRepo.SaveAddress(ctx, address)
 	if err != nil {
-		return address, err
+		return err
 	}
 
 	//creating a user address with this given value
 	var userAdress = domain.UserAddress{
 		UserID:    userID,
-		AddressID: address.ID,
+		AddressID: addressID,
 		IsDefault: isDefault,
 	}
 
 	// then update the address with user
-	c.userRepo.SaveUserAddress(ctx, userAdress)
+	err = c.userRepo.SaveUserAddress(ctx, userAdress)
 
-	return address, nil
+	if err != nil {
+		return err
+	}
+	log.Printf("successfully user address stored for user with user_id %v", userID)
+	return nil
 }
 
-func (c *userUserCase) EditAddress(ctx context.Context, addressBody req.Address, userID uint) error {
+func (c *userUserCase) EditAddress(ctx context.Context, addressBody req.ReqEditAddress, userID uint) error {
 
 	// first validate the addessId is valid or not
 	address, err := c.userRepo.FindAddressByID(ctx, addressBody.ID)
@@ -313,7 +333,7 @@ func (c *userUserCase) EditAddress(ctx context.Context, addressBody req.Address,
 		return err
 	}
 
-	//update the addres with user default or not with user
+	// check the user address need to set default or not if it need then set it as default
 	if addressBody.IsDefault != nil && *addressBody.IsDefault {
 		userAddress := domain.UserAddress{
 			UserID:    userID,
@@ -321,11 +341,12 @@ func (c *userUserCase) EditAddress(ctx context.Context, addressBody req.Address,
 			IsDefault: *addressBody.IsDefault,
 		}
 
-		if err := c.userRepo.UpdateUserAddress(ctx, userAddress); err != nil {
+		err := c.userRepo.UpdateUserAddress(ctx, userAddress)
+		if err != nil {
 			return err
 		}
 	}
-
+	log.Printf("successfully address saved for user with user_id %v", userID)
 	return nil
 }
 

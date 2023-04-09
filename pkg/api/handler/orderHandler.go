@@ -175,9 +175,9 @@ func (c *OrderHandler) GetUserOrder(ctx *gin.Context) {
 
 }
 
-// GetOrderItemsByShopOrderItems godoc
+// GetOrderItemsByShopOrderItems-User godoc
 // @summary api for admin to se order items of an order
-// @id GetOrderItemsByShopOrderItems
+// @id GetOrderItemsByShopOrderItems-Admin
 // @tags User Orders
 // @Param shop_order_id query int false "Shop Order ID"
 // @Param page_number query int false "Page Number"
@@ -186,9 +186,9 @@ func (c *OrderHandler) GetUserOrder(ctx *gin.Context) {
 // @Success 200 {object} res.Response{} "successfully got order items"
 // @Failure 500 {object} res.Response{} "faild to get order list of user"
 
-// GetOrderItemsByShopOrderItems godoc
+// GetOrderItemsByShopOrderItems-User godoc
 // @summary api for show order items of a specific order
-// @id GetOrderItemsByShopOrderItems
+// @id GetOrderItemsByShopOrderItems-User
 // @tags User Orders
 // @Param shop_order_id query int false "Shop Order ID"
 // @Param page_number query int false "Page Number"

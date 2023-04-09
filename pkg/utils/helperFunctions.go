@@ -102,30 +102,6 @@ func GenerateRazorpayOrder(razorPayAmount uint, recieptIdOptional string) (razor
 	return razorpayOrderID, nil
 }
 
-// //verify the razorpay signature
-// err = utils.VeifyRazorPaySignature(razorpayOrderID, razorpayPaymentID, razorpaySignature)
-// if err != nil {
-// 	respones := res.ErrorResponse(400, "faild to veify razorpay payment", err.Error(), nil)
-// 	ctx.JSON(http.StatusBadRequest, respones)
-// 	return
-// }
-
-// // get razorpay key and secret
-// razorpayKey, razorPaySecret := config.GetCofig().RazorPayKey, config.GetCofig().RazorPaySecret
-// // create a new razorpay client
-// razorpayClient := razorpay.NewClient(razorpayKey, razorPaySecret)
-// payment, err := razorpayClient.Payment.Fetch(razorpayPaymentID, nil, nil)
-// if err != nil {
-// 	response := res.ErrorResponse(400, "faild to get payment details", err.Error(), nil)
-// 	ctx.JSON(400, response)
-// 	return
-// }
-
-//	if payment["status"] != "captured" {
-//		response := res.ErrorResponse(400, "payment faild", "payment not got on razorpay", payment)
-//		ctx.JSON(400, response)
-//		return
-//	}
 func VeifyRazorpayPayment(razorpayOrderID, razorpayPaymentID, razorpaySignatur string) error {
 
 	razorpayKey := config.GetCofig().RazorPayKey
@@ -160,4 +136,15 @@ func VeifyRazorpayPayment(razorpayOrderID, razorpayPaymentID, razorpaySignatur s
 	}
 
 	return nil
+}
+
+func StringToTime(timeString string) (timeValue time.Time, err error) {
+
+	// parse the string time to time
+	timeValue, err = time.Parse(time.RFC3339Nano, timeString)
+
+	if err != nil {
+		return timeValue, fmt.Errorf("faild to parse given time %v to time variable \nivalid input", timeString)
+	}
+	return timeValue, err
 }

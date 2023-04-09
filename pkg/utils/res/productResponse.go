@@ -1,15 +1,21 @@
 package res
 
+import (
+	"time"
+)
+
 // response for product
 type ResponseProduct struct {
-	ID            uint   `json:"id"`
-	ProductName   string `json:"product_name"`
-	Description   string `json:"description" `
-	CategoryID    uint   `json:"category_id"`
-	CategoryName  string `json:"category_name"`
-	Price         uint   `json:"price"`
-	DiscountPrice uint   `json:"discount_price"`
-	Image         string `json:"image"`
+	ID            uint      `json:"id"`
+	ProductName   string    `json:"product_name"`
+	Description   string    `json:"description" `
+	CategoryID    uint      `json:"category_id"`
+	CategoryName  string    `json:"category_name"`
+	Price         uint      `json:"price"`
+	DiscountPrice uint      `json:"discount_price"`
+	Image         string    `json:"image"`
+	CreatedAt     time.Time `json:"created_at" gorm:"not null"`
+	UpdatedAt     time.Time `json:"updated_at"`
 }
 
 // fo a spedific category representation
@@ -45,13 +51,12 @@ type RespFullCategory struct {
 
 // for reponse a specific products all product items
 type RespProductItems struct {
-	ID            uint   `json:"id"`
-	ProductName   string `json:"product_name"`
-	ProductID     uint   `json:"product_id"`
-	Price         uint   `json:"price"`
-	DiscountPrice uint   `json:"discount_price"`
-	QtyInStock    uint   `json:"qty_in_stock"`
-
+	ID                uint   `json:"id"`
+	ProductName       string `json:"product_name"`
+	ProductID         uint   `json:"product_id"`
+	Price             uint   `json:"price"`
+	DiscountPrice     uint   `json:"discount_price"`
+	QtyInStock        uint   `json:"qty_in_stock"`
 	VariationOptionID uint   `json:"variation_option_id"`
 	VariationValue    string `json:"variation_value"`
 }
