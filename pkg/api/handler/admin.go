@@ -151,8 +151,8 @@ func (a *AdminHandler) ListUsers(ctx *gin.Context) {
 	}
 
 	// check there is no usee
-	if users == nil {
-		response := res.SuccessResponse(200, "there is no users to show", nil)
+	if len(users) == 0 {
+		response := res.SuccessResponse(200, "there is no users to show for this page", nil)
 		ctx.JSON(http.StatusOK, response)
 		return
 	}

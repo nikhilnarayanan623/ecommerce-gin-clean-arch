@@ -7,7 +7,7 @@ import (
 type PaymentMethod struct {
 	ID            uint   `json:"id" gorm:"primaryKey;not null"`
 	PaymentType   string `json:"" gorm:"unique;not null"`
-	BlockStatus   bool   `json:"block_status" gorm:"not null"`
+	BlockStatus   bool   `json:"block_status" gorm:"not null;default:false"`
 	MaximumAmount uint   `json:"maximum_amount" gorm:"not null"`
 }
 

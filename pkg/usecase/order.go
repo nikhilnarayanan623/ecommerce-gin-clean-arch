@@ -89,7 +89,10 @@ func (c *OrderUseCase) ChangeOrderStatus(ctx context.Context, shopOrderID, chang
 	changeOrderStatus, err := c.orderRepo.FindOrderStatus(ctx, domain.OrderStatus{ID: changeStatusID})
 	if err != nil {
 		return err
+	} else if changeOrderStatus.Status == "" {
+		return fmt.Errorf("invalid order_status_id %v", changeOrderStatus.ID)
 	}
+
 	//  using switch to compare order status and change status  in easy way
 	// initially set an common error of all case and direct go that status and check corresponding status is not we want then return
 	// otherwise update the status

@@ -20,18 +20,6 @@ func NewCouponRepository(db *gorm.DB) interfaces.CouponRepository {
 	return &couponDatabase{DB: db}
 }
 
-// find all coupon
-func (c *couponDatabase) FindCouponByID(ctx context.Context, couponID uint) (coupon domain.Coupon, err error) {
-	query := `SELECT * FROM coupons WHERE coupon_id = $1`
-	err = c.DB.Raw(query, couponID).Scan(&coupon).Error
-
-	if err != nil {
-		return coupon, err
-	}
-
-	return coupon, nil
-}
-
 func (c *couponDatabase) CheckCouponDetailsAlreadyExist(ctx context.Context, coupon domain.Coupon) (couponID uint, err error) {
 
 	// query := `SELECT coupon_id FROM coupons WHERE (coupon_code = $1 OR coupon_name = $2) AND coupon_id != $3`
@@ -44,6 +32,18 @@ func (c *couponDatabase) CheckCouponDetailsAlreadyExist(ctx context.Context, cou
 	}
 
 	return couponID, nil
+}
+
+// find all coupon
+func (c *couponDatabase) FindCouponByID(ctx context.Context, couponID uint) (coupon domain.Coupon, err error) {
+	query := `SELECT * FROM coupons WHERE coupon_id = $1`
+	err = c.DB.Raw(query, couponID).Scan(&coupon).Error
+
+	if err != nil {
+		return coupon, err
+	}
+
+	return coupon, nil
 }
 
 // find coupon by code
@@ -105,11 +105,15 @@ func (c *couponDatabase) SaveCoupon(ctx context.Context, coupon domain.Coupon) e
 // update coupon
 func (c *couponDatabase) UpdateCoupon(ctx context.Context, coupon domain.Coupon) error {
 
-	query := `UPDATE coupons SET coupon_name = $1, coupon_code = $2, description = $3, 
-	discount_rate = $4, minimum_cart_price = $5, image = $6, block_status = $7`
+	query := `UPDATE coupons SET coupon_name = $1, description = $2, discount_rate = $3, 
+	minimum_cart_price = $4, image = $5, block_status = $6, updated_at = $7 
+	WHERE coupon_id = $8`
 
-	err := c.DB.Exec(query, coupon.CouponName, coupon.CouponCode, coupon.Description,
-		coupon.DiscountRate, coupon.MinimumCartPrice, coupon.Image, coupon.BlockStatus,
+	updatedAt := time.Now()
+
+	err := c.DB.Exec(query, coupon.CouponName, coupon.Description,
+		coupon.DiscountRate, coupon.MinimumCartPrice, coupon.Image, coupon.BlockStatus, updatedAt,
+		coupon.CouponID,
 	).Error
 	if err != nil {
 		return fmt.Errorf("faild to update coupon for coupon_name %v", coupon.CouponName)
