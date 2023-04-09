@@ -7,7 +7,9 @@ import (
 )
 
 type CouponRepository interface {
+	CheckCouponDetailsAlreadyExist(ctx context.Context, coupon domain.Coupon) (couponID uint, err error)
 	FindCouponByID(ctx context.Context, couponID uint) (coupon domain.Coupon, err error)
+
 	FindCouponByCouponCode(ctx context.Context, couponCode string) (coupon domain.Coupon, err error)
 	FindCouponByName(ctx context.Context, couponName string) (coupon domain.Coupon, err error)
 

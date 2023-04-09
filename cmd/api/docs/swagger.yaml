@@ -1,4 +1,45 @@
 definitions:
+  domain.Category:
+    properties:
+      category_id:
+        type: integer
+      category_name:
+        maxLength: 30
+        minLength: 1
+        type: string
+    required:
+    - category_name
+    type: object
+  domain.Offer:
+    properties:
+      description:
+        maxLength: 50
+        minLength: 6
+        type: string
+      discount_rate:
+        maximum: 100
+        minimum: 1
+        type: integer
+      end_date:
+        type: string
+      offer_name:
+        type: string
+      start_date:
+        type: string
+    required:
+    - description
+    - discount_rate
+    - end_date
+    - offer_name
+    - start_date
+    type: object
+  req.BlockStruct:
+    properties:
+      user_id:
+        type: integer
+    required:
+    - user_id
+    type: object
   req.LoginStruct:
     properties:
       email:
@@ -33,15 +74,15 @@ definitions:
     type: object
   req.OTPVerifyStruct:
     properties:
-      id:
-        type: integer
       otp:
         maxLength: 8
         minLength: 4
         type: string
+      user_id:
+        type: integer
     required:
-    - id
     - otp
+    - user_id
     type: object
   req.ReqAddress:
     properties:
@@ -53,8 +94,6 @@ definitions:
         type: integer
       house:
         type: string
-      id:
-        type: integer
       is_default:
         type: boolean
       land_mark:
@@ -77,11 +116,16 @@ definitions:
     - phone_number
     - pincode
     type: object
+  req.ReqApplyCoupon:
+    properties:
+      coupon_code:
+        type: string
+    required:
+    - coupon_code
+    type: object
   req.ReqCart:
     properties:
       product_item_id:
-        type: integer
-      user_id:
         type: integer
     required:
     - product_item_id
@@ -91,18 +135,46 @@ definitions:
       count:
         minimum: 1
         type: integer
-      increment:
-        type: boolean
       product_item_id:
         type: integer
-      user_id:
+    required:
+    - product_item_id
+    type: object
+  req.ReqCoupon:
+    properties:
+      block_status:
+        type: boolean
+      coupon_name:
+        maxLength: 25
+        minLength: 3
+        type: string
+      description:
+        maxLength: 150
+        minLength: 6
+        type: string
+      discount_rate:
+        maximum: 100
+        minimum: 1
+        type: integer
+      expire_date:
+        type: string
+      image:
+        type: string
+      minimum_cart_price:
+        minimum: 1
         type: integer
     required:
-    - increment
-    - product_item_id
+    - coupon_name
+    - description
+    - discount_rate
+    - expire_date
+    - image
+    - minimum_cart_price
     type: object
   req.ReqEditAddress:
     properties:
+      address_id:
+        type: integer
       area:
         type: string
       city:
@@ -111,8 +183,6 @@ definitions:
         type: integer
       house:
         type: string
-      id:
-        type: integer
       is_default:
         type: boolean
       land_mark:
@@ -128,13 +198,115 @@ definitions:
       pincode:
         type: integer
     required:
+    - address_id
     - country_id
     - house
-    - id
     - land_mark
     - name
     - phone_number
     - pincode
+    type: object
+  req.ReqOfferCategory:
+    properties:
+      category_id:
+        type: integer
+      offer_id:
+        type: integer
+    required:
+    - category_id
+    - offer_id
+    type: object
+  req.ReqOfferProduct:
+    properties:
+      offer_id:
+        type: integer
+      product_id:
+        type: integer
+    required:
+    - offer_id
+    - product_id
+    type: object
+  req.ReqPlaceOrder:
+    properties:
+      address_id:
+        type: integer
+      payment_method_id:
+        type: integer
+    required:
+    - address_id
+    - payment_method_id
+    type: object
+  req.ReqProduct:
+    properties:
+      category_id:
+        type: integer
+      description:
+        maxLength: 100
+        minLength: 10
+        type: string
+      id:
+        type: integer
+      image:
+        type: string
+      price:
+        type: integer
+      product_name:
+        maxLength: 50
+        minLength: 3
+        type: string
+    required:
+    - category_id
+    - description
+    - image
+    - price
+    - product_name
+    type: object
+  req.ReqProductItem:
+    properties:
+      images:
+        items:
+          type: string
+        type: array
+      price:
+        minimum: 1
+        type: integer
+      product_id:
+        type: integer
+      qty_in_stock:
+        minimum: 1
+        type: integer
+      variation_option_id:
+        type: integer
+    required:
+    - images
+    - price
+    - product_id
+    - qty_in_stock
+    - variation_option_id
+    type: object
+  req.ReqReturn:
+    properties:
+      return_reason:
+        maxLength: 50
+        minLength: 6
+        type: string
+      shop_order_id:
+        type: integer
+    required:
+    - return_reason
+    - shop_order_id
+    type: object
+  req.ReqUpdatReturnOrder:
+    properties:
+      admin_comment:
+        type: string
+      order_return_id:
+        type: integer
+      order_status_id:
+        type: integer
+    required:
+    - order_return_id
+    - order_status_id
     type: object
   req.ReqUpdateOrder:
     properties:
@@ -145,10 +317,12 @@ definitions:
     required:
     - shop_order_id
     type: object
-  req.ReqUser:
+  req.ReqUserSignUp:
     properties:
       age:
         type: integer
+      confirm_password:
+        type: string
       email:
         type: string
       first_name:
@@ -159,6 +333,8 @@ definitions:
         maxLength: 50
         minLength: 1
         type: string
+      password:
+        type: string
       phone:
         maxLength: 10
         minLength: 10
@@ -167,6 +343,37 @@ definitions:
         maxLength: 15
         minLength: 3
         type: string
+    required:
+    - age
+    - confirm_password
+    - email
+    - first_name
+    - last_name
+    - password
+    - phone
+    - user_name
+    type: object
+  req.ReqVariation:
+    properties:
+      category_id:
+        type: integer
+      variation_name:
+        type: string
+    required:
+    - category_id
+    - variation_name
+    type: object
+  req.ReqVariationOption:
+    properties:
+      variation_id:
+        description: a specific field of variation like color/size
+        type: integer
+      variation_value:
+        description: the variations value like blue/XL
+        type: string
+    required:
+    - variation_id
+    - variation_value
     type: object
   res.Response:
     properties:
@@ -183,17 +390,769 @@ paths:
   /:
     get:
       description: after user login user will seen this page with user informations
-      operationId: Home
+      operationId: User Home
       responses:
         "200":
           description: Welcome Home
-        "400":
-          description: Faild to load user home page
       security:
       - ApiKeyAuth: []
       summary: api for showing home page of user
       tags:
       - Home
+  /account:
+    get:
+      operationId: Account
+      responses:
+        "200":
+          description: Successfully user account details found
+        "500":
+          description: faild to show user details
+          schema:
+            $ref: '#/definitions/res.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: api for see use details
+      tags:
+      - User Account
+    put:
+      description: user can edit user details
+      operationId: UpateAccount
+      parameters:
+      - description: input field
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/req.ReqUserSignUp'
+      responses:
+        "200":
+          description: successfully updated user details
+          schema:
+            $ref: '#/definitions/res.Response'
+        "400":
+          description: invalid input
+          schema:
+            $ref: '#/definitions/res.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: api for edit user details
+      tags:
+      - User Account
+  /account/address:
+    get:
+      description: user can show all adderss
+      operationId: GetAddresses
+      responses:
+        "200":
+          description: successfully got user addresses
+          schema:
+            $ref: '#/definitions/res.Response'
+        "500":
+          description: faild to show user addresses
+          schema:
+            $ref: '#/definitions/res.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: api for get all address of user
+      tags:
+      - User Address
+    post:
+      description: get a new address from user to store the the database
+      operationId: AddAddress
+      parameters:
+      - description: Input Field
+        in: body
+        name: inputs
+        required: true
+        schema:
+          $ref: '#/definitions/req.ReqAddress'
+      responses:
+        "200":
+          description: Successfully address added
+          schema:
+            $ref: '#/definitions/res.Response'
+        "400":
+          description: inavlid input
+          schema:
+            $ref: '#/definitions/res.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: api for adding a new address for user
+      tags:
+      - User Address
+    put:
+      description: user can change existing address
+      operationId: EditAddress
+      parameters:
+      - description: Input Field
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/req.ReqEditAddress'
+      responses:
+        "200":
+          description: successfully addresses updated
+          schema:
+            $ref: '#/definitions/res.Response'
+        "400":
+          description: can't update the address
+          schema:
+            $ref: '#/definitions/res.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: api for edit user address
+      tags:
+      - User Address
+  /admin:
+    get:
+      operationId: AdminHome
+      responses:
+        "200":
+          description: successfully logged in
+          schema:
+            $ref: '#/definitions/res.Response'
+      summary: api admin home
+      tags:
+      - Admin Home
+  /admin/category:
+    get:
+      operationId: GetAlllCategories
+      responses:
+        "200":
+          description: successfully update the coupon
+          schema:
+            $ref: '#/definitions/res.Response'
+        "500":
+          description: faild to get all cateogires
+          schema:
+            $ref: '#/definitions/res.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: api for adminn get all categories
+      tags:
+      - Admin Category
+    post:
+      operationId: AddCategory
+      parameters:
+      - description: Input field
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/domain.Category'
+      responses:
+        "200":
+          description: successfully added a new category
+          schema:
+            $ref: '#/definitions/res.Response'
+        "400":
+          description: invalid input
+          schema:
+            $ref: '#/definitions/res.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: api for adminn add a new category
+      tags:
+      - Admin Category
+  /admin/category/variation:
+    post:
+      operationId: AddVariation
+      parameters:
+      - description: Input field
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/req.ReqVariation'
+      responses:
+        "200":
+          description: successfully variation added
+          schema:
+            $ref: '#/definitions/res.Response'
+        "400":
+          description: invalid input
+          schema:
+            $ref: '#/definitions/res.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: api for adminn add a new variation
+      tags:
+      - Admin Category
+  /admin/category/variation-option:
+    post:
+      operationId: AddVariationOption
+      parameters:
+      - description: Input field
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/req.ReqVariationOption'
+      responses:
+        "200":
+          description: successfully added variation option
+          schema:
+            $ref: '#/definitions/res.Response'
+        "400":
+          description: invalid input
+          schema:
+            $ref: '#/definitions/res.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: api for adminn add a new variation options
+      tags:
+      - Admin Category
+  /admin/coupons:
+    get:
+      operationId: GetAllCoupons
+      parameters:
+      - description: Page Number
+        in: query
+        name: page_number
+        type: integer
+      - description: Count Of Order
+        in: query
+        name: count
+        type: integer
+      responses:
+        "200":
+          description: successfully go all the coupons
+          schema:
+            $ref: '#/definitions/res.Response'
+        "500":
+          description: faild to get all coupons
+          schema:
+            $ref: '#/definitions/res.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: api for admin to see all coupons
+      tags:
+      - Admin Coupon
+    post:
+      operationId: AddCoupon
+      parameters:
+      - description: Input Field
+        in: body
+        name: inputs
+        required: true
+        schema:
+          $ref: '#/definitions/req.ReqCoupon'
+      responses:
+        "200":
+          description: successfully coupon added
+          schema:
+            $ref: '#/definitions/res.Response'
+        "400":
+          description: invalid input
+          schema:
+            $ref: '#/definitions/res.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: api for admin to add coupon
+      tags:
+      - Admin Coupon
+    put:
+      operationId: UpdateCoupon
+      parameters:
+      - description: Input Field
+        in: body
+        name: inputs
+        required: true
+        schema:
+          $ref: '#/definitions/req.ReqCoupon'
+      responses:
+        "200":
+          description: successfully update the coupon
+          schema:
+            $ref: '#/definitions/res.Response'
+        "400":
+          description: invalid input
+          schema:
+            $ref: '#/definitions/res.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: api for admin to update the coupon
+      tags:
+      - Admin Coupon
+  /admin/login:
+    post:
+      operationId: AdminLogin
+      parameters:
+      - description: inputs
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/req.LoginStruct'
+      responses:
+        "200":
+          description: successfully logged in
+          schema:
+            $ref: '#/definitions/res.Response'
+        "400":
+          description: invalid input
+          schema:
+            $ref: '#/definitions/res.Response'
+        "500":
+          description: faild to generate jwt token
+          schema:
+            $ref: '#/definitions/res.Response'
+      summary: api for admin to login
+      tags:
+      - Admin Login
+  /admin/offers:
+    post:
+      operationId: AddOffer
+      parameters:
+      - description: input field
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/domain.Offer'
+      responses:
+        "200":
+          description: successfully offer added
+          schema:
+            $ref: '#/definitions/res.Response'
+        "400":
+          description: invalid input
+          schema:
+            $ref: '#/definitions/res.Response'
+      summary: api for admin to add new offer
+      tags:
+      - Offers
+  /admin/offers/:
+    get:
+      operationId: ShowAllOffers
+      responses:
+        "200":
+          description: successfully got all offers
+          schema:
+            $ref: '#/definitions/res.Response'
+        "500":
+          description: faild to get offers
+          schema:
+            $ref: '#/definitions/res.Response'
+      summary: api for show all offers
+      tags:
+      - Offers
+  /admin/offers/category:
+    get:
+      operationId: GetOfferCategory
+      responses:
+        "200":
+          description: successfully got all offer_category
+          schema:
+            $ref: '#/definitions/res.Response'
+        "500":
+          description: faild to get offers_category
+          schema:
+            $ref: '#/definitions/res.Response'
+      summary: api for admin to get all offers of categories
+      tags:
+      - Offers
+    post:
+      operationId: AddOfferCategory
+      parameters:
+      - description: input field
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/req.ReqOfferCategory'
+      responses:
+        "200":
+          description: successfully offer added for category
+          schema:
+            $ref: '#/definitions/res.Response'
+        "400":
+          description: invalid input
+          schema:
+            $ref: '#/definitions/res.Response'
+      summary: api for admin to add offer for category
+      tags:
+      - Offers
+  /admin/offers/category/replace:
+    post:
+      operationId: ReplaceOfferCategory
+      parameters:
+      - description: input field
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/req.ReqOfferCategory'
+      responses:
+        "200":
+          description: successfully offer replaced for category
+          schema:
+            $ref: '#/definitions/res.Response'
+        "400":
+          description: invalid input
+          schema:
+            $ref: '#/definitions/res.Response'
+      summary: api for admin to add offer for category
+      tags:
+      - Offers
+  /admin/offers/products:
+    get:
+      operationId: GetOffersOfProducts
+      responses:
+        "200":
+          description: successfully got all offers_categories
+          schema:
+            $ref: '#/definitions/res.Response'
+        "500":
+          description: faild to get offer_products
+          schema:
+            $ref: '#/definitions/res.Response'
+      summary: api for admin to get all offers of products
+      tags:
+      - Offers
+    post:
+      operationId: AddOfferProduct
+      parameters:
+      - description: input field
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/req.ReqOfferProduct'
+      responses:
+        "200":
+          description: successfully offer added for product
+          schema:
+            $ref: '#/definitions/res.Response'
+        "400":
+          description: invalid input
+          schema:
+            $ref: '#/definitions/res.Response'
+      summary: api for admin to add offer for product
+      tags:
+      - Offers
+    put:
+      operationId: ReplaceOfferProduct
+      parameters:
+      - description: input field
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/req.ReqOfferProduct'
+      responses:
+        "200":
+          description: successfully offer replaced for product
+          schema:
+            $ref: '#/definitions/res.Response'
+        "400":
+          description: invalid input
+          schema:
+            $ref: '#/definitions/res.Response'
+      summary: api for admin to replace a new offer on an existing offer for a product
+      tags:
+      - Offers
+  /admin/offers/products/:
+    delete:
+      operationId: RemoveOfferProduct
+      parameters:
+      - description: offer_product_id
+        in: path
+        name: offer_product_id
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: successfully offer removed from product
+          schema:
+            $ref: '#/definitions/res.Response'
+        "400":
+          description: invalid input on params
+          schema:
+            $ref: '#/definitions/res.Response'
+      summary: api for admin to remove offer from product
+      tags:
+      - Offers
+  /admin/orders:
+    get:
+      description: admin can see all orders in application
+      operationId: GetAllShopOrders
+      parameters:
+      - description: Page Number
+        in: query
+        name: page_number
+        type: integer
+      - description: Count Of Order
+        in: query
+        name: count
+        type: integer
+      responses:
+        "200":
+          description: successfully order list got
+          schema:
+            $ref: '#/definitions/res.Response'
+        "500":
+          description: faild to get shop order data
+          schema:
+            $ref: '#/definitions/res.Response'
+      summary: api for admin to show all order
+      tags:
+      - Admin Orders
+  /admin/orders/:
+    put:
+      description: admin can change User Orders status
+      operationId: UdateOrderStatus
+      parameters:
+      - description: input field
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/req.ReqUpdateOrder'
+      responses:
+        "200":
+          description: successfully got order items
+          schema:
+            $ref: '#/definitions/res.Response'
+        "400":
+          description: invalid input
+          schema:
+            $ref: '#/definitions/res.Response'
+      summary: api for admin to change the status of order
+      tags:
+      - Admin Orders
+  /admin/orders/returns:
+    get:
+      operationId: GetAllOrderReturns
+      parameters:
+      - description: Page Number
+        in: query
+        name: page_number
+        type: integer
+      - description: Count Of Order
+        in: query
+        name: count
+        type: integer
+      responses:
+        "200":
+          description: successfully got all order returns
+          schema:
+            $ref: '#/definitions/res.Response'
+        "500":
+          description: faild to get order returns
+          schema:
+            $ref: '#/definitions/res.Response'
+      summary: api for admin to see all order reutns
+      tags:
+      - Admin Orders
+  /admin/orders/returns/pending:
+    get:
+      description: admin can see the pending return request and accept it or not
+      operationId: GetAllPendingReturns
+      parameters:
+      - description: Page Number
+        in: query
+        name: page_number
+        type: integer
+      - description: Count Of Order
+        in: query
+        name: count
+        type: integer
+      responses:
+        "200":
+          description: successfully got  pending orders return request
+          schema:
+            $ref: '#/definitions/res.Response'
+        "500":
+          description: faild to get pending order return requests
+          schema:
+            $ref: '#/definitions/res.Response'
+      summary: api for admin to show pending return request and update it
+      tags:
+      - Admin Orders
+    put:
+      description: admin can approve, cancell etc. updation on User Orders_return
+      operationId: UpdategReturnRequest
+      parameters:
+      - description: Input Fiields
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/req.ReqUpdatReturnOrder'
+      responses:
+        "200":
+          description: successfully order_response updated
+          schema:
+            $ref: '#/definitions/res.Response'
+        "500":
+          description: invalid input
+          schema:
+            $ref: '#/definitions/res.Response'
+      summary: api for admin to supdate the order_return request from user
+      tags:
+      - Admin Orders
+  /admin/orders/statuses:
+    get:
+      operationId: GetAllOrderStatuses
+      responses:
+        "200":
+          description: successfully got all order statueses
+          schema:
+            $ref: '#/definitions/res.Response'
+        "500":
+          description: faild to get order statuses
+          schema:
+            $ref: '#/definitions/res.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: api for admin to see all order statues for changing order's statuses
+      tags:
+      - Admin Orders
+  /admin/products:
+    post:
+      operationId: AddProducts
+      parameters:
+      - description: inputs
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/req.ReqProduct'
+      responses:
+        "200":
+          description: successfully product added
+          schema:
+            $ref: '#/definitions/res.Response'
+        "400":
+          description: invalid input
+          schema:
+            $ref: '#/definitions/res.Response'
+      summary: api for admin to update a product
+      tags:
+      - Admin Products
+    put:
+      operationId: UpdateProduct
+      parameters:
+      - description: inputs
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/req.ReqProduct'
+      responses:
+        "200":
+          description: successfully product updated
+          schema:
+            $ref: '#/definitions/res.Response'
+        "400":
+          description: invalid input
+          schema:
+            $ref: '#/definitions/res.Response'
+      summary: api for admin to update a product
+      tags:
+      - Admin Products
+  /admin/products/product-items:
+    post:
+      operationId: AddProductItem
+      parameters:
+      - description: inputs
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/req.ReqProductItem'
+      responses:
+        "200":
+          description: Successfully product item added
+          schema:
+            $ref: '#/definitions/res.Response'
+        "400":
+          description: invalid input
+          schema:
+            $ref: '#/definitions/res.Response'
+      summary: api for admin to add product-items for a specific product
+      tags:
+      - Admin Products
+  /admin/sales:
+    get:
+      operationId: FullSalesReport
+      parameters:
+      - description: Date that you wan't to start on Report
+        in: query
+        name: start_date
+        type: string
+      - description: Date that you wan't to start on Report
+        in: query
+        name: end_date
+        type: string
+      - description: Page Number
+        in: query
+        name: page_number
+        type: integer
+      - description: Count Of Order
+        in: query
+        name: count
+        type: integer
+      responses:
+        "200":
+          description: ecommercesalesreport.csv
+          schema:
+            $ref: '#/definitions/res.Response'
+        "500":
+          description: faild to get sales report
+          schema:
+            $ref: '#/definitions/res.Response'
+      summary: api for admin to see full sales report and download it as csv
+      tags:
+      - Admin Sales
+  /admin/users:
+    get:
+      operationId: ListUsers
+      parameters:
+      - description: Page Number
+        in: query
+        name: page_number
+        type: integer
+      - description: Count Of Order
+        in: query
+        name: count
+        type: integer
+      responses:
+        "200":
+          description: successfully got all users
+          schema:
+            $ref: '#/definitions/res.Response'
+        "500":
+          description: faild to get all users
+          schema:
+            $ref: '#/definitions/res.Response'
+      summary: api for admin to list users
+      tags:
+      - Admin User
+  /admin/users/block:
+    patch:
+      operationId: BlockUser
+      parameters:
+      - description: inputs
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/req.BlockStruct'
+      responses:
+        "200":
+          description: Successfully changed user block_status
+          schema:
+            $ref: '#/definitions/res.Response'
+        "400":
+          description: invalid input
+          schema:
+            $ref: '#/definitions/res.Response'
+      summary: api for admin to block or unblock user
+      tags:
+      - Admin User
   /carts:
     delete:
       description: user can remove a signle productItem full quantity from cart
@@ -222,10 +1181,10 @@ paths:
       - ApiKeyAuth: []
       summary: api for remove a product from cart
       tags:
-      - Carts
+      - User Cart
     get:
       description: user can see all productItem that stored in cart
-      operationId: UserCart
+      operationId: User Cart
       responses:
         "200":
           description: successfully got user cart items
@@ -239,7 +1198,7 @@ paths:
       - ApiKeyAuth: []
       summary: api for get all cart item of user
       tags:
-      - Carts
+      - User Cart
     post:
       description: user can add a stock in product to user cart
       operationId: AddToCart
@@ -259,7 +1218,7 @@ paths:
       - ApiKeyAuth: []
       summary: api for add productItem to user cart
       tags:
-      - Carts
+      - User Cart
     put:
       description: user can inrement or drement count of a productItem in cart (min=1)
       operationId: UpdateCart
@@ -281,7 +1240,7 @@ paths:
       - ApiKeyAuth: []
       summary: api for updte productItem count
       tags:
-      - Carts
+      - User Cart
   /carts/checkout:
     get:
       description: user can checkout user cart items
@@ -303,40 +1262,123 @@ paths:
       - ApiKeyAuth: []
       summary: api for cart checkout
       tags:
-      - Carts
-  /carts/place-order/:address_id:
-    post:
-      description: user can place after checkout
-      operationId: PlaceOrderByCart
+      - User Cart
+  /carts/coupons:
+    patch:
+      operationId: ApplyCouponToCart
+      parameters:
+      - description: Input Field
+        in: body
+        name: inputs
+        required: true
+        schema:
+          $ref: '#/definitions/req.ReqApplyCoupon'
       responses:
         "200":
-          description: successfully placed your order for COD
+          description: successfully updated the coupon code
           schema:
             $ref: '#/definitions/res.Response'
         "400":
-          description: faild to place to order
-          schema:
-            $ref: '#/definitions/res.Response'
-      summary: api for place order of all items in user cart
-      tags:
-      - Carts
-  /login:
-    get:
-      description: Enter this fields on login page post
-      operationId: LoginGet
-      responses:
-        "200":
-          description: OK
+          description: invalid input
           schema:
             $ref: '#/definitions/res.Response'
       security:
       - ApiKeyAuth: []
-      summary: to get the json format for login
+      summary: api user to apply on cart on checkout time
       tags:
-      - Login
+      - User Cart
+  /carts/place-order/cod:
     post:
-      description: Enter user_name/phone/email with password
-      operationId: LoginPost
+      operationId: PlaceOrderCartCOD
+      parameters:
+      - description: Input Field
+        in: body
+        name: inputs
+        required: true
+        schema:
+          $ref: '#/definitions/req.ReqPlaceOrder'
+      responses:
+        "200":
+          description: successfully order placed in COD
+          schema:
+            $ref: '#/definitions/res.Response'
+        "400":
+          description: invalid input
+          schema:
+            $ref: '#/definitions/res.Response'
+        "500":
+          description: faild to save shop order
+          schema:
+            $ref: '#/definitions/res.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: api for user to place an order on cart with COD
+      tags:
+      - User Cart
+  /carts/place-order/razorpay-checkout:
+    post:
+      operationId: RazorpayPage
+      parameters:
+      - description: Payment Method ID
+        in: formData
+        name: payment_method_id
+        required: true
+        type: integer
+      - description: Address ID
+        in: formData
+        name: address_id
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: place order
+          schema:
+            $ref: '#/definitions/res.Response'
+        "400":
+          description: faill place order
+          schema:
+            $ref: '#/definitions/res.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: api for create an razorpay order
+      tags:
+      - User Cart
+  /carts/place-order/razorpay-verify:
+    post:
+      operationId: RazorpayVerify
+      parameters:
+      - description: Payment Method ID
+        in: formData
+        name: payment_method_id
+        required: true
+        type: integer
+      - description: Address ID
+        in: formData
+        name: address_id
+        required: true
+        type: integer
+      - description: Coupon Code
+        in: formData
+        name: coupon_code
+        type: string
+      responses:
+        "200":
+          description: faild to veify payment
+          schema:
+            $ref: '#/definitions/res.Response'
+        "400":
+          description: successfully payment completed and order approved
+          schema:
+            $ref: '#/definitions/res.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: api user for verify razorpay payment
+      tags:
+      - User Cart
+  /login:
+    post:
+      description: Enter user_name | phone | email with password
+      operationId: UserLogin
       parameters:
       - description: Input Field
         in: body
@@ -350,7 +1392,7 @@ paths:
           schema:
             $ref: '#/definitions/res.Response'
         "400":
-          description: faild to login
+          description: invalid input
           schema:
             $ref: '#/definitions/res.Response'
         "500":
@@ -359,13 +1401,14 @@ paths:
             $ref: '#/definitions/res.Response'
       security:
       - ApiKeyAuth: []
-      summary: api for user login
+      summary: api for user to login
       tags:
-      - Login
+      - User Login
   /login/otp-send:
     post:
-      description: user can enter email/user_name/phone will send an otp to user phone
-      operationId: LoginOtpSend
+      description: user can enter email/user_name/phone will send an otp to user registered
+        phone_number
+      operationId: UserLoginOtpSend
       parameters:
       - description: Input Field
         in: body
@@ -388,13 +1431,13 @@ paths:
             $ref: '#/definitions/res.Response'
       security:
       - ApiKeyAuth: []
-      summary: api for user login with otp
+      summary: api for user to login with otp
       tags:
-      - Login
+      - User Login
   /login/otp-verify:
     post:
       description: enter your otp that send to your registered number
-      operationId: LoginOtpVerify
+      operationId: UserLoginOtpVerify
       parameters:
       - description: Input Field
         in: body
@@ -406,18 +1449,18 @@ paths:
         "200":
           description: successfully logged in uing otp
         "400":
-          description: invalid input otp
+          description: invalid login_otp
         "500":
           description: Faild to generate JWT
       security:
       - ApiKeyAuth: []
-      summary: varify user login otp
+      summary: api for user to varify user login_otp
       tags:
-      - Login
+      - User Login
   /logout:
     post:
       description: user can logout
-      operationId: Logout
+      operationId: UserLogout
       responses:
         "200":
           description: successfully logged out
@@ -425,11 +1468,20 @@ paths:
       - ApiKeyAuth: []
       summary: api for user to lgout
       tags:
-      - Logout
+      - User Logout
   /orders:
     get:
-      description: user can see all user order history
-      operationId: GetOrdersOfUser
+      description: user can see all User Orders history
+      operationId: GetUserOrder
+      parameters:
+      - description: Page Number
+        in: query
+        name: page_number
+        type: integer
+      - description: Count Of Order
+        in: query
+        name: count
+        type: integer
       responses:
         "200":
           description: successfully got shop order list of user
@@ -439,29 +1491,40 @@ paths:
           description: faild to get user shop order list
           schema:
             $ref: '#/definitions/res.Response'
-      summary: api for showing user order list
+      summary: api for showing User Orders list
       tags:
-      - Orders
-  /orders/:
-    put:
-      description: admin can change user order status
-      operationId: GetAllShopOrders
+      - User Orders
+    post:
+      description: user can cancell the order if it's not placed
+      operationId: CancellOrder
       responses:
         "200":
           description: Successfully order cancelled
           schema:
             $ref: '#/definitions/res.Response'
         "400":
-          description: invalid input
+          description: invalid input on param
           schema:
             $ref: '#/definitions/res.Response'
-      summary: api for admin to change the status of order
+      summary: api for user to cancell the order
       tags:
-      - Orders
+      - User Orders
   /orders/items:
     get:
-      description: user can place after checkout
-      operationId: GetOrderItemsForUser
+      operationId: GetOrderItemsByShopOrderItems-User
+      parameters:
+      - description: Shop Order ID
+        in: query
+        name: shop_order_id
+        type: integer
+      - description: Page Number
+        in: query
+        name: page_number
+        type: integer
+      - description: Count Of Order
+        in: query
+        name: count
+        type: integer
       responses:
         "200":
           description: successfully got order items
@@ -473,141 +1536,97 @@ paths:
             $ref: '#/definitions/res.Response'
       summary: api for show order items of a specific order
       tags:
-      - Orders
-  /profile:
-    put:
-      description: user can edit user details
-      operationId: EditAccount
+      - User Orders
+  /orders/return:
+    post:
+      description: user can request return for placed orders
+      operationId: SubmitReturnRequest
       parameters:
-      - description: input field
+      - description: Input Fields
         in: body
         name: input
         required: true
         schema:
-          $ref: '#/definitions/req.ReqUser'
+          $ref: '#/definitions/req.ReqReturn'
       responses:
         "200":
-          description: successfully edited user details
+          description: successfully submited return request for order
           schema:
             $ref: '#/definitions/res.Response'
         "400":
           description: invalid input
           schema:
             $ref: '#/definitions/res.Response'
-      security:
-      - ApiKeyAuth: []
-      summary: api for edit user details
+      summary: api for user to request a return for an order
       tags:
-      - Profile
-  /profile/:
+      - User Orders
+  /products:
     get:
-      description: user can see user details
-      operationId: Account
-      responses:
-        "200":
-          description: Successfully user account details found
-        "500":
-          description: faild to show user details
-          schema:
-            $ref: '#/definitions/res.Response'
-      security:
-      - ApiKeyAuth: []
-      summary: api for showing user details
-      tags:
-      - Profile
-  /profile/address:
-    get:
-      description: user can show all adderss
-      operationId: GetAddresses
-      responses:
-        "200":
-          description: successfully got user addresses
-          schema:
-            $ref: '#/definitions/res.Response'
-        "500":
-          description: faild to show user addresses
-          schema:
-            $ref: '#/definitions/res.Response'
-      security:
-      - ApiKeyAuth: []
-      summary: api for get all address of user
-      tags:
-      - Address
-    post:
-      description: get a new address from user to store the the database
-      operationId: AddAddress
+      operationId: ListProducts-User
       parameters:
-      - description: Input Field
-        in: body
-        name: inputs
-        required: true
-        schema:
-          $ref: '#/definitions/req.ReqAddress'
+      - description: Page Number
+        in: query
+        name: page_number
+        type: integer
+      - description: Count Of Order
+        in: query
+        name: count
+        type: integer
       responses:
         "200":
-          description: Successfully address added
+          description: successfully got all products
+          schema:
+            $ref: '#/definitions/res.Response'
+        "500":
+          description: faild to get all products
+          schema:
+            $ref: '#/definitions/res.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: api for user to show products
+      tags:
+      - User Products
+  /products/product-items:
+    get:
+      operationId: GetProductItems
+      parameters:
+      - description: product_id
+        in: path
+        name: product_id
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: successfully got all product_items for given product_id
           schema:
             $ref: '#/definitions/res.Response'
         "400":
-          description: inavlid input
+          description: invalid input on params
           schema:
             $ref: '#/definitions/res.Response'
-      security:
-      - ApiKeyAuth: []
-      summary: api for adding a new address for user
+      summary: api for get all product_items for a prooduct
       tags:
-      - Address
-    put:
-      description: user can change existing address
-      operationId: EditAddress
+      - User Products
+  /signup:
+    post:
+      operationId: UserSignUp
       parameters:
-      - description: Input Field
+      - description: Input Fields
         in: body
         name: input
         required: true
         schema:
-          $ref: '#/definitions/req.ReqEditAddress'
+          $ref: '#/definitions/req.ReqUserSignUp'
       responses:
         "200":
-          description: successfully addresses updated
-          schema:
-            $ref: '#/definitions/res.Response'
+          description: Successfully account created for user
         "400":
-          description: can't update the address
-          schema:
-            $ref: '#/definitions/res.Response'
+          description: invalid input
       security:
       - ApiKeyAuth: []
-      summary: api for edit user address
+      summary: api for user to signup
       tags:
-      - Address
-  /signup:
-    get:
-      description: user can see what are the fields to enter to create a new account
-      operationId: SignUpGet
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/res.Response'
-      security:
-      - ApiKeyAuth: []
-      summary: api for user to signup page
-      tags:
-      - Signup
-    post:
-      description: user can send user details and validate and create new account
-      operationId: SignUpPost
-      responses:
-        "200":
-          description: Successfully account created
-        "400":
-          description: Faild to create account
-      security:
-      - ApiKeyAuth: []
-      summary: api for user to post the user details
-      tags:
-      - Signup
+      - User Signup
   /wishlist:
     delete:
       operationId: RemoveFromWishList

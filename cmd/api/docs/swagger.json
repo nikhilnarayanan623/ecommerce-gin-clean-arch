@@ -16,13 +16,1188 @@
                     "Home"
                 ],
                 "summary": "api for showing home page of user",
-                "operationId": "Home",
+                "operationId": "User Home",
                 "responses": {
                     "200": {
                         "description": "Welcome Home"
+                    }
+                }
+            }
+        },
+        "/account": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "tags": [
+                    "User Account"
+                ],
+                "summary": "api for see use details",
+                "operationId": "Account",
+                "responses": {
+                    "200": {
+                        "description": "Successfully user account details found"
+                    },
+                    "500": {
+                        "description": "faild to show user details",
+                        "schema": {
+                            "$ref": "#/definitions/res.Response"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "user can edit user details",
+                "tags": [
+                    "User Account"
+                ],
+                "summary": "api for edit user details",
+                "operationId": "UpateAccount",
+                "parameters": [
+                    {
+                        "description": "input field",
+                        "name": "input",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/req.ReqUserSignUp"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successfully updated user details",
+                        "schema": {
+                            "$ref": "#/definitions/res.Response"
+                        }
                     },
                     "400": {
-                        "description": "Faild to load user home page"
+                        "description": "invalid input",
+                        "schema": {
+                            "$ref": "#/definitions/res.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/account/address": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "user can show all adderss",
+                "tags": [
+                    "User Address"
+                ],
+                "summary": "api for get all address of user",
+                "operationId": "GetAddresses",
+                "responses": {
+                    "200": {
+                        "description": "successfully got user addresses",
+                        "schema": {
+                            "$ref": "#/definitions/res.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "faild to show user addresses",
+                        "schema": {
+                            "$ref": "#/definitions/res.Response"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "user can change existing address",
+                "tags": [
+                    "User Address"
+                ],
+                "summary": "api for edit user address",
+                "operationId": "EditAddress",
+                "parameters": [
+                    {
+                        "description": "Input Field",
+                        "name": "input",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/req.ReqEditAddress"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successfully addresses updated",
+                        "schema": {
+                            "$ref": "#/definitions/res.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "can't update the address",
+                        "schema": {
+                            "$ref": "#/definitions/res.Response"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "get a new address from user to store the the database",
+                "tags": [
+                    "User Address"
+                ],
+                "summary": "api for adding a new address for user",
+                "operationId": "AddAddress",
+                "parameters": [
+                    {
+                        "description": "Input Field",
+                        "name": "inputs",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/req.ReqAddress"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successfully address added",
+                        "schema": {
+                            "$ref": "#/definitions/res.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "inavlid input",
+                        "schema": {
+                            "$ref": "#/definitions/res.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/admin": {
+            "get": {
+                "tags": [
+                    "Admin Home"
+                ],
+                "summary": "api admin home",
+                "operationId": "AdminHome",
+                "responses": {
+                    "200": {
+                        "description": "successfully logged in",
+                        "schema": {
+                            "$ref": "#/definitions/res.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/admin/category": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "tags": [
+                    "Admin Category"
+                ],
+                "summary": "api for adminn get all categories",
+                "operationId": "GetAlllCategories",
+                "responses": {
+                    "200": {
+                        "description": "successfully update the coupon",
+                        "schema": {
+                            "$ref": "#/definitions/res.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "faild to get all cateogires",
+                        "schema": {
+                            "$ref": "#/definitions/res.Response"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "tags": [
+                    "Admin Category"
+                ],
+                "summary": "api for adminn add a new category",
+                "operationId": "AddCategory",
+                "parameters": [
+                    {
+                        "description": "Input field",
+                        "name": "input",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/domain.Category"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successfully added a new category",
+                        "schema": {
+                            "$ref": "#/definitions/res.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "invalid input",
+                        "schema": {
+                            "$ref": "#/definitions/res.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/admin/category/variation": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "tags": [
+                    "Admin Category"
+                ],
+                "summary": "api for adminn add a new variation",
+                "operationId": "AddVariation",
+                "parameters": [
+                    {
+                        "description": "Input field",
+                        "name": "input",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/req.ReqVariation"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successfully variation added",
+                        "schema": {
+                            "$ref": "#/definitions/res.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "invalid input",
+                        "schema": {
+                            "$ref": "#/definitions/res.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/admin/category/variation-option": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "tags": [
+                    "Admin Category"
+                ],
+                "summary": "api for adminn add a new variation options",
+                "operationId": "AddVariationOption",
+                "parameters": [
+                    {
+                        "description": "Input field",
+                        "name": "input",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/req.ReqVariationOption"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successfully added variation option",
+                        "schema": {
+                            "$ref": "#/definitions/res.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "invalid input",
+                        "schema": {
+                            "$ref": "#/definitions/res.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/admin/coupons": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "tags": [
+                    "Admin Coupon"
+                ],
+                "summary": "api for admin to see all coupons",
+                "operationId": "GetAllCoupons",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Page Number",
+                        "name": "page_number",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Count Of Order",
+                        "name": "count",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successfully go all the coupons",
+                        "schema": {
+                            "$ref": "#/definitions/res.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "faild to get all coupons",
+                        "schema": {
+                            "$ref": "#/definitions/res.Response"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "tags": [
+                    "Admin Coupon"
+                ],
+                "summary": "api for admin to update the coupon",
+                "operationId": "UpdateCoupon",
+                "parameters": [
+                    {
+                        "description": "Input Field",
+                        "name": "inputs",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/req.ReqCoupon"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successfully update the coupon",
+                        "schema": {
+                            "$ref": "#/definitions/res.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "invalid input",
+                        "schema": {
+                            "$ref": "#/definitions/res.Response"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "tags": [
+                    "Admin Coupon"
+                ],
+                "summary": "api for admin to add coupon",
+                "operationId": "AddCoupon",
+                "parameters": [
+                    {
+                        "description": "Input Field",
+                        "name": "inputs",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/req.ReqCoupon"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successfully coupon added",
+                        "schema": {
+                            "$ref": "#/definitions/res.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "invalid input",
+                        "schema": {
+                            "$ref": "#/definitions/res.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/admin/login": {
+            "post": {
+                "tags": [
+                    "Admin Login"
+                ],
+                "summary": "api for admin to login",
+                "operationId": "AdminLogin",
+                "parameters": [
+                    {
+                        "description": "inputs",
+                        "name": "input",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/req.LoginStruct"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successfully logged in",
+                        "schema": {
+                            "$ref": "#/definitions/res.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "invalid input",
+                        "schema": {
+                            "$ref": "#/definitions/res.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "faild to generate jwt token",
+                        "schema": {
+                            "$ref": "#/definitions/res.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/admin/offers": {
+            "post": {
+                "tags": [
+                    "Offers"
+                ],
+                "summary": "api for admin to add new offer",
+                "operationId": "AddOffer",
+                "parameters": [
+                    {
+                        "description": "input field",
+                        "name": "input",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/domain.Offer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successfully offer added",
+                        "schema": {
+                            "$ref": "#/definitions/res.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "invalid input",
+                        "schema": {
+                            "$ref": "#/definitions/res.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/admin/offers/": {
+            "get": {
+                "tags": [
+                    "Offers"
+                ],
+                "summary": "api for show all offers",
+                "operationId": "ShowAllOffers",
+                "responses": {
+                    "200": {
+                        "description": "successfully got all offers",
+                        "schema": {
+                            "$ref": "#/definitions/res.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "faild to get offers",
+                        "schema": {
+                            "$ref": "#/definitions/res.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/admin/offers/category": {
+            "get": {
+                "tags": [
+                    "Offers"
+                ],
+                "summary": "api for admin to get all offers of categories",
+                "operationId": "GetOfferCategory",
+                "responses": {
+                    "200": {
+                        "description": "successfully got all offer_category",
+                        "schema": {
+                            "$ref": "#/definitions/res.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "faild to get offers_category",
+                        "schema": {
+                            "$ref": "#/definitions/res.Response"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "Offers"
+                ],
+                "summary": "api for admin to add offer for category",
+                "operationId": "AddOfferCategory",
+                "parameters": [
+                    {
+                        "description": "input field",
+                        "name": "input",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/req.ReqOfferCategory"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successfully offer added for category",
+                        "schema": {
+                            "$ref": "#/definitions/res.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "invalid input",
+                        "schema": {
+                            "$ref": "#/definitions/res.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/admin/offers/category/replace": {
+            "post": {
+                "tags": [
+                    "Offers"
+                ],
+                "summary": "api for admin to add offer for category",
+                "operationId": "ReplaceOfferCategory",
+                "parameters": [
+                    {
+                        "description": "input field",
+                        "name": "input",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/req.ReqOfferCategory"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successfully offer replaced for category",
+                        "schema": {
+                            "$ref": "#/definitions/res.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "invalid input",
+                        "schema": {
+                            "$ref": "#/definitions/res.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/admin/offers/products": {
+            "get": {
+                "tags": [
+                    "Offers"
+                ],
+                "summary": "api for admin to get all offers of products",
+                "operationId": "GetOffersOfProducts",
+                "responses": {
+                    "200": {
+                        "description": "successfully got all offers_categories",
+                        "schema": {
+                            "$ref": "#/definitions/res.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "faild to get offer_products",
+                        "schema": {
+                            "$ref": "#/definitions/res.Response"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "tags": [
+                    "Offers"
+                ],
+                "summary": "api for admin to replace a new offer on an existing offer for a product",
+                "operationId": "ReplaceOfferProduct",
+                "parameters": [
+                    {
+                        "description": "input field",
+                        "name": "input",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/req.ReqOfferProduct"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successfully offer replaced for product",
+                        "schema": {
+                            "$ref": "#/definitions/res.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "invalid input",
+                        "schema": {
+                            "$ref": "#/definitions/res.Response"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "Offers"
+                ],
+                "summary": "api for admin to add offer for product",
+                "operationId": "AddOfferProduct",
+                "parameters": [
+                    {
+                        "description": "input field",
+                        "name": "input",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/req.ReqOfferProduct"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successfully offer added for product",
+                        "schema": {
+                            "$ref": "#/definitions/res.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "invalid input",
+                        "schema": {
+                            "$ref": "#/definitions/res.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/admin/offers/products/": {
+            "delete": {
+                "tags": [
+                    "Offers"
+                ],
+                "summary": "api for admin to remove offer from product",
+                "operationId": "RemoveOfferProduct",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "offer_product_id",
+                        "name": "offer_product_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successfully offer removed from product",
+                        "schema": {
+                            "$ref": "#/definitions/res.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "invalid input on params",
+                        "schema": {
+                            "$ref": "#/definitions/res.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/admin/orders": {
+            "get": {
+                "description": "admin can see all orders in application",
+                "tags": [
+                    "Admin Orders"
+                ],
+                "summary": "api for admin to show all order",
+                "operationId": "GetAllShopOrders",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Page Number",
+                        "name": "page_number",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Count Of Order",
+                        "name": "count",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successfully order list got",
+                        "schema": {
+                            "$ref": "#/definitions/res.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "faild to get shop order data",
+                        "schema": {
+                            "$ref": "#/definitions/res.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/admin/orders/": {
+            "put": {
+                "description": "admin can change User Orders status",
+                "tags": [
+                    "Admin Orders"
+                ],
+                "summary": "api for admin to change the status of order",
+                "operationId": "UdateOrderStatus",
+                "parameters": [
+                    {
+                        "description": "input field",
+                        "name": "input",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/req.ReqUpdateOrder"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successfully got order items",
+                        "schema": {
+                            "$ref": "#/definitions/res.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "invalid input",
+                        "schema": {
+                            "$ref": "#/definitions/res.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/admin/orders/returns": {
+            "get": {
+                "tags": [
+                    "Admin Orders"
+                ],
+                "summary": "api for admin to see all order reutns",
+                "operationId": "GetAllOrderReturns",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Page Number",
+                        "name": "page_number",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Count Of Order",
+                        "name": "count",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successfully got all order returns",
+                        "schema": {
+                            "$ref": "#/definitions/res.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "faild to get order returns",
+                        "schema": {
+                            "$ref": "#/definitions/res.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/admin/orders/returns/pending": {
+            "get": {
+                "description": "admin can see the pending return request and accept it or not",
+                "tags": [
+                    "Admin Orders"
+                ],
+                "summary": "api for admin to show pending return request and update it",
+                "operationId": "GetAllPendingReturns",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Page Number",
+                        "name": "page_number",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Count Of Order",
+                        "name": "count",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successfully got  pending orders return request",
+                        "schema": {
+                            "$ref": "#/definitions/res.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "faild to get pending order return requests",
+                        "schema": {
+                            "$ref": "#/definitions/res.Response"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "description": "admin can approve, cancell etc. updation on User Orders_return",
+                "tags": [
+                    "Admin Orders"
+                ],
+                "summary": "api for admin to supdate the order_return request from user",
+                "operationId": "UpdategReturnRequest",
+                "parameters": [
+                    {
+                        "description": "Input Fiields",
+                        "name": "input",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/req.ReqUpdatReturnOrder"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successfully order_response updated",
+                        "schema": {
+                            "$ref": "#/definitions/res.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "invalid input",
+                        "schema": {
+                            "$ref": "#/definitions/res.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/admin/orders/statuses": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "tags": [
+                    "Admin Orders"
+                ],
+                "summary": "api for admin to see all order statues for changing order's statuses",
+                "operationId": "GetAllOrderStatuses",
+                "responses": {
+                    "200": {
+                        "description": "successfully got all order statueses",
+                        "schema": {
+                            "$ref": "#/definitions/res.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "faild to get order statuses",
+                        "schema": {
+                            "$ref": "#/definitions/res.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/admin/products": {
+            "put": {
+                "tags": [
+                    "Admin Products"
+                ],
+                "summary": "api for admin to update a product",
+                "operationId": "UpdateProduct",
+                "parameters": [
+                    {
+                        "description": "inputs",
+                        "name": "input",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/req.ReqProduct"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successfully product updated",
+                        "schema": {
+                            "$ref": "#/definitions/res.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "invalid input",
+                        "schema": {
+                            "$ref": "#/definitions/res.Response"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "Admin Products"
+                ],
+                "summary": "api for admin to update a product",
+                "operationId": "AddProducts",
+                "parameters": [
+                    {
+                        "description": "inputs",
+                        "name": "input",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/req.ReqProduct"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successfully product added",
+                        "schema": {
+                            "$ref": "#/definitions/res.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "invalid input",
+                        "schema": {
+                            "$ref": "#/definitions/res.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/admin/products/product-items": {
+            "post": {
+                "tags": [
+                    "Admin Products"
+                ],
+                "summary": "api for admin to add product-items for a specific product",
+                "operationId": "AddProductItem",
+                "parameters": [
+                    {
+                        "description": "inputs",
+                        "name": "input",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/req.ReqProductItem"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successfully product item added",
+                        "schema": {
+                            "$ref": "#/definitions/res.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "invalid input",
+                        "schema": {
+                            "$ref": "#/definitions/res.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/admin/sales": {
+            "get": {
+                "tags": [
+                    "Admin Sales"
+                ],
+                "summary": "api for admin to see full sales report and download it as csv",
+                "operationId": "FullSalesReport",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Date that you wan't to start on Report",
+                        "name": "start_date",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Date that you wan't to start on Report",
+                        "name": "end_date",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Page Number",
+                        "name": "page_number",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Count Of Order",
+                        "name": "count",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "ecommercesalesreport.csv",
+                        "schema": {
+                            "$ref": "#/definitions/res.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "faild to get sales report",
+                        "schema": {
+                            "$ref": "#/definitions/res.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/admin/users": {
+            "get": {
+                "tags": [
+                    "Admin User"
+                ],
+                "summary": "api for admin to list users",
+                "operationId": "ListUsers",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Page Number",
+                        "name": "page_number",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Count Of Order",
+                        "name": "count",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successfully got all users",
+                        "schema": {
+                            "$ref": "#/definitions/res.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "faild to get all users",
+                        "schema": {
+                            "$ref": "#/definitions/res.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/admin/users/block": {
+            "patch": {
+                "tags": [
+                    "Admin User"
+                ],
+                "summary": "api for admin to block or unblock user",
+                "operationId": "BlockUser",
+                "parameters": [
+                    {
+                        "description": "inputs",
+                        "name": "input",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/req.BlockStruct"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successfully changed user block_status",
+                        "schema": {
+                            "$ref": "#/definitions/res.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "invalid input",
+                        "schema": {
+                            "$ref": "#/definitions/res.Response"
+                        }
                     }
                 }
             }
@@ -36,10 +1211,10 @@
                 ],
                 "description": "user can see all productItem that stored in cart",
                 "tags": [
-                    "Carts"
+                    "User Cart"
                 ],
                 "summary": "api for get all cart item of user",
-                "operationId": "UserCart",
+                "operationId": "User Cart",
                 "responses": {
                     "200": {
                         "description": "successfully got user cart items",
@@ -63,7 +1238,7 @@
                 ],
                 "description": "user can inrement or drement count of a productItem in cart (min=1)",
                 "tags": [
-                    "Carts"
+                    "User Cart"
                 ],
                 "summary": "api for updte productItem count",
                 "operationId": "UpdateCart",
@@ -98,7 +1273,7 @@
                 ],
                 "description": "user can add a stock in product to user cart",
                 "tags": [
-                    "Carts"
+                    "User Cart"
                 ],
                 "summary": "api for add productItem to user cart",
                 "operationId": "AddToCart",
@@ -130,7 +1305,7 @@
                 ],
                 "description": "user can remove a signle productItem full quantity from cart",
                 "tags": [
-                    "Carts"
+                    "User Cart"
                 ],
                 "summary": "api for remove a product from cart",
                 "operationId": "RemoveFromCart",
@@ -176,7 +1351,7 @@
                 ],
                 "description": "user can checkout user cart items",
                 "tags": [
-                    "Carts"
+                    "User Cart"
                 ],
                 "summary": "api for cart checkout",
                 "operationId": "CheckOutCart",
@@ -202,23 +1377,177 @@
                 }
             }
         },
-        "/carts/place-order/:address_id": {
-            "post": {
-                "description": "user can place after checkout",
-                "tags": [
-                    "Carts"
+        "/carts/coupons": {
+            "patch": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
                 ],
-                "summary": "api for place order of all items in user cart",
-                "operationId": "PlaceOrderByCart",
+                "tags": [
+                    "User Cart"
+                ],
+                "summary": "api user to apply on cart on checkout time",
+                "operationId": "ApplyCouponToCart",
+                "parameters": [
+                    {
+                        "description": "Input Field",
+                        "name": "inputs",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/req.ReqApplyCoupon"
+                        }
+                    }
+                ],
                 "responses": {
                     "200": {
-                        "description": "successfully placed your order for COD",
+                        "description": "successfully updated the coupon code",
                         "schema": {
                             "$ref": "#/definitions/res.Response"
                         }
                     },
                     "400": {
-                        "description": "faild to place to order",
+                        "description": "invalid input",
+                        "schema": {
+                            "$ref": "#/definitions/res.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/carts/place-order/cod": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "tags": [
+                    "User Cart"
+                ],
+                "summary": "api for user to place an order on cart with COD",
+                "operationId": "PlaceOrderCartCOD",
+                "parameters": [
+                    {
+                        "description": "Input Field",
+                        "name": "inputs",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/req.ReqPlaceOrder"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successfully order placed in COD",
+                        "schema": {
+                            "$ref": "#/definitions/res.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "invalid input",
+                        "schema": {
+                            "$ref": "#/definitions/res.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "faild to save shop order",
+                        "schema": {
+                            "$ref": "#/definitions/res.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/carts/place-order/razorpay-checkout": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "tags": [
+                    "User Cart"
+                ],
+                "summary": "api for create an razorpay order",
+                "operationId": "RazorpayPage",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Payment Method ID",
+                        "name": "payment_method_id",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Address ID",
+                        "name": "address_id",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "place order",
+                        "schema": {
+                            "$ref": "#/definitions/res.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "faill place order",
+                        "schema": {
+                            "$ref": "#/definitions/res.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/carts/place-order/razorpay-verify": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "tags": [
+                    "User Cart"
+                ],
+                "summary": "api user for verify razorpay payment",
+                "operationId": "RazorpayVerify",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Payment Method ID",
+                        "name": "payment_method_id",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Address ID",
+                        "name": "address_id",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Coupon Code",
+                        "name": "coupon_code",
+                        "in": "formData"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "faild to veify payment",
+                        "schema": {
+                            "$ref": "#/definitions/res.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "successfully payment completed and order approved",
                         "schema": {
                             "$ref": "#/definitions/res.Response"
                         }
@@ -227,39 +1556,18 @@
             }
         },
         "/login": {
-            "get": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "description": "Enter this fields on login page post",
-                "tags": [
-                    "Login"
-                ],
-                "summary": "to get the json format for login",
-                "operationId": "LoginGet",
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/res.Response"
-                        }
-                    }
-                }
-            },
             "post": {
                 "security": [
                     {
                         "ApiKeyAuth": []
                     }
                 ],
-                "description": "Enter user_name/phone/email with password",
+                "description": "Enter user_name | phone | email with password",
                 "tags": [
-                    "Login"
+                    "User Login"
                 ],
-                "summary": "api for user login",
-                "operationId": "LoginPost",
+                "summary": "api for user to login",
+                "operationId": "UserLogin",
                 "parameters": [
                     {
                         "description": "Input Field",
@@ -279,7 +1587,7 @@
                         }
                     },
                     "400": {
-                        "description": "faild to login",
+                        "description": "invalid input",
                         "schema": {
                             "$ref": "#/definitions/res.Response"
                         }
@@ -300,12 +1608,12 @@
                         "ApiKeyAuth": []
                     }
                 ],
-                "description": "user can enter email/user_name/phone will send an otp to user phone",
+                "description": "user can enter email/user_name/phone will send an otp to user registered phone_number",
                 "tags": [
-                    "Login"
+                    "User Login"
                 ],
-                "summary": "api for user login with otp",
-                "operationId": "LoginOtpSend",
+                "summary": "api for user to login with otp",
+                "operationId": "UserLoginOtpSend",
                 "parameters": [
                     {
                         "description": "Input Field",
@@ -348,10 +1656,10 @@
                 ],
                 "description": "enter your otp that send to your registered number",
                 "tags": [
-                    "Login"
+                    "User Login"
                 ],
-                "summary": "varify user login otp",
-                "operationId": "LoginOtpVerify",
+                "summary": "api for user to varify user login_otp",
+                "operationId": "UserLoginOtpVerify",
                 "parameters": [
                     {
                         "description": "Input Field",
@@ -368,7 +1676,7 @@
                         "description": "successfully logged in uing otp"
                     },
                     "400": {
-                        "description": "invalid input otp"
+                        "description": "invalid login_otp"
                     },
                     "500": {
                         "description": "Faild to generate JWT"
@@ -385,10 +1693,10 @@
                 ],
                 "description": "user can logout",
                 "tags": [
-                    "Logout"
+                    "User Logout"
                 ],
                 "summary": "api for user to lgout",
-                "operationId": "Logout",
+                "operationId": "UserLogout",
                 "responses": {
                     "200": {
                         "description": "successfully logged out"
@@ -398,12 +1706,26 @@
         },
         "/orders": {
             "get": {
-                "description": "user can see all user order history",
+                "description": "user can see all User Orders history",
                 "tags": [
-                    "Orders"
+                    "User Orders"
                 ],
-                "summary": "api for showing user order list",
-                "operationId": "GetOrdersOfUser",
+                "summary": "api for showing User Orders list",
+                "operationId": "GetUserOrder",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Page Number",
+                        "name": "page_number",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Count Of Order",
+                        "name": "count",
+                        "in": "query"
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "successfully got shop order list of user",
@@ -418,16 +1740,14 @@
                         }
                     }
                 }
-            }
-        },
-        "/orders/": {
-            "put": {
-                "description": "admin can change user order status",
+            },
+            "post": {
+                "description": "user can cancell the order if it's not placed",
                 "tags": [
-                    "Orders"
+                    "User Orders"
                 ],
-                "summary": "api for admin to change the status of order",
-                "operationId": "GetAllShopOrders",
+                "summary": "api for user to cancell the order",
+                "operationId": "CancellOrder",
                 "responses": {
                     "200": {
                         "description": "Successfully order cancelled",
@@ -436,7 +1756,7 @@
                         }
                     },
                     "400": {
-                        "description": "invalid input",
+                        "description": "invalid input on param",
                         "schema": {
                             "$ref": "#/definitions/res.Response"
                         }
@@ -446,12 +1766,31 @@
         },
         "/orders/items": {
             "get": {
-                "description": "user can place after checkout",
                 "tags": [
-                    "Orders"
+                    "User Orders"
                 ],
                 "summary": "api for show order items of a specific order",
-                "operationId": "GetOrderItemsForUser",
+                "operationId": "GetOrderItemsByShopOrderItems-User",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Shop Order ID",
+                        "name": "shop_order_id",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Page Number",
+                        "name": "page_number",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Count Of Order",
+                        "name": "count",
+                        "in": "query"
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "successfully got order items",
@@ -468,33 +1807,28 @@
                 }
             }
         },
-        "/profile": {
-            "put": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "description": "user can edit user details",
+        "/orders/return": {
+            "post": {
+                "description": "user can request return for placed orders",
                 "tags": [
-                    "Profile"
+                    "User Orders"
                 ],
-                "summary": "api for edit user details",
-                "operationId": "EditAccount",
+                "summary": "api for user to request a return for an order",
+                "operationId": "SubmitReturnRequest",
                 "parameters": [
                     {
-                        "description": "input field",
+                        "description": "Input Fields",
                         "name": "input",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/req.ReqUser"
+                            "$ref": "#/definitions/req.ReqReturn"
                         }
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "successfully edited user details",
+                        "description": "successfully submited return request for order",
                         "schema": {
                             "$ref": "#/definitions/res.Response"
                         }
@@ -508,25 +1842,41 @@
                 }
             }
         },
-        "/profile/": {
+        "/products": {
             "get": {
                 "security": [
                     {
                         "ApiKeyAuth": []
                     }
                 ],
-                "description": "user can see user details",
                 "tags": [
-                    "Profile"
+                    "User Products"
                 ],
-                "summary": "api for showing user details",
-                "operationId": "Account",
+                "summary": "api for user to show products",
+                "operationId": "ListProducts-User",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Page Number",
+                        "name": "page_number",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Count Of Order",
+                        "name": "count",
+                        "in": "query"
+                    }
+                ],
                 "responses": {
                     "200": {
-                        "description": "Successfully user account details found"
+                        "description": "successfully got all products",
+                        "schema": {
+                            "$ref": "#/definitions/res.Response"
+                        }
                     },
                     "500": {
-                        "description": "faild to show user details",
+                        "description": "faild to get all products",
                         "schema": {
                             "$ref": "#/definitions/res.Response"
                         }
@@ -534,104 +1884,31 @@
                 }
             }
         },
-        "/profile/address": {
+        "/products/product-items": {
             "get": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "description": "user can show all adderss",
                 "tags": [
-                    "Address"
+                    "User Products"
                 ],
-                "summary": "api for get all address of user",
-                "operationId": "GetAddresses",
-                "responses": {
-                    "200": {
-                        "description": "successfully got user addresses",
-                        "schema": {
-                            "$ref": "#/definitions/res.Response"
-                        }
-                    },
-                    "500": {
-                        "description": "faild to show user addresses",
-                        "schema": {
-                            "$ref": "#/definitions/res.Response"
-                        }
-                    }
-                }
-            },
-            "put": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "description": "user can change existing address",
-                "tags": [
-                    "Address"
-                ],
-                "summary": "api for edit user address",
-                "operationId": "EditAddress",
+                "summary": "api for get all product_items for a prooduct",
+                "operationId": "GetProductItems",
                 "parameters": [
                     {
-                        "description": "Input Field",
-                        "name": "input",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/req.ReqEditAddress"
-                        }
+                        "type": "integer",
+                        "description": "product_id",
+                        "name": "product_id",
+                        "in": "path",
+                        "required": true
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "successfully addresses updated",
+                        "description": "successfully got all product_items for given product_id",
                         "schema": {
                             "$ref": "#/definitions/res.Response"
                         }
                     },
                     "400": {
-                        "description": "can't update the address",
-                        "schema": {
-                            "$ref": "#/definitions/res.Response"
-                        }
-                    }
-                }
-            },
-            "post": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "description": "get a new address from user to store the the database",
-                "tags": [
-                    "Address"
-                ],
-                "summary": "api for adding a new address for user",
-                "operationId": "AddAddress",
-                "parameters": [
-                    {
-                        "description": "Input Field",
-                        "name": "inputs",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/req.ReqAddress"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Successfully address added",
-                        "schema": {
-                            "$ref": "#/definitions/res.Response"
-                        }
-                    },
-                    "400": {
-                        "description": "inavlid input",
+                        "description": "invalid input on params",
                         "schema": {
                             "$ref": "#/definitions/res.Response"
                         }
@@ -640,45 +1917,34 @@
             }
         },
         "/signup": {
-            "get": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "description": "user can see what are the fields to enter to create a new account",
-                "tags": [
-                    "Signup"
-                ],
-                "summary": "api for user to signup page",
-                "operationId": "SignUpGet",
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/res.Response"
-                        }
-                    }
-                }
-            },
             "post": {
                 "security": [
                     {
                         "ApiKeyAuth": []
                     }
                 ],
-                "description": "user can send user details and validate and create new account",
                 "tags": [
-                    "Signup"
+                    "User Signup"
                 ],
-                "summary": "api for user to post the user details",
-                "operationId": "SignUpPost",
+                "summary": "api for user to signup",
+                "operationId": "UserSignUp",
+                "parameters": [
+                    {
+                        "description": "Input Fields",
+                        "name": "input",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/req.ReqUserSignUp"
+                        }
+                    }
+                ],
                 "responses": {
                     "200": {
-                        "description": "Successfully account created"
+                        "description": "Successfully account created for user"
                     },
                     "400": {
-                        "description": "Faild to create account"
+                        "description": "invalid input"
                     }
                 }
             }
@@ -770,6 +2036,64 @@
         }
     },
     "definitions": {
+        "domain.Category": {
+            "type": "object",
+            "required": [
+                "category_name"
+            ],
+            "properties": {
+                "category_id": {
+                    "type": "integer"
+                },
+                "category_name": {
+                    "type": "string",
+                    "maxLength": 30,
+                    "minLength": 1
+                }
+            }
+        },
+        "domain.Offer": {
+            "type": "object",
+            "required": [
+                "description",
+                "discount_rate",
+                "end_date",
+                "offer_name",
+                "start_date"
+            ],
+            "properties": {
+                "description": {
+                    "type": "string",
+                    "maxLength": 50,
+                    "minLength": 6
+                },
+                "discount_rate": {
+                    "type": "integer",
+                    "maximum": 100,
+                    "minimum": 1
+                },
+                "end_date": {
+                    "type": "string"
+                },
+                "offer_name": {
+                    "type": "string"
+                },
+                "start_date": {
+                    "type": "string"
+                }
+            }
+        },
+        "req.BlockStruct": {
+            "type": "object",
+            "required": [
+                "user_id"
+            ],
+            "properties": {
+                "user_id": {
+                    "type": "integer"
+                }
+            }
+        },
         "req.LoginStruct": {
             "type": "object",
             "required": [
@@ -817,17 +2141,17 @@
         "req.OTPVerifyStruct": {
             "type": "object",
             "required": [
-                "id",
-                "otp"
+                "otp",
+                "user_id"
             ],
             "properties": {
-                "id": {
-                    "type": "integer"
-                },
                 "otp": {
                     "type": "string",
                     "maxLength": 8,
                     "minLength": 4
+                },
+                "user_id": {
+                    "type": "integer"
                 }
             }
         },
@@ -854,9 +2178,6 @@
                 "house": {
                     "type": "string"
                 },
-                "id": {
-                    "type": "integer"
-                },
                 "is_default": {
                     "type": "boolean"
                 },
@@ -878,6 +2199,17 @@
                 }
             }
         },
+        "req.ReqApplyCoupon": {
+            "type": "object",
+            "required": [
+                "coupon_code"
+            ],
+            "properties": {
+                "coupon_code": {
+                    "type": "string"
+                }
+            }
+        },
         "req.ReqCart": {
             "type": "object",
             "required": [
@@ -886,16 +2218,12 @@
             "properties": {
                 "product_item_id": {
                     "type": "integer"
-                },
-                "user_id": {
-                    "type": "integer"
                 }
             }
         },
         "req.ReqCartCount": {
             "type": "object",
             "required": [
-                "increment",
                 "product_item_id"
             ],
             "properties": {
@@ -903,29 +2231,67 @@
                     "type": "integer",
                     "minimum": 1
                 },
-                "increment": {
-                    "type": "boolean"
-                },
                 "product_item_id": {
                     "type": "integer"
+                }
+            }
+        },
+        "req.ReqCoupon": {
+            "type": "object",
+            "required": [
+                "coupon_name",
+                "description",
+                "discount_rate",
+                "expire_date",
+                "image",
+                "minimum_cart_price"
+            ],
+            "properties": {
+                "block_status": {
+                    "type": "boolean"
                 },
-                "user_id": {
-                    "type": "integer"
+                "coupon_name": {
+                    "type": "string",
+                    "maxLength": 25,
+                    "minLength": 3
+                },
+                "description": {
+                    "type": "string",
+                    "maxLength": 150,
+                    "minLength": 6
+                },
+                "discount_rate": {
+                    "type": "integer",
+                    "maximum": 100,
+                    "minimum": 1
+                },
+                "expire_date": {
+                    "type": "string"
+                },
+                "image": {
+                    "type": "string"
+                },
+                "minimum_cart_price": {
+                    "type": "integer",
+                    "minimum": 1
                 }
             }
         },
         "req.ReqEditAddress": {
             "type": "object",
             "required": [
+                "address_id",
                 "country_id",
                 "house",
-                "id",
                 "land_mark",
                 "name",
                 "phone_number",
                 "pincode"
             ],
             "properties": {
+                "address_id": {
+                    "type": "integer"
+                },
                 "area": {
                     "type": "string"
                 },
@@ -938,9 +2304,6 @@
                 "house": {
                     "type": "string"
                 },
-                "id": {
-                    "type": "integer"
-                },
                 "is_default": {
                     "type": "boolean"
                 },
@@ -958,6 +2321,152 @@
                     "minLength": 10
                 },
                 "pincode": {
+                    "type": "integer"
+                }
+            }
+        },
+        "req.ReqOfferCategory": {
+            "type": "object",
+            "required": [
+                "category_id",
+                "offer_id"
+            ],
+            "properties": {
+                "category_id": {
+                    "type": "integer"
+                },
+                "offer_id": {
+                    "type": "integer"
+                }
+            }
+        },
+        "req.ReqOfferProduct": {
+            "type": "object",
+            "required": [
+                "offer_id",
+                "product_id"
+            ],
+            "properties": {
+                "offer_id": {
+                    "type": "integer"
+                },
+                "product_id": {
+                    "type": "integer"
+                }
+            }
+        },
+        "req.ReqPlaceOrder": {
+            "type": "object",
+            "required": [
+                "address_id",
+                "payment_method_id"
+            ],
+            "properties": {
+                "address_id": {
+                    "type": "integer"
+                },
+                "payment_method_id": {
+                    "type": "integer"
+                }
+            }
+        },
+        "req.ReqProduct": {
+            "type": "object",
+            "required": [
+                "category_id",
+                "description",
+                "image",
+                "price",
+                "product_name"
+            ],
+            "properties": {
+                "category_id": {
+                    "type": "integer"
+                },
+                "description": {
+                    "type": "string",
+                    "maxLength": 100,
+                    "minLength": 10
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "image": {
+                    "type": "string"
+                },
+                "price": {
+                    "type": "integer"
+                },
+                "product_name": {
+                    "type": "string",
+                    "maxLength": 50,
+                    "minLength": 3
+                }
+            }
+        },
+        "req.ReqProductItem": {
+            "type": "object",
+            "required": [
+                "images",
+                "price",
+                "product_id",
+                "qty_in_stock",
+                "variation_option_id"
+            ],
+            "properties": {
+                "images": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "price": {
+                    "type": "integer",
+                    "minimum": 1
+                },
+                "product_id": {
+                    "type": "integer"
+                },
+                "qty_in_stock": {
+                    "type": "integer",
+                    "minimum": 1
+                },
+                "variation_option_id": {
+                    "type": "integer"
+                }
+            }
+        },
+        "req.ReqReturn": {
+            "type": "object",
+            "required": [
+                "return_reason",
+                "shop_order_id"
+            ],
+            "properties": {
+                "return_reason": {
+                    "type": "string",
+                    "maxLength": 50,
+                    "minLength": 6
+                },
+                "shop_order_id": {
+                    "type": "integer"
+                }
+            }
+        },
+        "req.ReqUpdatReturnOrder": {
+            "type": "object",
+            "required": [
+                "order_return_id",
+                "order_status_id"
+            ],
+            "properties": {
+                "admin_comment": {
+                    "type": "string"
+                },
+                "order_return_id": {
+                    "type": "integer"
+                },
+                "order_status_id": {
                     "type": "integer"
                 }
             }
@@ -976,11 +2485,24 @@
                 }
             }
         },
-        "req.ReqUser": {
+        "req.ReqUserSignUp": {
             "type": "object",
+            "required": [
+                "age",
+                "confirm_password",
+                "email",
+                "first_name",
+                "last_name",
+                "password",
+                "phone",
+                "user_name"
+            ],
             "properties": {
                 "age": {
                     "type": "integer"
+                },
+                "confirm_password": {
+                    "type": "string"
                 },
                 "email": {
                     "type": "string"
@@ -995,6 +2517,9 @@
                     "maxLength": 50,
                     "minLength": 1
                 },
+                "password": {
+                    "type": "string"
+                },
                 "phone": {
                     "type": "string",
                     "maxLength": 10,
@@ -1004,6 +2529,38 @@
                     "type": "string",
                     "maxLength": 15,
                     "minLength": 3
+                }
+            }
+        },
+        "req.ReqVariation": {
+            "type": "object",
+            "required": [
+                "category_id",
+                "variation_name"
+            ],
+            "properties": {
+                "category_id": {
+                    "type": "integer"
+                },
+                "variation_name": {
+                    "type": "string"
+                }
+            }
+        },
+        "req.ReqVariationOption": {
+            "type": "object",
+            "required": [
+                "variation_id",
+                "variation_value"
+            ],
+            "properties": {
+                "variation_id": {
+                    "description": "a specific field of variation like color/size",
+                    "type": "integer"
+                },
+                "variation_value": {
+                    "description": "the variations value like blue/XL",
+                    "type": "string"
                 }
             }
         },

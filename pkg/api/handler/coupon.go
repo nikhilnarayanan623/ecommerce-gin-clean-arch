@@ -91,7 +91,7 @@ func (c *CouponHandler) GetAllCoupons(ctx *gin.Context) {
 // @Failure 400 {object} res.Response{}  "invalid input"
 func (c *CouponHandler) UpdateCoupon(ctx *gin.Context) {
 
-	var body req.ReqCoupon
+	var body req.ReqEditCoupon
 
 	if err := ctx.ShouldBindJSON(&body); err != nil {
 		response := res.ErrorResponse(400, "invalid input", err.Error(), body)
@@ -132,7 +132,7 @@ func (c *CouponHandler) ApplyCouponToCart(ctx *gin.Context) {
 		return
 	}
 
-	response := res.SuccessResponse(200, "successfully updated the coupon code", gin.H{"discount_amount": discountPrice})
+	response := res.SuccessResponse(200, "successfully applied the coupon code on cart", gin.H{"discount_amount": discountPrice})
 	ctx.JSON(http.StatusOK, response)
 }
 
