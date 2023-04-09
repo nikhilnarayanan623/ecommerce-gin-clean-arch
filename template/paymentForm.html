@@ -31,10 +31,10 @@
                       <label for="name">Payemt Method ID:</label>
                       <input type="text" class="form-control" id="payment_method_id" name="payment_method_id" placeholder="Enter payement_method_id that got from checkout page">
                   </div>
-                    <div class="form-group">
+                    <!-- <div class="form-group">
                         <label for="name">Coupon Code (Optional):</label>
                         <input type="text" class="form-control" id="name" name="coupon_code" placeholder="Enter coupon_code if you have">
-                    </div>
+                    </div> -->
                     <button type="submit" class="btn btn-primary">Submit</button>
 
                 </form>
@@ -75,6 +75,7 @@
           // location.href = ''
         } else if (response.Razorpay){// response from razor pay
           console.log("razorpay");
+          console.log(response);
           getRazorpay(response.Order)
           
         }
@@ -91,23 +92,22 @@
 
 const getRazorpay = (order) =>{
     console.log("at get razor pay");
-    var userid= order.UserID
-    var orderID= order.OrderID
+    var userid= order.user_id
     var options = {
-        "key": order.Key, // razorpay test key on set up on order resopnse
-        "amount": order.RazorpayAmout, // Amount is in currency subunits. Default currency is INR. Hence, 50000 refers to 50000 paise
+        "key": order.razorpay_key, // razorpay test key on set up on order resopnse
+        "amount": order.razorpay_amount, // Amount is in currency subunits. Default currency is INR. Hence, 50000 refers to 50000 paise
         "currency": "INR",
         "name": "Shoefer",
         "description": "Test Transaction",
         "image": "https://example.com/your_logo",
-        "order_id": orderID,  // order id get from order response
+        "order_id": order.razorpay_order_id,  // order id get from order response
         "handler": function (response){
             verifyPayment(order, userid , response);
         },
         "prefill": {
         
-            "email": order.Email,
-            "contact": order.Phone_Number
+            "email": order.email,
+            "contact": order.phone
         },
         "notes": {
             "address": "Razorpay Corporate Office"
@@ -131,7 +131,7 @@ const getRazorpay = (order) =>{
   Swal.fire({
   title: "Razorpay Payment",
   html:
-    '<div style="font-size: 30px;"><strong>Amount to pay:</strong> ' + order.AmountToPay + '</div>' +
+    '<div style="font-size: 30px;"><strong>Amount to pay:</strong> ' + order.amount_to_pay + '</div>' +
     '<div style="margin-top: 10px;">Please confirm your payment by clicking on the "Confirm" button below:</div>',
   icon: "success",
   showCancelButton: true,
@@ -171,8 +171,8 @@ function verifyPayment(order, userid , response) {
               "razorpay_order_id":response.razorpay_order_id,
               "razorpay_signature":response.razorpay_signature,
               "user_id":userid,
-              "shop_order_id":order.ShopOrderID,
-              "coupon_code" : order.CouponCode,
+              "shop_order_id":order.shop_order_id,
+              "coupon_id" : order.coupon_id,
 
             },
             success: (response) => {

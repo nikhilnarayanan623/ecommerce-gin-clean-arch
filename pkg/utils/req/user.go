@@ -1,6 +1,6 @@
 package req
 
-type User struct {
+type ReqUserSignUp struct {
 	UserName        string `json:"user_name"  binding:"required,min=3,max=15"`
 	FirstName       string `json:"first_name"  binding:"required,min=2,max=50"`
 	LastName        string `json:"last_name"  binding:"required,min=1,max=50"`
@@ -9,7 +9,6 @@ type User struct {
 	Phone           string `json:"phone" binding:"required,min=10,max=10"`
 	Password        string `json:"password"  binding:"required,eqfield=ConfirmPassword"`
 	ConfirmPassword string `json:"confirm_password" binding:"required"`
-	BlockStatus     bool   `json:"block_status" `
 }
 
 // for address add address

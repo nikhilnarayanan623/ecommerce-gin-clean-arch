@@ -142,10 +142,10 @@ func (c *couponDatabase) FindCartByUserID(ctx context.Context, userID uint) (car
 	return cart, nil
 }
 
-func (c *couponDatabase) UpdateCart(ctx context.Context, cartId, discountAmount uint, couponCode string) error {
+func (c *couponDatabase) UpdateCart(ctx context.Context, cartId, discountAmount, couponID uint) error {
 
-	query := `UPDATE carts SET discount_amount = $1, applied_coupon_code = $2 WHERE cart_id = $3`
-	err := c.DB.Exec(query, discountAmount, couponCode, cartId).Error
+	query := `UPDATE carts SET discount_amount = $1, applied_coupon_id = $2 WHERE cart_id = $3`
+	err := c.DB.Exec(query, discountAmount, couponID, cartId).Error
 	if err != nil {
 		return fmt.Errorf("faild to udpate discount price on cart for coupon")
 	}

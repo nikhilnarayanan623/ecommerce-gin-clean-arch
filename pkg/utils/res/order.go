@@ -2,11 +2,20 @@ package res
 
 import (
 	"time"
-
-	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/domain"
 )
 
-type ResOrderCheckout struct {
+type ResEmailAndPhone struct {
+	Email string `json:"email"`
+	Phone string `json:"phone"`
+}
+
+type ResUserOrder struct {
+	AmountToPay uint `json:"amount_to_pay"`
+	Discount    uint `json:"discount"`
+	CouponID    uint `json:"coupon_id"`
+}
+
+type PlaceOrder struct {
 	UserID          uint   `json:"user_id"`
 	PaymentMethodID uint   `json:"payment_method_id"`
 	PaymentType     string `json:"payment_type"`
@@ -16,7 +25,7 @@ type ResOrderCheckout struct {
 	AddressID       uint   `json:"address_id"`
 }
 
-type ResOrder struct {
+type ResOrderItem struct {
 	ProductItemID uint   `json:"product_item_id"`
 	ProductName   string `json:"product_name"`
 	Image         string `json:""`
@@ -41,12 +50,6 @@ type ResShopOrder struct {
 	PaymentType     string     `json:"" gorm:"unique;not null"`
 }
 
-// admin side
-type ResShopOrdersPage struct {
-	Orders   []ResShopOrder
-	Statuses []domain.OrderStatus
-}
-
 // checkout
 type ResCheckOut struct {
 	Addresses    []ResAddress  `json:"addresses"`
@@ -68,4 +71,17 @@ type ResOrderReturn struct {
 	ReturnDate    time.Time `json:"return_date"`
 	ApprovalDate  time.Time `json:"approval_date"`
 	AdminComment  string    `json:"admin_comment"`
+}
+
+// razorpay
+type ResRazorpayOrder struct {
+	RazorpayKey     string      `json:"razorpay_key"`
+	UserID          uint        `json:"user_id"`
+	AmountToPay     uint        `json:"amount_to_pay"`
+	RazorpayAmount  uint        `json:"razorpay_amount"`
+	RazorpayOrderID interface{} `json:"razorpay_order_id"`
+	Email           string      `json:"email"`
+	Phone           string      `json:"phone"`
+	ShopOrderID     uint        `json:"shop_order_id"`
+	CouponID        uint        `json:"coupon_id"`
 }

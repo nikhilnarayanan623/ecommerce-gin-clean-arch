@@ -37,7 +37,7 @@ var (
 				SELECT COALESCE ( SUM ( CASE WHEN pi.discount_price > 0 THEN pi.discount_price * ci.qty ELSE pi.price * ci.qty END), 0)::bigint 
 				FROM cart_items ci INNER JOIN product_items pi ON ci.product_item_id = pi.id 
 				WHERE ci.cart_id = OLD.cart_id  
-			), applied_coupon_code = ''  
+			), applied_coupon_id = 0, discount_amount = 0   
 		WHERE c.cart_id = OLD.cart_id; 
 		RETURN NEW; 
 	ELSE 
@@ -46,7 +46,7 @@ var (
 				SELECT SUM (CASE WHEN pi.discount_price > 0 THEN pi.discount_price * ci.qty ELSE pi.price * ci.qty END) 
 				FROM cart_items ci INNER JOIN product_items pi ON ci.product_item_id = pi.id 
 				WHERE ci.cart_id = NEW.cart_id 
-			), applied_coupon_code = '' 
+			), applied_coupon_id = 0, discount_amount = 0 
 			WHERE c.cart_id = NEW.cart_id;
 	
 	END IF; 

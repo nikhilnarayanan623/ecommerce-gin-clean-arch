@@ -105,6 +105,14 @@ func (c *couponUseCase) ApplyCouponToCart(ctx context.Context, userID uint, coup
 		return discountAmount, fmt.Errorf("invalid coupon_code %s", couponCode)
 	}
 
+	// check the coupon is user already used or not
+	couponUses, err := c.couponRepo.FindCouponUses(ctx, userID, coupon.CouponID)
+	if err != nil {
+		return discountAmount, err
+	} else if couponUses.CouponUsesID != 0 {
+		return discountAmount, fmt.Errorf("user already applied this coupon at %v", couponUses.UsedAt)
+	}
+
 	// get the cart of user
 	cart, err := c.couponRepo.FindCartByUserID(ctx, userID)
 	if err != nil {
@@ -114,8 +122,8 @@ func (c *couponUseCase) ApplyCouponToCart(ctx context.Context, userID uint, coup
 	}
 
 	// then check the cart have already a coupon applied
-	if cart.AppliedCouponCode != "" {
-		return discountAmount, fmt.Errorf("cart have already a coupon applied %s", cart.AppliedCouponCode)
+	if cart.AppliedCouponID != 0 {
+		return discountAmount, fmt.Errorf("cart have already a coupon applied with coupon_id %d", cart.AppliedCouponID)
 	}
 
 	// validate the coupon expire date and cart price
@@ -130,7 +138,7 @@ func (c *couponUseCase) ApplyCouponToCart(ctx context.Context, userID uint, coup
 	// calculate a discount for cart
 	discountAmount = (cart.TotalPrice * coupon.DiscountRate) / 100
 	// update the cart
-	err = c.couponRepo.UpdateCart(ctx, cart.CartID, discountAmount, couponCode)
+	err = c.couponRepo.UpdateCart(ctx, cart.CartID, discountAmount, coupon.CouponID)
 	if err != nil {
 		return discountAmount, err
 	}
