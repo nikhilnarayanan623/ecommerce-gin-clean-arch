@@ -73,6 +73,19 @@ func (c *couponUseCase) UpdateCoupon(ctx context.Context, coupon domain.Coupon) 
 		return fmt.Errorf("invalid coupon_id %v", coupon.CouponID)
 	}
 
+	// check any coupon already exist wtih this details
+	couponID, err := c.couponRepo.CheckCouponDetailsAlreadyExist(ctx, coupon)
+
+	if err != nil {
+		return err
+	} else if couponID != 0 {
+		return fmt.Errorf("another coupon already exist with this details with coupon_id %v", couponID)
+	}
+
+	if time.Since(coupon.ExpireDate) > 0 {
+		return fmt.Errorf("given expire date is already over \ngiven time %v", coupon.ExpireDate)
+	}
+
 	// then update the coupon
 	err = c.couponRepo.UpdateCoupon(ctx, coupon)
 	if err != nil {

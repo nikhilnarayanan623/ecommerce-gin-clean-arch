@@ -13,6 +13,7 @@ type Product struct {
 	DiscountPrice uint      `json:"discount_price"`
 	Image         string    `json:"image" gorm:"not null"`
 	CreatedAt     time.Time `json:"created_at" gorm:"not null"`
+	UpdatedAt     time.Time `json:"updated_at"`
 }
 
 // this for a specift variant of product
@@ -25,6 +26,7 @@ type ProductItem struct {
 	Price         uint      `json:"price" gorm:"not null" binding:"required,numeric"`
 	DiscountPrice uint      `json:"discount_price"`
 	CreatedAt     time.Time `json:"created_at" gorm:"not null"`
+	UpdatedAt     time.Time `json:"updated_at"`
 }
 
 // for a products category main and sub category as self joining

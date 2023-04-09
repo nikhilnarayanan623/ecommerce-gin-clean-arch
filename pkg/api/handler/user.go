@@ -30,13 +30,13 @@ func NewUserHandler(userUsecase interfaces.UserUseCase) *UserHandler {
 // @security ApiKeyAuth
 // @id UserSignUp
 // @tags User Signup
-// @Param input body req.ReqUserSignUp{} true "Input Fields"
+// @Param input body req.ReqUserDetails{} true "Input Fields"
 // @Router /signup [post]
 // @Success 200 "Successfully account created for user"
 // @Failure 400 "invalid input"
 func (u *UserHandler) UserSignUp(ctx *gin.Context) {
 
-	var body req.ReqUserSignUp
+	var body req.ReqUserDetails
 
 	if err := ctx.ShouldBindJSON(&body); err != nil {
 		response := res.ErrorResponse(400, "invalid input", err.Error(), body)
@@ -461,17 +461,17 @@ func (u *UserHandler) Account(ctx *gin.Context) {
 // @security ApiKeyAuth
 // @id UpateAccount
 // @tags User Account
-// @Param input body req.ReqUserSignUp{} true "input field"
+// @Param input body req.ReqUserDetails{} true "input field"
 // @Router /account [put]
 // @Success 200 {object} res.Response{} "successfully updated user details"
 // @Failure 400 {object} res.Response{} "invalid input"
 func (u *UserHandler) UpateAccount(ctx *gin.Context) {
 	userID := utils.GetUserIdFromContext(ctx)
 
-	var body req.ReqUserSignUp
+	var body req.ReqUserDetails
 
-	if err := ctx.ShouldBindJSON(&body); err != nil {
-		response := res.ErrorResponse(400, "invalid input", err.Error(), nil)
+	if err := ctx.ShouldBindJSON(&body); err != nil { // showing epty struct which is user for know what are the fields need enter
+		response := res.ErrorResponse(400, "invalid input", err.Error(), req.ReqUserDetails{})
 		ctx.JSON(http.StatusBadRequest, response)
 		return
 	}

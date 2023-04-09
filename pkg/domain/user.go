@@ -3,15 +3,17 @@ package domain
 import "time"
 
 type User struct {
-	ID          uint   `json:"id" gorm:"primaryKey;unique"`
-	UserName    string `json:"user_name" gorm:"not null" binding:"required,min=3,max=15"`
-	FirstName   string `json:"first_name" gorm:"not null" binding:"required,min=2,max=50"`
-	LastName    string `json:"last_name" gorm:"not null" binding:"required,min=1,max=50"`
-	Age         uint   `json:"age" gorm:"not null" binding:"required,numeric"`
-	Email       string `json:"email" gorm:"unique;not null" binding:"required,email"`
-	Phone       string `json:"phone" gorm:"unique;not null" binding:"required,min=10,max=10"`
-	Password    string `json:"password" gorm:"not null" binding:"required"`
-	BlockStatus bool   `json:"block_status" gorm:"not null"`
+	ID          uint      `json:"id" gorm:"primaryKey;unique"`
+	UserName    string    `json:"user_name" gorm:"not null" binding:"required,min=3,max=15"`
+	FirstName   string    `json:"first_name" gorm:"not null" binding:"required,min=2,max=50"`
+	LastName    string    `json:"last_name" gorm:"not null" binding:"required,min=1,max=50"`
+	Age         uint      `json:"age" gorm:"not null" binding:"required,numeric"`
+	Email       string    `json:"email" gorm:"unique;not null" binding:"required,email"`
+	Phone       string    `json:"phone" gorm:"unique;not null" binding:"required,min=10,max=10"`
+	Password    string    `json:"password" gorm:"not null" binding:"required"`
+	BlockStatus bool      `json:"block_status" gorm:"not null;default:false"`
+	CreatedAt   time.Time `json:"created_at" gorm:"not null"`
+	UpdatedAt   time.Time `json:"updated_at"`
 }
 
 // many to many join
@@ -35,6 +37,8 @@ type Address struct {
 	Pincode     uint   `json:"pincode" gorm:"not null" binding:"required,numeric,min=6,max=6"`
 	CountryID   uint   `jsong:"country_id" gorm:"not null" binding:"required"`
 	Country     Country
+	CreatedAt   time.Time `json:"created_at" gorm:"not null"`
+	UpdatedAt   time.Time `json:"updated_at"`
 }
 
 type Country struct {
@@ -68,23 +72,23 @@ type CartItem struct {
 	Qty           uint        `json:"qty" gorm:"not null"`
 }
 
-// wallet
-type TransactionType struct {
-	ID   uint   `json:"id" gorm:"primaryKey;not null"`
-	Type string `json:"transaction_type" gorm:"not nul"`
-}
-type Transaction struct {
-	ID                uint `json:"id" gorm:"primaryKey;not null"`
-	WalletID          uint `json:"wallet_id" gorm:"not null"`
-	Wallet            Wallet
-	TransactionDate   time.Time `json:"transaction_time" gorm:"not null"`
-	Amount            uint      `josn:"amount" gorm:"not null"`
-	TransactionTypeID uint      `json:"transaction_type_id" gorm:"not null"`
-	TransactionType   TransactionType
-}
+// // wallet
+// type TransactionType struct {
+// 	ID   uint   `json:"id" gorm:"primaryKey;not null"`
+// 	Type string `json:"transaction_type" gorm:"not nul"`
+// }
+// type Transaction struct {
+// 	ID                uint `json:"id" gorm:"primaryKey;not null"`
+// 	WalletID          uint `json:"wallet_id" gorm:"not null"`
+// 	Wallet            Wallet
+// 	TransactionDate   time.Time `json:"transaction_time" gorm:"not null"`
+// 	Amount            uint      `josn:"amount" gorm:"not null"`
+// 	TransactionTypeID uint      `json:"transaction_type_id" gorm:"not null"`
+// 	TransactionType   TransactionType
+// }
 
-type Wallet struct {
-	ID          uint `json:"id" gorm:"primaryKey;not null"`
-	UserID      uint `json:"user_id" gorm:"not null"`
-	TotalAmount uint `json:"total_amout" gorm:"not null"`
-}
+// type Wallet struct {
+// 	ID          uint `json:"id" gorm:"primaryKey;not null"`
+// 	UserID      uint `json:"user_id" gorm:"not null"`
+// 	TotalAmount uint `json:"total_amout" gorm:"not null"`
+// }

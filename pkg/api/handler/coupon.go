@@ -103,13 +103,13 @@ func (c *CouponHandler) GetAllCoupons(ctx *gin.Context) {
 // @security ApiKeyAuth
 // @tags Admin Coupon
 // @id UpdateCoupon
-// @Param        inputs   body     req.ReqCoupon{}   true  "Input Field"
+// @Param        inputs   body     req.ReqEditCoupon{}   true  "Input Field"
 // @Router /admin/coupons [put]
 // @Success 200 {object} res.Response{} "successfully update the coupon"
 // @Failure 400 {object} res.Response{}  "invalid input"
 func (c *CouponHandler) UpdateCoupon(ctx *gin.Context) {
 
-	var body req.ReqCoupon
+	var body req.ReqEditCoupon
 
 	if err := ctx.ShouldBindJSON(&body); err != nil {
 		response := res.ErrorResponse(400, "invalid input", err.Error(), body)
