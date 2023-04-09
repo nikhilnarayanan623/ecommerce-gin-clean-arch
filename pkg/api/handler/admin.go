@@ -11,6 +11,7 @@ import (
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/auth"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/domain"
 	service "github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/usecase/interfaces"
+	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/utils"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/utils/req"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/utils/res"
 )
@@ -121,12 +122,28 @@ func (a *AdminHandler) AdminHome(ctx *gin.Context) {
 // @summary api for admin to list users
 // @id ListUsers
 // @tags Admin User
+// @Param page_number query int false "Page Number"
+// @Param count query int false "Count Of Order"
 // @Router /admin/users [get]
 // @Success 200 {object} res.Response{} "successfully got all users"
 // @Failure 500 {object} res.Response{} "faild to get all users"
 func (a *AdminHandler) ListUsers(ctx *gin.Context) {
 
-	users, err := a.adminUseCase.FindAllUser(ctx)
+	count, err1 := utils.StringToUint(ctx.Query("count"))
+	pageNumber, err2 := utils.StringToUint(ctx.Query("page_number"))
+
+	err1 = errors.Join(err1, err2)
+	if err1 != nil {
+		response := res.ErrorResponse(400, "invalid inputs", err1.Error(), nil)
+		ctx.JSON(http.StatusBadRequest, response)
+		return
+	}
+	pagination := req.ReqPagination{
+		PageNumber: pageNumber,
+		Count:      count,
+	}
+
+	users, err := a.adminUseCase.FindAllUser(ctx, pagination)
 	if err != nil {
 		respone := res.ErrorResponse(500, "faild to get all users", err.Error(), nil)
 		ctx.JSON(http.StatusInternalServerError, respone)
@@ -179,15 +196,50 @@ func (a *AdminHandler) BlockUser(ctx *gin.Context) {
 // @summary api for admin to see full sales report and download it as csv
 // @id FullSalesReport
 // @tags Admin Sales
+// @Param start_date query string false "Date that you wan't to start on Report"
+// @Param end_date query string false "Date that you wan't to start on Report"
+// @Param page_number query int false "Page Number"
+// @Param count query int false "Count Of Order"
 // @Router /admin/sales [get]
 // @Success 200 {object} res.Response{} "ecommercesalesreport.csv"
 // @Failure 500 {object} res.Response{} "faild to get sales report"
 func (c *AdminHandler) FullSalesReport(ctx *gin.Context) {
 
-	salesReport, err := c.adminUseCase.GetFullSalesReport(ctx)
+	// time
+	startDate, err1 := utils.StringToTime(ctx.Query("start_date"))
+	endDate, err2 := utils.StringToTime(ctx.Query("end_date"))
+
+	// page
+	count, err3 := utils.StringToUint(ctx.Query("count"))
+	pageNumber, err4 := utils.StringToUint(ctx.Query("page_number"))
+
+	// join all error and send it if its not nil
+	err1 = errors.Join(err1, err2, err3, err4)
+	if err1 != nil {
+		response := res.ErrorResponse(400, "invalid inputs", err1.Error(), req.ReqSalesReport{})
+		ctx.JSON(http.StatusBadRequest, response)
+		return
+	}
+
+	reqData := req.ReqSalesReport{
+		StartDate: startDate,
+		EndDate:   endDate,
+		Pagination: req.ReqPagination{
+			Count:      count,
+			PageNumber: pageNumber,
+		},
+	}
+
+	salesReport, err := c.adminUseCase.GetFullSalesReport(ctx, reqData)
 	if err != nil {
 		respones := res.ErrorResponse(500, "faild to get sales report", err.Error(), nil)
 		ctx.JSON(http.StatusInternalServerError, respones)
+		return
+	}
+
+	if salesReport == nil {
+		response := res.SuccessResponse(200, "there is no sales report on thi period", nil)
+		ctx.JSON(http.StatusOK, response)
 		return
 	}
 
@@ -195,7 +247,11 @@ func (c *AdminHandler) FullSalesReport(ctx *gin.Context) {
 	ctx.Header("Content-Disposition", "attachment;filename=ecommercesalesreport.csv")
 
 	csvWriter := csv.NewWriter(ctx.Writer)
-	headers := []string{"UserID", "ShopOrderID", "OrderDate", "OrderTotalPrice", "Discount", "OrderStatus", "PaymentType"}
+	headers := []string{
+		"UserID", "FirstName", "Email",
+		"ShopOrderID", "OrderDate", "OrderTotalPrice",
+		"Discount", "OrderStatus", "PaymentType",
+	}
 
 	if err := csvWriter.Write(headers); err != nil {
 		response := res.ErrorResponse(500, "faild to reponse sales report", err.Error(), nil)
@@ -206,6 +262,8 @@ func (c *AdminHandler) FullSalesReport(ctx *gin.Context) {
 	for _, sales := range salesReport {
 		row := []string{
 			fmt.Sprintf("%v", sales.UserID),
+			sales.FirstName,
+			sales.Email,
 			fmt.Sprintf("%v", sales.ShopOrderID),
 			sales.OrderDate.Format("2006-01-02 15:04:05"),
 			fmt.Sprintf("%v", sales.OrderTotalPrice),

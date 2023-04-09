@@ -26,8 +26,8 @@ type UserUseCase interface {
 	// profile side
 
 	//address side
-	SaveAddress(ctx context.Context, address domain.Address, userID uint, isDefault bool) (domain.Address, error) // save address
-	EditAddress(ctx context.Context, addressBody req.Address, userID uint) error
+	SaveAddress(ctx context.Context, userID uint, address domain.Address, isDefault bool) error // save address
+	EditAddress(ctx context.Context, addressBody req.ReqEditAddress, userID uint) error
 	GetAddresses(ctx context.Context, userID uint) ([]res.ResAddress, error) // to get all address of a user
 
 	// wishlist

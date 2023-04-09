@@ -3,12 +3,14 @@ package usecase
 import (
 	"context"
 	"errors"
+	"log"
 
 	"github.com/jinzhu/copier"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/domain"
-	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/utils/res"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/repository/interfaces"
 	service "github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/usecase/interfaces"
+	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/utils/req"
+	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/utils/res"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -59,9 +61,9 @@ func (c *adminUseCase) Login(ctx context.Context, admin domain.Admin) (domain.Ad
 	return dbAdmin, nil
 }
 
-func (c *adminUseCase) FindAllUser(ctx context.Context) ([]res.UserRespStrcut, error) {
+func (c *adminUseCase) FindAllUser(ctx context.Context, pagination req.ReqPagination) (users []res.UserRespStrcut, err error) {
 
-	users, err := c.adminRepo.FindAllUser(ctx)
+	users, err = c.adminRepo.FindAllUser(ctx, pagination)
 
 	if err != nil {
 		return nil, err
@@ -80,6 +82,15 @@ func (c *adminUseCase) BlockUser(ctx context.Context, userID uint) error {
 	return c.adminRepo.BlockUser(ctx, userID)
 }
 
-func (c *adminUseCase) GetFullSalesReport(ctx context.Context) ([]res.SalesReport, error) {
-	return c.adminRepo.CreateFullSalesReport(ctx)
+func (c *adminUseCase) GetFullSalesReport(ctx context.Context, requestData req.ReqSalesReport) (salesReport []res.SalesReport, err error) {
+	salesReport, err = c.adminRepo.CreateFullSalesReport(ctx, requestData)
+
+	if err != nil {
+		return salesReport, err
+	}
+
+	log.Printf("successfully got sales report from %v to %v of limit %v",
+		requestData.StartDate, requestData.EndDate, requestData.Pagination.Count)
+
+	return salesReport, nil
 }

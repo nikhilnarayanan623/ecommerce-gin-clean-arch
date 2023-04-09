@@ -10,6 +10,7 @@ import (
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/repository/interfaces"
 	service "github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/usecase/interfaces"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/utils"
+	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/utils/req"
 )
 
 type couponUseCase struct {
@@ -40,9 +41,15 @@ func (c *couponUseCase) AddCoupon(ctx context.Context, coupon domain.Coupon) err
 
 	return nil
 }
-func (c *couponUseCase) GetAllCoupons(ctx context.Context) ([]domain.Coupon, error) {
+func (c *couponUseCase) GetAllCoupons(ctx context.Context, pagination req.ReqPagination) (coupons []domain.Coupon, err error) {
 
-	return c.couponRepo.FindAllCoupons(ctx)
+	coupons, err = c.couponRepo.FindAllCoupons(ctx, pagination)
+	if err != nil {
+		return coupons, err
+	}
+
+	log.Printf("successfully got all coupons \n\n")
+	return coupons, nil
 }
 
 func (c *couponUseCase) GetCouponByCouponCode(ctx context.Context, couponCode string) (coupon domain.Coupon, err error) {

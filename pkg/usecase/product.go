@@ -66,8 +66,12 @@ func (c *productUseCase) AddCategory(ctx context.Context, category domain.Catego
 			return errors.New("invalid categoyr id")
 		}
 	}
+	err := c.productRepo.SaveCategory(ctx, category)
+	if err != nil {
+		return err
+	}
 
-	return c.productRepo.SaveCategory(ctx, category)
+	return nil
 }
 
 // to add new variation for a category
@@ -120,7 +124,7 @@ func (c *productUseCase) AddProductItem(ctx context.Context, productItem req.Req
 }
 
 // for get all productItem for a specific product
-func (c *productUseCase) GetProductItems(ctx context.Context, productID uint) ([]res.RespProductItems, error) {
+func (c *productUseCase) GetProductItems(ctx context.Context, productID uint) (productItems []res.RespProductItems, err error) {
 
 	//validate the productID
 	if product, err := c.productRepo.FindProduct(ctx, domain.Product{ID: productID}); err != nil {
@@ -129,7 +133,22 @@ func (c *productUseCase) GetProductItems(ctx context.Context, productID uint) ([
 		return []res.RespProductItems{}, errors.New("invalid product_id")
 	}
 
-	return c.productRepo.FindAllProductItems(ctx, productID)
+	productItems, err = c.productRepo.FindAllProductItems(ctx, productID)
+	if err != nil {
+		return productItems, err
+	}
+
+	// for _, productItem := range productItems {
+	// 	images, err := c.productRepo.FindAllProductItemImages(ctx, productItem.ID)
+
+	// 	if err != nil {
+	// 		return productItems, err
+	// 	}
+	// 	fmt.Println(images, "images")
+	// }
+
+	log.Printf("successfully got all prouctItems for product_id %v", productID)
+	return productItems, nil
 }
 
 func (c *productUseCase) UpdateProduct(ctx context.Context, product domain.Product) error {

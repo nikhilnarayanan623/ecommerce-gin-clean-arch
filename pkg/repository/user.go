@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"time"
 
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/domain"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/repository/interfaces"
@@ -28,7 +29,7 @@ func (c *userDatabse) FindUser(ctx context.Context, user domain.User) (domain.Us
 	return user, nil
 }
 
-func (c *userDatabse) FindUserExceptID(ctx context.Context, user domain.User) (domain.User, error) {
+func (c *userDatabse) CheckOtherUserWithDetails(ctx context.Context, user domain.User) (domain.User, error) {
 	var checkUser domain.User
 	query := `SELECT * FROM users WHERE id != ? AND email = ? OR id != ? AND phone = ? OR id != ? AND user_name = ?`
 	if c.DB.Raw(query, user.ID, user.Email, user.ID, user.Phone, user.ID, user.UserName).Scan(&checkUser).Error != nil {
@@ -41,10 +42,12 @@ func (c *userDatabse) FindUserExceptID(ctx context.Context, user domain.User) (d
 func (c *userDatabse) SaveUser(ctx context.Context, user domain.User) error {
 
 	//save the user details
-	query := `INSERT INTO users (user_name, first_name, last_name, age, email, phone, password,block_status) 
+	query := `INSERT INTO users (user_name, first_name, last_name, age, email, phone, password,created_at) 
 	VALUES ($1, $2, $3, $4, $5, $6, $7, $8) `
+
+	createdAt := time.Now()
 	err := c.DB.Exec(query, user.UserName, user.FirstName, user.LastName,
-		user.Age, user.Email, user.Phone, user.Password, user.BlockStatus).Error
+		user.Age, user.Email, user.Phone, user.Password, createdAt).Error
 
 	if err != nil {
 		return fmt.Errorf("faild to save user %s", user.UserName)
@@ -52,11 +55,24 @@ func (c *userDatabse) SaveUser(ctx context.Context, user domain.User) error {
 	return nil
 }
 
-func (c *userDatabse) EditUser(ctx context.Context, user domain.User) error {
-	fmt.Println(user)
-	query := `UPDATE users SET user_name = $1, first_name = $2, last_name = $3,age = $4,email = $5, phone = $6 WHERE id = $7`
-	if c.DB.Raw(query, user.UserName, user.FirstName, user.LastName, user.Age, user.Email, user.Phone, user.ID).Scan(&user).Error != nil {
-		return errors.New("faild to update user")
+func (c *userDatabse) UpdateUser(ctx context.Context, user domain.User) (err error) {
+
+	updatedAt := time.Now()
+	// check password need to update or not
+	if user.Password != "" {
+		query := `UPDATE users SET user_name = $1, first_name = $2, last_name = $3,age = $4, 
+		email = $5, phone = $6, password = $7, updated_at = $8 WHERE id = $9`
+		err = c.DB.Exec(query, user.UserName, user.FirstName, user.LastName, user.Age, user.Email,
+			user.Phone, user.Password, updatedAt, user.ID).Error
+	} else {
+		query := `UPDATE users SET user_name = $1, first_name = $2, last_name = $3,age = $4, 
+		email = $5, phone = $6, updated_at = $7 WHERE id = $8`
+		err = c.DB.Exec(query, user.UserName, user.FirstName, user.LastName, user.Age, user.Email,
+			user.Phone, updatedAt, user.ID).Error
+	}
+
+	if err != nil {
+		return fmt.Errorf("faild to update user detail of user with user_id %d", user.ID)
 	}
 	return nil
 }
@@ -140,34 +156,6 @@ func (c *userDatabse) UpdateCartItemQty(ctx context.Context, cartItemId, qty uin
 	return nil
 }
 
-// // find total price of cart include out of stock or not
-// func (c *userDatabse) FindCartTotalPrice(ctx context.Context, cart domain.Cart, includeOutOfStck bool) (uint, error) {
-// 	var (
-// 		totalPrice uint
-// 		query      string
-// 	)
-
-// 	// if includeOutOfStck { // for all cart items
-// 	// 	query = `SELECT SUM( CASE WHEN pi.discount_price > 0 THEN pi.discount_price * c.qty ELSE pi.price * c.qty END) AS total_price
-// 	// 	FROM carts c INNER JOIN product_items pi ON c.product_item_id = pi.id
-// 	// 	AND c.user_id = $1
-// 	// 	GROUP BY c.user_id`
-// 	// } else { // for all cart_items which are in stock
-// 	// 	query = `SELECT SUM( CASE WHEN pi.discount_price > 0 THEN pi.discount_price * c.qty ELSE pi.price * c.qty END) AS total_price
-// 	// 	FROM carts c INNER JOIN product_items pi ON c.product_item_id = pi.id
-// 	// 	AND pi.qty_in_stock > 0 AND c.user_id = $1
-// 	// 	GROUP BY c.user_id`
-// 	// }
-
-// 	// if c.DB.Raw(query, userID).Scan(&totalPrice).Error != nil {
-// 	// 	return totalPrice, errors.New("faild to calculate total price for user cart")
-// 	// }
-
-// 	// fmt.Println(totalPrice, "total price")
-
-// 	return totalPrice, nil
-// }
-
 // get all itmes from cart
 func (c *userDatabse) FindAllCartItemsByCartID(ctx context.Context, cartID uint) (cartItems []res.ResCartItem, err error) {
 
@@ -235,48 +223,63 @@ func (c *userDatabse) FindCountryByID(ctx context.Context, countryID uint) (doma
 }
 
 // save address
-func (c *userDatabse) SaveAddress(ctx context.Context, address domain.Address) (domain.Address, error) {
+func (c *userDatabse) SaveAddress(ctx context.Context, address domain.Address) (addressID uint, err error) {
 
-	query := `INSERT INTO addresses (name,phone_number,house,area,land_mark,city,pincode,country_id) 
-	VALUES ($1,$2,$3,$4,$5,$6,$7,$8) RETURNING id`
+	query := `INSERT INTO addresses (name,phone_number,house,area,land_mark,city,pincode,country_id,created_at) 
+	VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING id`
+
+	createdAt := time.Now()
+
 	if c.DB.Raw(query, address.Name, address.PhoneNumber,
 		address.House, address.Area, address.LandMark, address.City,
-		address.Pincode, address.CountryID,
+		address.Pincode, address.CountryID, createdAt,
 	).Scan(&address).Error != nil {
-		return address, errors.New("faild to insert address on database")
+		return addressID, errors.New("faild to insert address on database")
 	}
-	return address, nil
+	return address.ID, nil
 }
 
 // update address
 func (c *userDatabse) UpdateAddress(ctx context.Context, address domain.Address) error {
 
-	query := `UPDATE addresses SET name=$1, phone_number=$2, house=$3, area=$4, land_mark=$5, city=$6, pincode=$7,country_id=$8 WHERE id=$9`
+	query := `UPDATE addresses SET name=$1, phone_number=$2, house=$3, area=$4, land_mark=$5, 
+	city=$6, pincode=$7,country_id=$8, updated_at = $9 WHERE id=$10`
+
+	updatedAt := time.Now()
 	if c.DB.Raw(query, address.Name, address.PhoneNumber, address.House,
 		address.Area, address.LandMark, address.City, address.Pincode,
-		address.CountryID, address.ID).Scan(&address).Error != nil {
+		address.CountryID, updatedAt, address.ID).Scan(&address).Error != nil {
 		return errors.New("faild to update the address for edit address")
 	}
 	return nil
 }
 
-func (c *userDatabse) SaveUserAddress(ctx context.Context, userAddress domain.UserAddress) (domain.UserAddress, error) {
+func (c *userDatabse) SaveUserAddress(ctx context.Context, userAddress domain.UserAddress) error {
 
-	// if not exist then save it
-	//if this address is user need to default then change old default addres to normal
-	if userAddress.IsDefault {
+	// first check user's first address is this or not
+	var userID uint
+	query := `SELECT address_id FROM user_addresses WHERE user_id = $1`
+	err := c.DB.Raw(query, userAddress.UserID).Scan(&userID).Error
+	if err != nil {
+		return fmt.Errorf("faild to check user have already address exit or not with user_id %v", userAddress.UserID)
+	}
 
+	// if the given address is need to set default  then remove all other from default
+	if userID == 0 { // it means user have no other addresses
+		userAddress.IsDefault = true
+	} else if userAddress.IsDefault {
 		query := `UPDATE user_addresses SET is_default = 'f' WHERE user_id = ?`
 		if c.DB.Raw(query, userAddress.UserID).Scan(&userAddress).Error != nil {
-			return userAddress, errors.New("faild to remove default status of address")
+			return errors.New("faild to remove default status of address")
 		}
 	}
 
-	query := `INSERT INTO user_addresses (user_id,address_id,is_default) VALUES ($1,$2,$3) RETURNING user_id,address_id,is_default`
-	if c.DB.Raw(query, userAddress.UserID, userAddress.AddressID, userAddress.IsDefault).Scan(&userAddress).Error != nil {
-		return userAddress, errors.New("faild to inser userAddress on database")
+	query = `INSERT INTO user_addresses (user_id,address_id,is_default) VALUES ($1, $2, $3)`
+	err = c.DB.Exec(query, userAddress.UserID, userAddress.AddressID, userAddress.IsDefault).Error
+	if err != nil {
+		return errors.New("faild to inser userAddress on database")
 	}
-	return userAddress, nil
+	return nil
 }
 
 func (c *userDatabse) UpdateUserAddress(ctx context.Context, userAddress domain.UserAddress) error {

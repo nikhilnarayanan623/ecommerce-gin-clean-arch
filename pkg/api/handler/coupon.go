@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"errors"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -59,11 +60,28 @@ func (c *CouponHandler) AddCoupon(ctx *gin.Context) {
 // @security ApiKeyAuth
 // @tags Admin Coupon
 // @id GetAllCoupons
+// @Param page_number query int false "Page Number"
+// @Param count query int false "Count Of Order"
 // @Router /admin/coupons [get]
 // @Success 200 {object} res.Response{} "successfully go all the coupons
 // @Failure 500 {object} res.Response{}  "faild to get all coupons"
 func (c *CouponHandler) GetAllCoupons(ctx *gin.Context) {
-	coupons, err := c.couponUseCase.GetAllCoupons(ctx)
+
+	count, err1 := utils.StringToUint(ctx.Query("count"))
+	pageNumber, err2 := utils.StringToUint(ctx.Query("page_number"))
+
+	err1 = errors.Join(err1, err2)
+	if err1 != nil {
+		response := res.ErrorResponse(400, "invalid inputs", err1.Error(), nil)
+		ctx.JSON(http.StatusBadRequest, response)
+		return
+	}
+	pagination := req.ReqPagination{
+		PageNumber: pageNumber,
+		Count:      count,
+	}
+
+	coupons, err := c.couponUseCase.GetAllCoupons(ctx, pagination)
 	if err != nil {
 		response := res.ErrorResponse(500, "faild to get all coupons", err.Error(), nil)
 		ctx.JSON(http.StatusInternalServerError, response)

@@ -4,9 +4,11 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"time"
 
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/domain"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/repository/interfaces"
+	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/utils/req"
 	"gorm.io/gorm"
 )
 
@@ -55,10 +57,13 @@ func (c *couponDatabase) FindCouponByName(ctx context.Context, couponName string
 	return coupon, nil
 }
 
-func (c *couponDatabase) FindAllCoupons(ctx context.Context) (coupons []domain.Coupon, err error) {
+func (c *couponDatabase) FindAllCoupons(ctx context.Context, pagination req.ReqPagination) (coupons []domain.Coupon, err error) {
 
-	query := `SELECT * FROM coupons`
-	err = c.DB.Raw(query).Scan(&coupons).Error
+	limit := pagination.Count
+	offset := (pagination.PageNumber - 1) * limit
+
+	query := `SELECT * FROM coupons ORDER BY created_at DESC LIMIT $1 OFFSET $2`
+	err = c.DB.Raw(query, limit, offset).Scan(&coupons).Error
 	if err != nil {
 		return coupons, errors.New("faild to find coupon")
 	}
@@ -67,10 +72,14 @@ func (c *couponDatabase) FindAllCoupons(ctx context.Context) (coupons []domain.C
 
 // save a new coupon
 func (c *couponDatabase) SaveCoupon(ctx context.Context, coupon domain.Coupon) error {
-	query := `INSERT INTO coupons (coupon_name, coupon_code, description, expire_date, discount_rate, minimum_cart_price, image, block_status)
-	VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`
+	query := `INSERT INTO coupons (coupon_name, coupon_code, description, expire_date, 
+		discount_rate, minimum_cart_price, image, block_status,created_at)
+	VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`
+
+	cratedAt := time.Now()
+
 	err := c.DB.Exec(query, coupon.CouponName, coupon.CouponCode, coupon.Description, coupon.ExpireDate,
-		coupon.DiscountRate, coupon.MinimumCartPrice, coupon.Image, coupon.BlockStatus,
+		coupon.DiscountRate, coupon.MinimumCartPrice, coupon.Image, coupon.BlockStatus, cratedAt,
 	).Error
 
 	if err != nil {
@@ -83,10 +92,12 @@ func (c *couponDatabase) SaveCoupon(ctx context.Context, coupon domain.Coupon) e
 func (c *couponDatabase) UpdateCoupon(ctx context.Context, coupon domain.Coupon) error {
 
 	query := `UPDATE coupons SET coupon_name = $1, coupon_code = $2, description = $3, 
-	discount_rate = $4, minimum_cart_price = $5, image = $6, block_status = $7`
+	discount_rate = $4, minimum_cart_price = $5, image = $6, block_status = $7, updated_at = $8`
+
+	updatedAt := time.Now()
 
 	err := c.DB.Exec(query, coupon.CouponName, coupon.CouponCode, coupon.Description,
-		coupon.DiscountRate, coupon.MinimumCartPrice, coupon.Image, coupon.BlockStatus,
+		coupon.DiscountRate, coupon.MinimumCartPrice, coupon.Image, coupon.BlockStatus, updatedAt,
 	).Error
 	if err != nil {
 		return fmt.Errorf("faild to update coupon for coupon_name %v", coupon.CouponName)
@@ -107,7 +118,9 @@ func (c *couponDatabase) FindCouponUses(ctx context.Context, userID, couopnID ui
 // save a couponUses
 func (c *couponDatabase) SaveCouponUses(ctx context.Context, couponUses domain.CouponUses) error {
 	query := `INSERT INTO coupon_uses ( user_id, coupon_id, used_at) VALUES ($1, $2, $3)`
-	err := c.DB.Exec(query, couponUses.UserID, couponUses.CouponID, couponUses.UsedAt).Error
+
+	usedAt := time.Now()
+	err := c.DB.Exec(query, couponUses.UserID, couponUses.CouponID, usedAt).Error
 
 	if err != nil {
 		return fmt.Errorf("faild save coupon for user_id %v with coupon_id %v", couponUses.UserID, couponUses.CouponID)
