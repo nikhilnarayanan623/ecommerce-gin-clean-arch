@@ -42,17 +42,20 @@
 		</div>
 	</div>
 
+<!-- stripe part -->
   <div class="container" id="second-form" style="display: none;">
-    <div class="first">
-      <h1>Payment</h1>
+    <div class="first w-25">
+      <h1 class="text-center">Stripe Payment</h1>
   
       <form action="" id="stripe-form">
         <div id="payment-element"></div>
         <div id="error-message"></div>
-        <button>Pay</button>
+        <button type="submit" class="btn btn-primary">Submit</button>
       </form>
     </div>
   </div>
+
+  <!-- stripe end -->
 </body>
 </html>
 <script src="https://js.stripe.com/v3/"></script>
@@ -169,13 +172,13 @@
         const message = document.getElementById('error-message')
         message.innerHTML = error.message;
       }else{ // if no error then call the backend for verify
-        console.log(paymentIntent);
+        console.log(paymentIntent,"success payment intent");
 
         $.ajax({ // for backend call
           url:'/carts/place-order/stripe/stripe-verify',
           type:'post',
           data:{
-            "payment_intent":paymentIntent,
+            "payment_id":paymentIntent.id,
             "shop_order_id":response.shop_order_id,
               "coupon_id" : response.coupon_id,
               "client_secret":paymentIntent.client_secret

@@ -60,8 +60,8 @@ func UserRoutes(api *gin.RouterGroup, userHandler *handler.UserHandler, ProductH
 			cart.POST("/place-order/razorpay-verify", orderHandler.RazorpayVerify)
 
 			// stripe
-			api.POST("/place-order/stripe-checkout", orderHandler.StripPaymentCheckout)
-			api.POST("/place-order/stripe/stripe-verify", orderHandler.Success)
+			cart.POST("/place-order/stripe-checkout", orderHandler.StripPaymentCheckout)
+			cart.POST("/place-order/stripe/stripe-verify", orderHandler.StripePaymentVeify)
 		}
 
 		//wishlist

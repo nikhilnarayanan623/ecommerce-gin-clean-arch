@@ -178,3 +178,22 @@ func GenerateStipeClientSecret(amountToPay uint, recieptEmail string) (clientSec
 	clientSecret = paymentIntent.ClientSecret
 	return clientSecret, nil
 }
+
+func VeifyStripePaymentIntentByID(paymentID string) error {
+
+	stripe.Key = config.GetCofig().StripSecretKey
+
+	// get payment by payment_id
+	paymentIntent, err := paymentintent.Get(paymentID, nil)
+
+	if err != nil {
+		return fmt.Errorf("faild to get stripe paymentIntent of payment_id %v", paymentID)
+	}
+
+	// verify the payment intent
+	if paymentIntent.Status != stripe.PaymentIntentStatusSucceeded && paymentIntent.Status != stripe.PaymentIntentStatusRequiresCapture {
+		return fmt.Errorf("payment not not completed")
+	}
+
+	return nil
+}

@@ -85,10 +85,42 @@ func (c *OrderHandler) StripPaymentCheckout(ctx *gin.Context) {
 	ctx.JSON(200, stripeOrder)
 }
 
-func (c *OrderHandler) Success(ctx *gin.Context) {
+func (c *OrderHandler) StripePaymentVeify(ctx *gin.Context) {
 
-	fmt.Println("\n\n\nsuccess")
-}
-func (c *OrderHandler) Cancell(ctx *gin.Context) {
-	fmt.Println("\n\n\ncancell")
+	//string
+	paymentID := ctx.Request.PostFormValue("payment_id")
+	//clientSecret := ctx.Request.PostFormValue("client_secret")
+
+	//uint
+	shopOrderID, err1 := utils.StringToUint(ctx.Request.PostFormValue("shop_order_id"))
+	couponID, err2 := utils.StringToUint(ctx.Request.PostFormValue("coupon_id"))
+
+	userID := utils.GetUserIdFromContext(ctx)
+
+	err := errors.Join(err1, err2)
+	if err != nil {
+		response := res.ErrorResponse(400, "can't make order", "shop_order id is not valid", nil)
+		ctx.JSON(400, response)
+		return
+	}
+
+	// verify the payment_id
+	err = utils.VeifyStripePaymentIntentByID(paymentID)
+
+	if err != nil {
+		response := res.ErrorResponse(400, "invalid payment_id", err.Error(), nil)
+		ctx.JSON(http.StatusBadRequest, response)
+		return
+	}
+
+	//approve the order
+	err = c.orderUseCase.ApproveOrderAndClearCart(ctx, userID, shopOrderID, couponID)
+	if err != nil {
+		response := res.ErrorResponse(400, "faild to place order faild on approve and clear cart", err.Error(), nil)
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, response)
+		return
+	}
+
+	response := res.SuccessResponse(200, "successfully payment completed and order approved", nil)
+	ctx.JSON(200, response)
 }
