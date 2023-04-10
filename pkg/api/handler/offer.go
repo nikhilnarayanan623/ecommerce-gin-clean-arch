@@ -1,7 +1,6 @@
 package handler
 
 import (
-	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -16,21 +15,25 @@ import (
 // @summary api for admin to add new offer
 // @id AddOffer
 // @tags Offers
-// @Param input body domain.Offer{} true "input field"
+// @Param input body req.ReqOffer{} true "input field"
 // @Router /admin/offers [post]
 // @Success 200 {object} res.Response{} "successfully offer added"
 // @Failure 400 {object} res.Response{} "invalid input"
 func (p *ProductHandler) AddOffer(ctx *gin.Context) {
 
-	var body domain.Offer
+	var body req.ReqOffer
 
 	if err := ctx.ShouldBindJSON(&body); err != nil {
 		response := res.ErrorResponse(400, "invalid input", err.Error(), nil)
 		ctx.JSON(400, response)
 		return
 	}
-	fmt.Println(body.StartDate)
-	err := p.productUseCase.AddOffer(ctx, body)
+
+	var offer domain.Offer
+
+	copier.Copy(&offer, &body)
+
+	err := p.productUseCase.AddOffer(ctx, offer)
 	if err != nil {
 		response := res.ErrorResponse(400, "faild to add offer", err.Error(), nil)
 		ctx.JSON(http.StatusBadRequest, response)

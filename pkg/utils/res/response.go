@@ -3,7 +3,7 @@ package res
 import "strings"
 
 type Response struct {
-	StatusCode int         `json:"status"`
+	StatusCode int         `json:"status_code"`
 	Message    string      `json:"message"`
 	Errors     interface{} `json:"errors,omitempty"`
 	Data       interface{} `json:"data,omitempty"`

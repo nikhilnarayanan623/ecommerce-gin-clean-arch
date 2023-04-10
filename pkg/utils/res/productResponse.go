@@ -6,7 +6,7 @@ import (
 
 // response for product
 type ResponseProduct struct {
-	ID            uint      `json:"id"`
+	ID            uint      `json:"product_id"`
 	ProductName   string    `json:"product_name"`
 	Description   string    `json:"description" `
 	CategoryID    uint      `json:"category_id"`
@@ -28,7 +28,7 @@ type Category struct {
 
 // fo a spedific variation representation
 type VariationName struct {
-	ID            uint   `json:"id"`
+	ID            uint   `json:"variation_id"`
 	VariationName string `json:"variation_name"`
 	CategoryID    uint   `json:"category_id"`
 	CategoryName  string `json:"category_name"`
@@ -36,7 +36,7 @@ type VariationName struct {
 
 // fo a spedific variation Value representation
 type VariationValue struct {
-	ID             uint   `json:"id"`
+	ID             uint   `json:"variation_option_id"`
 	VariationValue string `json:"variation_value"`
 	VariationID    uint   `json:"variation_id"`
 	VariationName  string `json:"variation_name"`
@@ -51,11 +51,12 @@ type RespFullCategory struct {
 
 // for reponse a specific products all product items
 type RespProductItems struct {
-	ID                uint   `json:"id"`
+	ID                uint   `json:"product_item_id"`
 	ProductName       string `json:"product_name"`
 	ProductID         uint   `json:"product_id"`
 	Price             uint   `json:"price"`
 	DiscountPrice     uint   `json:"discount_price"`
+	SKU               string `json:"sku"`
 	QtyInStock        uint   `json:"qty_in_stock"`
 	VariationOptionID uint   `json:"variation_option_id"`
 	VariationValue    string `json:"variation_value"`

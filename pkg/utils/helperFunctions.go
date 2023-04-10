@@ -31,6 +31,15 @@ func StringToUint(str string) (uint, error) {
 	return uint(val), err
 }
 
+// generate unique string for sku
+func GenerateSKU() string {
+	sku := make([]byte, 10)
+
+	rand.Read(sku)
+
+	return hex.EncodeToString(sku)
+}
+
 func CompareUsers(user, checkUser domain.User) (err error) {
 	if checkUser.Email == user.Email {
 		err = errors.Join(err, errors.New("user already exist with this email"))
@@ -44,15 +53,6 @@ func CompareUsers(user, checkUser domain.User) (err error) {
 
 	return err
 }
-
-// // chack probability for coupons (chance 0.0 to 1.0 : low to hign)
-// func CheckProbability(channce float64) bool {
-
-// 	rand.Seed(time.Now().UnixMilli())
-
-// 	// rangom.Float64() gives value of 0 to 1
-// 	return channce > rand.Float64()
-// }
 
 // random coupons
 func GenerateCouponCode(couponCodeLenth int) string {
@@ -70,14 +70,6 @@ func GenerateCouponCode(couponCodeLenth int) string {
 	// convert into string and return the random letter array
 	return string(couponCode)
 }
-
-// // select a rangom number from start to end
-// func SelectRandomNumber(min, max int) int {
-
-// 	rand.Seed(time.Now().UnixMilli())
-
-// 	return rand.Intn(max-min) + min
-// }
 
 // function for generate razorpay order
 func GenerateRazorpayOrder(razorPayAmount uint, recieptIdOptional string) (razorpayOrderID interface{}, err error) {

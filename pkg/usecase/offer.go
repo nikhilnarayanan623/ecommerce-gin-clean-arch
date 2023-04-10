@@ -4,6 +4,8 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"log"
+	"time"
 
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/domain"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/utils/res"
@@ -17,7 +19,18 @@ func (c *productUseCase) AddOffer(ctx context.Context, offer domain.Offer) error
 		return fmt.Errorf("offer already exist with this  %s  name", offer.OfferName)
 	}
 
-	return c.productRepo.SaveOffer(ctx, offer)
+	// validate the offer date
+	if time.Since(offer.EndDate) > 0 {
+		return fmt.Errorf("given offer end_date already exceeded %v", offer.EndDate)
+	}
+
+	err := c.productRepo.SaveOffer(ctx, offer)
+	if err != nil {
+		return err
+	}
+
+	log.Printf("successfully offer created with offer name %v\n\n", offer.OfferName)
+	return nil
 }
 
 func (c *productUseCase) RemoveOffer(ctx context.Context, offerID uint) error {
@@ -45,34 +58,51 @@ func (c *productUseCase) AddOfferCategory(ctx context.Context, offerCategory dom
 
 	// check the offerId is valid or not
 	var offer = domain.Offer{ID: offerCategory.OfferID}
-	if offer, err := c.productRepo.FindOffer(ctx, offer); err != nil {
+
+	offer, err := c.productRepo.FindOffer(ctx, offer)
+	if err != nil {
 		return err
 	} else if offer.OfferName == "" {
 		return errors.New("invalid offer_id")
 	}
 
+	//check the offer date is end or not
+	if time.Since(offer.EndDate) > 0 {
+		return fmt.Errorf("can't apply to category \noffer already ended on %v ", offer.EndDate)
+	}
+
 	// check the categoy id is valid or not
 	var category = domain.Category{ID: offerCategory.CategoryID}
-	if category, err := c.productRepo.FindCategory(ctx, category); err != nil {
+	category, err = c.productRepo.FindCategory(ctx, category)
+	if err != nil {
 		return err
 	} else if category.CategoryName == "" {
 		return errors.New("invalid category_id")
 	}
 
 	//  check the category have already offer exist or not
-	if offerCategory, err := c.productRepo.FindOfferCategoryCategoryID(ctx, offerCategory.CategoryID); err != nil {
+	checkofferCategory, err := c.productRepo.FindOfferCategoryCategoryID(ctx, offerCategory.CategoryID)
+	if err != nil {
 		return err
-	} else if offerCategory.ID != 0 {
+	} else if checkofferCategory.ID != 0 {
 		return errors.New("an offer already exist for this category you can replace it")
 	}
 
 	// if it not exist then add it
-	if err := c.productRepo.SaveOfferCategory(ctx, offerCategory); err != nil {
+	err = c.productRepo.SaveOfferCategory(ctx, offerCategory)
+	if err != nil {
 		return err
 	}
 
 	// last update discount price
-	return c.productRepo.UpdateDiscountPrice(ctx)
+	err = c.productRepo.UpdateDiscountPrice(ctx)
+
+	if err != nil {
+		return err
+	}
+
+	log.Printf("successfully offer applied to category of category_id %v with offer_if %v", offerCategory.CategoryID, offerCategory.OfferID)
+	return nil
 }
 
 // get all offer_category

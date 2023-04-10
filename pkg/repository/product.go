@@ -8,6 +8,7 @@ import (
 
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/domain"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/repository/interfaces"
+	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/utils"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/utils/req"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/utils/res"
 	"gorm.io/gorm"
@@ -217,12 +218,13 @@ func (c *productDatabase) SaveProductItem(ctx context.Context, reqProductItem re
 		return fmt.Errorf("a product_item already for this product \nwith given configuration as product_item_id %v", productItemItemID)
 	}
 
-	//then insert product_id ,quantity and price
+	// insert the product_item
 	createdAt := time.Now()
-	// var productItem domain.ProductItem
-	querry = `INSERT INTO product_items (product_id,qty_in_stock,price, created_at) 
-	VALUES ($1, $2, $3, $4) RETURNING id AS product_item_id`
-	err := c.DB.Raw(querry, reqProductItem.ProductID, reqProductItem.QtyInStock, reqProductItem.Price, createdAt).Scan(&productItemItemID).Error
+	sku := utils.GenerateSKU()
+
+	querry = `INSERT INTO product_items (product_id, qty_in_stock, price, sku, created_at) 
+	VALUES ($1, $2, $3, $4, $5) RETURNING id AS product_item_id`
+	err := c.DB.Raw(querry, reqProductItem.ProductID, reqProductItem.QtyInStock, reqProductItem.Price, sku, createdAt).Scan(&productItemItemID).Error
 	if err != nil {
 		trx.Rollback()
 		return fmt.Errorf("faild to save product_item for product with product_id %v", reqProductItem.ProductID)
@@ -262,7 +264,7 @@ func (c *productDatabase) FindAllProductItems(ctx context.Context, productID uin
 	// first find all product_items
 
 	query := `SELECT p.product_name, pi.id,  pi.product_id, pi.price, pi.discount_price, 
-	pi.qty_in_stock, vo.id AS variation_option_id, vo.variation_value 
+	pi.qty_in_stock, sku, vo.id AS variation_option_id, vo.variation_value 
 	FROM product_items pi INNER JOIN products p ON p.id = pi.product_id 
 	INNER JOIN product_configurations pc ON pc.product_item_id = pi.id 
 	INNER JOIN variation_options vo ON vo.id = pc.variation_option_id 

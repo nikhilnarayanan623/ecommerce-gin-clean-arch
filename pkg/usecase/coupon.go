@@ -29,6 +29,10 @@ func (c *couponUseCase) AddCoupon(ctx context.Context, coupon domain.Coupon) err
 	} else if checkCoupon.CouponID != 0 {
 		return fmt.Errorf("there already a coupon exist with coupon_name %v", coupon.CouponName)
 	}
+	// validate the coupn expire date
+	if time.Since(coupon.ExpireDate) > 0 {
+		return fmt.Errorf("given coupon expire date already exceeded %v", coupon.ExpireDate)
+	}
 
 	// check the given expire time is valid or not
 

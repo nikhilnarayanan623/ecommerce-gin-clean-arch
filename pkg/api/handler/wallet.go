@@ -53,6 +53,12 @@ func (c *OrderHandler) GetUserWalletTransactions(ctx *gin.Context) {
 		return
 	}
 
+	if transactions == nil {
+		resonse := res.SuccessResponse(200, "there is no wallet transaction for this page", nil)
+		ctx.JSON(http.StatusOK, resonse)
+		return
+	}
+
 	response := res.SuccessResponse(200, "successfully got user wallet transactions", transactions)
 	ctx.JSON(http.StatusOK, response)
 }

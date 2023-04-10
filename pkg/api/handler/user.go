@@ -516,6 +516,11 @@ func (u *UserHandler) AddAddress(ctx *gin.Context) {
 
 	copier.Copy(&address, &body)
 
+	// check is default is null
+	if body.IsDefault == nil {
+		body.IsDefault = new(bool)
+	}
+
 	err := u.userUseCase.SaveAddress(ctx, userID, address, *body.IsDefault)
 	if err != nil {
 		response := res.ErrorResponse(400, "inavlid input", err.Error(), nil)
@@ -570,6 +575,7 @@ func (u *UserHandler) GetAddresses(ctx *gin.Context) {
 // @Failure 400 {object} res.Response{} "can't update the address"
 func (u *UserHandler) EditAddress(ctx *gin.Context) {
 
+	userID := utils.GetUserIdFromContext(ctx)
 	var body req.ReqEditAddress
 
 	if err := ctx.ShouldBindJSON(&body); err != nil {
@@ -578,7 +584,11 @@ func (u *UserHandler) EditAddress(ctx *gin.Context) {
 		return
 	}
 
-	userID := utils.GetUserIdFromContext(ctx)
+	// address is_default reference pointer need to change in future
+	if body.IsDefault == nil {
+		body.IsDefault = new(bool)
+	}
+
 	err := u.userUseCase.EditAddress(ctx, body, userID)
 	if err != nil {
 		response := res.ErrorResponse(400, "faild to update user address", err.Error(), nil)
