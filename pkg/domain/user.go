@@ -72,23 +72,29 @@ type CartItem struct {
 	Qty           uint        `json:"qty" gorm:"not null"`
 }
 
-// // wallet
-// type TransactionType struct {
-// 	ID   uint   `json:"id" gorm:"primaryKey;not null"`
-// 	Type string `json:"transaction_type" gorm:"not nul"`
-// }
-// type Transaction struct {
-// 	ID                uint `json:"id" gorm:"primaryKey;not null"`
-// 	WalletID          uint `json:"wallet_id" gorm:"not null"`
-// 	Wallet            Wallet
-// 	TransactionDate   time.Time `json:"transaction_time" gorm:"not null"`
-// 	Amount            uint      `josn:"amount" gorm:"not null"`
-// 	TransactionTypeID uint      `json:"transaction_type_id" gorm:"not null"`
-// 	TransactionType   TransactionType
-// }
+// wallet start
+// for ENUM Data type
 
-// type Wallet struct {
-// 	ID          uint `json:"id" gorm:"primaryKey;not null"`
-// 	UserID      uint `json:"user_id" gorm:"not null"`
-// 	TotalAmount uint `json:"total_amout" gorm:"not null"`
-// }
+type Wallet struct {
+	WalletID    uint `json:"wallet_id" gorm:"primaryKey;not null"`
+	UserID      uint `json:"user_id" gorm:"not null"`
+	TotalAmount uint `json:"total_amount" gorm:"not null"`
+}
+
+type TransactionType string
+
+const (
+	Debit  TransactionType = "debit"
+	Credit TransactionType = "credit"
+)
+
+type Transaction struct {
+	TransactionID   uint            `json:"transction_id" gorm:"primaryKey;not null"`
+	WalletID        uint            `json:"wallet_id" gorm:"not null"`
+	Wallet          Wallet          `json:"-"`
+	TransactionDate time.Time       `json:"transaction_time" gorm:"not null"`
+	Amount          uint            `josn:"amount" gorm:"not null"`
+	TransactionType TransactionType `json:"transaction_type" gorm:"not null"`
+}
+
+// wallet end

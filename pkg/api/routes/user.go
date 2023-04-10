@@ -82,6 +82,10 @@ func UserRoutes(api *gin.RouterGroup, userHandler *handler.UserHandler, ProductH
 			account.POST("/address", userHandler.AddAddress)  // to add a new address
 			account.PUT("/address", userHandler.EditAddress)  // to edit address
 			account.DELETE("/address", userHandler.DeleteAddress)
+
+			// wallet for user
+			account.GET("/wallet", orderHandler.GetUserWallet)
+			account.GET("/wallet/transactions", orderHandler.GetUserWalletTransactions)
 		}
 
 		// order

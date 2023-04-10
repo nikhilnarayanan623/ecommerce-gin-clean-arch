@@ -41,4 +41,9 @@ type OrderUseCase interface {
 	GetAllPendingOrderReturns(ctx context.Context, pagination req.ReqPagination) (orderReturns []res.ResOrderReturn, err error)
 	GetAllOrderReturns(ctx context.Context, pagination req.ReqPagination) (orderReturns []res.ResOrderReturn, err error)
 	UpdateReturnRequest(ctx context.Context, body req.ReqUpdatReturnOrder) error
+
+	// wallet
+	GetUserWallet(ctx context.Context, userID uint) (wallet domain.Wallet, err error)
+
+	GetUserWalletTransactions(ctx context.Context, userID uint, pagination req.ReqPagination) (transactions []domain.Transaction, err error)
 }

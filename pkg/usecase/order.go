@@ -248,7 +248,38 @@ func (c *OrderUseCase) UpdateReturnRequest(ctx context.Context, body req.ReqUpda
 		return err
 	}
 
-	return c.orderRepo.UpdateOrderReturn(ctx, body)
+	// update the order return
+	err = c.orderRepo.UpdateOrderReturn(ctx, body)
+	if err != nil {
+		return err
+	}
+
+	// check if return request is changed to returned then update wallet of user
+	if changeOrderStatus.Status == "order returned" {
+
+		// get the wallet of user
+		wallet, err := c.orderRepo.FindWalletByUserID(ctx, shopOrder.UserID)
+		if err != nil {
+			return err
+		} else if wallet.WalletID == 0 { // if user have no wallet then create a wallet
+			wallet.WalletID, err = c.orderRepo.SaveWallet(ctx, shopOrder.UserID)
+			if err != nil {
+				return err
+			}
+		}
+		// create debit payment type
+		creditPaymentType := domain.Credit
+
+		// update wallet
+		err = c.orderRepo.UpdateWallet(ctx, wallet.WalletID, shopOrder.OrderTotalPrice, creditPaymentType)
+		if err != nil {
+			return err
+		}
+	}
+
+	log.Printf("successfully updated order return request for shop_order_id %v", shopOrder.ID)
+
+	return nil
 }
 
 // ! place order
