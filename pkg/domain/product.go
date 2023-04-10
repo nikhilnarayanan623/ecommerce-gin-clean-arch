@@ -24,6 +24,7 @@ type ProductItem struct {
 	//images are stored in sperate table along with productItem Id
 	QtyInStock    uint      `json:"qty_in_stock" gorm:"not null" binding:"required,numeric"` // no need of stockAvailble column , because from this qty we can get it
 	Price         uint      `json:"price" gorm:"not null" binding:"required,numeric"`
+	SKU           string    `json:"sku" gorm:"unique;not null"`
 	DiscountPrice uint      `json:"discount_price"`
 	CreatedAt     time.Time `json:"created_at" gorm:"not null"`
 	UpdatedAt     time.Time `json:"updated_at"`

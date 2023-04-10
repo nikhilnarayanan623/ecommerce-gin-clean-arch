@@ -135,7 +135,7 @@ func (c *OrderUseCase) CancellOrder(ctx context.Context, shopOrderID uint) error
 	// new only order placed
 	//orderStatus.Status != "pending" && orderStatus.Status != "approved" &&
 	if orderStatus.Status != "order placed" {
-		return fmt.Errorf("order is %s \ncan't cancell the order", orderStatus.Status)
+		return fmt.Errorf("order is ' %s ' \ncan't cancell the order", orderStatus.Status)
 	}
 
 	// if its not then find the cacell orderStatusID
@@ -184,7 +184,7 @@ func (c *OrderUseCase) SubmitReturnRequest(ctx context.Context, body req.ReqRetu
 
 	// check if the order staus not order placed
 	if orderStatus.Status != "order delivered" {
-		return fmt.Errorf("order is '%s'\ncan't a make return request for this order", orderStatus.Status)
+		return fmt.Errorf("order is ' %s '\ncan't a make return request for this order", orderStatus.Status)
 	}
 
 	// then create a new returnOrder for saving
@@ -231,7 +231,7 @@ func (c *OrderUseCase) UpdateReturnRequest(ctx context.Context, body req.ReqUpda
 	}
 
 	// define an error for invalid status change
-	err = fmt.Errorf("order return status %s can't change to %s ", orderStatus.Status, changeOrderStatus.Status)
+	err = fmt.Errorf("order return status ' %s ' can't change to ' %s ' ", orderStatus.Status, changeOrderStatus.Status)
 
 	switch orderStatus.Status {
 	case "return requested": // if order status is requsted it can only change into given two or its an error

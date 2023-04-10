@@ -2,7 +2,7 @@ package req
 
 // for a new product
 type ReqProduct struct {
-	ID          uint   `json:"id"`
+	ID          uint   `json:"id" binding:"required"`
 	ProductName string `json:"product_name" gorm:"not null" binding:"required,min=3,max=50"`
 	Description string `json:"description" gorm:"not null" binding:"required,min=10,max=100"`
 	CategoryID  uint   `json:"category_id" binding:"required"`

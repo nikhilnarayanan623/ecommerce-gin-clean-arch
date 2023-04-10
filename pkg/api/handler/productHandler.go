@@ -264,12 +264,12 @@ func (c *ProductHandler) UpdateProduct(ctx *gin.Context) {
 
 	err := c.productUseCase.UpdateProduct(ctx, product)
 	if err != nil {
-		response := res.ErrorResponse(400, "faild to update product", err.Error(), product)
+		response := res.ErrorResponse(400, "faild to update product", err.Error(), body)
 		ctx.JSON(400, response)
 		return
 	}
 
-	response := res.SuccessResponse(200, "successfully product updated", product)
+	response := res.SuccessResponse(200, "successfully product updated", body)
 	ctx.JSON(200, response)
 
 	ctx.Abort()
