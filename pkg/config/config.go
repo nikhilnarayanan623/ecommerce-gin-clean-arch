@@ -7,17 +7,20 @@ import (
 
 // to store env variables
 type Config struct {
-	DBHost         string `mapstructure:"DB_HOST"`
-	DBName         string `mapstructure:"DB_NAME"`
-	DBUser         string `mapstructure:"DB_USER"`
-	DBPassword     string `mapstructure:"DB_PASSWORD"`
-	DBPort         string `mapstructure:"DB_PORT"`
-	JWT            string `mapstructure:"JWT_CODE"`
-	AUTHTOKEN      string `mapstructure:"AUTH_TOKEN"`
-	ACCOUNTSID     string `mapstructure:"ACCOUNT_SID"`
-	SERVICESID     string `mapstructure:"SERVICE_SID"`
-	RazorPayKey    string `mapstructure:"RAZOR_PAY_KEY"`
-	RazorPaySecret string `mapstructure:"RAZOR_PAY_SECRET"`
+	DBHost              string `mapstructure:"DB_HOST"`
+	DBName              string `mapstructure:"DB_NAME"`
+	DBUser              string `mapstructure:"DB_USER"`
+	DBPassword          string `mapstructure:"DB_PASSWORD"`
+	DBPort              string `mapstructure:"DB_PORT"`
+	JWT                 string `mapstructure:"JWT_CODE"`
+	AUTHTOKEN           string `mapstructure:"AUTH_TOKEN"`
+	ACCOUNTSID          string `mapstructure:"ACCOUNT_SID"`
+	SERVICESID          string `mapstructure:"SERVICE_SID"`
+	RazorPayKey         string `mapstructure:"RAZOR_PAY_KEY"`
+	RazorPaySecret      string `mapstructure:"RAZOR_PAY_SECRET"`
+	StripSecretKey      string `mapstructure:"STRIPE_SECRET"`
+	StripPublishKey     string `mapstructure:"STRIPE_PUBLISH_KEY"`
+	StripeWebhookSecret string `mapstructure:"STRIPE_WEBHOOK"`
 }
 
 // to hold all names of env variables
@@ -26,6 +29,7 @@ var envsNames = []string{
 	"JWT_CODE",                                 // jwt
 	"AUTH_TOKEN", "ACCOUNT_SID", "SERVICE_SID", // twillio
 	"RAZOR_PAY_KEY", "RAZOR_PAY_SECRET", // razor pay
+	"STRIPE_SECRET", "STRIPE_PUBLISH_KEY", "STRIPE_WEBHOOK", // stripe
 }
 
 var config Config // create an instance of Config

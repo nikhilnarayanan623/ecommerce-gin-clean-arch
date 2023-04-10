@@ -17,6 +17,9 @@ type OrderUseCase interface {
 	// razorpay
 	GetRazorpayOrder(ctx context.Context, userID uint, userOrder res.ResUserOrder) (razorpayOrder res.ResRazorpayOrder, err error)
 
+	// stipe
+	GetStripeOrder(ctx context.Context, userID uint, userOrder res.ResUserOrder) (stipeOrder res.StripeOrder, err error)
+
 	// order placement
 	GetOrderDetails(ctx context.Context, userID uint, body req.ReqPlaceOrder) (userOrder res.ResUserOrder, err error)
 	SaveOrder(ctx context.Context, shopOrder domain.ShopOrder) (shopOrderID uint, err error)
@@ -38,4 +41,9 @@ type OrderUseCase interface {
 	GetAllPendingOrderReturns(ctx context.Context, pagination req.ReqPagination) (orderReturns []res.ResOrderReturn, err error)
 	GetAllOrderReturns(ctx context.Context, pagination req.ReqPagination) (orderReturns []res.ResOrderReturn, err error)
 	UpdateReturnRequest(ctx context.Context, body req.ReqUpdatReturnOrder) error
+
+	// wallet
+	GetUserWallet(ctx context.Context, userID uint) (wallet domain.Wallet, err error)
+
+	GetUserWalletTransactions(ctx context.Context, userID uint, pagination req.ReqPagination) (transactions []domain.Transaction, err error)
 }

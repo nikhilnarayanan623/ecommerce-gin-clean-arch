@@ -248,7 +248,38 @@ func (c *OrderUseCase) UpdateReturnRequest(ctx context.Context, body req.ReqUpda
 		return err
 	}
 
-	return c.orderRepo.UpdateOrderReturn(ctx, body)
+	// update the order return
+	err = c.orderRepo.UpdateOrderReturn(ctx, body)
+	if err != nil {
+		return err
+	}
+
+	// check if return request is changed to returned then update wallet of user
+	if changeOrderStatus.Status == "order returned" {
+
+		// get the wallet of user
+		wallet, err := c.orderRepo.FindWalletByUserID(ctx, shopOrder.UserID)
+		if err != nil {
+			return err
+		} else if wallet.WalletID == 0 { // if user have no wallet then create a wallet
+			wallet.WalletID, err = c.orderRepo.SaveWallet(ctx, shopOrder.UserID)
+			if err != nil {
+				return err
+			}
+		}
+		// create debit payment type
+		creditPaymentType := domain.Credit
+
+		// update wallet
+		err = c.orderRepo.UpdateWallet(ctx, wallet.WalletID, shopOrder.OrderTotalPrice, creditPaymentType)
+		if err != nil {
+			return err
+		}
+	}
+
+	log.Printf("successfully updated order return request for shop_order_id %v", shopOrder.ID)
+
+	return nil
 }
 
 // ! place order
@@ -288,6 +319,31 @@ func (c *OrderUseCase) GetOrderDetails(ctx context.Context, userID uint, body re
 
 	log.Printf("successfully order created for user with user_id %v", userID)
 	return userOrder, nil
+}
+
+func (c *OrderUseCase) GetStripeOrder(ctx context.Context, userID uint, userOrder res.ResUserOrder) (stipeOrder res.StripeOrder, err error) {
+	// get user email and phone of user
+	emailAnPhone, err := c.orderRepo.GetUserEmailAndPhone(ctx, userID)
+	if err != nil {
+		return stipeOrder, err
+	}
+
+	// create a clent secret for stipe
+
+	clientSecret, err := utils.GenerateStipeClientSecret(userOrder.AmountToPay, emailAnPhone.Email)
+
+	if err != nil {
+		return stipeOrder, err
+	}
+
+	// setup the userOrder
+	stipeOrder.Stripe = true
+	stipeOrder.AmountToPay = userOrder.AmountToPay
+	stipeOrder.ClientSecret = clientSecret
+	stipeOrder.CouponID = userOrder.CouponID
+	stipeOrder.PublishableKey = config.GetCofig().StripPublishKey
+
+	return stipeOrder, nil
 }
 
 // generate razorpay order

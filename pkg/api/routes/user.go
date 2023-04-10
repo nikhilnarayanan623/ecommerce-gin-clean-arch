@@ -58,6 +58,10 @@ func UserRoutes(api *gin.RouterGroup, userHandler *handler.UserHandler, ProductH
 			// make razorpay order and verify
 			cart.POST("/place-order/razorpay-checkout", orderHandler.RazorpayCheckout)
 			cart.POST("/place-order/razorpay-verify", orderHandler.RazorpayVerify)
+
+			// stripe
+			cart.POST("/place-order/stripe-checkout", orderHandler.StripPaymentCheckout)
+			cart.POST("/place-order/stripe/stripe-verify", orderHandler.StripePaymentVeify)
 		}
 
 		//wishlist
@@ -78,6 +82,10 @@ func UserRoutes(api *gin.RouterGroup, userHandler *handler.UserHandler, ProductH
 			account.POST("/address", userHandler.AddAddress)  // to add a new address
 			account.PUT("/address", userHandler.EditAddress)  // to edit address
 			account.DELETE("/address", userHandler.DeleteAddress)
+
+			// wallet for user
+			account.GET("/wallet", orderHandler.GetUserWallet)
+			account.GET("/wallet/transactions", orderHandler.GetUserWalletTransactions)
 		}
 
 		// order

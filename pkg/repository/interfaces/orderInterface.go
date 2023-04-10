@@ -49,4 +49,11 @@ type OrderRepository interface {
 	// payments
 	FindPaymentMethodByID(ctx context.Context, paymenMethodtID uint) (domain.PaymentMethod, error)
 	FindAllPaymentMethods(ctx context.Context) ([]domain.PaymentMethod, error)
+
+	// wallet
+	FindWalletByUserID(ctx context.Context, userID uint) (wallet domain.Wallet, err error)
+	SaveWallet(ctx context.Context, userID uint) (walletID uint, err error)
+	UpdateWallet(ctx context.Context, walletID, amount uint, transactionType domain.TransactionType) error
+
+	FindWalletTransactions(ctx context.Context, walletID uint, pagination req.ReqPagination) (transaction []domain.Transaction, err error)
 }

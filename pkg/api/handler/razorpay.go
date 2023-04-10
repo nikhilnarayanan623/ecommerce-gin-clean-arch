@@ -144,7 +144,7 @@ func (c *OrderHandler) RazorpayVerify(ctx *gin.Context) {
 
 	err := errors.Join(err1, err2)
 	if err != nil {
-		response := res.ErrorResponse(400, "can't make order", "shop_order id is not valid", nil)
+		response := res.ErrorResponse(400, "can't make order", "shop_order id is or coupon id is not int valid type", nil)
 		ctx.JSON(400, response)
 		return
 	}
