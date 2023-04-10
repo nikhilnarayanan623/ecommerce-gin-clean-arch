@@ -290,6 +290,31 @@ func (c *OrderUseCase) GetOrderDetails(ctx context.Context, userID uint, body re
 	return userOrder, nil
 }
 
+func (c *OrderUseCase) GetStripeOrder(ctx context.Context, userID uint, userOrder res.ResUserOrder) (stipeOrder res.StripeOrder, err error) {
+	// get user email and phone of user
+	emailAnPhone, err := c.orderRepo.GetUserEmailAndPhone(ctx, userID)
+	if err != nil {
+		return stipeOrder, err
+	}
+
+	// create a clent secret for stipe
+
+	clientSecret, err := utils.GenerateStipeClientSecret(userOrder.AmountToPay, emailAnPhone.Email)
+
+	if err != nil {
+		return stipeOrder, err
+	}
+
+	// setup the userOrder
+	stipeOrder.Stripe = true
+	stipeOrder.AmountToPay = userOrder.AmountToPay
+	stipeOrder.ClientSecret = clientSecret
+	stipeOrder.CouponID = userOrder.CouponID
+	stipeOrder.PublishableKey = config.GetCofig().StripPublishKey
+
+	return stipeOrder, nil
+}
+
 // generate razorpay order
 func (c *OrderUseCase) GetRazorpayOrder(ctx context.Context, userID uint, userOrder res.ResUserOrder) (razorpayOrder res.ResRazorpayOrder, err error) {
 

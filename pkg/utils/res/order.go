@@ -85,3 +85,12 @@ type ResRazorpayOrder struct {
 	ShopOrderID     uint        `json:"shop_order_id"`
 	CouponID        uint        `json:"coupon_id"`
 }
+
+type StripeOrder struct {
+	Stripe         bool
+	ClientSecret   string `json:"client_secret"`
+	PublishableKey string `json:"publishable_key"`
+	AmountToPay    uint   `json:"amount_to_pay"`
+	ShopOrderID    uint   `json:"shop_order_id"`
+	CouponID       uint   `json:"coupon_id"`
+}

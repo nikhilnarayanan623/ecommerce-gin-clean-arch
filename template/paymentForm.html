@@ -10,9 +10,9 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11.1.4/dist/sweetalert2.min.css">
 </head>
 <body>
-	<div class="container">
+	<div class="container" id="first-form">
 		<div class="row">
-			<div class="col-md-6 col-md-offset-3 text-center">
+			<div class="col-md-6 col-md-offset-3 text-center" >
 				        <h2 class="text-center">Payment Checkout Form</h2>
                 <form id="place-order">
                   <div class="form-group">
@@ -20,7 +20,7 @@
                     <select class="form-control" id="payment_select">
                       <!-- <option value="cod"><strong>COD  </strong> <p>(localhost:8000/carts/place-order/cod)</p></option> -->
                       <option value="razorpay">RazorPay <p>(localhost:8000/carts/place-order/razorpay-checkout)</p></option>
-                      <!-- <option value="PayPal">PayPal</option> -->
+                      <option value="Stripe">Stripe</option>
                     </select>
                   </div>
                     <div class="form-group">
@@ -41,23 +41,37 @@
 			</div>
 		</div>
 	</div>
+
+  <div class="container" id="second-form" style="display: none;">
+    <div class="first">
+      <h1>Payment</h1>
+  
+      <form action="" id="stripe-form">
+        <div id="payment-element"></div>
+        <div id="error-message"></div>
+        <button>Pay</button>
+      </form>
+    </div>
+  </div>
 </body>
 </html>
-
+<script src="https://js.stripe.com/v3/"></script>
 <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 <script>
   $('#place-order').submit((e)=>{
     e.preventDefault()
     const paymentMethod = document.getElementById('payment_select').value
-    console.log(paymentMethod,"herere")
+    console.log(paymentMethod,"payment method")
     let paymentApi = ''
 
     if(paymentMethod == 'cod'){
       paymentApi='/carts/place-order/cod'
     } else if (paymentMethod == 'razorpay'){
       paymentApi='/carts/place-order/razorpay-checkout'
-    }else {
-      console.log("hiisgfadsfasdfasdf");
+    } else if (paymentMethod == "Stripe") {
+      paymentApi='/carts/place-order/stripe-checkout'
+    }else{
+      console.log("invalid payment call");
      FailureRes("invalid payment type","select a payment type")
     }
 
@@ -67,7 +81,7 @@
       type:'post',
       data:$('#place-order').serialize(),
       success:(response)=>{
-        console.log(response, "respone");
+
         // if respones is cod it means call form cod
         if(response.Cod){
           console.log("cod success");
@@ -75,9 +89,11 @@
           // location.href = ''
         } else if (response.Razorpay){// response from razor pay
           console.log("razorpay");
-          console.log(response);
           getRazorpay(response.Order)
           
+        }else if (response.Stripe){
+          console.log("Stripe Call");
+          getStipe(response)
         }
         console.log(response)
       },
@@ -90,6 +106,98 @@
     })
   })
 
+  // stripe
+  const getStipe = (response) =>{
+
+    // set up the stipe
+    console.log(response);
+
+    const publishableKey = response.publishable_key
+    const stripe = Stripe(publishableKey);
+    const clientSecret = response.client_secret
+
+    // set up the page
+    const elements = stripe.elements({clientSecret})
+    const paymentElement = elements.create('payment')
+
+    // swal 
+    Swal.fire({
+  title: "Razorpay Payment",
+  html:
+    '<div style="font-size: 30px;"><strong>Amount to pay:</strong> ' + response.amount_to_pay + '</div>' +
+    '<div style="margin-top: 10px;">Please confirm your payment by clicking on the "Confirm" button below:</div>',
+  icon: "success",
+  showCancelButton: true,
+  confirmButtonText: "Confirm",
+  cancelButtonText: "Cancel",
+  dangerMode: true,
+  customClass: {
+    container: 'my-swal'
+  }
+})
+.then((willConfirm) => {
+  if (willConfirm.isConfirmed) {
+    // show the second form and hide first form
+    document.getElementById('second-form').style.display = 'block'
+    document.getElementById('first-form').style.display = 'none'
+    // Open the strip form if the user click ok
+    paymentElement.mount('#payment-element')
+  } else {
+    // Payment cancelled
+    Swal.fire({
+      title: "Payment Cancelled",
+      icon: "error",
+      text: "Your payment has been cancelled. Please try again later.",
+    });
+  }
+});
+    // swal end
+  
+
+    // form actions
+    const form = document.getElementById('stripe-form')
+
+    form.addEventListener('submit',async (e) => {
+      e.preventDefault();
+
+      // confirm the payment by stipe
+      const {error,paymentIntent} = await stripe.confirmPayment({
+        elements,
+        redirect: 'if_required'
+      })
+      if (error){
+        const message = document.getElementById('error-message')
+        message.innerHTML = error.message;
+      }else{ // if no error then call the backend for verify
+        console.log(paymentIntent);
+
+        $.ajax({ // for backend call
+          url:'/carts/place-order/stripe/stripe-verify',
+          type:'post',
+          data:{
+            "payment_intent":paymentIntent,
+            "shop_order_id":response.shop_order_id,
+              "coupon_id" : response.coupon_id,
+              "client_secret":paymentIntent.client_secret
+          },
+
+          success:(response) => {
+            SuccessRes("Stripe")
+          },
+          error:(err)=>{
+            console.log(err)
+            FailureRes("",err.responseJSON.errors)
+            console.log("error",err);
+          }
+        })
+
+
+
+      }
+    })
+  }
+
+  // razorpay
 const getRazorpay = (order) =>{
     console.log("at get razor pay");
     var userid= order.user_id
@@ -170,7 +278,6 @@ function verifyPayment(order, userid , response) {
               "razorpay_payment_id" : response.razorpay_payment_id,
               "razorpay_order_id":response.razorpay_order_id,
               "razorpay_signature":response.razorpay_signature,
-              "user_id":userid,
               "shop_order_id":order.shop_order_id,
               "coupon_id" : order.coupon_id,
 

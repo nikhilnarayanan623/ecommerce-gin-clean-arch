@@ -15,6 +15,8 @@ import (
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/config"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/domain"
 	"github.com/razorpay/razorpay-go"
+	"github.com/stripe/stripe-go/v72"
+	"github.com/stripe/stripe-go/v72/paymentintent"
 )
 
 // take userId from context
@@ -147,4 +149,32 @@ func StringToTime(timeString string) (timeValue time.Time, err error) {
 		return timeValue, fmt.Errorf("faild to parse given time %v to time variable \nivalid input", timeString)
 	}
 	return timeValue, err
+}
+
+func GenerateStipeClientSecret(amountToPay uint, recieptEmail string) (clientSecret string, err error) {
+	// set up the stip secret key
+	stripe.Key = config.GetCofig().StripSecretKey
+
+	// create a payment param
+	params := &stripe.PaymentIntentParams{
+
+		Amount:       stripe.Int64(int64(amountToPay)),
+		ReceiptEmail: stripe.String(recieptEmail),
+
+		Currency: stripe.String(string(stripe.CurrencyINR)),
+		AutomaticPaymentMethods: &stripe.PaymentIntentAutomaticPaymentMethodsParams{
+			Enabled: stripe.Bool(true),
+		},
+	}
+
+	// creata new payment intent with this param
+	paymentIntent, err := paymentintent.New(params)
+
+	if err != nil {
+		fmt.Println(err)
+		return "", fmt.Errorf("faild to create strip payment for amount %v", amountToPay)
+	}
+
+	clientSecret = paymentIntent.ClientSecret
+	return clientSecret, nil
 }
