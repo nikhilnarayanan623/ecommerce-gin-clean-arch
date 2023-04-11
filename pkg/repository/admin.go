@@ -91,3 +91,51 @@ func (c *adminDatabase) CreateFullSalesReport(ctc context.Context, reqData req.R
 
 	return salesReport, nil
 }
+
+// stock side
+func (c *adminDatabase) FindStockBySKU(ctx context.Context, sku string) (stock res.RespStock, err error) {
+	query := `SELECT pi.sku, pi.qty_in_stock, pi.price, p.product_name, vo.variation_value 
+	FROM product_items pi INNER JOIN products p ON p.id = pi.product_id 
+	INNER JOIN product_configurations pc ON pc.product_item_id = pi.id 
+	INNER JOIN variation_options vo ON vo.id = pc.variation_option_id
+	WHERE pi.sku = $1`
+
+	err = c.DB.Raw(query, sku).Scan(&stock).Error
+	if err != nil {
+		return stock, fmt.Errorf("faild to find stock detils of sku %v", sku)
+	}
+
+	return stock, nil
+}
+
+func (c *adminDatabase) FindAllStockDetails(ctx context.Context, pagination req.ReqPagination) (stocks []res.RespStock, err error) {
+
+	limit := pagination.Count
+	offset := (pagination.PageNumber - 1) * limit
+
+	query := `SELECT pi.sku, pi.qty_in_stock, pi.price, p.product_name, vo.variation_value 
+	FROM product_items pi INNER JOIN products p ON p.id = pi.product_id 
+	INNER JOIN product_configurations pc ON pc.product_item_id = pi.id 
+	INNER JOIN variation_options vo ON vo.id = pc.variation_option_id 
+	ORDER BY qty_in_stock LIMIT $1 OFFSET $2`
+
+	err = c.DB.Raw(query, limit, offset).Scan(&stocks).Error
+
+	if err != nil {
+		return stocks, fmt.Errorf("faild to find all stocks details from database")
+	}
+
+	return stocks, nil
+}
+
+func (c *adminDatabase) UpdateStock(ctx context.Context, valuesToUpdate req.ReqUpdateStock) error {
+
+	query := `UPDATE product_items SET qty_in_stock = qty_in_stock + $1 WHERE sku = $2`
+
+	err := c.DB.Exec(query, valuesToUpdate.QtyToAdd, valuesToUpdate.SKU).Error
+
+	if err != nil {
+		return fmt.Errorf("faild to update qty for product_item with sku %v", valuesToUpdate.SKU)
+	}
+	return nil
+}

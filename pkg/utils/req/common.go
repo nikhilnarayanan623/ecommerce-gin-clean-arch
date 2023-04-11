@@ -34,3 +34,9 @@ type ReqSalesReport struct {
 	EndDate    time.Time     `json:"end_date"`
 	Pagination ReqPagination `json:"pagination"`
 }
+
+// stock
+type ReqUpdateStock struct {
+	SKU      string `json:"sku"`
+	QtyToAdd uint   `json:"qty_to_add"`
+}

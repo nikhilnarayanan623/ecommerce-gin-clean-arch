@@ -16,4 +16,9 @@ type AdminRepository interface {
 	BlockUser(ctx context.Context, userID uint) error
 
 	CreateFullSalesReport(ctc context.Context, reqData req.ReqSalesReport) (salesReport []res.SalesReport, err error)
+
+	//stock side
+	FindStockBySKU(ctx context.Context, sku string) (stock res.RespStock, err error)
+	FindAllStockDetails(ctx context.Context, pagination req.ReqPagination) (stocks []res.RespStock, err error)
+	UpdateStock(ctx context.Context, valuesToUpdate req.ReqUpdateStock) error
 }

@@ -3,6 +3,7 @@ package usecase
 import (
 	"context"
 	"errors"
+	"fmt"
 	"log"
 
 	"github.com/jinzhu/copier"
@@ -93,4 +94,36 @@ func (c *adminUseCase) GetFullSalesReport(ctx context.Context, requestData req.R
 		requestData.StartDate, requestData.EndDate, requestData.Pagination.Count)
 
 	return salesReport, nil
+}
+
+func (c *adminUseCase) GetAllStockDetails(ctx context.Context, pagination req.ReqPagination) (stocks []res.RespStock, err error) {
+	stocks, err = c.adminRepo.FindAllStockDetails(ctx, pagination)
+
+	if err != nil {
+		return stocks, err
+	}
+
+	log.Printf("successfully got stock details")
+	return stocks, nil
+}
+
+func (c *adminUseCase) UpdateStock(ctx context.Context, valuesToUpdate req.ReqUpdateStock) error {
+
+	// validate the sku
+	stock, err := c.adminRepo.FindStockBySKU(ctx, valuesToUpdate.SKU)
+	if err != nil {
+		return err
+	} else if stock.ProductName == "" {
+		return fmt.Errorf("invalid sku %v", valuesToUpdate.SKU)
+	}
+
+	// update the stock detils
+	err = c.adminRepo.UpdateStock(ctx, valuesToUpdate)
+
+	if err != nil {
+		return err
+	}
+
+	log.Printf("successfully updated of stock details of stock with sku %v", valuesToUpdate.SKU)
+	return nil
 }

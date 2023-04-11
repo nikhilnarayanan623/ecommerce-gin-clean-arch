@@ -21,7 +21,7 @@ func NewServerHTTP(adminHandler *handler.AdminHandler, userHandler *handler.User
 
 	engine := gin.New()
 
-	engine.LoadHTMLGlob("template/*.html")
+	engine.LoadHTMLGlob("views/*.html")
 
 	engine.Use(gin.Logger())
 

@@ -282,3 +282,59 @@ func (c *AdminHandler) FullSalesReport(ctx *gin.Context) {
 	csvWriter.Flush()
 
 }
+
+func (c *AdminHandler) GetAllStockDetails(ctx *gin.Context) {
+	count, err1 := utils.StringToUint(ctx.Query("count"))
+	pageNumber, err2 := utils.StringToUint(ctx.Query("page_number"))
+
+	err1 = errors.Join(err1, err2)
+	if err1 != nil {
+		response := res.ErrorResponse(400, "invalid inputs", err1.Error(), nil)
+		ctx.JSON(http.StatusBadRequest, response)
+		return
+	}
+	pagination := req.ReqPagination{
+		PageNumber: pageNumber,
+		Count:      count,
+	}
+
+	stocks, err := c.adminUseCase.GetAllStockDetails(ctx, pagination)
+
+	if err != nil {
+		response := res.ErrorResponse(500, "faild to get stock details", err.Error(), nil)
+		ctx.JSON(http.StatusInternalServerError, response)
+		return
+	}
+
+	if stocks == nil {
+		response := res.SuccessResponse(200, "there is no stock details to show on this page", nil)
+		ctx.JSON(http.StatusOK, response)
+		return
+	}
+
+	response := res.SuccessResponse(200, "successfully got sock details", stocks)
+	ctx.JSON(http.StatusOK, response)
+}
+
+func (c *AdminHandler) UpdateStock(ctx *gin.Context) {
+
+	var body req.ReqUpdateStock
+
+	err := ctx.ShouldBindJSON(&body)
+	if err != nil {
+		response := res.ErrorResponse(400, "invalid inputs", err.Error(), body)
+		ctx.JSON(http.StatusBadRequest, response)
+		return
+	}
+
+	err = c.adminUseCase.UpdateStock(ctx, body)
+
+	if err != nil {
+		response := res.ErrorResponse(400, "faild to udate stock details", err.Error(), nil)
+		ctx.JSON(http.StatusBadRequest, response)
+		return
+	}
+
+	response := res.SuccessResponse(200, "successfully updated sock details", nil)
+	ctx.JSON(http.StatusOK, response)
+}

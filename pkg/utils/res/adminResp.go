@@ -32,3 +32,11 @@ type SalesReport struct {
 	OrderStatus     string    `json:"order_status"`
 	PaymentType     string    `json:"payment_type"`
 }
+
+type RespStock struct {
+	ProductName    string `json:"product_name"`
+	Price          uint   `json:"price"`
+	SKU            string `json:"sku"`
+	QtyInStock     uint   `json:"qty_in_stock"`
+	VariationValue string `json:"variation_value"`
+}

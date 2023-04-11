@@ -97,6 +97,13 @@ func AdminRoutes(api *gin.RouterGroup, adminHandler *handler.AdminHandler,
 			coupons.PUT("/", couponHandler.UpdateCoupon)
 		}
 
+		stok := api.Group("/stocks")
+		{
+			stok.GET("/", adminHandler.GetAllStockDetails)
+
+			stok.PUT("/", adminHandler.UpdateStock)
+		}
+
 	}
 
 }
