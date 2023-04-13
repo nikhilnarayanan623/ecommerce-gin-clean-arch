@@ -7,7 +7,7 @@ GOCMD=go
  ## variable  `build`
 BUILD_DIR=build
 # variable as build/bin
-BINARY_DIR=$(BUILD_DIR)/bin  
+BINARY_DIR=$(BUILD_DIR)/bin
 # variable code-coverage
 CODE_COVERAGE=code-coverage 
 
@@ -19,8 +19,9 @@ ${BINARY_DIR}:
 
  ## first call the binary_dir ## next build go file from ./cmd/api all files to binary_dir
 build : ${BINARY_DIR} 
-	$(GOCMD) build -o ${BINARY_DIR} -v ./cmd/api 
-
+#$(GOCMD) build -o ${BINARY_DIR}/api -v ./cmd/api/main.go
+#env GOOS=linux GOARCH=arm64 $(GOCMD) build -v -o $(BINARY_DIR)/api-linux-arm64 ./cmd/api # Build executable for Linux ( arm64)
+	GOARCH=amd64 $(GOCMD) build -v -o $(BINARY_DIR)/api-linux-amd64 ./cmd/api
  # to start the application
 run:
 	@echo "Welcome To My Ecommerce Project"
