@@ -7,5 +7,5 @@ build/
 
 # remove build file and air auto reloading
 ./cmd/api/tmp
-#.air.toml
+.air.toml
 ./tmp
