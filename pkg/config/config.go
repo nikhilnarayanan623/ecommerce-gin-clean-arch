@@ -21,6 +21,8 @@ type Config struct {
 	StripSecretKey      string `mapstructure:"STRIPE_SECRET"`
 	StripPublishKey     string `mapstructure:"STRIPE_PUBLISH_KEY"`
 	StripeWebhookSecret string `mapstructure:"STRIPE_WEBHOOK"`
+	GoathClientID       string `mapstructure:"GOAUTH_CLIENT_ID"`
+	GoauthClientSecret  string `mapstructure:"GOAUTH_CLENT_SECRET"`
 }
 
 // to hold all names of env variables
@@ -30,6 +32,8 @@ var envsNames = []string{
 	"AUTH_TOKEN", "ACCOUNT_SID", "SERVICE_SID", // twillio
 	"RAZOR_PAY_KEY", "RAZOR_PAY_SECRET", // razor pay
 	"STRIPE_SECRET", "STRIPE_PUBLISH_KEY", "STRIPE_WEBHOOK", // stripe
+
+	"GOAUTH_CLIENT_ID", "GOAUTH_CLENT_SECRET",
 }
 
 var config Config // create an instance of Config

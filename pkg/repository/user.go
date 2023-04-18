@@ -39,20 +39,20 @@ func (c *userDatabse) CheckOtherUserWithDetails(ctx context.Context, user domain
 	return checkUser, nil
 }
 
-func (c *userDatabse) SaveUser(ctx context.Context, user domain.User) error {
+func (c *userDatabse) SaveUser(ctx context.Context, user domain.User) (userID uint, err error) {
 
 	//save the user details
 	query := `INSERT INTO users (user_name, first_name, last_name, age, email, phone, password,created_at) 
-	VALUES ($1, $2, $3, $4, $5, $6, $7, $8) `
+	VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING id`
 
 	createdAt := time.Now()
-	err := c.DB.Exec(query, user.UserName, user.FirstName, user.LastName,
-		user.Age, user.Email, user.Phone, user.Password, createdAt).Error
+	err = c.DB.Raw(query, user.UserName, user.FirstName, user.LastName,
+		user.Age, user.Email, user.Phone, user.Password, createdAt).Scan(&user).Error
 
 	if err != nil {
-		return fmt.Errorf("faild to save user %s", user.UserName)
+		return 0, fmt.Errorf("faild to save user %s", user.UserName)
 	}
-	return nil
+	return userID, nil
 }
 
 func (c *userDatabse) UpdateUser(ctx context.Context, user domain.User) (err error) {

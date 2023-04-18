@@ -9,3 +9,5 @@ build/bin/*
 ./cmd/api/tmp
 .air.toml
 ./tmp
+
+./cmd/api/docs
