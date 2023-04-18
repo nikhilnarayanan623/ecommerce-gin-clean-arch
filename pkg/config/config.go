@@ -38,7 +38,7 @@ var envsNames = []string{
 	"RAZOR_PAY_KEY", "RAZOR_PAY_SECRET", // razor pay
 	"STRIPE_SECRET", "STRIPE_PUBLISH_KEY", "STRIPE_WEBHOOK", // stripe
 
-	"GOAUTH_CLIENT_ID", "GOAUTH_CLENT_SECRET", "GOAUTH_CALL_BACK_URL",
+	"GOAUTH_CLIENT_ID", "GOAUTH_CLIENT_SECRET", "GOAUTH_CALL_BACK_URL",
 }
 
 var config Config // create an instance of Config
