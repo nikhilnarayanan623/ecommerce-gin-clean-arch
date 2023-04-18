@@ -29,6 +29,16 @@ func (c *userDatabse) FindUser(ctx context.Context, user domain.User) (domain.Us
 	return user, nil
 }
 
+func (c *userDatabse) FindUserByEmail(ctx context.Context, email string) (user domain.User, err error) {
+	query := `SELECT * FROM users WHERE email = $1`
+
+	err = c.DB.Raw(query, email).Scan(&user).Error
+	if err != nil {
+		return user, fmt.Errorf("faild to find user with email %v", email)
+	}
+	return user, nil
+}
+
 func (c *userDatabse) CheckOtherUserWithDetails(ctx context.Context, user domain.User) (domain.User, error) {
 	var checkUser domain.User
 	query := `SELECT * FROM users WHERE id != ? AND email = ? OR id != ? AND phone = ? OR id != ? AND user_name = ?`
@@ -48,6 +58,23 @@ func (c *userDatabse) SaveUser(ctx context.Context, user domain.User) (userID ui
 	createdAt := time.Now()
 	err = c.DB.Raw(query, user.UserName, user.FirstName, user.LastName,
 		user.Age, user.Email, user.Phone, user.Password, createdAt).Scan(&user).Error
+
+	if err != nil {
+		return 0, fmt.Errorf("faild to save user %s", user.UserName)
+	}
+	return userID, nil
+}
+
+// for google signup
+func (c *userDatabse) SaveUserWithGoogleDetails(ctx context.Context, user domain.User) (userID uint, err error) {
+
+	//save the user details
+	query := `INSERT INTO users (user_name, first_name, last_name, email,created_at) 
+	VALUES ($1, $2, $3, $4, $5 ) RETURNING id`
+
+	createdAt := time.Now()
+	err = c.DB.Raw(query, user.UserName, user.FirstName, user.LastName,
+		user.Email, createdAt).Scan(&user).Error
 
 	if err != nil {
 		return 0, fmt.Errorf("faild to save user %s", user.UserName)
