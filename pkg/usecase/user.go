@@ -28,18 +28,23 @@ func NewUserUseCase(repo interfaces.UserRepository) service.UserUseCase {
 func (c *userUserCase) GoogleLogin(ctx context.Context, user domain.User) (domain.User, error) {
 
 	// first check the user already exist or not if exist then direct login
-	user, err := c.userRepo.FindUser(ctx, user)
+	checkUser, err := c.userRepo.FindUserByEmail(ctx, user.Email)
 	if err != nil {
 		return user, err
-	} else if user.ID != 0 { // user already exist so direct login
+	} else if checkUser.ID != 0 { // user already exist so direct login
 		return user, nil
 	}
 
 	// user not exit so create a user
-	userID, err := c.userRepo.SaveUser(ctx, user)
+
+	//creaet a ranodm username for user
+	user.UserName = utils.GenerateRandomUserName(user.FirstName)
+
+	userID, err := c.userRepo.SaveUserWithGoogleDetails(ctx, user)
 	if err != nil {
-		return user, nil
+		return user, err
 	}
+
 	user.ID = userID
 	return user, nil
 }

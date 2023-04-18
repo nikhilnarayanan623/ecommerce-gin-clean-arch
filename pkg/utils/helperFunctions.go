@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"math/rand"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -29,6 +30,23 @@ func GetUserIdFromContext(ctx *gin.Context) uint {
 func StringToUint(str string) (uint, error) {
 	val, err := strconv.Atoi(str)
 	return uint(val), err
+}
+
+// generate userName
+func GenerateRandomUserName(FirstName string) string {
+
+	suffix := make([]byte, 4)
+
+	numbers := "1234567890"
+	rand.Seed(time.Now().UnixMilli())
+
+	for i := range suffix {
+		suffix[i] = numbers[rand.Intn(10)]
+	}
+
+	userName := (FirstName + string(suffix))
+
+	return strings.ToLower(userName)
 }
 
 // generate unique string for sku
