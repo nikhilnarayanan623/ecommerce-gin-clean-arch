@@ -7,22 +7,27 @@ import (
 
 // to store env variables
 type Config struct {
-	DBHost              string `mapstructure:"DB_HOST"`
-	DBName              string `mapstructure:"DB_NAME"`
-	DBUser              string `mapstructure:"DB_USER"`
-	DBPassword          string `mapstructure:"DB_PASSWORD"`
-	DBPort              string `mapstructure:"DB_PORT"`
-	JWT                 string `mapstructure:"JWT_CODE"`
-	AUTHTOKEN           string `mapstructure:"AUTH_TOKEN"`
-	ACCOUNTSID          string `mapstructure:"ACCOUNT_SID"`
-	SERVICESID          string `mapstructure:"SERVICE_SID"`
-	RazorPayKey         string `mapstructure:"RAZOR_PAY_KEY"`
-	RazorPaySecret      string `mapstructure:"RAZOR_PAY_SECRET"`
+	DBHost     string `mapstructure:"DB_HOST"`
+	DBName     string `mapstructure:"DB_NAME"`
+	DBUser     string `mapstructure:"DB_USER"`
+	DBPassword string `mapstructure:"DB_PASSWORD"`
+	DBPort     string `mapstructure:"DB_PORT"`
+	JWT        string `mapstructure:"JWT_CODE"`
+
+	AUTHTOKEN  string `mapstructure:"AUTH_TOKEN"`
+	ACCOUNTSID string `mapstructure:"ACCOUNT_SID"`
+	SERVICESID string `mapstructure:"SERVICE_SID"`
+
+	RazorPayKey    string `mapstructure:"RAZOR_PAY_KEY"`
+	RazorPaySecret string `mapstructure:"RAZOR_PAY_SECRET"`
+
 	StripSecretKey      string `mapstructure:"STRIPE_SECRET"`
 	StripPublishKey     string `mapstructure:"STRIPE_PUBLISH_KEY"`
 	StripeWebhookSecret string `mapstructure:"STRIPE_WEBHOOK"`
-	GoathClientID       string `mapstructure:"GOAUTH_CLIENT_ID"`
-	GoauthClientSecret  string `mapstructure:"GOAUTH_CLENT_SECRET"`
+
+	GoathClientID      string `mapstructure:"GOAUTH_CLIENT_ID"`
+	GoauthClientSecret string `mapstructure:"GOAUTH_CLIENT_SECRET"`
+	GoauthCallbackUrl  string `mapstructure:"GOAUTH_CALL_BACK_URL"`
 }
 
 // to hold all names of env variables
@@ -33,7 +38,7 @@ var envsNames = []string{
 	"RAZOR_PAY_KEY", "RAZOR_PAY_SECRET", // razor pay
 	"STRIPE_SECRET", "STRIPE_PUBLISH_KEY", "STRIPE_WEBHOOK", // stripe
 
-	"GOAUTH_CLIENT_ID", "GOAUTH_CLENT_SECRET",
+	"GOAUTH_CLIENT_ID", "GOAUTH_CLENT_SECRET", "GOAUTH_CALL_BACK_URL",
 }
 
 var config Config // create an instance of Config

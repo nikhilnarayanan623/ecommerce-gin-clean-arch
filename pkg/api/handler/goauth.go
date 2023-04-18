@@ -25,7 +25,14 @@ func (c *UserHandler) IntitializeGoogleAuth(ctx *gin.Context) {
 	// setup the google provider
 	goauthClientID := config.GetCofig().GoathClientID
 	gouthClientSecret := config.GetCofig().GoauthClientSecret
-	callbackUrl := "http://localhost:8000/login/auth/google/callback" // copy from redirect url from google auth client creation
+	var callbackUrl string
+	// for using both local host and server side check path and  set different url
+	if ctx.Request.Host == "localhost:8000" {
+		callbackUrl = "http://localhost:8000/login/auth/google/callback" // copy from redirect url from google auth client creation
+
+	} else { // if this call from server side then change the callback url
+		callbackUrl = config.GetCofig().GoauthCallbackUrl
+	}
 
 	// setup privider
 	goth.UseProviders(
