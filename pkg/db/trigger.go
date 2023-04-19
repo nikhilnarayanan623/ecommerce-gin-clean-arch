@@ -19,7 +19,29 @@ func SetUpDBTriggers(db *gorm.DB) error {
 		return errors.New("faild to create trigger for update total price on cart")
 	}
 
-	log.Printf("successfully trgger for databse are updated")
+	// update product_item qty on order time
+	if db.Exec(orderProductUpdateOnPlaceOrder).Error != nil {
+		return errors.New("faild to excute orderProductUpdate() trigger function")
+	}
+
+	if db.Exec(orderProductUpdateOnPlaceOrderTriggerExec).Error != nil {
+		return errors.New("faild to create orderProductUpdateTriggerExec trigger")
+	}
+
+	//update product_item qty on order returned
+	if db.Exec(orderReturnProductUpdate).Error != nil {
+		return errors.New("faild to create orderReturnProductUpdate() trigger function")
+	}
+
+	if db.Exec(orderStatusFindFunc).Error != nil {
+		return errors.New("faild to create orderStatusFindFunc function for return order_status")
+	}
+
+	if db.Exec(orderReturnProductUpdateExec).Error != nil {
+		return errors.New("faild to create orderReturnProductUpdateExec trigger")
+	}
+
+	log.Printf("successfully trggers updated for databse")
 	return nil
 }
 
@@ -58,4 +80,54 @@ var (
 	cartTotalPriceTriggerExec = `CREATE OR REPLACE TRIGGER  update_cart_total_price
 	AFTER INSERT OR UPDATE OR DELETE ON cart_items
 	FOR EACH ROW EXECUTE FUNCTION update_cart_total_price();`
+
+	//for updating product_item quntity when order place
+	orderProductUpdateOnPlaceOrder = `CREATE OR REPLACE FUNCTION update_product_quantity() 
+	RETURNS TRIGGER AS $$ 
+	BEGIN 
+		IF (TG_OP = 'INSERT') THEN 
+			UPDATE product_items pi 
+			SET qty_in_stock = pi.qty_in_stock - NEW.qty 
+			WHERE pi.id = NEW.product_item_id; 
+	
+		END IF; 
+		RETURN NEW; 
+	END; 
+	$$ LANGUAGE plpgsql;`
+
+	orderProductUpdateOnPlaceOrderTriggerExec = `CREATE OR REPLACE TRIGGER update_product_quantity 
+	AFTER INSERT ON order_lines 
+	FOR EACH ROW EXECUTE FUNCTION update_product_quantity();`
+
+	//for order reuturn time product_item quantity update
+	orderReturnProductUpdate = `CREATE OR REPLACE FUNCTION update_product_quantity_on_return()
+	RETURNS TRIGGER AS $$
+	BEGIN
+	  IF (TG_OP = 'UPDATE') THEN 
+		EXECUTE format('UPDATE product_items pi
+						SET qty_in_stock = qty_in_stock + ol.qty
+						FROM %I ol
+						WHERE pi.id = ol.product_item_id
+						AND ol.shop_order_id = $1.id',
+						'order_lines')
+		USING NEW;
+	  
+		RETURN NEW;
+	  ELSE
+		RETURN NULL;
+	  END IF;
+	END;
+	$$ LANGUAGE plpgsql;`
+
+	orderStatusFindFunc = `CREATE OR REPLACE FUNCTION get_order_status_id(status_name text)
+	RETURNS integer
+	AS $$
+	SELECT id FROM order_statuses WHERE status = status_name;
+	$$ LANGUAGE SQL;`
+
+	orderReturnProductUpdateExec = `CREATE OR REPLACE TRIGGER update_product_qty_on_order_return 
+	AFTER UPDATE OF order_status_id ON shop_orders
+	FOR EACH ROW 
+	WHEN (NEW.order_status_id =  get_order_status_id('order returned'))
+	EXECUTE FUNCTION update_product_quantity_on_return();`
 )
