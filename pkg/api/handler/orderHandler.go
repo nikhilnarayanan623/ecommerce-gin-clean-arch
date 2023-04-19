@@ -39,6 +39,12 @@ func (c *OrderHandler) GetAllOrderStatuses(ctx *gin.Context) {
 		return
 	}
 
+	if orderStatuses == nil {
+		response := res.SuccessResponse(200, "there is no order statuses available ")
+		ctx.JSON(http.StatusOK, response)
+		return
+	}
+
 	response := res.SuccessResponse(200, "successfully got all order statueses", orderStatuses)
 	ctx.JSON(http.StatusOK, response)
 }
