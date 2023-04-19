@@ -8,13 +8,13 @@ type ReqUpdateOrder struct {
 // return request
 type ReqReturn struct {
 	ShopOrderID  uint   `json:"shop_order_id" binding:"required"`
-	ReturnReason string `json:"return_reason" binding:"required,min=6,max=50"`
+	ReturnReason string `json:"return_reason" binding:"required,min=6,max=150"`
 }
 
 type ReqUpdatReturnOrder struct {
 	OrderReturnID uint   `json:"order_return_id" binding:"required"`
 	OrderStatusID uint   `json:"order_status_id" binding:"required"`
-	AdminComment  string `json:"admin_comment" bindin:"requied,min=6,max=50"`
+	AdminComment  string `json:"admin_comment" bindin:"requied,min=6,max=150"`
 }
 
 type ReqPlaceOrder struct {

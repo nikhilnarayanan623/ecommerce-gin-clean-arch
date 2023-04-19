@@ -7,11 +7,64 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/jinzhu/copier"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/domain"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/utils"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/utils/req"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/utils/res"
 )
+
+// add a new payment_method
+func (c *OrderHandler) AddPaymentMethod(ctx *gin.Context) {
+
+	var body req.ReqPaymentMethod
+
+	if err := ctx.ShouldBindJSON(&body); err != nil {
+		response := res.ErrorResponse(400, "invalid inputs", err.Error(), body)
+		ctx.JSON(http.StatusBadRequest, response)
+		return
+	}
+
+	var paymentMethod domain.PaymentMethod
+	copier.Copy(&paymentMethod, &body)
+
+	err := c.orderUseCase.AddPaymentMethod(ctx, paymentMethod)
+
+	if err != nil {
+		response := res.ErrorResponse(400, "faild to add payment_method", err.Error(), nil)
+		ctx.JSON(http.StatusBadRequest, response)
+		return
+	}
+
+	response := res.SuccessResponse(200, "successfully added payment_method", nil)
+	ctx.JSON(http.StatusOK, response)
+}
+
+// update an exisisting payment method
+func (c *OrderHandler) UpdatePaymentMethod(ctx *gin.Context) {
+
+	var body req.ReqPaymentMethodUpdate
+
+	if err := ctx.ShouldBindJSON(&body); err != nil {
+		response := res.ErrorResponse(400, "invalid inputs", err.Error(), body)
+		ctx.JSON(http.StatusBadRequest, response)
+		return
+	}
+
+	var paymentMethod domain.PaymentMethod
+	copier.Copy(&paymentMethod, &body)
+
+	err := c.orderUseCase.EditPaymentMethod(ctx, paymentMethod)
+
+	if err != nil {
+		response := res.ErrorResponse(400, "faild to update payment_method", err.Error(), nil)
+		ctx.JSON(http.StatusBadRequest, response)
+		return
+	}
+
+	response := res.SuccessResponse(200, "successfully updated payment_method", nil)
+	ctx.JSON(http.StatusOK, response)
+}
 
 func (c *OrderHandler) GetAllPaymentMethods(ctx *gin.Context) {
 
@@ -19,6 +72,12 @@ func (c *OrderHandler) GetAllPaymentMethods(ctx *gin.Context) {
 	if err != nil {
 		response := res.ErrorResponse(500, "faild to get all payment methods", err.Error(), nil)
 		ctx.JSON(http.StatusInternalServerError, response)
+		return
+	}
+
+	if paymentMethods == nil {
+		response := res.SuccessResponse(200, "there is no payment_methods available to show")
+		ctx.JSON(http.StatusOK, response)
 		return
 	}
 

@@ -71,6 +71,14 @@ func AdminRoutes(api *gin.RouterGroup, adminHandler *handler.AdminHandler,
 			order.PUT("/returns/pending", orderHandler.UpdateReturnRequest)
 		}
 
+		// payment_method
+		paymentMethod := api.Group("/payment-method")
+		{
+			paymentMethod.GET("/", orderHandler.GetAllPaymentMethods)
+			paymentMethod.POST("/", orderHandler.AddPaymentMethod)
+			paymentMethod.PUT("/", orderHandler.UpdatePaymentMethod)
+		}
+
 		// offer
 		offer := api.Group("/offers")
 		{
