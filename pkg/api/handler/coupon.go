@@ -98,6 +98,51 @@ func (c *CouponHandler) GetAllCoupons(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, response)
 }
 
+// GetAllCoupons godoc
+// @summary api for user to see all coupons
+// @security ApiKeyAuth
+// @tags User Coupon
+// @id GetAllCoupons
+// @Param page_number query int false "Page Number"
+// @Param count query int false "Count Of Order"
+// @Router /coupons [get]
+// @Success 200 {object} res.Response{} "successfully go all the coupons
+// @Failure 500 {object} res.Response{}  "faild to get all coupons"
+func (c *CouponHandler) GetAllCouponsForUser(ctx *gin.Context) {
+
+	userID := utils.GetUserIdFromContext(ctx)
+	count, err1 := utils.StringToUint(ctx.Query("count"))
+	pageNumber, err2 := utils.StringToUint(ctx.Query("page_number"))
+
+	err1 = errors.Join(err1, err2)
+	if err1 != nil {
+		response := res.ErrorResponse(400, "invalid inputs", err1.Error(), nil)
+		ctx.JSON(http.StatusBadRequest, response)
+		return
+	}
+	pagination := req.ReqPagination{
+		PageNumber: pageNumber,
+		Count:      count,
+	}
+
+	coupons, err := c.couponUseCase.GetCouponsForUser(ctx, userID, pagination)
+
+	if err != nil {
+		response := res.ErrorResponse(400, "faild to get copons for user", err.Error(), nil)
+		ctx.JSON(http.StatusBadRequest, response)
+		return
+	}
+
+	if coupons == nil {
+		response := res.SuccessResponse(200, "there is no copons for user to show", nil)
+		ctx.JSON(http.StatusOK, response)
+		return
+	}
+
+	response := res.SuccessResponse(200, "succesfully go all users coupons", coupons)
+	ctx.JSON(http.StatusOK, response)
+}
+
 // UpdateCoupon godoc
 // @summary api for admin to update the coupon
 // @security ApiKeyAuth
