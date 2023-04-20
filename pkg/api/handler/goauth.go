@@ -48,6 +48,9 @@ func (c *UserHandler) CallbackAuth(ctx *gin.Context) {
 	var user domain.User
 
 	copier.Copy(&user, &googleUser)
+
+	user, err = c.userUseCase.GoogleLogin(ctx, user)
+
 	if err != nil {
 		response := res.ErrorResponse(500, "faild to login with google", err.Error(), nil)
 		ctx.JSON(http.StatusInternalServerError, response)
