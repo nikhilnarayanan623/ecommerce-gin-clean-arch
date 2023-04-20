@@ -16,6 +16,11 @@ func UserRoutes(api *gin.RouterGroup, userHandler *handler.UserHandler, ProductH
 		login.POST("/", userHandler.UserLogin)
 		login.POST("/otp-send", userHandler.UserLoginOtpSend)
 		login.POST("/otp-verify", userHandler.UserLoginOtpVerify)
+
+		// login page
+		login.GET("/", userHandler.GoauthLoginPage)
+		login.GET("/auth/", userHandler.IntitializeGoogleAuth)
+		login.GET("/auth/google/callback", userHandler.CallbackAuth)
 	}
 	//signup
 	signup := api.Group("/signup")

@@ -11,6 +11,8 @@ import (
 type OrderUseCase interface {
 
 	// pyment
+	AddPaymentMethod(ctx context.Context,paymentMethod domain.PaymentMethod)error 
+	EditPaymentMethod(ctx context.Context,paymentMethod domain.PaymentMethod)error
 	GetAllPaymentMethods(ctx context.Context) ([]domain.PaymentMethod, error)
 	GetPaymentMethodByID(ctx context.Context, paymentMethodID uint) (domain.PaymentMethod, error)
 

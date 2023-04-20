@@ -24,6 +24,32 @@ func NewUserUseCase(repo interfaces.UserRepository) service.UserUseCase {
 	return &userUserCase{userRepo: repo}
 }
 
+// google login
+func (c *userUserCase) GoogleLogin(ctx context.Context, user domain.User) (domain.User, error) {
+
+	// first check the user already exist or not if exist then direct login
+	checkUser, err := c.userRepo.FindUserByEmail(ctx, user.Email)
+	if err != nil {
+		return user, err
+	} else if checkUser.ID != 0 { // user already exist so direct login
+		return user, nil
+	}
+
+	// user not exit so create a user
+
+	//creaet a ranodm username for user
+	user.UserName = utils.GenerateRandomUserName(user.FirstName)
+
+	userID, err := c.userRepo.SaveUserWithGoogleDetails(ctx, user)
+	if err != nil {
+		return user, err
+	}
+
+	user.ID = userID
+	return user, nil
+}
+
+// login
 func (c *userUserCase) Login(ctx context.Context, user domain.User) (domain.User, error) {
 
 	dbUser, dberr := c.userRepo.FindUser(ctx, user)
@@ -80,7 +106,12 @@ func (c *userUserCase) Signup(ctx context.Context, user domain.User) error {
 			return errors.New("error to hash the password")
 		}
 		user.Password = string(hashPass)
-		return c.userRepo.SaveUser(ctx, user)
+
+		_, err = c.userRepo.SaveUser(ctx, user)
+		if err != nil {
+			return err
+		}
+		return nil
 	}
 	// if user exist then check which field is exist
 	return utils.CompareUsers(user, checkUser)

@@ -245,13 +245,13 @@ func (p *ProductHandler) AddProducts(ctx *gin.Context) {
 // @summary api for admin to update a product
 // @id UpdateProduct
 // @tags Admin Products
-// @Param input body req.ReqProduct{} true "inputs"
+// @Param input body req.ReqProductUpdate{} true "inputs"
 // @Router /admin/products [put]
 // @Success 200 {object} res.Response{} "successfully product updated"
 // @Failure 400 {object} res.Response{} "invalid input"
 func (c *ProductHandler) UpdateProduct(ctx *gin.Context) {
 
-	var body req.ReqProduct
+	var body req.ReqProductUpdate
 
 	if err := ctx.ShouldBindJSON(&body); err != nil {
 		response := res.ErrorResponse(400, "invalid input", err.Error(), body)

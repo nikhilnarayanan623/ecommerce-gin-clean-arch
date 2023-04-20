@@ -1,0 +1,21 @@
+<!-- templates/index.html -->
+<!doctype html>
+<html>
+<head>
+    <title>Google SignIn</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"> <!-- load bulma css -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css"> <!-- load fontawesome -->
+    <style>
+        body        { padding-top:70px; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="jumbotron text-center text-dark">
+        <h1>Google Authentication</h1>
+        <!-- using query parameter as google   -->
+        <a href="/login/auth/?provider=google" class="btn btn-danger"><span class="fa fa-google"></span> SignIn with Google</a>
+    </div>
+</div>
+</body>
+</html> 

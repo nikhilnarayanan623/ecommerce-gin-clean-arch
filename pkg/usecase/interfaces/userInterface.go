@@ -13,6 +13,8 @@ type UserUseCase interface {
 	Login(ctx context.Context, user domain.User) (domain.User, error)
 	LoginOtp(ctx context.Context, user domain.User) (domain.User, error)
 
+	GoogleLogin(ctx context.Context, user domain.User) (domain.User, error)
+
 	Account(ctx context.Context, userId uint) (domain.User, error)
 	EditAccount(ctx context.Context, user domain.User) error
 
