@@ -273,11 +273,21 @@ func (c *OrderDatabase) FindAllOrderReturns(ctx context.Context, onlyPending boo
 		if c.DB.Raw("SELECT id FROM order_statuses WHERE status = 'return requested'").Scan(&orderStatusIDReturnReq).Error != nil {
 			return orderReturns, errors.New("faild to get order_status_id for return requestes")
 		}
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+		query := `SELECT ors.id AS order_return_id, ors.shop_order_id, ors.request_date, ors.return_reason, 
+=======
+>>>>>>> coupons
 		if c.DB.Raw("SELECT id FROM order_statuses WHERE status = 'return approved'").Scan(&orderStatusIDApproved).Error != nil {
 			return orderReturns, errors.New("faild to get order_status_id for return requestes")
 		}
 
 		query := `SELECT ors.id AS order_return_id, ors.shop_order_id, ors.request_date, ors.return_reason, ors.admin_comment, ors.approval_date, 
+<<<<<<< HEAD
+=======
+>>>>>>> ef7579d (changed the user side coupon show api now user can see the coupon which are used and unused with pagination and order of unused coupons first)
+>>>>>>> coupons
 		os.id AS order_status_id, os.status AS order_status,ors.refund_amount  
 		FROM order_returns ors INNER JOIN shop_orders so ON ors.shop_order_id =  so.id 
 		INNER JOIN order_statuses os ON so.order_status_id = os.id WHERE so.order_status_id = $1 OR so.order_status_id = $2  
