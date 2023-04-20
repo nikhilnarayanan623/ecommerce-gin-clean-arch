@@ -1,7 +1,6 @@
 package handler
 
 import (
-	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -49,10 +48,6 @@ func (c *UserHandler) CallbackAuth(ctx *gin.Context) {
 	var user domain.User
 
 	copier.Copy(&user, &googleUser)
-	fmt.Println("copied google user", user)
-
-	user, err = c.userUseCase.GoogleLogin(ctx, user)
-
 	if err != nil {
 		response := res.ErrorResponse(500, "faild to login with google", err.Error(), nil)
 		ctx.JSON(http.StatusInternalServerError, response)
@@ -68,6 +63,7 @@ func (c *UserHandler) CallbackAuth(ctx *gin.Context) {
 	}
 
 	ctx.SetCookie("user-auth", tokenString["accessToken"], 50*60, "", "", false, true)
+
 	response := res.SuccessResponse(200, "successfully logged using google auth", tokenString["accessToken"])
 	ctx.JSON(http.StatusOK, response)
 }

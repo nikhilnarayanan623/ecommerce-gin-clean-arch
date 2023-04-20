@@ -461,14 +461,14 @@ func (u *UserHandler) Account(ctx *gin.Context) {
 // @security ApiKeyAuth
 // @id UpateAccount
 // @tags User Account
-// @Param input body req.ReqUserDetails{} true "input field"
+// @Param input body req.ReqEditUser{} true "input field"
 // @Router /account [put]
 // @Success 200 {object} res.Response{} "successfully updated user details"
 // @Failure 400 {object} res.Response{} "invalid input"
 func (u *UserHandler) UpateAccount(ctx *gin.Context) {
 	userID := utils.GetUserIdFromContext(ctx)
 
-	var body req.ReqUserDetails
+	var body req.ReqEditUser
 
 	if err := ctx.ShouldBindJSON(&body); err != nil { // showing epty struct which is user for know what are the fields need enter
 		response := res.ErrorResponse(400, "invalid input", err.Error(), req.ReqUserDetails{})
@@ -488,7 +488,7 @@ func (u *UserHandler) UpateAccount(ctx *gin.Context) {
 		return
 	}
 
-	response := res.SuccessResponse(200, "successfully updated user details", body)
+	response := res.SuccessResponse(200, "successfully updated user details", nil)
 	ctx.JSON(http.StatusOK, response)
 }
 
