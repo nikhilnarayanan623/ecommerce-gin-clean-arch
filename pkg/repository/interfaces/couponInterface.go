@@ -5,6 +5,7 @@ import (
 
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/domain"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/utils/req"
+	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/utils/res"
 )
 
 type CouponRepository interface {
@@ -20,6 +21,9 @@ type CouponRepository interface {
 
 	// uses coupon
 	FindCouponUses(ctx context.Context, userID, couopnID uint) (couponUses domain.CouponUses, err error)
+
+	// find all coupon for user
+	FindAllCouponForUser(ctx context.Context, userID uint, pagination req.ReqPagination) (coupons []res.ResUserCoupon, err error)
 
 	//!cart
 	FindCartByUserID(ctx context.Context, userID uint) (cart domain.Cart, err error)

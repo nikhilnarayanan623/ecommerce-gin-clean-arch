@@ -11,6 +11,7 @@ import (
 	service "github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/usecase/interfaces"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/utils"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/utils/req"
+	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/utils/res"
 )
 
 type couponUseCase struct {
@@ -59,6 +60,20 @@ func (c *couponUseCase) GetAllCoupons(ctx context.Context, pagination req.ReqPag
 	}
 
 	log.Printf("successfully got all coupons \n\n")
+	return coupons, nil
+}
+
+// get all coupon for user
+func (c *couponUseCase) GetCouponsForUser(ctx context.Context, userID uint, pagination req.ReqPagination) (coupons []res.ResUserCoupon, err error) {
+
+	coupons, err = c.couponRepo.FindAllCouponForUser(ctx, userID, pagination)
+
+	if err != nil {
+		return coupons, err
+	}
+
+	log.Printf("successfully go coupons for user of user_id %v", userID)
+
 	return coupons, nil
 }
 
