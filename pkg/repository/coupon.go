@@ -9,6 +9,7 @@ import (
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/domain"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/repository/interfaces"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/utils/req"
+	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/utils/res"
 	"gorm.io/gorm"
 )
 
@@ -143,6 +144,28 @@ func (c *couponDatabase) SaveCouponUses(ctx context.Context, couponUses domain.C
 	}
 
 	return nil
+}
+
+// find all coupons for user
+
+func (c *couponDatabase) FindAllCouponForUser(ctx context.Context, userID uint, pagination req.ReqPagination) (coupons []res.ResUserCoupon, err error) {
+
+	limit := pagination.Count
+	offset := (pagination.PageNumber - 1) * limit
+
+	query := `SELECT c.coupon_id, c.coupon_code, c.coupon_name, c.expire_date, c.description, c.discount_rate, c.minimum_cart_price, 
+	c.image, c.block_status, c.coupon_id = cu.coupon_id AS used, cu.used_at FROM coupons c 
+	LEFT JOIN coupon_uses cu ON c.coupon_id = cu.coupon_id 
+	AND cu.user_id = $1 
+	ORDER BY used DESC LIMIT $2 OFFSET $3`
+
+	err = c.DB.Raw(query, userID, limit, offset).Scan(&coupons).Error
+
+	if err != nil {
+		return coupons, fmt.Errorf("faild to find coupons for user \n %v", err.Error())
+	}
+
+	return coupons, nil
 }
 
 // !apply coupon cart functions

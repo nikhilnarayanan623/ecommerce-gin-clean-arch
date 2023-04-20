@@ -3,16 +3,17 @@ package res
 import "time"
 
 type ResUserCoupon struct {
-	ID             uint      `json:"id" gorm:"primaryKey;not null"`
-	CouponCode     string    `json:"coupon_code" gorm:"unique;not null"`
-	CouponName     string    `json:"coupon_name" gorm:"unique;not null" binding:"required,min=3,max=25"`
-	PercentageUpto uint      `json:"percentage_upto" gorm:"not null" binding:"required,numeric,min=1,max=100"`
-	MinimumPrice   uint      `json:"minimum_price" gorm:"not null" binding:"required,numeric,min=1"`
-	Description    string    `json:"description" gorm:"not null" binding:"required,min=6,max=50"`
-	Image          string    `json:"image" binding:"required"`
-	ExpireDate     time.Time `json:"expire_date" gorm:"not null"`
-	LastApplied    time.Time `json:"last_applied"`
-	DiscountAmount uint      `json:"discount_amount"`
-	CartPrice      uint      `json:"cart_price"`
-	Used           bool      `json:"used" gorm:"not null"`
+	CouponID   uint   `json:"coupon_id"`
+	CouponCode string `json:"coupon_code" `
+	CouponName string `json:"coupon_name"`
+
+	ExpireDate       time.Time `json:"expire_date"`
+	Description      string    `json:"description"`
+	DiscountRate     uint      `json:"discount_rate"`
+	MinimumCartPrice uint      `json:"minimum_cart_price"`
+	Image            string    `json:"image" binding:"required"`
+	BlockStatus      bool      `json:"block_status"`
+
+	Used   bool      `json:"used"`
+	UsedAt time.Time `json:"used_at"`
 }

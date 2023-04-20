@@ -273,7 +273,8 @@ func (c *OrderDatabase) FindAllOrderReturns(ctx context.Context, onlyPending boo
 		if c.DB.Raw("SELECT id FROM order_statuses WHERE status = 'return requested'").Scan(&orderStatusID).Error != nil {
 			return orderReturns, errors.New("faild to get order_status_id for return requestes")
 		}
-		query := `SELECT ors.id AS order_return_id, ors.shop_order_id, ors.request_date, ors.return_reason, 
+
+		query := `SELECT ors.id AS order_return_id, ors.shop_order_id, ors.request_date, ors.return_reason, ors.admin_comment,  
 		os.id AS order_status_id, os.status AS order_status,ors.refund_amount  
 		FROM order_returns ors INNER JOIN shop_orders so ON ors.shop_order_id =  so.id 
 		INNER JOIN order_statuses os ON so.order_status_id = os.id WHERE so.order_status_id = $1 
@@ -283,7 +284,7 @@ func (c *OrderDatabase) FindAllOrderReturns(ctx context.Context, onlyPending boo
 		}
 	} else {
 		query := `SELECT ors.id AS order_return_id, ors.shop_order_id, ors.request_date, ors.return_reason, 
-		os.id AS order_status_id, os.status AS order_status,ors.refund_amount, ors.admin_comment,ors.is_approved, ors.return_date 
+		os.id AS order_status_id, os.status AS order_status,ors.refund_amount, ors.admin_comment, ors.is_approved, ors.approval_date, ors.return_date 
 		FROM order_returns ors INNER JOIN shop_orders so ON ors.shop_order_id =  so.id 
 		INNER JOIN order_statuses os ON so.order_status_id = os.id 
 		ORDER BY ors.request_date LIMIT $1 OFFSET $2`
