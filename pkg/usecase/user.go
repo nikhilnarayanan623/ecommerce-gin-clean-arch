@@ -32,7 +32,7 @@ func (c *userUserCase) GoogleLogin(ctx context.Context, user domain.User) (domai
 	if err != nil {
 		return user, err
 	} else if checkUser.ID != 0 { // user already exist so direct login
-		return user, nil
+		return checkUser, nil
 	}
 
 	// user not exit so create a user

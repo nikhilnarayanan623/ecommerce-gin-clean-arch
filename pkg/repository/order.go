@@ -273,6 +273,7 @@ func (c *OrderDatabase) FindAllOrderReturns(ctx context.Context, onlyPending boo
 		if c.DB.Raw("SELECT id FROM order_statuses WHERE status = 'return requested'").Scan(&orderStatusIDReturnReq).Error != nil {
 			return orderReturns, errors.New("faild to get order_status_id for return requestes")
 		}
+
 		if c.DB.Raw("SELECT id FROM order_statuses WHERE status = 'return approved'").Scan(&orderStatusIDApproved).Error != nil {
 			return orderReturns, errors.New("faild to get order_status_id for return requestes")
 		}

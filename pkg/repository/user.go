@@ -36,6 +36,7 @@ func (c *userDatabse) FindUserByEmail(ctx context.Context, email string) (user d
 	if err != nil {
 		return user, fmt.Errorf("faild to find user with email %v", email)
 	}
+	fmt.Println("\n\nuser from db", user)
 	return user, nil
 }
 

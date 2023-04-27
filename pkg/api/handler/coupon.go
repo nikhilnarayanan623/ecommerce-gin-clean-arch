@@ -102,7 +102,7 @@ func (c *CouponHandler) GetAllCoupons(ctx *gin.Context) {
 // @summary api for user to see all coupons
 // @security ApiKeyAuth
 // @tags User Coupon
-// @id GetAllCoupons
+// @id GetAllCouponsForUser
 // @Param page_number query int false "Page Number"
 // @Param count query int false "Count Of Order"
 // @Router /coupons [get]
