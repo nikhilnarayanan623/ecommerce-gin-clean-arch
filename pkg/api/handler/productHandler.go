@@ -6,6 +6,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/copier"
+	handlerInterface "github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/api/handler/interfaces"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/domain"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/usecase/interfaces"
 	service "github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/usecase/interfaces"
@@ -18,7 +19,7 @@ type ProductHandler struct {
 	productUseCase service.ProductUseCase
 }
 
-func NewProductHandler(productUsecase interfaces.ProductUseCase) *ProductHandler {
+func NewProductHandler(productUsecase interfaces.ProductUseCase) handlerInterface.ProductHandler {
 	return &ProductHandler{productUseCase: productUsecase}
 }
 

@@ -1,51 +1,95 @@
 package middleware
 
 import (
+	"errors"
+	"fmt"
 	"net/http"
-	"time"
 
 	"github.com/gin-gonic/gin"
-	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/auth"
+	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/config"
+	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/token"
+	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/utils/res"
 )
 
-func AuthenticateUser(ctx *gin.Context) {
-	authHelper(ctx, "user")
+var tokenAuth token.TokenAuth
+
+func SetupMiddleware(cfg config.Config) {
+	tokenAuth = token.NewJWTAuth(cfg.JWTAdmin, cfg.JWTUser)
 }
 
-func AuthenticateAdmin(ctx *gin.Context) {
-	authHelper(ctx, "admin")
+// const (
+// 	authorizationHeaderKey string = "authorization"
+// 	authorizationType      string = "bearer"
+// )
+
+func GetUserMiddleware() gin.HandlerFunc {
+	//return middleware(token.TokenForUser)
+	return middlewareUsingCookie(token.TokenForUser)
 }
 
-// helper to get cookie and validate the token and expire time
-func authHelper(ctx *gin.Context, user string) {
+func GetAdminMiddleware() gin.HandlerFunc {
+	//return middleware(token.TokenForAdmin)
+	return middlewareUsingCookie(token.TokenForAdmin)
+}
 
-	tokenString, err := ctx.Cookie(user + "-auth") // get cookie for user or admin with name
-	if err != nil || tokenString == "" {
-		ctx.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
-			"StatusCode": 401,
-			"msg":        "Unauthorized User Please Login",
-		})
-		return
+// func middleware(tokenUser token.UserType) gin.HandlerFunc {
+// 	return func(ctx *gin.Context) {
+
+// 		autherizationHeaderValue := ctx.GetHeader(authorizationHeaderKey)
+
+// 		authHeaderFields := strings.Fields(autherizationHeaderValue)
+// 		if len(authHeaderFields) < 2 {
+// 			ctx.Abort()
+// 			response := res.ErrorResponse(401, "faild to authenticate", "authentication token not provided", nil)
+// 			ctx.JSON(http.StatusUnauthorized, response)
+// 			return
+// 		}
+// 		fmt.Println(authHeaderFields)
+
+// 		headerAuthType := authHeaderFields[0]
+// 		headerAccessToken := authHeaderFields[1]
+
+// 		if !strings.EqualFold(headerAuthType, authorizationType) {
+// 			ctx.Abort()
+// 			response := res.ErrorResponse(401, "faild to authenticate", "invalid authorization type", nil)
+// 			ctx.JSON(http.StatusUnauthorized, response)
+// 			return
+// 		}
+
+// 		payload, err := tokenAuth.VerifyToken(headerAccessToken, tokenUser)
+
+// 		if err != nil {
+// 			ctx.Abort()
+// 			response := res.ErrorResponse(401, "faild to authenticate", err.Error(), nil)
+// 			ctx.JSON(http.StatusUnauthorized, response)
+// 			return
+// 		}
+// 		fmt.Println(payload)
+// 		ctx.Set("userId", payload.UserID)
+// 	}
+// }
+
+func middlewareUsingCookie(tokenUser token.UserType) gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+
+		accessToken, err := ctx.Cookie("user-auth")
+		if err != nil || accessToken == "" {
+			if accessToken == "" {
+				err = errors.Join(err, errors.New("there is no access token"))
+			}
+			response := res.ErrorResponse(401, "faild to authenticate", err.Error(), nil)
+			ctx.JSON(http.StatusUnauthorized, response)
+		}
+		payload, err := tokenAuth.VerifyToken(accessToken, tokenUser)
+
+		if err != nil {
+			ctx.Abort()
+			response := res.ErrorResponse(401, "faild to authenticate", err.Error(), nil)
+			ctx.JSON(http.StatusUnauthorized, response)
+			return
+		}
+		fmt.Println(payload)
+		ctx.Set("userId", payload.UserID)
 	}
 
-	claims, err := auth.ValidateToken(tokenString) // auth function validate the token and return claims with error
-	if err != nil || tokenString == "" {
-		ctx.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
-			"StatusCode": 401,
-			"msg":        "Unauthorized User Please Login",
-		})
-		return
-	}
-
-	// check the cliams expire time
-	if time.Now().Unix() > claims.ExpiresAt {
-		ctx.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
-			"StatusCode": 401,
-			"msg":        "User Need Re-Login time expired",
-		})
-		return
-	}
-
-	// claim the userId and set it on context
-	ctx.Set("userId", claims.Id)
 }

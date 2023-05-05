@@ -1,32 +1,24 @@
-package http
+package handler
 
 import (
 	"net/http"
+	"os"
+	"testing"
 
 	"github.com/gin-gonic/gin"
-	_ "github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/cmd/api/docs"
 	handlerInterface "github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/api/handler/interfaces"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/api/routes"
-	swaggerfiles "github.com/swaggo/files"
-	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
 type ServerHTTP struct {
 	Engine *gin.Engine
 }
 
-func NewServerHTTP(authHandler handlerInterface.AuthHandler, adminHandler handlerInterface.AdminHandler, userHandler handlerInterface.UserHandler,
+func newServerHTTP(authHandler handlerInterface.AuthHandler, adminHandler handlerInterface.AdminHandler, userHandler handlerInterface.UserHandler,
 	productHandler handlerInterface.ProductHandler, orderHandler handlerInterface.OrderHandler,
 	couponHandler handlerInterface.CouponHandler) *ServerHTTP {
 
 	engine := gin.New()
-
-	engine.LoadHTMLGlob("views/*.html")
-
-	engine.Use(gin.Logger())
-
-	// swagger docs
-	engine.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
 
 	// set up routes
 	routes.UserRoutes(engine.Group("/"), authHandler, userHandler, productHandler, orderHandler, couponHandler)
@@ -46,4 +38,10 @@ func NewServerHTTP(authHandler handlerInterface.AuthHandler, adminHandler handle
 func (s *ServerHTTP) Start() {
 
 	s.Engine.Run(":8000")
+}
+
+func TestMain(m *testing.M) {
+	gin.SetMode(gin.TestMode)
+
+	os.Exit(m.Run())
 }

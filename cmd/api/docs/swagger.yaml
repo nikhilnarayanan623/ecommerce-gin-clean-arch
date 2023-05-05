@@ -10,35 +10,31 @@ definitions:
     required:
     - category_name
     type: object
-  domain.Offer:
-    properties:
-      description:
-        maxLength: 50
-        minLength: 6
-        type: string
-      discount_rate:
-        maximum: 100
-        minimum: 1
-        type: integer
-      end_date:
-        type: string
-      offer_name:
-        type: string
-      start_date:
-        type: string
-    required:
-    - description
-    - discount_rate
-    - end_date
-    - offer_name
-    - start_date
-    type: object
   req.BlockStruct:
     properties:
       user_id:
         type: integer
     required:
     - user_id
+    type: object
+  req.Login:
+    properties:
+      email:
+        type: string
+      password:
+        maxLength: 30
+        minLength: 5
+        type: string
+      phone:
+        maxLength: 10
+        minLength: 10
+        type: string
+      user_name:
+        maxLength: 15
+        minLength: 3
+        type: string
+    required:
+    - password
     type: object
   req.LoginStruct:
     properties:
@@ -206,6 +202,96 @@ definitions:
     - phone_number
     - pincode
     type: object
+  req.ReqEditCoupon:
+    properties:
+      block_status:
+        type: boolean
+      coupon_id:
+        type: integer
+      coupon_name:
+        maxLength: 25
+        minLength: 3
+        type: string
+      description:
+        maxLength: 150
+        minLength: 6
+        type: string
+      discount_rate:
+        maximum: 100
+        minimum: 1
+        type: integer
+      expire_date:
+        type: string
+      image:
+        type: string
+      minimum_cart_price:
+        minimum: 1
+        type: integer
+    required:
+    - coupon_name
+    - description
+    - discount_rate
+    - expire_date
+    - image
+    - minimum_cart_price
+    type: object
+  req.ReqEditUser:
+    properties:
+      age:
+        type: integer
+      confirm_password:
+        type: string
+      email:
+        type: string
+      first_name:
+        maxLength: 50
+        minLength: 2
+        type: string
+      last_name:
+        maxLength: 50
+        minLength: 1
+        type: string
+      password:
+        type: string
+      phone:
+        maxLength: 10
+        minLength: 10
+        type: string
+      user_name:
+        maxLength: 15
+        minLength: 3
+        type: string
+    required:
+    - age
+    - email
+    - first_name
+    - last_name
+    - phone
+    - user_name
+    type: object
+  req.ReqOffer:
+    properties:
+      description:
+        maxLength: 50
+        minLength: 6
+        type: string
+      discount_rate:
+        maximum: 100
+        minimum: 1
+        type: integer
+      end_date:
+        type: string
+      offer_name:
+        type: string
+      start_date:
+        type: string
+    required:
+    - description
+    - discount_rate
+    - end_date
+    - offer_name
+    - start_date
+    type: object
   req.ReqOfferCategory:
     properties:
       category_id:
@@ -244,8 +330,6 @@ definitions:
         maxLength: 100
         minLength: 10
         type: string
-      id:
-        type: integer
       image:
         type: string
       price:
@@ -284,10 +368,36 @@ definitions:
     - qty_in_stock
     - variation_option_id
     type: object
+  req.ReqProductUpdate:
+    properties:
+      category_id:
+        type: integer
+      description:
+        maxLength: 100
+        minLength: 10
+        type: string
+      id:
+        type: integer
+      image:
+        type: string
+      price:
+        type: integer
+      product_name:
+        maxLength: 50
+        minLength: 3
+        type: string
+    required:
+    - category_id
+    - description
+    - id
+    - image
+    - price
+    - product_name
+    type: object
   req.ReqReturn:
     properties:
       return_reason:
-        maxLength: 50
+        maxLength: 150
         minLength: 6
         type: string
       shop_order_id:
@@ -317,7 +427,7 @@ definitions:
     required:
     - shop_order_id
     type: object
-  req.ReqUserSignUp:
+  req.ReqUserDetails:
     properties:
       age:
         type: integer
@@ -381,7 +491,7 @@ definitions:
       errors: {}
       message:
         type: string
-      status:
+      status_code:
         type: integer
     type: object
 info:
@@ -423,7 +533,7 @@ paths:
         name: input
         required: true
         schema:
-          $ref: '#/definitions/req.ReqUserSignUp'
+          $ref: '#/definitions/req.ReqEditUser'
       responses:
         "200":
           description: successfully updated user details
@@ -660,7 +770,7 @@ paths:
         name: inputs
         required: true
         schema:
-          $ref: '#/definitions/req.ReqCoupon'
+          $ref: '#/definitions/req.ReqEditCoupon'
       responses:
         "200":
           description: successfully update the coupon
@@ -710,7 +820,7 @@ paths:
         name: input
         required: true
         schema:
-          $ref: '#/definitions/domain.Offer'
+          $ref: '#/definitions/req.ReqOffer'
       responses:
         "200":
           description: successfully offer added
@@ -1040,7 +1150,7 @@ paths:
         name: input
         required: true
         schema:
-          $ref: '#/definitions/req.ReqProduct'
+          $ref: '#/definitions/req.ReqProductUpdate'
       responses:
         "200":
           description: successfully product updated
@@ -1375,6 +1485,32 @@ paths:
       summary: api user for verify razorpay payment
       tags:
       - User Cart
+  /coupons:
+    get:
+      operationId: GetAllCouponsForUser
+      parameters:
+      - description: Page Number
+        in: query
+        name: page_number
+        type: integer
+      - description: Count Of Order
+        in: query
+        name: count
+        type: integer
+      responses:
+        "200":
+          description: successfully go all the coupons
+          schema:
+            $ref: '#/definitions/res.Response'
+        "500":
+          description: faild to get all coupons
+          schema:
+            $ref: '#/definitions/res.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: api for user to see all coupons
+      tags:
+      - User Coupon
   /login:
     post:
       description: Enter user_name | phone | email with password
@@ -1385,7 +1521,7 @@ paths:
         name: inputs
         required: true
         schema:
-          $ref: '#/definitions/req.LoginStruct'
+          $ref: '#/definitions/req.Login'
       responses:
         "200":
           description: successfully logged in
@@ -1616,7 +1752,7 @@ paths:
         name: input
         required: true
         schema:
-          $ref: '#/definitions/req.ReqUserSignUp'
+          $ref: '#/definitions/req.ReqUserDetails'
       responses:
         "200":
           description: Successfully account created for user

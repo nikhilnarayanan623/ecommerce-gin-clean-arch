@@ -7,6 +7,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/copier"
+	handlerInterface "github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/api/handler/interfaces"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/auth"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/domain"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/usecase/interfaces"
@@ -21,7 +22,7 @@ type UserHandler struct {
 	userUseCase service.UserUseCase
 }
 
-func NewUserHandler(userUsecase interfaces.UserUseCase) *UserHandler {
+func NewUserHandler(userUsecase interfaces.UserUseCase) handlerInterface.UserHandler {
 	return &UserHandler{userUseCase: userUsecase}
 }
 
@@ -58,17 +59,18 @@ func (u *UserHandler) UserSignUp(ctx *gin.Context) {
 	ctx.JSON(200, response)
 }
 
-// UserLogin godoc
-// @summary api for user to login
-// @description Enter user_name | phone | email with password
-// @security ApiKeyAuth
-// @tags User Login
-// @id UserLogin
-// @Param        inputs   body     req.LoginStruct{}   true  "Input Field"
-// @Router /login [post]
-// @Success 200 {object} res.Response{} "successfully logged in"
-// @Failure 400 {object} res.Response{}  "invalid input"
-// @Failure 500 {object} res.Response{}  "faild to generat JWT"
+// s
+// // UserLogin godoc
+// // @summary api for user to login
+// // @description Enter user_name | phone | email with password
+// // @security ApiKeyAuth
+// // @tags User Login
+// // @id UserLogin
+// // @Param        inputs   body     req.LoginStruct{}   true  "Input Field"
+// // @Router /login [post]
+// // @Success 200 {object} res.Response{} "successfully logged in"
+// // @Failure 400 {object} res.Response{}  "invalid input"
+// // @Failure 500 {object} res.Response{}  "faild to generat JWT"
 func (u *UserHandler) UserLogin(ctx *gin.Context) {
 
 	var body req.LoginStruct

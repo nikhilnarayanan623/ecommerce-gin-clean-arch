@@ -22,10 +22,13 @@ func InitializeApi(cfg config.Config) (*http.ServerHTTP, error) {
 	if err != nil {
 		return nil, err
 	}
+	userRepository := repository.NewUserRepository(gormDB)
 	adminRepository := repository.NewAdminRepository(gormDB)
+	authRepository := repository.NewAuthRepository(gormDB)
+	authUseCase := usecase.NewAuthUseCase(userRepository, adminRepository, authRepository, cfg)
+	authHandler := handler.NewAuthHandler(authUseCase)
 	adminUseCase := usecase.NewAdminUseCase(adminRepository)
 	adminHandler := handler.NewAdminHandler(adminUseCase)
-	userRepository := repository.NewUserRepository(gormDB)
 	userUseCase := usecase.NewUserUseCase(userRepository)
 	userHandler := handler.NewUserHandler(userUseCase)
 	productRepository := repository.NewProductRepository(gormDB)
@@ -37,6 +40,6 @@ func InitializeApi(cfg config.Config) (*http.ServerHTTP, error) {
 	couponRepository := repository.NewCouponRepository(gormDB)
 	couponUseCase := usecase.NewCouponUseCase(couponRepository)
 	couponHandler := handler.NewCouponHandler(couponUseCase)
-	serverHTTP := http.NewServerHTTP(adminHandler, userHandler, productHandler, orderHandler, couponHandler)
+	serverHTTP := http.NewServerHTTP(authHandler, adminHandler, userHandler, productHandler, orderHandler, couponHandler)
 	return serverHTTP, nil
 }

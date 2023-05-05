@@ -12,7 +12,11 @@ type Config struct {
 	DBUser     string `mapstructure:"DB_USER"`
 	DBPassword string `mapstructure:"DB_PASSWORD"`
 	DBPort     string `mapstructure:"DB_PORT"`
-	JWT        string `mapstructure:"JWT_CODE"`
+
+	JWT string `mapstructure:"JWT_CODE"`
+
+	JWTAdmin string `mapstructure:"JWT_SECRET_ADMIN"`
+	JWTUser  string `mapstructure:"JWT_SECRET_USER"`
 
 	AUTHTOKEN  string `mapstructure:"AUTH_TOKEN"`
 	ACCOUNTSID string `mapstructure:"ACCOUNT_SID"`
@@ -33,7 +37,7 @@ type Config struct {
 // to hold all names of env variables
 var envsNames = []string{
 	"DB_HOST", "DB_NAME", "DB_USER", "DB_PASSWORD", "DB_PORT", // databse
-	"JWT_CODE",                                 // jwt
+	"JWT_CODE", "JWT_SECRET_ADMIN", "JWT_SECRET_USER", // jwt
 	"AUTH_TOKEN", "ACCOUNT_SID", "SERVICE_SID", // twillio
 	"RAZOR_PAY_KEY", "RAZOR_PAY_SECRET", // razor pay
 	"STRIPE_SECRET", "STRIPE_PUBLISH_KEY", "STRIPE_WEBHOOK", // stripe
@@ -67,17 +71,27 @@ func LoadConfig() (Config, error) {
 	if err := validator.New().Struct(config); err != nil {
 		return config, err // error when validating struct
 	}
-
 	//successfully loaded the env values into struct config
 	return config, nil
 }
 
 // to get the secred code for jwt
+func GetJWTSecret() JwtSecret {
+	return JwtSecret{
+		JWTAdmin: config.JWTAdmin,
+		JWTUser:  config.JWTUser,
+	}
+}
 func GetJWTCofig() string {
-
 	return config.JWT
 }
 
+type JwtSecret struct {
+	JWTAdmin string
+	JWTUser  string
+}
+
 func GetCofig() Config {
+
 	return config
 }

@@ -30,6 +30,7 @@ run:
 
  # to test all tests in current and sub modlues
 test:
+	$(GOCMD) generate ./...
 	$(GOCMD) test ./... -cover
 
  # to test the tests and store on variable code_coverage and show as an html
@@ -40,7 +41,7 @@ test-coverage:
 # to install dependencies packges latest version if its not in local package
 deps: 
 	$(GOCMD) get -u -t -d -v ./...
-	#remove un used dependencies
+#remove un used dependencies
 	$(GOCMD) mod tidy # 
 # create a vendor file in local 
 #$(GOCMD) mod vendor
@@ -59,6 +60,12 @@ wire:
 ## Generate swagger docs
 swag: 
 	swag init -g pkg/api/server.go -o ./cmd/api/docs
+
+
+## genereate go generate files mainly mock files
+generate:
+		$(GOCMD) generate ./...
+
  
 ## Display this help screen
 help:

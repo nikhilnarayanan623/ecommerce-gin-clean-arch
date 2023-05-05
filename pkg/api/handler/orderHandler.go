@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+	handlerInterface "github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/api/handler/interfaces"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/domain"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/usecase/interfaces"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/utils"
@@ -17,7 +18,7 @@ type OrderHandler struct {
 	orderUseCase interfaces.OrderUseCase
 }
 
-func NewOrderHandler(orderUseCase interfaces.OrderUseCase) *OrderHandler {
+func NewOrderHandler(orderUseCase interfaces.OrderUseCase) handlerInterface.OrderHandler {
 	return &OrderHandler{orderUseCase: orderUseCase}
 }
 

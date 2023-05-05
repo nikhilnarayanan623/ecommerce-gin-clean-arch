@@ -20,23 +20,87 @@ func NewUserRepository(DB *gorm.DB) interfaces.UserRepository {
 	return &userDatabse{DB: DB}
 }
 
+//*new
+
+// func (c *userDatabse) Transaction(ctx context.Context, fn func(c interfaces.UserRepository) error) {
+
+// 	trx := c.DB.Begin()
+// 	userRepo := NewUserRepository(trx)
+
+// 	err := fn(userRepo)
+// 	if err != nil {
+// 		trx.Rollback()
+// 		return
+// 	}
+
+// 	if err := trx.Commit().Error; err != nil {
+// 		fmt.Println("eror on commit", err)
+// 	}
+// }
+
+// func (c *userDatabse) Update1(ctx context.Context, id uint) error {
+// 	fmt.Println("called")
+// 	query := `UPDATE users SET last_name = 'ONE' WHERE id = $1`
+// 	if err := c.DB.Exec(query, id).Error; err != nil {
+// 		return err
+// 	}
+// 	return nil
+// }
+// func (c *userDatabse) Update2(ctx context.Context, id uint) error {
+// 	query := `UPDATE users SET last_name = 'TWO' WHERE id = $1`
+// 	if err := c.DB.Exec(query, id).Error; err != nil {
+// 		return err
+// 	}
+// 	return nil
+// }
+// func (c *userDatabse) Update3(ctx context.Context, id uint) error {
+
+// 	query := `UPDATE users SET last_name = 'FIVE' WHERE id = $1`
+// 	if err := c.DB.Exec(query, id).Error; err != nil {
+// 		return err
+// 	}
+
+// 	return nil
+// }
+
+// func (c *userDatabse) FindUserByColumnNameAndValue(ctx context.Context, columnName string, value any) (user domain.User, err error) {
+// 	query := fmt.Sprintf("SELECT * FROM users WHERE %s = $1", columnName)
+// 	err = c.DB.Raw(query).Scan(&user).Error
+
+// 	return user, err
+// }
+
+func (c *userDatabse) FindUserByEmail(ctx context.Context, email string) (user domain.User, err error) {
+	fmt.Println("called")
+	query := `SELECT * FROM users WHERE email = ?`
+	err = c.DB.Raw(query, email).Scan(&user).Error
+
+	return user, err
+}
+
+func (c *userDatabse) FindUserByPhoneNumber(ctx context.Context, phoneNumber string) (user domain.User, err error) {
+
+	query := `SELECT * FROM users WHERE phone = ?`
+	err = c.DB.Raw(query, phoneNumber).Scan(&user).Error
+
+	return user, err
+}
+func (c *userDatabse) FindUserByUserName(ctx context.Context, userName string) (user domain.User, err error) {
+
+	query := `SELECT * FROM users WHERE user_name = ?`
+	err = c.DB.Raw(query, userName).Scan(&user).Error
+
+	return user, err
+}
+
+//*end
+
 func (c *userDatabse) FindUser(ctx context.Context, user domain.User) (domain.User, error) {
 	// check id,email,phone any of then match i db
 	query := `SELECT * FROM users WHERE id = ? OR email = ? OR phone = ? OR user_name = ?`
 	if err := c.DB.Raw(query, user.ID, user.Email, user.Phone, user.UserName).Scan(&user).Error; err != nil {
 		return user, errors.New("faild to get user")
 	}
-	return user, nil
-}
-
-func (c *userDatabse) FindUserByEmail(ctx context.Context, email string) (user domain.User, err error) {
-	query := `SELECT * FROM users WHERE email = $1`
-
-	err = c.DB.Raw(query, email).Scan(&user).Error
-	if err != nil {
-		return user, fmt.Errorf("faild to find user with email %v", email)
-	}
-	fmt.Println("\n\nuser from db", user)
 	return user, nil
 }
 

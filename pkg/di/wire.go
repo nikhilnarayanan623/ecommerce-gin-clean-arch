@@ -14,16 +14,21 @@ import (
 )
 
 func InitializeApi(cfg config.Config) (*http.ServerHTTP, error) {
+
 	wire.Build(db.ConnectDatbase,
 		// repository
+		repository.NewAuthRepository,
 		repository.NewAdminRepository, repository.NewUserRepository,
 		repository.NewProductRepository, repository.NewOrderRepository,
 		repository.NewCouponRepository,
+
 		//usecase
+		usecase.NewAuthUseCase,
 		usecase.NewAdminUseCase, usecase.NewUserUseCase,
 		usecase.NewProductUseCase, usecase.NewOrderUseCase,
 		usecase.NewCouponUseCase,
 		// handler
+		handler.NewAuthHandler,
 		handler.NewAdminHandler, handler.NewUserHandler,
 		handler.NewProductHandler, handler.NewOrderHandler,
 		handler.NewCouponHandler,

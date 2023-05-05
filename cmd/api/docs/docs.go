@@ -79,7 +79,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/req.ReqUserSignUp"
+                            "$ref": "#/definitions/req.ReqEditUser"
                         }
                     }
                 ],
@@ -423,7 +423,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/req.ReqCoupon"
+                            "$ref": "#/definitions/req.ReqEditCoupon"
                         }
                     }
                 ],
@@ -534,7 +534,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/domain.Offer"
+                            "$ref": "#/definitions/req.ReqOffer"
                         }
                     }
                 ],
@@ -1008,7 +1008,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/req.ReqProduct"
+                            "$ref": "#/definitions/req.ReqProductUpdate"
                         }
                     }
                 ],
@@ -1567,6 +1567,48 @@ const docTemplate = `{
                 }
             }
         },
+        "/coupons": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "tags": [
+                    "User Coupon"
+                ],
+                "summary": "api for user to see all coupons",
+                "operationId": "GetAllCouponsForUser",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Page Number",
+                        "name": "page_number",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Count Of Order",
+                        "name": "count",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successfully go all the coupons",
+                        "schema": {
+                            "$ref": "#/definitions/res.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "faild to get all coupons",
+                        "schema": {
+                            "$ref": "#/definitions/res.Response"
+                        }
+                    }
+                }
+            }
+        },
         "/login": {
             "post": {
                 "security": [
@@ -1587,7 +1629,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/req.LoginStruct"
+                            "$ref": "#/definitions/req.Login"
                         }
                     }
                 ],
@@ -1947,7 +1989,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/req.ReqUserSignUp"
+                            "$ref": "#/definitions/req.ReqUserDetails"
                         }
                     }
                 ],
@@ -2064,37 +2106,6 @@ const docTemplate = `{
                 }
             }
         },
-        "domain.Offer": {
-            "type": "object",
-            "required": [
-                "description",
-                "discount_rate",
-                "end_date",
-                "offer_name",
-                "start_date"
-            ],
-            "properties": {
-                "description": {
-                    "type": "string",
-                    "maxLength": 50,
-                    "minLength": 6
-                },
-                "discount_rate": {
-                    "type": "integer",
-                    "maximum": 100,
-                    "minimum": 1
-                },
-                "end_date": {
-                    "type": "string"
-                },
-                "offer_name": {
-                    "type": "string"
-                },
-                "start_date": {
-                    "type": "string"
-                }
-            }
-        },
         "req.BlockStruct": {
             "type": "object",
             "required": [
@@ -2103,6 +2114,32 @@ const docTemplate = `{
             "properties": {
                 "user_id": {
                     "type": "integer"
+                }
+            }
+        },
+        "req.Login": {
+            "type": "object",
+            "required": [
+                "password"
+            ],
+            "properties": {
+                "email": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string",
+                    "maxLength": 30,
+                    "minLength": 5
+                },
+                "phone": {
+                    "type": "string",
+                    "maxLength": 10,
+                    "minLength": 10
+                },
+                "user_name": {
+                    "type": "string",
+                    "maxLength": 15,
+                    "minLength": 3
                 }
             }
         },
@@ -2337,6 +2374,126 @@ const docTemplate = `{
                 }
             }
         },
+        "req.ReqEditCoupon": {
+            "type": "object",
+            "required": [
+                "coupon_name",
+                "description",
+                "discount_rate",
+                "expire_date",
+                "image",
+                "minimum_cart_price"
+            ],
+            "properties": {
+                "block_status": {
+                    "type": "boolean"
+                },
+                "coupon_id": {
+                    "type": "integer"
+                },
+                "coupon_name": {
+                    "type": "string",
+                    "maxLength": 25,
+                    "minLength": 3
+                },
+                "description": {
+                    "type": "string",
+                    "maxLength": 150,
+                    "minLength": 6
+                },
+                "discount_rate": {
+                    "type": "integer",
+                    "maximum": 100,
+                    "minimum": 1
+                },
+                "expire_date": {
+                    "type": "string"
+                },
+                "image": {
+                    "type": "string"
+                },
+                "minimum_cart_price": {
+                    "type": "integer",
+                    "minimum": 1
+                }
+            }
+        },
+        "req.ReqEditUser": {
+            "type": "object",
+            "required": [
+                "age",
+                "email",
+                "first_name",
+                "last_name",
+                "phone",
+                "user_name"
+            ],
+            "properties": {
+                "age": {
+                    "type": "integer"
+                },
+                "confirm_password": {
+                    "type": "string"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "first_name": {
+                    "type": "string",
+                    "maxLength": 50,
+                    "minLength": 2
+                },
+                "last_name": {
+                    "type": "string",
+                    "maxLength": 50,
+                    "minLength": 1
+                },
+                "password": {
+                    "type": "string"
+                },
+                "phone": {
+                    "type": "string",
+                    "maxLength": 10,
+                    "minLength": 10
+                },
+                "user_name": {
+                    "type": "string",
+                    "maxLength": 15,
+                    "minLength": 3
+                }
+            }
+        },
+        "req.ReqOffer": {
+            "type": "object",
+            "required": [
+                "description",
+                "discount_rate",
+                "end_date",
+                "offer_name",
+                "start_date"
+            ],
+            "properties": {
+                "description": {
+                    "type": "string",
+                    "maxLength": 50,
+                    "minLength": 6
+                },
+                "discount_rate": {
+                    "type": "integer",
+                    "maximum": 100,
+                    "minimum": 1
+                },
+                "end_date": {
+                    "type": "string"
+                },
+                "offer_name": {
+                    "type": "string"
+                },
+                "start_date": {
+                    "type": "string"
+                }
+            }
+        },
         "req.ReqOfferCategory": {
             "type": "object",
             "required": [
@@ -2400,9 +2557,6 @@ const docTemplate = `{
                     "maxLength": 100,
                     "minLength": 10
                 },
-                "id": {
-                    "type": "integer"
-                },
                 "image": {
                     "type": "string"
                 },
@@ -2448,6 +2602,41 @@ const docTemplate = `{
                 }
             }
         },
+        "req.ReqProductUpdate": {
+            "type": "object",
+            "required": [
+                "category_id",
+                "description",
+                "id",
+                "image",
+                "price",
+                "product_name"
+            ],
+            "properties": {
+                "category_id": {
+                    "type": "integer"
+                },
+                "description": {
+                    "type": "string",
+                    "maxLength": 100,
+                    "minLength": 10
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "image": {
+                    "type": "string"
+                },
+                "price": {
+                    "type": "integer"
+                },
+                "product_name": {
+                    "type": "string",
+                    "maxLength": 50,
+                    "minLength": 3
+                }
+            }
+        },
         "req.ReqReturn": {
             "type": "object",
             "required": [
@@ -2457,7 +2646,7 @@ const docTemplate = `{
             "properties": {
                 "return_reason": {
                     "type": "string",
-                    "maxLength": 50,
+                    "maxLength": 150,
                     "minLength": 6
                 },
                 "shop_order_id": {
@@ -2497,7 +2686,7 @@ const docTemplate = `{
                 }
             }
         },
-        "req.ReqUserSignUp": {
+        "req.ReqUserDetails": {
             "type": "object",
             "required": [
                 "age",
@@ -2584,7 +2773,7 @@ const docTemplate = `{
                 "message": {
                     "type": "string"
                 },
-                "status": {
+                "status_code": {
                     "type": "integer"
                 }
             }

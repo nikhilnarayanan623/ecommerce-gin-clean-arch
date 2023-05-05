@@ -8,6 +8,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/copier"
+	handlerInterface "github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/api/handler/interfaces"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/auth"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/domain"
 	service "github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/usecase/interfaces"
@@ -20,7 +21,7 @@ type AdminHandler struct {
 	adminUseCase service.AdminUseCase
 }
 
-func NewAdminHandler(adminUsecase service.AdminUseCase) *AdminHandler {
+func NewAdminHandler(adminUsecase service.AdminUseCase) handlerInterface.AdminHandler {
 	return &AdminHandler{adminUseCase: adminUsecase}
 }
 

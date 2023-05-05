@@ -18,6 +18,7 @@ import (
 	"github.com/razorpay/razorpay-go"
 	"github.com/stripe/stripe-go/v72"
 	"github.com/stripe/stripe-go/v72/paymentintent"
+	"golang.org/x/crypto/bcrypt"
 )
 
 // take userId from context
@@ -206,4 +207,33 @@ func VeifyStripePaymentIntentByID(paymentID string) error {
 	}
 
 	return nil
+}
+
+func GenerateRandomString(length int) string {
+	sku := make([]byte, length)
+
+	rand.Read(sku)
+
+	return hex.EncodeToString(sku)
+}
+
+func RandomInt(min, max int) int {
+	rand.Seed(time.Hour.Nanoseconds())
+
+	return rand.Intn(max-min) + min
+}
+
+func GetHashedPassword(password string) (hashedPassword string, err error) {
+
+	hash, err := bcrypt.GenerateFromPassword([]byte(password), 10)
+	if err != nil {
+		return hashedPassword, err
+	}
+	hashedPassword = string(hash)
+	return hashedPassword, nil
+}
+
+func ComparePasswordWithHashedPassword(actualpassword, hashedPassword string) error {
+	err := bcrypt.CompareHashAndPassword([]byte(hashedPassword), []byte(actualpassword))
+	return err
 }
