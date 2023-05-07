@@ -27,21 +27,6 @@ type UserRepository interface {
 	SaveUserWithGoogleDetails(ctx context.Context, user domain.User) (userID uint, err error)
 	UpdateUser(ctx context.Context, user domain.User) (err error)
 
-	// cart
-	FindProductItem(ctx context.Context, productItemID uint) (domain.ProductItem, error)
-
-	//cart item
-	FindCartByUserID(ctx context.Context, userID uint) (cart domain.Cart, err error)
-	SaveCart(ctx context.Context, userID uint) (cart domain.Cart, err error)
-	//FindCartTotalPrice(ctx context.Context, userID uint, includeOutOfStck bool) (uint, error)
-
-	FindCartItemByID(ctx context.Context, cartItemID uint) (cartItem domain.CartItem, err error)
-	FindCartItemByCartAndProductItemID(ctx context.Context, cartID, productItemID uint) (cartItem domain.CartItem, err error)
-	FindAllCartItemsByCartID(ctx context.Context, cartID uint) (cartItems []res.ResCartItem, err error)
-	SaveCartItem(ctx context.Context, cartId, productItemId uint) error
-	DeleteCartItem(ctx context.Context, cartItemID uint) error
-	UpdateCartItemQty(ctx context.Context, cartItemId, qty uint) error
-
 	//address
 	FindCountryByID(ctx context.Context, countryID uint) (domain.Country, error)                          // find country by id
 	FindAddressByID(ctx context.Context, addressID uint) (domain.Address, error)                          // find address by id

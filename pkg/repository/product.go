@@ -197,6 +197,15 @@ func (c *productDatabase) FindAllProducts(ctx context.Context, pagination req.Re
 	return products, nil
 }
 
+// to get productItem id
+func (c *productDatabase) FindProductItem(ctx context.Context, productItemID uint) (productItem domain.ProductItem, err error) {
+
+	query := `SELECT * FROM product_items WHERE id = $1`
+	err = c.DB.Raw(query, productItemID).Scan(&productItem).Error
+
+	return productItem, err
+}
+
 // add a new product Items on database
 func (c *productDatabase) SaveProductItem(ctx context.Context, reqProductItem req.ReqProductItem) error {
 

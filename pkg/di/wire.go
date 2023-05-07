@@ -23,17 +23,20 @@ func InitializeApi(cfg config.Config) (*http.ServerHTTP, error) {
 		middleware.NewMiddleware,
 		repository.NewAuthRepository,
 		repository.NewAdminRepository, repository.NewUserRepository,
+		repository.NewCartRepository,
 		repository.NewProductRepository, repository.NewOrderRepository,
 		repository.NewCouponRepository,
 
 		//usecase
 		usecase.NewAuthUseCase,
 		usecase.NewAdminUseCase, usecase.NewUserUseCase,
+		usecase.NewCartUseCase,
 		usecase.NewProductUseCase, usecase.NewOrderUseCase,
 		usecase.NewCouponUseCase,
 		// handler
 		handler.NewAuthHandler,
 		handler.NewAdminHandler, handler.NewUserHandler,
+		handler.NewCartHandler,
 		handler.NewProductHandler, handler.NewOrderHandler,
 		handler.NewCouponHandler,
 		http.NewServerHTTP,

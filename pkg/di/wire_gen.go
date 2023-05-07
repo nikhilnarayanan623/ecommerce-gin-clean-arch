@@ -33,9 +33,12 @@ func InitializeApi(cfg config.Config) (*http.ServerHTTP, error) {
 	middlewareMiddleware := middleware.NewMiddleware(tokenAuth)
 	adminUseCase := usecase.NewAdminUseCase(adminRepository)
 	adminHandler := handler.NewAdminHandler(adminUseCase)
-	userUseCase := usecase.NewUserUseCase(userRepository)
+	cartRepository := repository.NewCartRepository(gormDB)
+	userUseCase := usecase.NewUserUseCase(userRepository, cartRepository)
 	userHandler := handler.NewUserHandler(userUseCase)
 	productRepository := repository.NewProductRepository(gormDB)
+	cartUseCase := usecase.NewCartUseCase(cartRepository, productRepository)
+	cartHandler := handler.NewCartHandler(cartUseCase)
 	productUseCase := usecase.NewProductUseCase(productRepository)
 	productHandler := handler.NewProductHandler(productUseCase)
 	orderRepository := repository.NewOrderRepository(gormDB)
@@ -44,6 +47,6 @@ func InitializeApi(cfg config.Config) (*http.ServerHTTP, error) {
 	couponRepository := repository.NewCouponRepository(gormDB)
 	couponUseCase := usecase.NewCouponUseCase(couponRepository)
 	couponHandler := handler.NewCouponHandler(couponUseCase)
-	serverHTTP := http.NewServerHTTP(authHandler, middlewareMiddleware, adminHandler, userHandler, productHandler, orderHandler, couponHandler)
+	serverHTTP := http.NewServerHTTP(authHandler, middlewareMiddleware, adminHandler, userHandler, cartHandler, productHandler, orderHandler, couponHandler)
 	return serverHTTP, nil
 }

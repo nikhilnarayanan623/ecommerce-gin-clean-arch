@@ -9,6 +9,7 @@ import (
 )
 
 type ProductRepository interface {
+	//product
 	FindProductByID(ctx context.Context, productID uint) (product domain.Product, err error)
 	FindProduct(ctx context.Context, product domain.Product) (domain.Product, error)
 
@@ -17,6 +18,7 @@ type ProductRepository interface {
 	UpdateProduct(ctx context.Context, product domain.Product) error
 
 	// product items
+	FindProductItem(ctx context.Context, productItemID uint) (domain.ProductItem, error)
 	FindAllProductItems(ctx context.Context, productID uint) ([]res.RespProductItems, error)
 	//FindAllProductItemImages(ctx context.Context, productItemID uint) (images []string, err error)
 	SaveProductItem(ctx context.Context, productItem req.ReqProductItem) error

@@ -18,10 +18,14 @@ import (
 
 type userUserCase struct {
 	userRepo interfaces.UserRepository
+	cartRepo interfaces.CartRepository
 }
 
-func NewUserUseCase(repo interfaces.UserRepository) service.UserUseCase {
-	return &userUserCase{userRepo: repo}
+func NewUserUseCase(userRepo interfaces.UserRepository, cartRepo interfaces.CartRepository) service.UserUseCase {
+	return &userUserCase{
+		userRepo: userRepo,
+		cartRepo: cartRepo,
+	}
 }
 
 // google login
@@ -154,152 +158,6 @@ func (c *userUserCase) EditAccount(ctx context.Context, user domain.User) error 
 	return nil
 }
 
-// get user cart(it include total price and cartId)
-func (c *userUserCase) GetUserCart(ctx context.Context, userID uint) (cart domain.Cart, err error) {
-
-	cart, err = c.userRepo.FindCartByUserID(ctx, userID)
-	if err != nil {
-		return cart, err
-	}
-
-	return cart, err
-}
-
-func (c *userUserCase) SaveToCart(ctx context.Context, body req.ReqCart) (err error) {
-
-	// get the productitem to check product is valid
-	productItem, err := c.userRepo.FindProductItem(ctx, body.ProductItemID)
-	if err != nil {
-		return err
-	} else if productItem.ID == 0 {
-		return errors.New("invalid product_item id")
-	}
-
-	// check productItem is out of stock or not
-	if productItem.QtyInStock == 0 {
-		return errors.New("product is now out of stock")
-	}
-
-	// find the cart of user
-	cart, err := c.userRepo.FindCartByUserID(ctx, body.UserID)
-	if err != nil {
-		return err
-	} else if cart.CartID == 0 { // if there is no cart is available for user then create it
-		cart, err = c.userRepo.SaveCart(ctx, body.UserID)
-		if err != nil {
-			return err
-		}
-		log.Println(cart.CartID)
-	}
-
-	// check the given product item is already exit in user cart
-	cartItem, err := c.userRepo.FindCartItemByCartAndProductItemID(ctx, cart.CartID, body.ProductItemID)
-	if err != nil {
-		return err
-	} else if cartItem.CartItemID != 0 {
-		return errors.New("product_item already exist on the cart can't save product to cart")
-	}
-
-	// add productItem to cartItem
-	if err := c.userRepo.SaveCartItem(ctx, cart.CartID, body.ProductItemID); err != nil {
-		return err
-	}
-
-	log.Printf("product_item_id %v saved on cart of  user_id %v", body.ProductItemID, body.UserID)
-	return nil
-}
-
-func (c *userUserCase) RemoveCartItem(ctx context.Context, body req.ReqCart) error {
-
-	// validate the product
-	productItem, err := c.userRepo.FindProductItem(ctx, body.ProductItemID)
-
-	if err != nil {
-		return err
-	} else if productItem.ID == 0 {
-		return errors.New("invalid product_id")
-	}
-
-	// Find cart of user
-	cart, err := c.userRepo.FindCartByUserID(ctx, body.UserID)
-	if err != nil {
-		return err
-	} else if cart.CartID == 0 {
-		return errors.New("can't remove product_item from user cart \n user cart is empty")
-	}
-
-	// check the product_item exist on user cart
-	cartItem, err := c.userRepo.FindCartItemByCartAndProductItemID(ctx, cart.CartID, body.ProductItemID)
-	if err != nil {
-		return err
-	} else if cartItem.CartItemID == 0 {
-		return fmt.Errorf("prduct_item with id %v is not exist on user cart", body.ProductItemID)
-	}
-	// then remvoe cart_item
-	err = c.userRepo.DeleteCartItem(ctx, cartItem.CartItemID)
-	if err != nil {
-		return err
-	}
-
-	log.Printf("product_item with id %v removed form user cart with usre id %v", body.ProductItemID, body.UserID)
-	return nil
-}
-
-func (c *userUserCase) UpdateCartItem(ctx context.Context, body req.ReqCartCount) error {
-
-	//check the given product_item_id is valid or not
-	productItem, err := c.userRepo.FindProductItem(ctx, body.ProductItemID)
-	if err != nil {
-		return err
-	} else if productItem.ID == 0 {
-		return errors.New("invalid product_item_id")
-	}
-
-	if body.Count < 1 {
-		return fmt.Errorf("can't change cart_item qty to %v \n minuimun qty is 1", body.Count)
-	}
-
-	// check the given qty of product_item updation is morethan prodct_item qty
-	if body.Count > productItem.QtyInStock {
-		return errors.New("there is not this much quantity available in product_item")
-	}
-
-	// find the cart of user
-	cart, err := c.userRepo.FindCartByUserID(ctx, body.UserID)
-	if err != nil {
-		return err
-	} else if cart.CartID == 0 {
-		return errors.New("user cart is empty")
-	}
-
-	// find the cart_item with given product_id and user cart_id  and check the product_item present in cart or no
-	cartItem, err := c.userRepo.FindCartItemByCartAndProductItemID(ctx, cart.CartID, body.ProductItemID)
-	if err != nil {
-		return err
-	} else if cartItem.CartItemID == 0 {
-		return fmt.Errorf("product_item not exist in the cart with given product_item_id %v", body.ProductItemID)
-	}
-
-	// update the cart_item qty
-	if err := c.userRepo.UpdateCartItemQty(ctx, cartItem.CartItemID, body.Count); err != nil {
-		return err
-	}
-
-	log.Printf("updated user carts product_items qty of product_item_id %v , qty %v", body.ProductItemID, body.Count)
-	return nil
-}
-
-func (c *userUserCase) GetUserCartItems(ctx context.Context, cartId uint) (cartItems []res.ResCartItem, err error) {
-	// get the cart_items of user
-	cartItems, err = c.userRepo.FindAllCartItemsByCartID(ctx, cartId)
-	if err != nil {
-		return cartItems, err
-	}
-
-	log.Printf("sucessfully got all cart_items of user wtih cart_id %v", cartId)
-	return cartItems, nil
-}
-
 // adddress
 func (c *userUserCase) SaveAddress(ctx context.Context, userID uint, address domain.Address, isDefault bool) error {
 	//check the address is already exist for the user
@@ -391,7 +249,11 @@ func (c *userUserCase) GetAddresses(ctx context.Context, userID uint) ([]res.Res
 func (c *userUserCase) AddToWishList(ctx context.Context, wishList domain.WishList) error {
 
 	// first check the producItemID is valid or not
-	productItem, err := c.userRepo.FindProductItem(ctx, wishList.ProductItemID)
+	//productItem, err := c.userRepo.FindProductItem(ctx, wishList.ProductItemID)
+	var (
+		productItem domain.ProductItem
+		err         error
+	)
 	if err != nil {
 		return err
 	} else if productItem.ID == 0 {
@@ -418,7 +280,11 @@ func (c *userUserCase) AddToWishList(ctx context.Context, wishList domain.WishLi
 func (c *userUserCase) RemoveFromWishList(ctx context.Context, wishList domain.WishList) error {
 
 	// first check the producItemID is valid or not
-	productItem, err := c.userRepo.FindProductItem(ctx, wishList.ProductItemID)
+	//productItem, err := c.userRepo.FindProductItem(ctx, wishList.ProductItemID)
+	var (
+		productItem domain.ProductItem
+		err         error
+	)
 	if err != nil {
 		return err
 	} else if productItem.ID == 0 {

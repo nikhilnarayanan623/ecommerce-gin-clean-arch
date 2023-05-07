@@ -7,7 +7,8 @@ import (
 )
 
 func UserRoutes(api *gin.RouterGroup, authHandler handlerInterface.AuthHandler, middleware middleware.Middleware,
-	userHandler handlerInterface.UserHandler, ProductHandler handlerInterface.ProductHandler,
+	userHandler handlerInterface.UserHandler, cartHandler handlerInterface.CartHandler,
+	ProductHandler handlerInterface.ProductHandler,
 	orderHandler handlerInterface.OrderHandler, couponHandler handlerInterface.CouponHandler,
 ) {
 
@@ -44,32 +45,32 @@ func UserRoutes(api *gin.RouterGroup, authHandler handlerInterface.AuthHandler, 
 		// 	}
 
 		// 	// cart
-		// 	cart := api.Group("/carts")
-		// 	{
-		// 		cart.GET("/", userHandler.UserCart)
-		// 		cart.POST("/", userHandler.AddToCart)
-		// 		cart.PUT("/", userHandler.UpdateCart)
-		// 		cart.DELETE("/", userHandler.RemoveFromCart)
+		cart := api.Group("/carts")
+		{
+			cart.GET("/", cartHandler.ShowCart)
+			cart.POST("/", cartHandler.AddToCart)
+			cart.PUT("/", cartHandler.UpdateCart)
+			cart.DELETE("/", cartHandler.RemoveFromCart)
 
-		// 		cart.PATCH("/apply-coupon", couponHandler.ApplyCouponToCart)
+			// 		cart.PATCH("/apply-coupon", couponHandler.ApplyCouponToCart)
 
-		// 		cart.GET("/paymet-methods", orderHandler.GetAllPaymentMethods)
+			// 		cart.GET("/paymet-methods", orderHandler.GetAllPaymentMethods)
 
-		// 		cart.POST("/place-order/cod", orderHandler.PlaceOrderCartCOD) // place an order
+			// 		cart.POST("/place-order/cod", orderHandler.PlaceOrderCartCOD) // place an order
 
-		// 		//cart.GET("/checkout", userHandler.CheckOutCart, orderHandler.GetAllPaymentMethods)
+			// 		//cart.GET("/checkout", userHandler.CheckOutCart, orderHandler.GetAllPaymentMethods)
 
-		// 		// page for select payment method
-		// 		cart.GET("/checkout/payemt-select-page", orderHandler.CartOrderPayementSelectPage)
+			// 		// page for select payment method
+			// 		cart.GET("/checkout/payemt-select-page", orderHandler.CartOrderPayementSelectPage)
 
-		// 		// make razorpay order and verify
-		// 		cart.POST("/place-order/razorpay-checkout", orderHandler.RazorpayCheckout)
-		// 		cart.POST("/place-order/razorpay-verify", orderHandler.RazorpayVerify)
+			// 		// make razorpay order and verify
+			// 		cart.POST("/place-order/razorpay-checkout", orderHandler.RazorpayCheckout)
+			// 		cart.POST("/place-order/razorpay-verify", orderHandler.RazorpayVerify)
 
-		// 		// stripe
-		// 		cart.POST("/place-order/stripe-checkout", orderHandler.StripPaymentCheckout)
-		// 		cart.POST("/place-order/stripe/stripe-verify", orderHandler.StripePaymentVeify)
-		// 	}
+			// 		// stripe
+			// 		cart.POST("/place-order/stripe-checkout", orderHandler.StripPaymentCheckout)
+			// 		cart.POST("/place-order/stripe/stripe-verify", orderHandler.StripePaymentVeify)
+		}
 
 		// 	//wishlist
 		// 	wishList := api.Group("/wishlist")
