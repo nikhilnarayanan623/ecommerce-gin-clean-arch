@@ -6,6 +6,7 @@ import (
 	"github.com/gin-gonic/gin"
 	_ "github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/cmd/api/docs"
 	handlerInterface "github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/api/handler/interfaces"
+	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/api/middleware"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/api/routes"
 	swaggerfiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
@@ -15,7 +16,8 @@ type ServerHTTP struct {
 	Engine *gin.Engine
 }
 
-func NewServerHTTP(authHandler handlerInterface.AuthHandler, adminHandler handlerInterface.AdminHandler, userHandler handlerInterface.UserHandler,
+func NewServerHTTP(authHandler handlerInterface.AuthHandler, middleware middleware.Middleware,
+	adminHandler handlerInterface.AdminHandler, userHandler handlerInterface.UserHandler,
 	productHandler handlerInterface.ProductHandler, orderHandler handlerInterface.OrderHandler,
 	couponHandler handlerInterface.CouponHandler) *ServerHTTP {
 
@@ -29,8 +31,8 @@ func NewServerHTTP(authHandler handlerInterface.AuthHandler, adminHandler handle
 	engine.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
 
 	// set up routes
-	routes.UserRoutes(engine.Group("/"), authHandler, userHandler, productHandler, orderHandler, couponHandler)
-	routes.AdminRoutes(engine.Group("/admin"), adminHandler, productHandler, orderHandler, couponHandler)
+	routes.UserRoutes(engine.Group("/"), authHandler, middleware, userHandler, productHandler, orderHandler, couponHandler)
+	routes.AdminRoutes(engine.Group("/admin"), authHandler, middleware, adminHandler, productHandler, orderHandler, couponHandler)
 
 	// no handler
 	engine.NoRoute(func(ctx *gin.Context) {

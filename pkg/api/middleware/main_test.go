@@ -1,4 +1,4 @@
-package handler
+package middleware
 
 import (
 	"os"
@@ -6,10 +6,6 @@ import (
 
 	"github.com/gin-gonic/gin"
 )
-
-type ServerHTTP struct {
-	Engine *gin.Engine
-}
 
 func TestMain(m *testing.M) {
 	gin.SetMode(gin.TestMode)

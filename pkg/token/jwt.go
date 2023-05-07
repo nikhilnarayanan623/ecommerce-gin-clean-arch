@@ -2,52 +2,21 @@ package token
 
 import (
 	"errors"
-	"time"
 
 	"github.com/golang-jwt/jwt"
-	"github.com/google/uuid"
+	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/config"
 )
-
-type UserType string
-
-const (
-	TokenForAdmin UserType = "admin"
-	TokenForUser  UserType = "user"
-)
-
-type TokenAuth interface {
-	CreateToken(payload *Payload, user UserType) (tokenString string, err error)
-	VerifyToken(tokenString string, user UserType) (payload *Payload, err error)
-}
 
 type jwtAuth struct {
 	adminSecretKey string
 	userSecretKey  string
 }
 
-func NewJWTAuth(adminSecretKey, userSecretKey string) TokenAuth {
+func NewJWTAuth(cfg config.Config) TokenAuth {
 	return &jwtAuth{
-		adminSecretKey: adminSecretKey,
-		userSecretKey:  userSecretKey,
+		adminSecretKey: cfg.JWTAdmin,
+		userSecretKey:  cfg.JWTUser,
 	}
-}
-
-type Payload struct {
-	TokenID  uuid.UUID `json:"token_id"`
-	UserID   uint      `json:"user_id"`
-	ExpireAt time.Time `json:"expire_at"`
-}
-
-var (
-	errExpiredToken = errors.New("token expired")
-	errInvalidToken = errors.New("invalid token")
-)
-
-func (c *Payload) Valid() error {
-	if time.Since(c.ExpireAt) > 0 {
-		return errExpiredToken
-	}
-	return nil
 }
 
 func (c *jwtAuth) CreateToken(payload *Payload, usedFor UserType) (tokenString string, err error) {
@@ -77,7 +46,7 @@ func (c *jwtAuth) CreateToken(payload *Payload, usedFor UserType) (tokenString s
 	return tokenString, nil
 }
 
-func (c *jwtAuth) VerifyToken(tokenString string, usedFor UserType) (payload *Payload, err error) {
+func (c *jwtAuth) VerifyToken(tokenString string, usedFor UserType) (payload Payload, err error) {
 
 	var signInKey []byte
 
@@ -87,7 +56,7 @@ func (c *jwtAuth) VerifyToken(tokenString string, usedFor UserType) (payload *Pa
 	case TokenForUser:
 		signInKey = []byte(c.userSecretKey)
 	default:
-		return nil, errors.New("invalid user_type")
+		return payload, errors.New("invalid user_type")
 	}
 
 	jwtToken, err := jwt.ParseWithClaims(tokenString, &Payload{}, func(t *jwt.Token) (interface{}, error) {
@@ -99,17 +68,18 @@ func (c *jwtAuth) VerifyToken(tokenString string, usedFor UserType) (payload *Pa
 
 	if err != nil {
 		validationErr, ok := err.(*jwt.ValidationError)
-
 		if ok && errors.Is(validationErr.Inner, errExpiredToken) {
-			return nil, errExpiredToken
+			return payload, errExpiredToken
 		}
-		return nil, errInvalidToken
+		return payload, errInvalidToken
 	}
 
-	payload, ok := jwtToken.Claims.(*Payload)
+	convertedPayload, ok := jwtToken.Claims.(*Payload)
 	if !ok {
-		return nil, errInvalidToken
+		return payload, errInvalidToken
 	}
+
+	payload = *convertedPayload
 
 	return
 }

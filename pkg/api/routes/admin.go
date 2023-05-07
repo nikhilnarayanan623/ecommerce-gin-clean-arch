@@ -3,11 +3,12 @@ package routes
 import (
 	"github.com/gin-gonic/gin"
 	handlerInterface "github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/api/handler/interfaces"
+	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/api/middleware"
 )
 
-func AdminRoutes(api *gin.RouterGroup, adminHandler handlerInterface.AdminHandler,
-	productHandler handlerInterface.ProductHandler, orderHandler handlerInterface.OrderHandler,
-	couponHandler handlerInterface.CouponHandler,
+func AdminRoutes(api *gin.RouterGroup, authHandler handlerInterface.AuthHandler, middleware middleware.Middleware,
+	adminHandler handlerInterface.AdminHandler, productHandler handlerInterface.ProductHandler,
+	orderHandler handlerInterface.OrderHandler, couponHandler handlerInterface.CouponHandler,
 
 ) {
 	// login

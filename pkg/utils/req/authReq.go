@@ -6,3 +6,7 @@ type Login struct {
 	Email    string `json:"email" binding:"omitempty,email"`
 	Password string `json:"password" binding:"required,min=5,max=30"`
 }
+
+type RefreshToken struct {
+	RefreshToken string `json:"refresh_token" binding:"min=10"`
+}

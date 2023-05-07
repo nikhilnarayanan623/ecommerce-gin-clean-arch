@@ -6,7 +6,8 @@ import (
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/api/middleware"
 )
 
-func UserRoutes(api *gin.RouterGroup, authHandler handlerInterface.AuthHandler, userHandler handlerInterface.UserHandler, ProductHandler handlerInterface.ProductHandler,
+func UserRoutes(api *gin.RouterGroup, authHandler handlerInterface.AuthHandler, middleware middleware.Middleware,
+	userHandler handlerInterface.UserHandler, ProductHandler handlerInterface.ProductHandler,
 	orderHandler handlerInterface.OrderHandler, couponHandler handlerInterface.CouponHandler,
 ) {
 
@@ -22,6 +23,7 @@ func UserRoutes(api *gin.RouterGroup, authHandler handlerInterface.AuthHandler, 
 		// login.GET("/auth/", userHandler.IntitializeGoogleAuth)
 		// login.GET("/auth/google/callback", userHandler.CallbackAuth)
 	}
+	api.POST("/renew-access-token", authHandler.UserRenewRefreshToken())
 	// //signup
 	// signup := api.Group("/signup")
 	// {

@@ -7,9 +7,11 @@ import (
 	"github.com/google/wire"
 	http "github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/api"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/api/handler"
+	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/api/middleware"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/config"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/db"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/repository"
+	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/token"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/usecase"
 )
 
@@ -17,6 +19,8 @@ func InitializeApi(cfg config.Config) (*http.ServerHTTP, error) {
 
 	wire.Build(db.ConnectDatbase,
 		// repository
+		token.NewJWTAuth,
+		middleware.NewMiddleware,
 		repository.NewAuthRepository,
 		repository.NewAdminRepository, repository.NewUserRepository,
 		repository.NewProductRepository, repository.NewOrderRepository,

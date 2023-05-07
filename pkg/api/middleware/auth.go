@@ -2,19 +2,26 @@ package middleware
 
 import (
 	"errors"
-	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/config"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/token"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/utils/res"
 )
 
-var tokenAuth token.TokenAuth
+type Middleware interface {
+	GetUserMiddleware() gin.HandlerFunc
+	GetAdminMiddleware() gin.HandlerFunc
+}
 
-func SetupMiddleware(cfg config.Config) {
-	tokenAuth = token.NewJWTAuth(cfg.JWTAdmin, cfg.JWTUser)
+type middleware struct {
+	tokenAuth token.TokenAuth
+}
+
+func NewMiddleware(tokenAuth token.TokenAuth) Middleware {
+	return &middleware{
+		tokenAuth: tokenAuth,
+	}
 }
 
 // const (
@@ -22,17 +29,17 @@ func SetupMiddleware(cfg config.Config) {
 // 	authorizationType      string = "bearer"
 // )
 
-func GetUserMiddleware() gin.HandlerFunc {
+func (c *middleware) GetUserMiddleware() gin.HandlerFunc {
 	//return middleware(token.TokenForUser)
-	return middlewareUsingCookie(token.TokenForUser)
+	return c.middlewareUsingCookie(token.TokenForUser)
 }
 
-func GetAdminMiddleware() gin.HandlerFunc {
+func (c *middleware) GetAdminMiddleware() gin.HandlerFunc {
 	//return middleware(token.TokenForAdmin)
-	return middlewareUsingCookie(token.TokenForAdmin)
+	return c.middlewareUsingCookie(token.TokenForAdmin)
 }
 
-// func middleware(tokenUser token.UserType) gin.HandlerFunc {
+// func (c *middleware) middleware(tokenUser token.UserType) gin.HandlerFunc {
 // 	return func(ctx *gin.Context) {
 
 // 		autherizationHeaderValue := ctx.GetHeader(authorizationHeaderKey)
@@ -56,7 +63,7 @@ func GetAdminMiddleware() gin.HandlerFunc {
 // 			return
 // 		}
 
-// 		payload, err := tokenAuth.VerifyToken(headerAccessToken, tokenUser)
+// 		payload, err := c.tokenAuth.VerifyToken(headerAccessToken, tokenUser)
 
 // 		if err != nil {
 // 			ctx.Abort()
@@ -69,26 +76,27 @@ func GetAdminMiddleware() gin.HandlerFunc {
 // 	}
 // }
 
-func middlewareUsingCookie(tokenUser token.UserType) gin.HandlerFunc {
+func (c *middleware) middlewareUsingCookie(tokenUser token.UserType) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 
-		accessToken, err := ctx.Cookie("user-auth")
+		cookieName := "auth-" + string(tokenUser)
+		accessToken, err := ctx.Cookie(cookieName)
 		if err != nil || accessToken == "" {
 			if accessToken == "" {
 				err = errors.Join(err, errors.New("there is no access token"))
 			}
 			response := res.ErrorResponse(401, "faild to authenticate", err.Error(), nil)
-			ctx.JSON(http.StatusUnauthorized, response)
+			ctx.AbortWithStatusJSON(http.StatusUnauthorized, response)
+			return
 		}
-		payload, err := tokenAuth.VerifyToken(accessToken, tokenUser)
+		payload, err := c.tokenAuth.VerifyToken(accessToken, tokenUser)
 
 		if err != nil {
 			ctx.Abort()
 			response := res.ErrorResponse(401, "faild to authenticate", err.Error(), nil)
-			ctx.JSON(http.StatusUnauthorized, response)
+			ctx.AbortWithStatusJSON(http.StatusUnauthorized, response)
 			return
 		}
-		fmt.Println(payload)
 		ctx.Set("userId", payload.UserID)
 	}
 

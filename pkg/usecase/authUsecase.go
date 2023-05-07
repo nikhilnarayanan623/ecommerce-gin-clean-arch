@@ -2,12 +2,12 @@ package usecase
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"log"
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/config"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/token"
 
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/domain"
@@ -24,8 +24,8 @@ type authUseCase struct {
 	tokenAuth token.TokenAuth
 }
 
-func NewAuthUseCase(userRepo interfaces.UserRepository, adminRepo interfaces.AdminRepository, authRepo interfaces.AuthRepository, cfg config.Config) service.AuthUseCase {
-	tokenAuth := token.NewJWTAuth(cfg.JWTAdmin, cfg.JWTUser)
+func NewAuthUseCase(authRepo interfaces.AuthRepository, tokenAuth token.TokenAuth, userRepo interfaces.UserRepository, adminRepo interfaces.AdminRepository) service.AuthUseCase {
+
 	return &authUseCase{
 		userRepo:  userRepo,
 		adminRepo: adminRepo,
@@ -68,7 +68,7 @@ func (c *authUseCase) UserLogin(ctx context.Context, loginDetails req.Login) (us
 	return user.ID, err
 }
 
-func (c *authUseCase) GenerateAccessToken(ctx context.Context, userID uint, userType token.UserType, expireTimeDuration time.Duration) (tokenString string, err error) {
+func (c *authUseCase) GenerateAccessToken(ctx context.Context, tokenParams service.GenerateTokenParams) (tokenString string, err error) {
 
 	uniqueID, err := uuid.NewRandom()
 	if err != nil {
@@ -76,38 +76,69 @@ func (c *authUseCase) GenerateAccessToken(ctx context.Context, userID uint, user
 	}
 	payload := &token.Payload{
 		TokenID:  uniqueID,
-		UserID:   userID,
-		ExpireAt: time.Now().Add(expireTimeDuration),
+		UserID:   tokenParams.UserID,
+		ExpireAt: tokenParams.ExpireDate,
 	}
-	tokenString, err = c.tokenAuth.CreateToken(payload, userType)
+	tokenString, err = c.tokenAuth.CreateToken(payload, tokenParams.UserType)
 
 	return
 }
-func (c *authUseCase) GenerateRefreshToken(ctx context.Context, userID uint, userType token.UserType, expireTimeDuration time.Duration) (tokenString string, err error) {
+func (c *authUseCase) GenerateRefreshToken(ctx context.Context, tokenParams service.GenerateTokenParams) (tokenString string, err error) {
 	tokenID, err := uuid.NewRandom()
 	if err != nil {
-		return tokenString, nil
+		return "", err
 	}
-	refresTokenExpire := time.Now().Add(expireTimeDuration)
+
+	if time.Since(tokenParams.ExpireDate) > 0 {
+		return
+	}
 
 	payload := &token.Payload{
 		TokenID:  tokenID,
-		UserID:   userID,
-		ExpireAt: refresTokenExpire,
+		UserID:   tokenParams.UserID,
+		ExpireAt: tokenParams.ExpireDate,
 	}
-	tokenString, err = c.tokenAuth.CreateToken(payload, userType)
+	tokenString, err = c.tokenAuth.CreateToken(payload, tokenParams.UserType)
 	if err != nil {
-		return tokenString, err
+		return "", err
 	}
 
 	err = c.authRepo.SaveRefreshSession(ctx, domain.RefreshSession{
+		UserID:       payload.UserID,
 		TokenID:      tokenID,
 		RefreshToken: tokenString,
-		ExpireAt:     refresTokenExpire,
+		ExpireAt:     tokenParams.ExpireDate,
 	})
 	if err != nil {
 		return "", err
 	}
 	log.Printf("successfully refresh token created and refresh session stored in database")
-	return
+	return tokenString, nil
+}
+
+func (c *authUseCase) VerifyAndGetRefreshTokenSession(ctx context.Context, refreshToken string, usedFor token.UserType) (domain.RefreshSession, error) {
+
+	payload, err := c.tokenAuth.VerifyToken(refreshToken, usedFor)
+	if err != nil {
+		return domain.RefreshSession{}, err
+	}
+
+	refreshSession, err := c.authRepo.FindRefreshSessionByTokenID(ctx, payload.TokenID)
+	if err != nil {
+		return refreshSession, err
+	}
+
+	if refreshSession.TokenID == uuid.Nil {
+		return refreshSession, errors.New("there is no refresh token session for this token")
+	}
+
+	if time.Since(refreshSession.ExpireAt) > 0 {
+		return domain.RefreshSession{}, errors.New("given refresh token's session expired")
+	}
+
+	if refreshSession.IsBlocked {
+		return domain.RefreshSession{}, errors.New("given refresh token is blocked")
+	}
+
+	return refreshSession, nil
 }

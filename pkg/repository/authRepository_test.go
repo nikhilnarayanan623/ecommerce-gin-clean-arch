@@ -16,8 +16,8 @@ import (
 )
 
 func TestSaveRefreshSession(t *testing.T) {
-	refreshInserQuery := `INSERT INTO refresh_sessions \(token_id, refresh_token, expire_at\) 
-VALUES \(\$1, \$2, \$3\)`
+	refreshInserQuery := `INSERT INTO refresh_sessions \(token_id, user_id, refresh_token, expire_at\) 
+VALUES \(\$1, \$2, \$3, \$4\)`
 	tests := []struct {
 		testName      string
 		inputField    domain.RefreshSession
@@ -29,7 +29,7 @@ VALUES \(\$1, \$2, \$3\)`
 			inputField: domain.RefreshSession{},
 			buildStub: func(mock sqlmock.Sqlmock, input domain.RefreshSession) {
 				mock.ExpectExec(refreshInserQuery).
-					WithArgs(input.TokenID, input.RefreshToken, input.ExpireAt).
+					WithArgs(input.TokenID, input.UserID, input.RefreshToken, input.ExpireAt).
 					WillReturnError(errors.New("insert into refresh_table violate not null constraints"))
 			},
 			expectedError: errors.New("insert into refresh_table violate not null constraints"),
@@ -39,7 +39,7 @@ VALUES \(\$1, \$2, \$3\)`
 			inputField: domain.RefreshSession{TokenID: uuid.New(), RefreshToken: "refreshTokenString", ExpireAt: time.Now()},
 			buildStub: func(mock sqlmock.Sqlmock, input domain.RefreshSession) {
 				mock.ExpectExec(refreshInserQuery).
-					WithArgs(input.TokenID, input.RefreshToken, input.ExpireAt).
+					WithArgs(input.TokenID, input.UserID, input.RefreshToken, input.ExpireAt).
 					WillReturnResult(driver.ResultNoRows)
 			},
 			expectedError: nil,

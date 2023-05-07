@@ -55,16 +55,24 @@ func (c *AuthHandler) UserLogin(ctx *gin.Context) {
 		return
 	}
 
-	accessTokenTimeDuration := time.Minute * 15
-	accessToken, err := c.authUseCase.GenerateAccessToken(ctx, userID, token.TokenForUser, accessTokenTimeDuration)
+	accessTokenExpireDate := time.Now().Add(time.Minute * 1)
+	accessToken, err := c.authUseCase.GenerateAccessToken(ctx, usecaseInterface.GenerateTokenParams{
+		UserID:     userID,
+		UserType:   token.TokenForUser,
+		ExpireDate: accessTokenExpireDate,
+	})
 	if err != nil {
 		respnonse := res.ErrorResponse(500, "faild to create access token", err.Error(), nil)
 		ctx.JSON(http.StatusInternalServerError, respnonse)
 		return
 	}
 
-	refreshTokenTimeDuration := time.Hour * 24 * 7
-	refreshToken, err := c.authUseCase.GenerateRefreshToken(ctx, userID, "user", refreshTokenTimeDuration)
+	refreshTokenExpireDate := time.Now().Add(time.Hour * 24 * 7)
+	refreshToken, err := c.authUseCase.GenerateRefreshToken(ctx, usecaseInterface.GenerateTokenParams{
+		UserID:     userID,
+		UserType:   token.TokenForUser,
+		ExpireDate: refreshTokenExpireDate,
+	})
 	if err != nil {
 		respnonse := res.ErrorResponse(500, "faild to create refresh token", err.Error(), nil)
 		ctx.JSON(http.StatusInternalServerError, respnonse)
@@ -76,11 +84,60 @@ func (c *AuthHandler) UserLogin(ctx *gin.Context) {
 
 	//ctx.Header("access_token", accessToken)
 	//ctx.Header("refresh_token", refreshToken)
-	ctx.SetCookie("user-auth", accessToken, 15*60, "", "", false, true)
+	cookieName := "auth-" + string(token.TokenForUser)
+	ctx.SetCookie(cookieName, accessToken, 15*60, "", "", false, true)
 
 	response := res.SuccessResponse(200, "successfully logged in", res.TokenResponse{
 		AccessToken:  accessToken,
 		RefreshToken: refreshToken,
 	})
 	ctx.JSON(http.StatusOK, response)
+}
+
+func (c *AuthHandler) UserRenewRefreshToken() gin.HandlerFunc {
+	return c.renewAccessToken(token.TokenForUser)
+}
+
+func (c *AuthHandler) renewAccessToken(usedFor token.UserType) gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+
+		var body req.RefreshToken
+
+		err := ctx.ShouldBindJSON(&body)
+		if err != nil {
+			response := res.ErrorResponse(400, "faild to bind inputs", err.Error(), nil)
+			ctx.JSON(http.StatusBadRequest, response)
+			return
+		}
+
+		refreshSession, err := c.authUseCase.VerifyAndGetRefreshTokenSession(ctx, body.RefreshToken, usedFor)
+
+		if err != nil {
+			response := res.ErrorResponse(400, "faild to get refresh sessions", err.Error(), nil)
+			ctx.JSON(http.StatusBadRequest, response)
+			return
+		}
+		accessTokenExpireDate := time.Now().Add(time.Minute * 15)
+		accessTokenParams := usecaseInterface.GenerateTokenParams{
+			UserID:     refreshSession.UserID,
+			UserType:   usedFor,
+			ExpireDate: accessTokenExpireDate,
+		}
+		accessToken, err := c.authUseCase.GenerateAccessToken(ctx, accessTokenParams)
+
+		if err != nil {
+			response := res.ErrorResponse(500, "faild to generate access token", err.Error(), nil)
+			ctx.JSON(http.StatusInternalServerError, response)
+			return
+		}
+		cookieName := "auth-" + string(token.TokenForUser)
+		ctx.SetCookie(cookieName, accessToken, 15*60, "", "", false, true)
+
+		response := res.SuccessResponse(http.StatusOK, "successfylly access token generated using refresh token",
+			res.TokenResponse{
+				AccessToken: accessToken,
+			})
+
+		ctx.JSON(http.StatusOK, response)
+	}
 }

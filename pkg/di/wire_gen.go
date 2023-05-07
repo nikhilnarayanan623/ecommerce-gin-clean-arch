@@ -9,9 +9,11 @@ package di
 import (
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/api"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/api/handler"
+	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/api/middleware"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/config"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/db"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/repository"
+	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/token"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/usecase"
 )
 
@@ -22,11 +24,13 @@ func InitializeApi(cfg config.Config) (*http.ServerHTTP, error) {
 	if err != nil {
 		return nil, err
 	}
+	authRepository := repository.NewAuthRepository(gormDB)
+	tokenAuth := token.NewJWTAuth(cfg)
 	userRepository := repository.NewUserRepository(gormDB)
 	adminRepository := repository.NewAdminRepository(gormDB)
-	authRepository := repository.NewAuthRepository(gormDB)
-	authUseCase := usecase.NewAuthUseCase(userRepository, adminRepository, authRepository, cfg)
+	authUseCase := usecase.NewAuthUseCase(authRepository, tokenAuth, userRepository, adminRepository)
 	authHandler := handler.NewAuthHandler(authUseCase)
+	middlewareMiddleware := middleware.NewMiddleware(tokenAuth)
 	adminUseCase := usecase.NewAdminUseCase(adminRepository)
 	adminHandler := handler.NewAdminHandler(adminUseCase)
 	userUseCase := usecase.NewUserUseCase(userRepository)
@@ -40,6 +44,6 @@ func InitializeApi(cfg config.Config) (*http.ServerHTTP, error) {
 	couponRepository := repository.NewCouponRepository(gormDB)
 	couponUseCase := usecase.NewCouponUseCase(couponRepository)
 	couponHandler := handler.NewCouponHandler(couponUseCase)
-	serverHTTP := http.NewServerHTTP(authHandler, adminHandler, userHandler, productHandler, orderHandler, couponHandler)
+	serverHTTP := http.NewServerHTTP(authHandler, middlewareMiddleware, adminHandler, userHandler, productHandler, orderHandler, couponHandler)
 	return serverHTTP, nil
 }

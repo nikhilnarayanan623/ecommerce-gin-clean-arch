@@ -20,9 +20,9 @@ func NewAuthRepository(db *gorm.DB) interfaces.AuthRepository {
 }
 
 func (c *authDatabase) SaveRefreshSession(ctx context.Context, refreshSession domain.RefreshSession) error {
-	query := `INSERT INTO refresh_sessions (token_id, refresh_token, expire_at) 
-	VALUES ($1, $2, $3)`
-	err := c.DB.Exec(query, refreshSession.TokenID, refreshSession.RefreshToken, refreshSession.ExpireAt).Error
+	query := `INSERT INTO refresh_sessions (token_id, user_id, refresh_token, expire_at) 
+VALUES ($1, $2, $3, $4)`
+	err := c.DB.Exec(query, refreshSession.TokenID, refreshSession.UserID, refreshSession.RefreshToken, refreshSession.ExpireAt).Error
 
 	return err
 }

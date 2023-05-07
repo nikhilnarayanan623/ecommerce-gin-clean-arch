@@ -3,7 +3,6 @@ package main
 import (
 	"log"
 
-	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/api/middleware"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/config"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/di"
 )
@@ -17,7 +16,6 @@ func main() {
 	}
 
 	server, err := di.InitializeApi(cfg)
-	middleware.SetupMiddleware(cfg)
 	if err != nil {
 		log.Fatal("Faild to start the server")
 	}

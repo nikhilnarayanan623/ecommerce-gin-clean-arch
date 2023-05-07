@@ -7,6 +7,7 @@ import (
 
 	"github.com/golang-jwt/jwt"
 	"github.com/google/uuid"
+	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/config"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -46,7 +47,8 @@ func TestCreateToken(t *testing.T) {
 
 		t.Run(test.testName, func(t *testing.T) {
 
-			tokenAuth := NewJWTAuth("adminSecret", "userSecret")
+			cfg := config.Config{JWTAdmin: "adminSecret", JWTUser: "userSecret"}
+			tokenAuth := NewJWTAuth(cfg)
 			tokenString, actualError := tokenAuth.CreateToken(test.inputPayload, test.inputUserType)
 
 			assert.Equal(t, test.expectedError, actualError)
@@ -61,17 +63,17 @@ func TestCreateToken(t *testing.T) {
 }
 
 func TestVerifyToken(t *testing.T) {
-	validPayload := &Payload{UserID: 1, ExpireAt: time.Now().Add(time.Hour * 1)}
+
 	tests := []struct {
 		testName       string
 		userType       UserType
-		expectedOutput *Payload
+		expectedOutput Payload
 		buildStub      func(t *testing.T, tokenAuth TokenAuth) (tokenString string)
 		expectedError  error
 	}{
 		{
 			testName:       "EmptyTokenStringShouldRetunError",
-			expectedOutput: nil,
+			expectedOutput: Payload{},
 			userType:       TokenForUser,
 			buildStub:      func(t *testing.T, tokenAuth TokenAuth) (tokenString string) { return },
 			expectedError:  errInvalidToken,
@@ -79,7 +81,7 @@ func TestVerifyToken(t *testing.T) {
 		{
 			testName:       "ExpiredTokenShouldReturnExpiredError",
 			userType:       TokenForUser,
-			expectedOutput: nil,
+			expectedOutput: Payload{},
 			buildStub: func(t *testing.T, tokenAuth TokenAuth) (tokenString string) {
 				tokenString, err := tokenAuth.CreateToken(&Payload{
 					TokenID:  uuid.New(),
@@ -93,7 +95,7 @@ func TestVerifyToken(t *testing.T) {
 		},
 		{
 			testName:       "ChangedSigninMethodShouldReturnInvalidTokenError",
-			expectedOutput: nil,
+			expectedOutput: Payload{},
 			userType:       TokenForAdmin,
 			buildStub: func(t *testing.T, tokenAuth TokenAuth) (tokenString string) {
 				token := jwt.NewWithClaims(jwt.SigningMethodNone, &Payload{})
@@ -108,7 +110,7 @@ func TestVerifyToken(t *testing.T) {
 		{
 			testName:       "InvalidUserTypeShouldReturnEror",
 			userType:       "inalidUserType",
-			expectedOutput: nil,
+			expectedOutput: Payload{},
 			buildStub: func(t *testing.T, tokenAuth TokenAuth) (tokenString string) {
 				return
 			},
@@ -117,9 +119,13 @@ func TestVerifyToken(t *testing.T) {
 		{
 			testName:       "ValidTokenShouldReturnPalyload",
 			userType:       TokenForUser,
-			expectedOutput: validPayload,
+			expectedOutput: Payload{UserID: 1, ExpireAt: time.Now().Add(time.Hour * 1)},
 			buildStub: func(t *testing.T, tokenAuth TokenAuth) (tokenString string) {
-				tokenString, err := tokenAuth.CreateToken(validPayload, TokenForUser)
+				payload := &Payload{
+					UserID:   1,
+					ExpireAt: time.Now().Add(time.Hour * 1),
+				}
+				tokenString, err := tokenAuth.CreateToken(payload, TokenForUser)
 				assert.NoError(t, err)
 				return
 			},
@@ -130,7 +136,8 @@ func TestVerifyToken(t *testing.T) {
 	for _, test := range tests {
 
 		t.Run(test.testName, func(t *testing.T) {
-			tokenAuth := NewJWTAuth("adminSecret", "userSecret")
+			cfg := config.Config{JWTAdmin: "adminSecret", JWTUser: "userSecret"}
+			tokenAuth := NewJWTAuth(cfg)
 
 			tokenString := test.buildStub(t, tokenAuth)
 
@@ -138,12 +145,8 @@ func TestVerifyToken(t *testing.T) {
 
 			assert.Equal(t, test.expectedError, actualError)
 
-			if test.expectedOutput == nil {
-				assert.Nil(t, payload)
-			} else {
-				assert.Equal(t, test.expectedOutput.UserID, payload.UserID)
-				assert.Equal(t, test.expectedOutput.ExpireAt.Day(), payload.ExpireAt.Day())
-			}
+			assert.Equal(t, test.expectedOutput.UserID, payload.UserID)
+			assert.Equal(t, test.expectedOutput.ExpireAt.Day(), payload.ExpireAt.Day())
 
 		})
 	}
