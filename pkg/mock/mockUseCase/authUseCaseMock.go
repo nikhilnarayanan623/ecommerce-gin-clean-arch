@@ -13,6 +13,7 @@ import (
 	token "github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/token"
 	interfaces "github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/usecase/interfaces"
 	req "github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/utils/req"
+	res "github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/utils/res"
 )
 
 // MockAuthUseCase is a mock of AuthUseCase interface.
@@ -68,6 +69,21 @@ func (mr *MockAuthUseCaseMockRecorder) GenerateRefreshToken(arg0, arg1 interface
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GenerateRefreshToken", reflect.TypeOf((*MockAuthUseCase)(nil).GenerateRefreshToken), arg0, arg1)
 }
 
+// LoginOtpVerify mocks base method.
+func (m *MockAuthUseCase) LoginOtpVerify(arg0 context.Context, arg1 req.OTPVerify) (uint, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "LoginOtpVerify", arg0, arg1)
+	ret0, _ := ret[0].(uint)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// LoginOtpVerify indicates an expected call of LoginOtpVerify.
+func (mr *MockAuthUseCaseMockRecorder) LoginOtpVerify(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "LoginOtpVerify", reflect.TypeOf((*MockAuthUseCase)(nil).LoginOtpVerify), arg0, arg1)
+}
+
 // UserLogin mocks base method.
 func (m *MockAuthUseCase) UserLogin(arg0 context.Context, arg1 req.Login) (uint, error) {
 	m.ctrl.T.Helper()
@@ -81,6 +97,21 @@ func (m *MockAuthUseCase) UserLogin(arg0 context.Context, arg1 req.Login) (uint,
 func (mr *MockAuthUseCaseMockRecorder) UserLogin(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UserLogin", reflect.TypeOf((*MockAuthUseCase)(nil).UserLogin), arg0, arg1)
+}
+
+// UserLoginOtpSend mocks base method.
+func (m *MockAuthUseCase) UserLoginOtpSend(arg0 context.Context, arg1 req.OTPLogin) (res.OTPResponse, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UserLoginOtpSend", arg0, arg1)
+	ret0, _ := ret[0].(res.OTPResponse)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// UserLoginOtpSend indicates an expected call of UserLoginOtpSend.
+func (mr *MockAuthUseCaseMockRecorder) UserLoginOtpSend(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UserLoginOtpSend", reflect.TypeOf((*MockAuthUseCase)(nil).UserLoginOtpSend), arg0, arg1)
 }
 
 // VerifyAndGetRefreshTokenSession mocks base method.

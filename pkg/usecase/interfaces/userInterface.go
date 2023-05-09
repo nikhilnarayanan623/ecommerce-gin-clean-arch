@@ -10,8 +10,6 @@ import (
 
 type UserUseCase interface {
 	Signup(ctx context.Context, user domain.User) error
-	Login(ctx context.Context, user domain.User) (domain.User, error)
-	LoginOtp(ctx context.Context, user domain.User) (domain.User, error)
 
 	GoogleLogin(ctx context.Context, user domain.User) (domain.User, error)
 

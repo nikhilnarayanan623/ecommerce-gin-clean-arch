@@ -39,10 +39,10 @@ func TwilioSendOTP(phoneNumber string) (string, error) {
 
 	resp, err := client.VerifyV2.CreateVerification(seviceSid, params)
 	if err != nil {
-		return "", err
+		return "faild to create otp verification", err
 	}
 
-	return *resp.Sid, nil
+	return *resp.ServiceSid, nil
 }
 
 func TwilioVerifyOTP(phoneNumber string, code string) error {

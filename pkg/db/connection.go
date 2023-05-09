@@ -29,6 +29,7 @@ func ConnectDatbase(cfg config.Config) (*gorm.DB, error) {
 
 		//auth
 		domain.RefreshSession{},
+		domain.OtpSession{},
 		//user
 		domain.User{},
 		domain.Country{},

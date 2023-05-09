@@ -53,52 +53,13 @@ func (c *userUserCase) GoogleLogin(ctx context.Context, user domain.User) (domai
 	return user, nil
 }
 
-// login
-func (c *userUserCase) Login(ctx context.Context, user domain.User) (domain.User, error) {
-
-	dbUser, dberr := c.userRepo.FindUser(ctx, user)
-
-	// check user found or not
-	if dberr != nil {
-		return user, dberr
-	} else if dbUser.ID == 0 {
-		return user, errors.New("user not exist with this details")
-	}
-
-	// check user block_status user is blocked or not
-	if dbUser.BlockStatus {
-		return user, errors.New("user blocked by admin")
-	}
-
-	//check the user password with dbPassword
-	if bcrypt.CompareHashAndPassword([]byte(dbUser.Password), []byte(user.Password)) != nil {
-		return user, errors.New("entered password is wrong")
-	}
-
-	return dbUser, nil
-}
-
-func (c *userUserCase) LoginOtp(ctx context.Context, user domain.User) (domain.User, error) {
-
-	user, err := c.userRepo.FindUser(ctx, user)
-
-	if err != nil {
-		return user, errors.New("can't find the user")
-	} else if user.ID == 0 {
-		return user, errors.New("user not exist with this details")
-	}
-
-	// check user block_status user is blocked or not
-	if user.BlockStatus {
-		return user, errors.New("user blocked by admin")
-	}
-
-	return user, nil
-}
-
 func (c *userUserCase) Signup(ctx context.Context, user domain.User) error {
 	// check the user already exist with this details
-	checkUser, err := c.userRepo.FindUser(ctx, user)
+	// checkUser, err := c.userRepo.FindUser(ctx, user)
+	var (
+		checkUser domain.User
+		err       error
+	)
 	if err != nil {
 		return err
 	}
@@ -124,7 +85,9 @@ func (c *userUserCase) Signup(ctx context.Context, user domain.User) error {
 func (c *userUserCase) Account(ctx context.Context, userID uint) (domain.User, error) {
 
 	var user = domain.User{ID: userID}
-	return c.userRepo.FindUser(ctx, user)
+	// user, err := c.userRepo.FindUser(ctx, user)
+
+	return user, nil
 
 }
 

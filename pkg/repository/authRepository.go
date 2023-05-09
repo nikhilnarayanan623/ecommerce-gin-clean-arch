@@ -33,3 +33,19 @@ func (c *authDatabase) FindRefreshSessionByTokenID(ctx context.Context, tokenID 
 
 	return
 }
+
+func (c *authDatabase) SaveOtpSession(ctx context.Context, otpSession domain.OtpSession) error {
+
+	query := `INSERT INTO otp_sessions (otp_id, user_id, phone ,expire_at) 
+	VALUES ($1, $2, $3, $4)`
+	err := c.DB.Exec(query, otpSession.OTPID, otpSession.UserID, otpSession.Phone, otpSession.ExpireAt).Error
+	return err
+}
+func (c *authDatabase) FindOtpSession(ctx context.Context, otpID uuid.UUID) (otpSession domain.OtpSession, err error) {
+
+	query := `SELECT * FROM otp_sessions WHERE otp_id = $1`
+
+	err = c.DB.Raw(query, otpID).Scan(&otpSession).Error
+
+	return otpSession, err
+}

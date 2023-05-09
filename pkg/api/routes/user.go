@@ -16,8 +16,8 @@ func UserRoutes(api *gin.RouterGroup, authHandler handlerInterface.AuthHandler, 
 	login := api.Group("/login")
 	{
 		login.POST("/", authHandler.UserLogin)
-		// login.POST("/otp-send", userHandler.UserLoginOtpSend)
-		// login.POST("/otp-verify", userHandler.UserLoginOtpVerify)
+		login.POST("/otp-send", authHandler.UserLoginOtpSend)
+		login.POST("/otp-verify", authHandler.UserLoginOtpVerify)
 
 		// // 	// login page
 		// login.GET("/", userHandler.GoauthLoginPage)

@@ -1,21 +1,18 @@
 package handler
 
 import (
-	"errors"
 	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/copier"
 	handlerInterface "github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/api/handler/interfaces"
-	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/auth"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/domain"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/usecase/interfaces"
 	service "github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/usecase/interfaces"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/utils"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/utils/req"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/utils/res"
-	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/varify"
 )
 
 type UserHandler struct {
@@ -57,161 +54,6 @@ func (u *UserHandler) UserSignUp(ctx *gin.Context) {
 
 	response := res.SuccessResponse(200, "Successfully Account Created", body)
 	ctx.JSON(200, response)
-}
-
-// s
-// // UserLogin godoc
-// // @summary api for user to login
-// // @description Enter user_name | phone | email with password
-// // @security ApiKeyAuth
-// // @tags User Login
-// // @id UserLogin
-// // @Param        inputs   body     req.LoginStruct{}   true  "Input Field"
-// // @Router /login [post]
-// // @Success 200 {object} res.Response{} "successfully logged in"
-// // @Failure 400 {object} res.Response{}  "invalid input"
-// // @Failure 500 {object} res.Response{}  "faild to generat JWT"
-func (u *UserHandler) UserLogin(ctx *gin.Context) {
-
-	var body req.LoginStruct
-	if err := ctx.ShouldBindJSON(&body); err != nil {
-		response := res.ErrorResponse(400, "invalid input", err.Error(), nil)
-
-		ctx.JSON(http.StatusBadRequest, response)
-		return
-	}
-	//check all input field is empty
-	if body.Email == "" && body.Phone == "" && body.UserName == "" {
-		err := errors.New("enter atleast user_name or email or phone")
-		response := res.ErrorResponse(400, "invalid input", err.Error(), nil)
-		ctx.JSON(http.StatusBadRequest, response)
-		return
-	}
-	//copy the body values to user
-	var user domain.User
-	copier.Copy(&user, &body)
-	// get user from database and check password in usecase
-	user, err := u.userUseCase.Login(ctx, user)
-	if err != nil {
-		response := res.ErrorResponse(400, "faild to login", err.Error(), nil)
-		ctx.JSON(http.StatusBadRequest, response)
-		return
-	}
-	// generate token using jwt in map
-	tokenString, err := auth.GenerateJWT(user.ID)
-	if err != nil {
-		response := res.ErrorResponse(500, "faild to login", err.Error(), nil)
-		ctx.JSON(http.StatusInternalServerError, response)
-		return
-	}
-
-	ctx.SetCookie("user-auth", tokenString["accessToken"], 60*60, "", "", false, true)
-
-	response := res.SuccessResponse(200, "successfully logged in", tokenString["accessToken"])
-	ctx.JSON(http.StatusOK, response)
-}
-
-// UserLoginOtpSend godoc
-// @summary api for user to login with otp
-// @description user can enter email/user_name/phone will send an otp to user registered phone_number
-// @security ApiKeyAuth
-// @id UserLoginOtpSend
-// @tags User Login
-// @Param inputs body req.OTPLoginStruct true "Input Field"
-// @Router /login/otp-send [post]
-// @Success 200 {object} res.Response{}  "Successfully Otp Send to registered number"
-// @Failure 400 {object} res.Response{}  "Enter input properly"
-// @Failure 500 {object} res.Response{}  "Faild to send otp"
-func (u *UserHandler) UserLoginOtpSend(ctx *gin.Context) {
-
-	var body req.OTPLoginStruct
-	if err := ctx.ShouldBindJSON(&body); err != nil {
-		response := res.ErrorResponse(400, "invalid input", err.Error(), body)
-		ctx.JSON(http.StatusBadRequest, response)
-		return
-	}
-
-	//check all input field is empty
-	if body.Email == "" && body.Phone == "" && body.UserName == "" {
-		err := errors.New("enter atleast user_name or email or phone")
-		response := res.ErrorResponse(400, "invalid input", err.Error(), nil)
-		ctx.JSON(http.StatusBadRequest, response)
-		return
-	}
-
-	var user domain.User
-	copier.Copy(&user, body)
-
-	user, err := u.userUseCase.LoginOtp(ctx, user)
-
-	if err != nil {
-		resopnse := res.ErrorResponse(400, "can't login", err.Error(), nil)
-		ctx.JSON(http.StatusBadRequest, resopnse)
-		return
-	}
-
-	// if no error then send the otp
-	if _, err := varify.TwilioSendOTP("+91" + user.Phone); err != nil {
-		response := res.ErrorResponse(500, "faild to send otp", err.Error(), nil)
-		ctx.JSON(http.StatusInternalServerError, response)
-		return
-	}
-
-	response := res.SuccessResponse(200, "successfully otp send to registered number", user.ID)
-	ctx.JSON(http.StatusOK, response)
-}
-
-// UserLoginOtpVerify godoc
-// @summary api for user to varify user login_otp
-// @description enter your otp that send to your registered number
-// @security ApiKeyAuth
-// @id UserLoginOtpVerify
-// @tags User Login
-// @param inputs body req.OTPVerifyStruct{} true "Input Field"
-// @Router /login/otp-verify [post]
-// @Success 200 "successfully logged in uing otp"
-// @Failure 400 "invalid login_otp"
-// @Failure 500 "Faild to generate JWT"
-func (u *UserHandler) UserLoginOtpVerify(ctx *gin.Context) {
-
-	var body req.OTPVerifyStruct
-	if err := ctx.ShouldBindJSON(&body); err != nil {
-		response := res.ErrorResponse(400, "invalid login_otp", err.Error(), nil)
-		ctx.JSON(http.StatusBadRequest, response)
-		return
-	}
-
-	var user = domain.User{
-		ID: body.UserID,
-	}
-
-	// get the user using loginOtp useCase
-	user, err := u.userUseCase.LoginOtp(ctx, user)
-	if err != nil {
-		response := res.ErrorResponse(400, "faild to login", err.Error(), nil)
-		ctx.JSON(http.StatusBadRequest, response)
-		return
-	}
-
-	// then varify the otp
-	err = varify.TwilioVerifyOTP("+91"+user.Phone, body.OTP)
-	if err != nil {
-		response := res.ErrorResponse(400, "faild to login", err.Error(), nil)
-		ctx.JSON(http.StatusBadRequest, response)
-		return
-	}
-
-	// if everyting ok then generate token
-	tokenString, err := auth.GenerateJWT(user.ID)
-	if err != nil {
-		response := res.ErrorResponse(500, "faild to login", err.Error(), nil)
-		ctx.JSON(http.StatusInternalServerError, response)
-		return
-	}
-
-	ctx.SetCookie("user-auth", tokenString["accessToken"], 50*60, "", "", false, true)
-	response := res.SuccessResponse(200, "successfully logged in uing otp", tokenString["accessToken"])
-	ctx.JSON(http.StatusOK, response)
 }
 
 // Home godoc

@@ -43,17 +43,6 @@ func (c *userDatabse) FindUserByUserName(ctx context.Context, userName string) (
 	return user, err
 }
 
-//*end
-
-func (c *userDatabse) FindUser(ctx context.Context, user domain.User) (domain.User, error) {
-	// check id,email,phone any of then match i db
-	query := `SELECT * FROM users WHERE id = ? OR email = ? OR phone = ? OR user_name = ?`
-	if err := c.DB.Raw(query, user.ID, user.Email, user.Phone, user.UserName).Scan(&user).Error; err != nil {
-		return user, errors.New("faild to get user")
-	}
-	return user, nil
-}
-
 func (c *userDatabse) CheckOtherUserWithDetails(ctx context.Context, user domain.User) (domain.User, error) {
 	var checkUser domain.User
 	query := `SELECT * FROM users WHERE id != ? AND email = ? OR id != ? AND phone = ? OR id != ? AND user_name = ?`

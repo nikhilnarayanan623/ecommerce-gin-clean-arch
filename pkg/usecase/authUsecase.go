@@ -9,12 +9,14 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/token"
+	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/varify"
 
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/domain"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/repository/interfaces"
 	service "github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/usecase/interfaces"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/utils"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/utils/req"
+	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/utils/res"
 )
 
 type authUseCase struct {
@@ -66,6 +68,77 @@ func (c *authUseCase) UserLogin(ctx context.Context, loginDetails req.Login) (us
 	}
 
 	return user.ID, err
+}
+
+func (c *authUseCase) UserLoginOtpSend(ctx context.Context, loginDetails req.OTPLogin) (otpRes res.OTPResponse, err error) {
+
+	var user domain.User
+	if loginDetails.Email != "" {
+		user, err = c.userRepo.FindUserByEmail(ctx, loginDetails.Email)
+	} else if loginDetails.UserName != "" {
+		user, err = c.userRepo.FindUserByUserName(ctx, loginDetails.UserName)
+	} else if loginDetails.Phone != "" {
+		user, err = c.userRepo.FindUserByPhoneNumber(ctx, loginDetails.Phone)
+	} else {
+		return otpRes, fmt.Errorf("all user login unique fields are empty")
+	}
+
+	if err != nil {
+		return otpRes, fmt.Errorf("can't find the user \nerror:%v", err.Error())
+	} else if user.ID == 0 {
+		return otpRes, errors.New("user not exist with this details")
+	}
+
+	// check user block_status user is blocked or not
+	if user.BlockStatus {
+		return otpRes, errors.New("user blocked by admin")
+	}
+
+	_, err = varify.TwilioSendOTP("+91" + user.Phone)
+	if err != nil {
+		return otpRes, fmt.Errorf("faild to send otp \nerrors:%v", err.Error())
+	}
+
+	otpRes.OTPID, err = uuid.NewRandom()
+	if err != nil {
+		return otpRes, fmt.Errorf("faild to create otp_id")
+	}
+
+	otpSession := domain.OtpSession{
+		OTPID:    otpRes.OTPID,
+		UserID:   user.ID,
+		Phone:    user.Phone,
+		ExpireAt: time.Now().Add(time.Minute * 2),
+	}
+	err = c.authRepo.SaveOtpSession(ctx, otpSession)
+
+	if err != nil {
+		return otpRes, fmt.Errorf("faild to save otp session \nerror:%v", err.Error())
+	}
+	return otpRes, nil
+}
+
+func (c *authUseCase) LoginOtpVerify(ctx context.Context, otpVeirifyDetails req.OTPVerify) (userID uint, err error) {
+
+	otpSession, err := c.authRepo.FindOtpSession(ctx, otpVeirifyDetails.OTPID)
+	if err != nil {
+		return userID, fmt.Errorf("faild to get otp session \nerror:%v", err.Error())
+	}
+
+	if otpSession.ID == 0 {
+		return userID, fmt.Errorf("invlaid otp sid")
+	}
+
+	if time.Since(otpSession.ExpireAt) > 0 {
+		return userID, fmt.Errorf("opt expired")
+	}
+
+	err = varify.TwilioVerifyOTP("+91"+otpSession.Phone, otpVeirifyDetails.OTP)
+	if err != nil {
+		return userID, fmt.Errorf("faild to verify otp \nerror:%v", err.Error())
+	}
+
+	return otpSession.UserID, err
 }
 
 func (c *authUseCase) GenerateAccessToken(ctx context.Context, tokenParams service.GenerateTokenParams) (tokenString string, err error) {

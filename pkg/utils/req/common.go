@@ -1,6 +1,10 @@
 package req
 
-import "time"
+import (
+	"time"
+
+	"github.com/google/uuid"
+)
 
 // login struct for user and admin
 type LoginStruct struct {
@@ -9,15 +13,15 @@ type LoginStruct struct {
 	Email    string `json:"email" binding:"omitempty,email"`
 	Password string `json:"password" binding:"required,min=5,max=30"`
 }
-type OTPLoginStruct struct {
+type OTPLogin struct {
 	Email    string `json:"email" binding:"omitempty,email"`
 	UserName string `json:"user_name" binding:"omitempty,min=3,max=16"`
 	Phone    string `json:"phone" binding:"omitempty,min=10,max=10"`
 }
 
-type OTPVerifyStruct struct {
-	OTP    string `json:"otp" binding:"required,min=4,max=8"`
-	UserID uint   `json:"user_id" binding:"required,numeric"`
+type OTPVerify struct {
+	OTP   string    `json:"otp" binding:"required,min=4,max=8"`
+	OTPID uuid.UUID `json:"otp_id" gorm:"not null" binding:"required"`
 }
 
 type BlockStruct struct {

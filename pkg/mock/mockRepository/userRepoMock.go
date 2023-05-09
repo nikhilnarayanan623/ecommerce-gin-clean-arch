@@ -51,20 +51,6 @@ func (mr *MockUserRepositoryMockRecorder) CheckOtherUserWithDetails(arg0, arg1 i
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CheckOtherUserWithDetails", reflect.TypeOf((*MockUserRepository)(nil).CheckOtherUserWithDetails), arg0, arg1)
 }
 
-// DeleteCartItem mocks base method.
-func (m *MockUserRepository) DeleteCartItem(arg0 context.Context, arg1 uint) error {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "DeleteCartItem", arg0, arg1)
-	ret0, _ := ret[0].(error)
-	return ret0
-}
-
-// DeleteCartItem indicates an expected call of DeleteCartItem.
-func (mr *MockUserRepositoryMockRecorder) DeleteCartItem(arg0, arg1 interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteCartItem", reflect.TypeOf((*MockUserRepository)(nil).DeleteCartItem), arg0, arg1)
-}
-
 // FindAddressByID mocks base method.
 func (m *MockUserRepository) FindAddressByID(arg0 context.Context, arg1 uint) (domain.Address, error) {
 	m.ctrl.T.Helper()
@@ -110,21 +96,6 @@ func (mr *MockUserRepositoryMockRecorder) FindAllAddressByUserID(arg0, arg1 inte
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindAllAddressByUserID", reflect.TypeOf((*MockUserRepository)(nil).FindAllAddressByUserID), arg0, arg1)
 }
 
-// FindAllCartItemsByCartID mocks base method.
-func (m *MockUserRepository) FindAllCartItemsByCartID(arg0 context.Context, arg1 uint) ([]res.ResCartItem, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "FindAllCartItemsByCartID", arg0, arg1)
-	ret0, _ := ret[0].([]res.ResCartItem)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// FindAllCartItemsByCartID indicates an expected call of FindAllCartItemsByCartID.
-func (mr *MockUserRepositoryMockRecorder) FindAllCartItemsByCartID(arg0, arg1 interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindAllCartItemsByCartID", reflect.TypeOf((*MockUserRepository)(nil).FindAllCartItemsByCartID), arg0, arg1)
-}
-
 // FindAllWishListItemsByUserID mocks base method.
 func (m *MockUserRepository) FindAllWishListItemsByUserID(arg0 context.Context, arg1 uint) ([]res.ResWishList, error) {
 	m.ctrl.T.Helper()
@@ -140,51 +111,6 @@ func (mr *MockUserRepositoryMockRecorder) FindAllWishListItemsByUserID(arg0, arg
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindAllWishListItemsByUserID", reflect.TypeOf((*MockUserRepository)(nil).FindAllWishListItemsByUserID), arg0, arg1)
 }
 
-// FindCartByUserID mocks base method.
-func (m *MockUserRepository) FindCartByUserID(arg0 context.Context, arg1 uint) (domain.Cart, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "FindCartByUserID", arg0, arg1)
-	ret0, _ := ret[0].(domain.Cart)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// FindCartByUserID indicates an expected call of FindCartByUserID.
-func (mr *MockUserRepositoryMockRecorder) FindCartByUserID(arg0, arg1 interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindCartByUserID", reflect.TypeOf((*MockUserRepository)(nil).FindCartByUserID), arg0, arg1)
-}
-
-// FindCartItemByCartAndProductItemID mocks base method.
-func (m *MockUserRepository) FindCartItemByCartAndProductItemID(arg0 context.Context, arg1, arg2 uint) (domain.CartItem, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "FindCartItemByCartAndProductItemID", arg0, arg1, arg2)
-	ret0, _ := ret[0].(domain.CartItem)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// FindCartItemByCartAndProductItemID indicates an expected call of FindCartItemByCartAndProductItemID.
-func (mr *MockUserRepositoryMockRecorder) FindCartItemByCartAndProductItemID(arg0, arg1, arg2 interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindCartItemByCartAndProductItemID", reflect.TypeOf((*MockUserRepository)(nil).FindCartItemByCartAndProductItemID), arg0, arg1, arg2)
-}
-
-// FindCartItemByID mocks base method.
-func (m *MockUserRepository) FindCartItemByID(arg0 context.Context, arg1 uint) (domain.CartItem, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "FindCartItemByID", arg0, arg1)
-	ret0, _ := ret[0].(domain.CartItem)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// FindCartItemByID indicates an expected call of FindCartItemByID.
-func (mr *MockUserRepositoryMockRecorder) FindCartItemByID(arg0, arg1 interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindCartItemByID", reflect.TypeOf((*MockUserRepository)(nil).FindCartItemByID), arg0, arg1)
-}
-
 // FindCountryByID mocks base method.
 func (m *MockUserRepository) FindCountryByID(arg0 context.Context, arg1 uint) (domain.Country, error) {
 	m.ctrl.T.Helper()
@@ -198,36 +124,6 @@ func (m *MockUserRepository) FindCountryByID(arg0 context.Context, arg1 uint) (d
 func (mr *MockUserRepositoryMockRecorder) FindCountryByID(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindCountryByID", reflect.TypeOf((*MockUserRepository)(nil).FindCountryByID), arg0, arg1)
-}
-
-// FindProductItem mocks base method.
-func (m *MockUserRepository) FindProductItem(arg0 context.Context, arg1 uint) (domain.ProductItem, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "FindProductItem", arg0, arg1)
-	ret0, _ := ret[0].(domain.ProductItem)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// FindProductItem indicates an expected call of FindProductItem.
-func (mr *MockUserRepositoryMockRecorder) FindProductItem(arg0, arg1 interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindProductItem", reflect.TypeOf((*MockUserRepository)(nil).FindProductItem), arg0, arg1)
-}
-
-// FindUser mocks base method.
-func (m *MockUserRepository) FindUser(arg0 context.Context, arg1 domain.User) (domain.User, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "FindUser", arg0, arg1)
-	ret0, _ := ret[0].(domain.User)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// FindUser indicates an expected call of FindUser.
-func (mr *MockUserRepositoryMockRecorder) FindUser(arg0, arg1 interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindUser", reflect.TypeOf((*MockUserRepository)(nil).FindUser), arg0, arg1)
 }
 
 // FindUserByEmail mocks base method.
@@ -319,35 +215,6 @@ func (mr *MockUserRepositoryMockRecorder) SaveAddress(arg0, arg1 interface{}) *g
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SaveAddress", reflect.TypeOf((*MockUserRepository)(nil).SaveAddress), arg0, arg1)
 }
 
-// SaveCart mocks base method.
-func (m *MockUserRepository) SaveCart(arg0 context.Context, arg1 uint) (domain.Cart, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "SaveCart", arg0, arg1)
-	ret0, _ := ret[0].(domain.Cart)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// SaveCart indicates an expected call of SaveCart.
-func (mr *MockUserRepositoryMockRecorder) SaveCart(arg0, arg1 interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SaveCart", reflect.TypeOf((*MockUserRepository)(nil).SaveCart), arg0, arg1)
-}
-
-// SaveCartItem mocks base method.
-func (m *MockUserRepository) SaveCartItem(arg0 context.Context, arg1, arg2 uint) error {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "SaveCartItem", arg0, arg1, arg2)
-	ret0, _ := ret[0].(error)
-	return ret0
-}
-
-// SaveCartItem indicates an expected call of SaveCartItem.
-func (mr *MockUserRepositoryMockRecorder) SaveCartItem(arg0, arg1, arg2 interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SaveCartItem", reflect.TypeOf((*MockUserRepository)(nil).SaveCartItem), arg0, arg1, arg2)
-}
-
 // SaveUser mocks base method.
 func (m *MockUserRepository) SaveUser(arg0 context.Context, arg1 domain.User) (uint, error) {
 	m.ctrl.T.Helper()
@@ -418,20 +285,6 @@ func (m *MockUserRepository) UpdateAddress(arg0 context.Context, arg1 domain.Add
 func (mr *MockUserRepositoryMockRecorder) UpdateAddress(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateAddress", reflect.TypeOf((*MockUserRepository)(nil).UpdateAddress), arg0, arg1)
-}
-
-// UpdateCartItemQty mocks base method.
-func (m *MockUserRepository) UpdateCartItemQty(arg0 context.Context, arg1, arg2 uint) error {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "UpdateCartItemQty", arg0, arg1, arg2)
-	ret0, _ := ret[0].(error)
-	return ret0
-}
-
-// UpdateCartItemQty indicates an expected call of UpdateCartItemQty.
-func (mr *MockUserRepositoryMockRecorder) UpdateCartItemQty(arg0, arg1, arg2 interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateCartItemQty", reflect.TypeOf((*MockUserRepository)(nil).UpdateCartItemQty), arg0, arg1, arg2)
 }
 
 // UpdateUser mocks base method.

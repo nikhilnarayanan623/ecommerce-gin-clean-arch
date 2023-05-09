@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"errors"
 	"net/http"
 	"time"
 
@@ -55,7 +56,120 @@ func (c *AuthHandler) UserLogin(ctx *gin.Context) {
 		return
 	}
 
-	accessTokenExpireDate := time.Now().Add(time.Minute * 1)
+	accessTokenExpireDate := time.Now().Add(time.Minute * 15)
+	accessToken, err := c.authUseCase.GenerateAccessToken(ctx, usecaseInterface.GenerateTokenParams{
+		UserID:     userID,
+		UserType:   token.TokenForUser,
+		ExpireDate: accessTokenExpireDate,
+	})
+	if err != nil {
+		respnonse := res.ErrorResponse(500, "faild to create access token", err.Error(), nil)
+		ctx.JSON(http.StatusInternalServerError, respnonse)
+		return
+	}
+
+	refreshTokenExpireDate := time.Now().Add(time.Hour * 24 * 7)
+	refreshToken, err := c.authUseCase.GenerateRefreshToken(ctx, usecaseInterface.GenerateTokenParams{
+		UserID:     userID,
+		UserType:   token.TokenForUser,
+		ExpireDate: refreshTokenExpireDate,
+	})
+	if err != nil {
+		respnonse := res.ErrorResponse(500, "faild to create refresh token", err.Error(), nil)
+		ctx.JSON(http.StatusInternalServerError, respnonse)
+		return
+	}
+
+	// authorizationValue := authorizationType + " " + accessToken
+	// ctx.Header(authorizationHeaderKey, authorizationValue)
+
+	//ctx.Header("access_token", accessToken)
+	//ctx.Header("refresh_token", refreshToken)
+	cookieName := "auth-" + string(token.TokenForUser)
+	ctx.SetCookie(cookieName, accessToken, 15*60, "", "", false, true)
+
+	response := res.SuccessResponse(200, "successfully logged in", res.TokenResponse{
+		AccessToken:  accessToken,
+		RefreshToken: refreshToken,
+	})
+	ctx.JSON(http.StatusOK, response)
+}
+
+// UserLoginOtpSend godoc
+// @summary api for user to login with otp
+// @description user can enter email/user_name/phone will send an otp to user registered phone_number
+// @security ApiKeyAuth
+// @id UserLoginOtpSend
+// @tags User Login
+// @Param inputs body req.OTPLoginStruct true "Input Field"
+// @Router /login/otp-send [post]
+// @Success 200 {object} res.Response{}  "Successfully Otp Send to registered number"
+// @Failure 400 {object} res.Response{}  "Enter input properly"
+// @Failure 500 {object} res.Response{}  "Faild to send otp"
+func (u *AuthHandler) UserLoginOtpSend(ctx *gin.Context) {
+
+	var body req.OTPLogin
+	if err := ctx.ShouldBindJSON(&body); err != nil {
+		response := res.ErrorResponse(400, "invalid input", err.Error(), body)
+		ctx.JSON(http.StatusBadRequest, response)
+		return
+	}
+
+	//check all input field is empty
+	if body.Email == "" && body.Phone == "" && body.UserName == "" {
+		err := errors.New("enter atleast user_name or email or phone")
+		response := res.ErrorResponse(400, "invalid input", err.Error(), nil)
+		ctx.JSON(http.StatusBadRequest, response)
+		return
+	}
+
+	otpRes, err := u.authUseCase.UserLoginOtpSend(ctx, body)
+
+	if err != nil {
+		var response res.Response
+		if errors.Is(err, errors.New("faild to send otp")) {
+			response = res.ErrorResponse(500, "faild to send otp", err.Error(), nil)
+		} else {
+			response = res.ErrorResponse(400, "can't login", err.Error(), nil)
+		}
+
+		ctx.JSON(http.StatusBadRequest, response)
+		return
+	}
+
+	response := res.SuccessResponse(200, "successfully otp send to registered number", otpRes)
+	ctx.JSON(http.StatusOK, response)
+}
+
+// UserLoginOtpVerify godoc
+// @summary api for user to varify user login_otp
+// @description enter your otp that send to your registered number
+// @security ApiKeyAuth
+// @id UserLoginOtpVerify
+// @tags User Login
+// @param inputs body req.OTPVerifyStruct{} true "Input Field"
+// @Router /login/otp-verify [post]
+// @Success 200 "successfully logged in uing otp"
+// @Failure 400 "invalid login_otp"
+// @Failure 500 "Faild to generate JWT"
+func (c *AuthHandler) UserLoginOtpVerify(ctx *gin.Context) {
+
+	var body req.OTPVerify
+	if err := ctx.ShouldBindJSON(&body); err != nil {
+		response := res.ErrorResponse(400, "invalid input", err.Error(), nil)
+		ctx.JSON(http.StatusBadRequest, response)
+		return
+	}
+
+	// get the user using loginOtp useCase
+	userID, err := c.authUseCase.LoginOtpVerify(ctx, body)
+	if err != nil {
+		response := res.ErrorResponse(400, "faild to login", err.Error(), nil)
+		ctx.JSON(http.StatusBadRequest, response)
+		return
+	}
+
+	accessTokenExpireDate := time.Now().Add(time.Minute * 15)
 	accessToken, err := c.authUseCase.GenerateAccessToken(ctx, usecaseInterface.GenerateTokenParams{
 		UserID:     userID,
 		UserType:   token.TokenForUser,
