@@ -3,22 +3,22 @@ name: ecommerce-project-test
 on:
   push:
     branches:
-      -master
+      - master
 
 jobs:
   test:
-    name: Uint Test
+    name: Unit Test
     runs-on: ubuntu-latest
 
     steps:
     - name: Setup Go
       uses: actions/setup-go@v2
       with:
-        go-version: ^1.20.2
+        go-version: '^1.20.2'
       id: go
     
     - name: Install dependencies
       run: make deps
     
-    - name : Run tests
+    - name: Run tests
       run: make test
