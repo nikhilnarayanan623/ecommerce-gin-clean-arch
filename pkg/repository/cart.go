@@ -78,6 +78,20 @@ func (c *cartDatabase) DeleteCartItem(ctx context.Context, cartItemID uint) erro
 
 	return nil
 }
+func (c *cartDatabase) DeleteAllCartItemsByUserID(ctx context.Context, userID uint) error {
+
+	query := ` DELETE FROM cart_items ci USING carts c WHERE c.cart_id = ci.cart_id AND c.user_id = $1`
+	err := c.DB.Exec(query, userID).Error
+
+	return err
+}
+
+func (c *cartDatabase) DeleteAllCartItemsByCartID(ctx context.Context, cartID uint) error {
+
+	query := ` DELETE FROM cart_items WHERE cart_id = $1`
+	err := c.DB.Exec(query, cartID).Error
+	return err
+}
 
 func (c *cartDatabase) UpdateCartItemQty(ctx context.Context, cartItemId, qty uint) error {
 
@@ -103,4 +117,30 @@ func (c *cartDatabase) FindAllCartItemsByCartID(ctx context.Context, cartID uint
 	}
 
 	return cartItems, err
+}
+
+func (c *cartDatabase) CheckcartIsValidForOrder(ctx context.Context, userID uint) (cart domain.Cart, err error) {
+
+	cart, err = c.FindCartByUserID(ctx, userID)
+	if err != nil {
+		return cart, err
+	}
+
+	// check any of the product is out of stock in cart
+	var idOfOneOutOfStockProduct uint
+	query := `SELECT DISTINCT pi.id FROM product_items pi 
+	INNER JOIN cart_items ci ON pi.id = ci.product_item_id 
+	INNER JOIN carts c ON ci.cart_id = c.cart_id 
+	WHERE c.user_id = 2 AND pi.qty_in_stock <= 0`
+
+	err = c.DB.Raw(query).Scan(&idOfOneOutOfStockProduct).Error
+	if err != nil {
+		return cart, err
+	}
+
+	if idOfOneOutOfStockProduct != 0 {
+		return cart, fmt.Errorf("cart is not valid for place order some products are out of stock")
+	}
+
+	return cart, nil
 }

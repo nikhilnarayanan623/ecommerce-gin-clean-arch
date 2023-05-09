@@ -23,9 +23,8 @@ import (
 
 // take userId from context
 func GetUserIdFromContext(ctx *gin.Context) uint {
-	userIdStr := ctx.GetString("userId")
-	userIdInt, _ := strconv.Atoi(userIdStr)
-	return uint(userIdInt)
+	userID := ctx.GetUint("userId")
+	return userID
 }
 
 func StringToUint(str string) (uint, error) {

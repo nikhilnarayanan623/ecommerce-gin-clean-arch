@@ -9,20 +9,18 @@ import (
 )
 
 type OrderRepository interface {
+	Transaction(callBack func(transactionRepo OrderRepository) error) error
 
 	//!
-	SaveShopOrder(ctx context.Context, shopOrder domain.ShopOrder) (domain.ShopOrder, error)
+	SaveShopOrder(ctx context.Context, shopOrder domain.ShopOrder) (shopOrderID uint,err error)
 
-	CheckcartIsValidForOrder(ctx context.Context, userID uint) (cart domain.Cart, err error)
 	GetUserEmailAndPhone(ctx context.Context, userID uint) (emailAndPhone res.ResEmailAndPhone, err error)
 
 	//FindUserCoupon(ctx context.Context, couponCode string) (domain.UserCoupon, error)
 	UpdateCouponUsedForUser(ctx context.Context, userID, couponID uint) error
 	ValidateAddressID(ctx context.Context, addressID uint) error
 
-	CartItemToOrderLines(ctx context.Context, userID uint) ([]domain.OrderLine, error)
 	SaveOrderLine(ctx context.Context, orderLine domain.OrderLine) error
-	DeleteOrderedCartItems(ctx context.Context, userID uint) error
 	//!
 
 	//save order and update

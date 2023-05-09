@@ -2,6 +2,7 @@ package middleware
 
 import (
 	"errors"
+	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -97,6 +98,7 @@ func (c *middleware) middlewareUsingCookie(tokenUser token.UserType) gin.Handler
 			ctx.AbortWithStatusJSON(http.StatusUnauthorized, response)
 			return
 		}
+		fmt.Println("payload", payload.UserID)
 		ctx.Set("userId", payload.UserID)
 	}
 

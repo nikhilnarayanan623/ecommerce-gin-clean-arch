@@ -20,56 +20,6 @@ func NewUserRepository(DB *gorm.DB) interfaces.UserRepository {
 	return &userDatabse{DB: DB}
 }
 
-//*new
-
-// func (c *userDatabse) Transaction(ctx context.Context, fn func(c interfaces.UserRepository) error) {
-
-// 	trx := c.DB.Begin()
-// 	userRepo := NewUserRepository(trx)
-
-// 	err := fn(userRepo)
-// 	if err != nil {
-// 		trx.Rollback()
-// 		return
-// 	}
-
-// 	if err := trx.Commit().Error; err != nil {
-// 		fmt.Println("eror on commit", err)
-// 	}
-// }
-
-// func (c *userDatabse) Update1(ctx context.Context, id uint) error {
-// 	fmt.Println("called")
-// 	query := `UPDATE users SET last_name = 'ONE' WHERE id = $1`
-// 	if err := c.DB.Exec(query, id).Error; err != nil {
-// 		return err
-// 	}
-// 	return nil
-// }
-// func (c *userDatabse) Update2(ctx context.Context, id uint) error {
-// 	query := `UPDATE users SET last_name = 'TWO' WHERE id = $1`
-// 	if err := c.DB.Exec(query, id).Error; err != nil {
-// 		return err
-// 	}
-// 	return nil
-// }
-// func (c *userDatabse) Update3(ctx context.Context, id uint) error {
-
-// 	query := `UPDATE users SET last_name = 'FIVE' WHERE id = $1`
-// 	if err := c.DB.Exec(query, id).Error; err != nil {
-// 		return err
-// 	}
-
-// 	return nil
-// }
-
-// func (c *userDatabse) FindUserByColumnNameAndValue(ctx context.Context, columnName string, value any) (user domain.User, err error) {
-// 	query := fmt.Sprintf("SELECT * FROM users WHERE %s = $1", columnName)
-// 	err = c.DB.Raw(query).Scan(&user).Error
-
-// 	return user, err
-// }
-
 func (c *userDatabse) FindUserByEmail(ctx context.Context, email string) (user domain.User, err error) {
 	fmt.Println("called")
 	query := `SELECT * FROM users WHERE email = ?`

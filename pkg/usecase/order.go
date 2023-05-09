@@ -18,10 +18,14 @@ import (
 
 type OrderUseCase struct {
 	orderRepo interfaces.OrderRepository
+	cartRepo  interfaces.CartRepository
 }
 
-func NewOrderUseCase(orderRepo interfaces.OrderRepository) service.OrderUseCase {
-	return &OrderUseCase{orderRepo: orderRepo}
+func NewOrderUseCase(orderRepo interfaces.OrderRepository, cartRepo interfaces.CartRepository) service.OrderUseCase {
+	return &OrderUseCase{
+		orderRepo: orderRepo,
+		cartRepo:  cartRepo,
+	}
 }
 
 // get all order statuses
@@ -111,7 +115,11 @@ func (c *OrderUseCase) ChangeOrderStatus(ctx context.Context, shopOrderID, chang
 		return err
 	}
 
-	return c.orderRepo.UpdateShopOrderOrderStatus(ctx, shopOrder.ID, changeStatusID)
+	err = c.orderRepo.UpdateShopOrderOrderStatus(ctx, shopOrder.ID, changeStatusID)
+	if err != nil {
+		return fmt.Errorf("faild to chnage order status %v", err.Error())
+	}
+	return nil
 }
 
 func (c *OrderUseCase) CancellOrder(ctx context.Context, shopOrderID uint) error {
@@ -148,7 +156,11 @@ func (c *OrderUseCase) CancellOrder(ctx context.Context, shopOrderID uint) error
 		return errors.New("order cancell option is not avaialbe on database")
 	}
 
-	return c.orderRepo.UpdateShopOrderOrderStatus(ctx, shopOrder.ID, orderStatus.ID)
+	err = c.orderRepo.UpdateShopOrderOrderStatus(ctx, shopOrder.ID, orderStatus.ID)
+	if err != nil {
+		return fmt.Errorf("faild to cancel the order %v", err.Error())
+	}
+	return nil
 }
 
 // to get pending order returns
@@ -304,7 +316,7 @@ func (c *OrderUseCase) GetOrderDetails(ctx context.Context, userID uint, body re
 	}
 
 	// check the cart of user is valid for place order
-	cart, err := c.orderRepo.CheckcartIsValidForOrder(ctx, userID)
+	cart, err := c.cartRepo.CheckcartIsValidForOrder(ctx, userID)
 	if err != nil {
 		return userOrder, err
 	}
@@ -393,27 +405,47 @@ func (c *OrderUseCase) SaveOrder(ctx context.Context, shopOrder domain.ShopOrder
 	shopOrder.OrderStatusID = orderStatus.ID
 
 	// save shop_order
-	shopOrder, err = c.orderRepo.SaveShopOrder(ctx, shopOrder)
-	if err != nil {
-		return 0, err
-	}
+	err = c.orderRepo.Transaction(func(trxRepo interfaces.OrderRepository) error {
 
-	// make orderLines for cart
-	ordlerLines, err := c.orderRepo.CartItemToOrderLines(ctx, shopOrder.UserID)
-	if err != nil {
-		return 0, err
-	}
-
-	// save all order lines
-	for _, orderLine := range ordlerLines {
-		// set shop_order_id
-		orderLine.ShopOrderID = shopOrder.ID
-		if err := c.orderRepo.SaveOrderLine(ctx, orderLine); err != nil {
-			return 0, err
+		shopOrderID, err = trxRepo.SaveShopOrder(ctx, shopOrder)
+		if err != nil {
+			return fmt.Errorf("faild to save order \nerror:%v", err.Error())
 		}
-	}
 
-	return shopOrder.ID, nil
+		cart, err := c.cartRepo.FindCartByUserID(ctx, shopOrder.UserID)
+		if err != nil {
+			return fmt.Errorf("faild to get user cart \nerror:%v", err.Error())
+		}
+
+		cartItems, err := c.cartRepo.FindAllCartItemsByCartID(ctx, cart.CartID)
+		if err != nil {
+			return fmt.Errorf("faild to find all cart items \nerror:%v", err.Error())
+		}
+
+		var OrderPrice uint
+		// save all order lines
+		for _, cartItem := range cartItems {
+
+			if cartItem.DiscountPrice != 0 {
+				OrderPrice = cartItem.DiscountPrice
+			} else {
+				OrderPrice = cartItem.Price
+			}
+
+			orderLine := domain.OrderLine{
+				ProductItemID: cartItem.ProductItemId,
+				ShopOrderID:   shopOrderID,
+				Qty:           cartItem.Qty,
+				Price:         OrderPrice,
+			}
+			if err := trxRepo.SaveOrderLine(ctx, orderLine); err != nil {
+				return fmt.Errorf("faild to save order line \nerror:%v", err.Error())
+			}
+		}
+		return nil
+	})
+
+	return shopOrderID, err
 }
 
 // approve the order from payment pending to
@@ -427,19 +459,28 @@ func (c *OrderUseCase) ApproveOrderAndClearCart(ctx context.Context, userID, sho
 		return errors.New("order status order placed not found")
 	}
 
-	err = c.orderRepo.UpdateShopOrderOrderStatus(ctx, shopOrderID, orderStatus.ID)
-	if err != nil {
-		return err
-	}
+	err = c.orderRepo.Transaction(func(trxRepo interfaces.OrderRepository) error {
 
-	//update the coupon status as used
-	if couponID != 0 {
-		err = c.orderRepo.UpdateCouponUsedForUser(ctx, userID, couponID)
+		err = trxRepo.UpdateShopOrderOrderStatus(ctx, shopOrderID, orderStatus.ID)
 		if err != nil {
-			return err
+			return fmt.Errorf("faild to approve order error:%v", err.Error())
 		}
-	}
 
-	// delete ordered items from cart
-	return c.orderRepo.DeleteOrderedCartItems(ctx, userID)
+		//update the coupon status as used
+		if couponID != 0 {
+			err = trxRepo.UpdateCouponUsedForUser(ctx, userID, couponID)
+			if err != nil {
+				return fmt.Errorf("faild to update coupon is applied for user \nerror:%v", err.Error())
+			}
+		}
+
+		// delete ordered items from cart
+		err = c.cartRepo.DeleteAllCartItemsByUserID(ctx, userID)
+		if err != nil {
+			return fmt.Errorf("faild to approve order \nerror:%v", err.Error())
+		}
+		return nil
+	})
+
+	return err
 }

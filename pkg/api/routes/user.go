@@ -56,7 +56,7 @@ func UserRoutes(api *gin.RouterGroup, authHandler handlerInterface.AuthHandler, 
 
 			// 		cart.GET("/paymet-methods", orderHandler.GetAllPaymentMethods)
 
-			// 		cart.POST("/place-order/cod", orderHandler.PlaceOrderCartCOD) // place an order
+			cart.POST("/place-order/cod", orderHandler.PlaceOrderCartCOD) // place an order
 
 			// 		//cart.GET("/checkout", userHandler.CheckOutCart, orderHandler.GetAllPaymentMethods)
 
@@ -97,15 +97,15 @@ func UserRoutes(api *gin.RouterGroup, authHandler handlerInterface.AuthHandler, 
 		// 	}
 
 		// 	// order
-		// 	orders := api.Group("/orders")
-		// 	{
-		// 		orders.GET("/", orderHandler.GetUserOrder)                       // get all order list for user
-		// 		orders.GET("/items", orderHandler.GetOrderItemsByShopOrderItems) //get order items for specific order
+		orders := api.Group("/orders")
+		{
+			orders.GET("/", orderHandler.GetUserOrder)                       // get all order list for user
+			orders.GET("/items", orderHandler.GetOrderItemsByShopOrderItems) //get order items for specific order
 
-		// 		orders.POST("/return", orderHandler.SubmitReturnRequest)
+			orders.POST("/return", orderHandler.SubmitReturnRequest)
 
-		// 		orders.POST("/cancel/:shop_order_id", orderHandler.CancellOrder) // cancell an order
-		// 	}
+			orders.POST("/cancel/:shop_order_id", orderHandler.CancellOrder) // cancell an order
+		}
 
 		// 	//coupons
 		// 	coupons := api.Group("/coupons")
