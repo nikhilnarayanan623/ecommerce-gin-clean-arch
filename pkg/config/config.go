@@ -91,7 +91,7 @@ type JwtSecret struct {
 	JWTUser  string
 }
 
-func GetCofig() Config {
+func GetConfig() Config {
 
 	return config
 }

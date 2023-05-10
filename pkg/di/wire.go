@@ -10,6 +10,7 @@ import (
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/api/middleware"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/config"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/db"
+	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/otp"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/repository"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/token"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/usecase"
@@ -18,8 +19,12 @@ import (
 func InitializeApi(cfg config.Config) (*http.ServerHTTP, error) {
 
 	wire.Build(db.ConnectDatbase,
-		// repository
+		//external
 		token.NewJWTAuth,
+		otp.NewTwiloOtp,
+
+		// repository
+
 		middleware.NewMiddleware,
 		repository.NewAuthRepository,
 		repository.NewAdminRepository, repository.NewUserRepository,

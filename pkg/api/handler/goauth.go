@@ -22,9 +22,9 @@ func (c *UserHandler) GoauthLoginPage(ctx *gin.Context) {
 func (c *UserHandler) IntitializeGoogleAuth(ctx *gin.Context) {
 
 	// setup the google provider
-	goauthClientID := config.GetCofig().GoathClientID
-	gouthClientSecret := config.GetCofig().GoauthClientSecret
-	callbackUrl := config.GetCofig().GoauthCallbackUrl
+	goauthClientID := config.GetConfig().GoathClientID
+	gouthClientSecret := config.GetConfig().GoauthClientSecret
+	callbackUrl := config.GetConfig().GoauthCallbackUrl
 
 	// setup privider
 	goth.UseProviders(

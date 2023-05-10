@@ -353,7 +353,7 @@ func (c *OrderUseCase) GetStripeOrder(ctx context.Context, userID uint, userOrde
 	stipeOrder.AmountToPay = userOrder.AmountToPay
 	stipeOrder.ClientSecret = clientSecret
 	stipeOrder.CouponID = userOrder.CouponID
-	stipeOrder.PublishableKey = config.GetCofig().StripPublishKey
+	stipeOrder.PublishableKey = config.GetConfig().StripPublishKey
 
 	return stipeOrder, nil
 }
@@ -379,7 +379,7 @@ func (c *OrderUseCase) GetRazorpayOrder(ctx context.Context, userID uint, userOr
 	razorpayOrder.AmountToPay = userOrder.AmountToPay
 	razorpayOrder.RazorpayAmount = razorPayAmount
 
-	razorpayOrder.RazorpayKey = config.GetCofig().RazorPayKey
+	razorpayOrder.RazorpayKey = config.GetConfig().RazorPayKey
 
 	razorpayOrder.UserID = userID
 	razorpayOrder.RazorpayOrderID = razopayOrderId
