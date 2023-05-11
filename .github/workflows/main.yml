@@ -25,6 +25,7 @@ jobs:
           go mod verify
       - name: Install dependencies
         run: |
+          go get github.com/google/wire/cmd/wire@v0.5.0
           go generate ./...
           go test -v ./...
       - name: Install dependencies
