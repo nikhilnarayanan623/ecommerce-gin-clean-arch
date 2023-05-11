@@ -146,6 +146,34 @@ func (c *authUseCase) LoginOtpVerify(ctx context.Context, otpVeirifyDetails req.
 	return otpSession.UserID, err
 }
 
+func (c *authUseCase) AdminLogin(ctx context.Context, loginDetails req.Login) (adminID uint, err error) {
+
+	var admin domain.Admin
+
+	if loginDetails.Email != "" {
+		admin, err = c.adminRepo.FindAdminByEmail(ctx, loginDetails.Email)
+	} else if loginDetails.UserName != "" {
+		admin, err = c.adminRepo.FindAdminByUserName(ctx, loginDetails.UserName)
+	} else {
+		return adminID, fmt.Errorf("all admin login unique fields are empty")
+	}
+
+	if err != nil {
+		return adminID, fmt.Errorf("an error found when find user \nerror: %v", err.Error())
+	}
+
+	if admin.ID == 0 {
+		return adminID, fmt.Errorf("admin not exist with given lgoin details")
+	}
+
+	err = utils.ComparePasswordWithHashedPassword(loginDetails.Password, admin.Password)
+	if err != nil {
+		return adminID, fmt.Errorf("given password is wrong")
+	}
+
+	return admin.ID, err
+}
+
 func (c *authUseCase) GenerateAccessToken(ctx context.Context, tokenParams service.GenerateTokenParams) (tokenString string, err error) {
 
 	uniqueID, err := uuid.NewRandom()
@@ -219,4 +247,23 @@ func (c *authUseCase) VerifyAndGetRefreshTokenSession(ctx context.Context, refre
 	}
 
 	return refreshSession, nil
+}
+
+// google login
+func (c *authUseCase) GoogleLogin(ctx context.Context, user domain.User) (userID uint, err error) {
+
+	existUser, err := c.userRepo.FindUserByEmail(ctx, user.Email)
+	if err != nil {
+		return userID, fmt.Errorf("faild to get user details with given email \nerror:%v", err.Error())
+	} else if existUser.ID != 0 {
+		return existUser.ID, nil
+	}
+
+	user.UserName = utils.GenerateRandomUserName(user.FirstName)
+	userID, err = c.userRepo.SaveUser(ctx, user)
+	if err != nil {
+		return userID, fmt.Errorf("faild to save user details \nerror:%v", err.Error())
+	}
+
+	return userID, nil
 }

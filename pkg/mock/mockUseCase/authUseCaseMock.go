@@ -39,6 +39,21 @@ func (m *MockAuthUseCase) EXPECT() *MockAuthUseCaseMockRecorder {
 	return m.recorder
 }
 
+// AdminLogin mocks base method.
+func (m *MockAuthUseCase) AdminLogin(arg0 context.Context, arg1 req.Login) (uint, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "AdminLogin", arg0, arg1)
+	ret0, _ := ret[0].(uint)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// AdminLogin indicates an expected call of AdminLogin.
+func (mr *MockAuthUseCaseMockRecorder) AdminLogin(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AdminLogin", reflect.TypeOf((*MockAuthUseCase)(nil).AdminLogin), arg0, arg1)
+}
+
 // GenerateAccessToken mocks base method.
 func (m *MockAuthUseCase) GenerateAccessToken(arg0 context.Context, arg1 interfaces.GenerateTokenParams) (string, error) {
 	m.ctrl.T.Helper()
@@ -67,6 +82,21 @@ func (m *MockAuthUseCase) GenerateRefreshToken(arg0 context.Context, arg1 interf
 func (mr *MockAuthUseCaseMockRecorder) GenerateRefreshToken(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GenerateRefreshToken", reflect.TypeOf((*MockAuthUseCase)(nil).GenerateRefreshToken), arg0, arg1)
+}
+
+// GoogleLogin mocks base method.
+func (m *MockAuthUseCase) GoogleLogin(arg0 context.Context, arg1 domain.User) (uint, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GoogleLogin", arg0, arg1)
+	ret0, _ := ret[0].(uint)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GoogleLogin indicates an expected call of GoogleLogin.
+func (mr *MockAuthUseCaseMockRecorder) GoogleLogin(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GoogleLogin", reflect.TypeOf((*MockAuthUseCase)(nil).GoogleLogin), arg0, arg1)
 }
 
 // LoginOtpVerify mocks base method.

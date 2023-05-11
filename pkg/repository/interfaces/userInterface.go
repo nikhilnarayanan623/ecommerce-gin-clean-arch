@@ -16,7 +16,6 @@ type UserRepository interface {
 
 	CheckOtherUserWithDetails(ctx context.Context, user domain.User) (domain.User, error) // find user exept this id
 	SaveUser(ctx context.Context, user domain.User) (userID uint, err error)
-	SaveUserWithGoogleDetails(ctx context.Context, user domain.User) (userID uint, err error)
 	UpdateUser(ctx context.Context, user domain.User) (err error)
 
 	//address

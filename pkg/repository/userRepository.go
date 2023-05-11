@@ -70,27 +70,7 @@ func (c *userDatabse) SaveUser(ctx context.Context, user domain.User) (userID ui
 	err = c.DB.Raw(query, user.UserName, user.FirstName, user.LastName,
 		user.Age, user.Email, user.Phone, user.Password, createdAt).Scan(&user).Error
 
-	if err != nil {
-		return 0, fmt.Errorf("faild to save user %s", user.UserName)
-	}
-	return userID, nil
-}
-
-// for google signup
-func (c *userDatabse) SaveUserWithGoogleDetails(ctx context.Context, user domain.User) (userID uint, err error) {
-
-	//save the user details
-	query := `INSERT INTO users (user_name, first_name, last_name, email,created_at) 
-	VALUES ($1, $2, $3, $4, $5 ) RETURNING id`
-
-	createdAt := time.Now()
-	err = c.DB.Raw(query, user.UserName, user.FirstName, user.LastName,
-		user.Email, createdAt).Scan(&user).Error
-
-	if err != nil {
-		return 0, fmt.Errorf("faild to save user %s", user.UserName)
-	}
-	return userID, nil
+	return userID, err
 }
 
 func (c *userDatabse) UpdateUser(ctx context.Context, user domain.User) (err error) {

@@ -259,21 +259,6 @@ func (mr *MockUserRepositoryMockRecorder) SaveUserAddress(arg0, arg1 interface{}
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SaveUserAddress", reflect.TypeOf((*MockUserRepository)(nil).SaveUserAddress), arg0, arg1)
 }
 
-// SaveUserWithGoogleDetails mocks base method.
-func (m *MockUserRepository) SaveUserWithGoogleDetails(arg0 context.Context, arg1 domain.User) (uint, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "SaveUserWithGoogleDetails", arg0, arg1)
-	ret0, _ := ret[0].(uint)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// SaveUserWithGoogleDetails indicates an expected call of SaveUserWithGoogleDetails.
-func (mr *MockUserRepositoryMockRecorder) SaveUserWithGoogleDetails(arg0, arg1 interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SaveUserWithGoogleDetails", reflect.TypeOf((*MockUserRepository)(nil).SaveUserWithGoogleDetails), arg0, arg1)
-}
-
 // SaveWishListItem mocks base method.
 func (m *MockUserRepository) SaveWishListItem(arg0 context.Context, arg1 domain.WishList) error {
 	m.ctrl.T.Helper()
