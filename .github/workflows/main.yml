@@ -7,7 +7,7 @@ on:
 
 jobs:
   test:
-    name: Unit Test
+    name: Test Application
     runs-on: ubuntu-latest
 
     steps:
@@ -29,7 +29,7 @@ jobs:
         run: |
           go get github.com/google/wire/cmd/wire@v0.5.0
           go generate ./...
-          go test -v ./...
+          go test -v -cover ./...
       
       - name: Build executalbe file
         run: |
