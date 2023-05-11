@@ -23,7 +23,8 @@ jobs:
         run: |
           go mod tidy
           go mod verify
-      - name: Install dependencies
+          go install github.com/golang/mock/mockgen@v1.6.0
+      - name: Create Mock Files And Test
         run: |
           go get github.com/google/wire/cmd/wire@v0.5.0
           go generate ./...
