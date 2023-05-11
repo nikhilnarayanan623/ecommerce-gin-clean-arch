@@ -23,15 +23,14 @@ jobs:
         run: |
           go mod tidy
           go mod verify
-    
-      - name: Run tests 
+      - name: Install dependencies
         run: |
-           	go generate ./...
-            go test -v ./...
+          go generate ./...
+          go test -v ./...
+      - name: Install dependencies
+        run: |
+          mkdir -p build/bin
+          GOARCH=amd64 go build -v -o build/bin/api-linux-amd64 ./cmd/api
 
-      - name: Build Project
-        run: |
-            mkdir -p build/bin
-            GOARCH=amd64 go build -v -o build/bin/api-linux-amd64 ./cmd/api
       
     
