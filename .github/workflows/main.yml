@@ -11,29 +11,28 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Setup Go
-      uses: actions/setup-go@v2
-      with:
-        go-version: '^1.20.2'
-      id: go
+      - name: Setup action
+        uses: actions/checkout@v3
 
-    - name: Install dependencies
-      run: |
-        cd ../../
-        go mod tidy
-        go mod verify
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: '1.19.0'
+
+      - name: Install dependencies
+        run: |
+          go mod tidy
+          go mod verify
     
-    - name: Run tests 
+      - name: Run tests 
 #to generate mock files and test
-      run:  |
-        cd ../../
-        go generate ./...
-        go test -v ./...
+          run:  |
+            go generate ./...
+            go test -v ./...
 
-    - name: Build Project
-      run: |
-        cd ../../
-        mkdir -p build/bin
-        GOARCH=amd64 go build -v -o build/bin/api-linux-amd64 ./cmd/api
+      - name: Build Project
+          run: |
+            mkdir -p build/bin
+            GOARCH=amd64 go build -v -o build/bin/api-linux-amd64 ./cmd/api
       
     
