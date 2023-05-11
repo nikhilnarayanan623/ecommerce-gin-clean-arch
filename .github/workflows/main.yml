@@ -25,13 +25,12 @@ jobs:
           go mod verify
     
       - name: Run tests 
-#to generate mock files and test
-          run:  |
-            go generate ./...
+        run: |
+           	go generate ./...
             go test -v ./...
 
       - name: Build Project
-          run: |
+        run: |
             mkdir -p build/bin
             GOARCH=amd64 go build -v -o build/bin/api-linux-amd64 ./cmd/api
       
