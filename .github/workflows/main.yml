@@ -19,17 +19,20 @@ jobs:
 
     - name: Install dependencies
       run: |
+        cd ../../
         go mod tidy
         go mod verify
     
     - name: Run tests 
 #to generate mock files and test
       run:  |
+        cd ../../
         go generate ./...
         go test -v ./...
 
     - name: Build Project
       run: |
+        cd ../../
         mkdir -p build/bin
         GOARCH=amd64 go build -v -o build/bin/api-linux-amd64 ./cmd/api
       
