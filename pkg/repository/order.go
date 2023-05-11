@@ -57,8 +57,8 @@ func (c *OrderDatabase) FindAllShopOrdersByUserID(ctx context.Context, userID ui
 	FROM shop_orders so JOIN order_statuses os ON so.order_status_id = os.id 
 	INNER JOIN payment_methods pm ON so.payment_method_id = pm.id WHERE user_id = $1 ORDER BY order_date DESC LIMIT $2 OFFSET  $3`
 	err := c.DB.Raw(query, userID, limit, offset).Scan(&shopOrders).Error
-	if err !=  nil{
-		return shopOrders,err
+	if err != nil {
+		return shopOrders, err
 	}
 	// take full address and add to it
 	query = `SELECT adrs.id AS address_id, adrs.name,adrs.phone_number,adrs.house,adrs.area, adrs.land_mark,adrs.city,adrs.pincode,adrs.country_id,c.country_name 
@@ -148,45 +148,23 @@ func (c *OrderDatabase) SaveOrderLine(ctx context.Context, orderLine domain.Orde
 	return nil
 }
 
-func (c *OrderDatabase) UpdateCouponUsedForUser(ctx context.Context, userID, couponID uint) error {
-
-	query := `INSERT INTO coupon_uses (coupon_id, user_id, used_at) VALUES ($1, $2, $3)`
-	usedAt := time.Now()
-	err := c.DB.Exec(query, couponID, userID, usedAt).Error
-
-	return err
-}
-
-func (c *OrderDatabase) ValidateAddressID(ctx context.Context, addressID uint) error {
-
-	var id uint
-	if c.DB.Raw(`SELECT id FROM addresses WHERE id = $1`, addressID).Scan(&id).Error != nil {
-		return errors.New("faild to validte address_id")
-	} else if id == 0 {
-		return errors.New("invlaid address_id")
-	}
-	return nil
-}
-
-// get user email and phone
-func (c *OrderDatabase) GetUserEmailAndPhone(ctx context.Context, userID uint) (emailAndPhone res.ResEmailAndPhone, err error) {
-
-	query := `SELECT email,phone FROM users WHERE id = $1`
-	err = c.DB.Raw(query, userID).Scan(&emailAndPhone).Error
-	if err != nil {
-		return emailAndPhone, fmt.Errorf("faild to find email and phone of user with user_id %v", userID)
-	}
-	return emailAndPhone, nil
-}
-
 //!end
 
 // find order status
-func (c *OrderDatabase) FindOrderStatus(ctx context.Context, orderStatus domain.OrderStatus) (domain.OrderStatus, error) {
-	if c.DB.Raw("SELECT * FROM order_statuses WHERE id = ? OR status = ?", orderStatus.ID, orderStatus.Status).Scan(&orderStatus).Error != nil {
-		return orderStatus, errors.New("faild to get order status")
-	}
-	return orderStatus, nil
+func (c *OrderDatabase) FindOrderStatusByID(ctx context.Context, orderStatusID uint) (domain.OrderStatus, error) {
+
+	var orderStatus domain.OrderStatus
+	err := c.DB.Raw("SELECT * FROM order_statuses WHERE id = $1", orderStatusID).Scan(&orderStatus).Error
+
+	return orderStatus, err
+}
+
+func (c *OrderDatabase) FindOrderStatusByStatus(ctx context.Context, orderSatatus string) (domain.OrderStatus, error) {
+
+	var orderStatus domain.OrderStatus
+	err := c.DB.Raw("SELECT * FROM order_statuses WHERE status = $1", orderSatatus).Scan(&orderStatus).Error
+
+	return orderStatus, err
 }
 
 func (c *OrderDatabase) FindAllOrderStauses(ctx context.Context) ([]domain.OrderStatus, error) {
@@ -209,143 +187,78 @@ func (c *OrderDatabase) UpdateShopOrderOrderStatus(ctx context.Context, shopOrde
 
 // order return
 
-func (c *OrderDatabase) FindOrderReturn(ctx context.Context, orderReturn domain.OrderReturn) (domain.OrderReturn, error) {
-	query := `SELECT *  FROM order_returns WHERE id = ? OR shop_order_id = ?`
-	if c.DB.Raw(query, orderReturn.ID, orderReturn.ShopOrderID).Scan(&orderReturn).Error != nil {
-		return orderReturn, errors.New("faild to find order return")
-	}
-	return orderReturn, nil
+func (c *OrderDatabase) FindOrderReturnByReturnID(ctx context.Context, orderReturnID uint) (orderReturn domain.OrderReturn, err error) {
+
+	query := `SELECT *  FROM order_returns WHERE id = $1`
+	err = c.DB.Raw(query, orderReturnID).Scan(&orderReturn).Error
+
+	return orderReturn, err
+}
+func (c *OrderDatabase) FindOrderReturnByShopOrderID(ctx context.Context, shopOrderID uint) (orderReturn domain.OrderReturn, err error) {
+
+	query := `SELECT *  FROM order_returns WHERE shop_order_id = $1`
+	err = c.DB.Raw(query, shopOrderID).Scan(&orderReturn).Error
+
+	return orderReturn, err
 }
 
-func (c *OrderDatabase) FindAllOrderReturns(ctx context.Context, onlyPending bool, pagination req.ReqPagination) (orderReturns []res.ResOrderReturn, errr error) {
+func (c *OrderDatabase) FindAllOrderReturns(ctx context.Context, pagination req.ReqPagination) ([]res.ResOrderReturn, error) {
 
 	limit := pagination.Count
 	offset := (pagination.PageNumber - 1) * limit
+	var orderReturns []res.ResOrderReturn
 
-	// var query string
-	if onlyPending { // find all request which are not returned completed
-		// find order_status_id for return requested and return approved
-		var orderStatusIDReturnReq, orderStatusIDApproved uint
-		if c.DB.Raw("SELECT id FROM order_statuses WHERE status = 'return requested'").Scan(&orderStatusIDReturnReq).Error != nil {
-			return orderReturns, errors.New("faild to get order_status_id for return requestes")
-		}
-
-		if c.DB.Raw("SELECT id FROM order_statuses WHERE status = 'return approved'").Scan(&orderStatusIDApproved).Error != nil {
-			return orderReturns, errors.New("faild to get order_status_id for return requestes")
-		}
-		query := `SELECT ors.id AS order_return_id, ors.shop_order_id, ors.request_date, ors.return_reason, 
-		os.id AS order_status_id, os.status AS order_status,ors.refund_amount  
-		FROM order_returns ors INNER JOIN shop_orders so ON ors.shop_order_id =  so.id 
-		INNER JOIN order_statuses os ON so.order_status_id = os.id WHERE so.order_status_id = $1 OR so.order_status_id = $2  
-		ORDER BY ors.request_date DESC LIMIT $3 OFFSET $4`
-
-		if c.DB.Raw(query, orderStatusIDReturnReq, orderStatusIDApproved, limit, offset).Scan(&orderReturns).Error != nil {
-			return orderReturns, errors.New("faild to find orders of return requested")
-		}
-	} else {
-		query := `SELECT ors.id AS order_return_id, ors.shop_order_id, ors.request_date, ors.return_reason, 
+	query := `SELECT ors.id AS order_return_id, ors.shop_order_id, ors.request_date, ors.return_reason, 
 		os.id AS order_status_id, os.status AS order_status,ors.refund_amount, ors.admin_comment, ors.is_approved, ors.approval_date, ors.return_date 
 		FROM order_returns ors INNER JOIN shop_orders so ON ors.shop_order_id =  so.id 
 		INNER JOIN order_statuses os ON so.order_status_id = os.id 
 		ORDER BY ors.request_date LIMIT $1 OFFSET $2`
-		if c.DB.Raw(query, limit, offset).Scan(&orderReturns).Error != nil {
-			return orderReturns, errors.New("faild to get order returns")
-		}
+	err := c.DB.Raw(query, limit, offset).Scan(&orderReturns).Error
+
+	return orderReturns, err
+}
+
+func (c *OrderDatabase) FindAllPendingOrderReturns(ctx context.Context, pagination req.ReqPagination) ([]res.ResOrderReturn, error) {
+	limit := pagination.Count
+	offset := (pagination.PageNumber - 1) * limit
+	var pendingorderReturns []res.ResOrderReturn
+
+	returnRequested, err1 := c.FindOrderStatusByStatus(ctx, "return requested")
+	returnApproved, err2 := c.FindOrderStatusByStatus(ctx, "return approved")
+	err := errors.Join(err1, err2)
+	if err != nil {
+		return pendingorderReturns, err
 	}
 
-	return orderReturns, nil
+	query := `SELECT ors.id AS order_return_id, ors.shop_order_id, ors.request_date, ors.return_reason, 
+	os.id AS order_status_id, os.status AS order_status,ors.refund_amount  
+	FROM order_returns ors INNER JOIN shop_orders so ON ors.shop_order_id =  so.id 
+	INNER JOIN order_statuses os ON so.order_status_id = os.id 
+	WHERE so.order_status_id = $1 OR so.order_status_id = $2 
+	ORDER BY ors.request_date DESC LIMIT $3 OFFSET $4`
+	err = c.DB.Raw(query, returnRequested.ID, returnApproved.ID, limit, offset).Scan(&pendingorderReturns).Error
+
+	return pendingorderReturns, err
 }
 
 // to save a return request
 func (c *OrderDatabase) SaveOrderReturn(ctx context.Context, orderReturn domain.OrderReturn) error {
 
-	trx := c.DB.Begin()
-
 	query := `INSERT INTO order_returns (shop_order_id,return_reason,request_date,refund_amount,is_approved) 
 	VALUES($1,$2,$3,$4,$5)`
-	if trx.Exec(query, orderReturn.ShopOrderID, orderReturn.ReturnReason,
-		orderReturn.RequestDate, orderReturn.RefundAmount, false).Error != nil {
-		trx.Rollback()
-		return fmt.Errorf("faild to save return for shop_order_id %d", orderReturn.ShopOrderID)
-	}
+	err := c.DB.Exec(query, orderReturn.ShopOrderID, orderReturn.ReturnReason,
+		orderReturn.RequestDate, orderReturn.RefundAmount, false).Error
 
-	//get the returning order status id and set to order
-	var orderStatus = domain.OrderStatus{Status: "return requested"}
-	orderStatus, err := c.FindOrderStatus(ctx, orderStatus)
-	if err != nil {
-		trx.Rollback()
-		return err
-	} else if orderStatus.ID == 0 {
-		trx.Rollback()
-		return errors.New("faild get order_status_id of returning")
-	}
-
-	//update shopOrder status
-	if err := c.UpdateShopOrderOrderStatus(ctx, orderReturn.ShopOrderID, orderStatus.ID); err != nil {
-		trx.Rollback()
-		return err
-	}
-
-	if err := trx.Commit().Error; err != nil {
-		trx.Rollback()
-		return fmt.Errorf("faild to complete return request for shop_order_id %d", orderReturn.ShopOrderID)
-	}
-	return nil
+	return err
 }
 
 // update the order return
-func (c *OrderDatabase) UpdateOrderReturn(ctx context.Context, body req.ReqUpdatReturnOrder) error {
-	trx := c.DB.Begin()
+func (c *OrderDatabase) UpdateOrderReturn(ctx context.Context, orderReturn domain.OrderReturn) error {
 
-	// find the orderStatus that admin given
-	changeOrderStatus, err := c.FindOrderStatus(ctx, domain.OrderStatus{ID: body.OrderStatusID})
-	if err != nil {
-		trx.Rollback()
-		return err
-	}
+	query := `UPDATE order_returns SET admin_comment = $1, return_date = $2, 
+	approval_date = $3, is_approved = $4 WHERE id = $5`
+	err := c.DB.Exec(query, orderReturn.AdminComment, orderReturn.RequestDate,
+		orderReturn.ApprovalDate, orderReturn.IsApproved, orderReturn.ID).Error
 
-	//find the orderReturn
-	orderReturn, err := c.FindOrderReturn(ctx, domain.OrderReturn{ID: body.OrderReturnID})
-	if err != nil {
-		trx.Rollback()
-		return err
-	}
-
-	err = fmt.Errorf("faild to change return status to %s", changeOrderStatus.Status)
-	switch changeOrderStatus.Status {
-	case "return cancelled":
-		query := `UPDATE order_returns SET admin_comment = $1 WHERE id = $2`
-		if c.DB.Exec(query, body.AdminComment, orderReturn.ID).Error != nil {
-			trx.Rollback()
-			return err
-		}
-	case "return approved":
-		approvalTime := time.Now()
-		returnDate := approvalTime.AddDate(0, 0, 5) // now its approval plus 5 days need chage it to get return date from admin later
-		query := `UPDATE order_returns SET return_date = $1, approval_date = $2, admin_comment = $3  WHERE id = $4`
-		if c.DB.Exec(query, returnDate, approvalTime, body.AdminComment, orderReturn.ID).Error != nil {
-			trx.Rollback()
-			return err
-		}
-	case "returned":
-		returnDate := time.Now()
-		query := `UPDATE order_returns SET return_date = $1,admin_comment = $2  WHERE id = $3`
-		if c.DB.Exec(query, returnDate, body.AdminComment, orderReturn.ID).Error != nil {
-			trx.Rollback()
-			return err
-		}
-	}
-
-	// update the status on shop_order
-	query := `UPDATE shop_orders SET order_status_id = $1 WHERE id = $2`
-	if trx.Exec(query, body.OrderStatusID, orderReturn.ShopOrderID).Error != nil {
-		trx.Rollback()
-		return fmt.Errorf("faild to update shop_order_status on %s", changeOrderStatus.Status)
-	}
-	// complete the order_return update
-	if trx.Commit().Error != nil {
-		trx.Rollback()
-		return errors.New("faild to complete updation of order_return")
-	}
-	return nil
+	return err
 }

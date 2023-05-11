@@ -19,10 +19,17 @@ type userDatabse struct {
 func NewUserRepository(DB *gorm.DB) interfaces.UserRepository {
 	return &userDatabse{DB: DB}
 }
+func (c *userDatabse) FindUserByUserID(ctx context.Context, userID uint) (user domain.User, err error) {
+
+	query := `SELECT * FROM users WHERE id = $1`
+	err = c.DB.Raw(query, userID).Scan(&user).Error
+
+	return user, err
+}
 
 func (c *userDatabse) FindUserByEmail(ctx context.Context, email string) (user domain.User, err error) {
-	fmt.Println("called")
-	query := `SELECT * FROM users WHERE email = ?`
+
+	query := `SELECT * FROM users WHERE email = $1`
 	err = c.DB.Raw(query, email).Scan(&user).Error
 
 	return user, err
@@ -30,14 +37,14 @@ func (c *userDatabse) FindUserByEmail(ctx context.Context, email string) (user d
 
 func (c *userDatabse) FindUserByPhoneNumber(ctx context.Context, phoneNumber string) (user domain.User, err error) {
 
-	query := `SELECT * FROM users WHERE phone = ?`
+	query := `SELECT * FROM users WHERE phone = $1`
 	err = c.DB.Raw(query, phoneNumber).Scan(&user).Error
 
 	return user, err
 }
 func (c *userDatabse) FindUserByUserName(ctx context.Context, userName string) (user domain.User, err error) {
 
-	query := `SELECT * FROM users WHERE user_name = ?`
+	query := `SELECT * FROM users WHERE user_name = $1`
 	err = c.DB.Raw(query, userName).Scan(&user).Error
 
 	return user, err

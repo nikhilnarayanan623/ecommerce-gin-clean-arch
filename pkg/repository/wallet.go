@@ -25,79 +25,31 @@ func (c *OrderDatabase) FindWalletByUserID(ctx context.Context, userID uint) (wa
 // create a new wallet for user
 func (c *OrderDatabase) SaveWallet(ctx context.Context, userID uint) (walletID uint, err error) {
 
-	query := `INSERT INTO wallets (user_id,total_amount) VALUES ($1, $2) RETURNING wallet_id`
-
 	var wallet domain.Wallet
+	query := `INSERT INTO wallets (user_id,total_amount) VALUES ($1, $2) RETURNING wallet_id`
 	err = c.DB.Raw(query, userID, 0).Scan(&wallet).Error
 
-	if err != nil {
-		return walletID, fmt.Errorf("faild to save wallet for user_id %v", userID)
-	}
+	walletID = wallet.ID
 
-	walletID = wallet.WalletID
-
-	return walletID, nil
+	return walletID, err
 }
 
-// trancation type that already defined on domain Debit or Credit
-func (c *OrderDatabase) UpdateWallet(ctx context.Context, walletID, amount uint, transactionType domain.TransactionType) error {
+func (c *OrderDatabase) UpdateWallet(ctx context.Context, walletID, upateTotalAmount uint) error {
 
-	trx := c.DB.Begin()
+	query := `UPDATE wallets SET total_amount = $1 WHERE wallet_id = $2`
+	err := c.DB.Exec(query, upateTotalAmount, walletID).Error
 
-	// get the wallet total amount
-	var totalAmount uint
-	query := `SELECT total_amount FROM wallets WHERE wallet_id = $1`
-	err := trx.Raw(query, walletID).Scan(&totalAmount).Error
+	return err
+}
 
-	if err != nil {
-		return fmt.Errorf("faild to find total price of wallet of wallert_id %v", walletID)
-	}
+func (c *OrderDatabase) SaveWalletTransaction(ctx context.Context, walletTrx domain.Transaction) error {
 
-	// check the transaction type is debit and the amount is less than total amount or not
-	if transactionType == domain.Debit && totalAmount < amount {
-		trx.Rollback()
-		return fmt.Errorf("can't update the total amount total amount in wallet %v lesser than the given amount %v on debit", totalAmount, amount)
-	}
-	fmt.Println(totalAmount, amount)
-	// calculate the total_amount according to trancation_type
-	switch transactionType {
-	case domain.Credit:
-		totalAmount += amount
-	case domain.Debit:
-		totalAmount -= amount
-	default:
-		trx.Rollback()
-		return fmt.Errorf("invalid transaction type")
-	}
-
-	// there is no conflict then update the amount with total_price
-	query = `UPDATE wallets SET total_amount = $1 WHERE wallet_id = $2`
-	err = trx.Exec(query, totalAmount, walletID).Error
-
-	if err != nil {
-		trx.Rollback()
-		return fmt.Errorf("faild to update user wallet for wallet_id %v", walletID)
-	}
-
-	// update the transaction for wallet
-	query = `INSERT INTO transactions (wallet_id,transaction_date,amount,transaction_type) 
+	trxDate := time.Now()
+	query := `INSERT INTO transactions (wallet_id, transaction_date, amount, transaction_type) 
 	VALUES ($1, $2, $3, $4)`
+	err := c.DB.Exec(query, walletTrx.WalletID, trxDate, walletTrx.Amount, walletTrx.TransactionType).Error
 
-	transactionDate := time.Now()
-	err = trx.Exec(query, walletID, transactionDate, amount, transactionType).Error
-
-	if err != nil {
-		trx.Rollback()
-		return fmt.Errorf("faild to save wallet transaction for wallet_id %v", walletID)
-	}
-
-	// complete the transaction
-	err = trx.Commit().Error
-	if err != nil {
-		return fmt.Errorf("faild to complete the updation of wallet for wallet_id %v", walletID)
-	}
-
-	return nil
+	return err
 }
 
 // find wallet transaction history
@@ -107,7 +59,7 @@ func (c *OrderDatabase) FindWalletTransactions(ctx context.Context, walletID uin
 	limit := pagination.Count
 	offset := (pagination.PageNumber - 1) * limit
 
-	query := `SELECT * FROM transactions WHERE wallet_id = $1
+	query := `SELECT * FROM transactions WHERE id = $1
 	ORDER BY transaction_date DESC LIMIT $2 OFFSET $3`
 
 	err = c.DB.Raw(query, walletID, limit, offset).Scan(&transaction).Error

@@ -12,9 +12,9 @@ func AdminRoutes(api *gin.RouterGroup, authHandler handlerInterface.AuthHandler,
 
 ) {
 	// login
-	// login := api.Group("/login")
+	login := api.Group("/login")
 	// {
-	// 	login.POST("/", adminHandler.AdminLogin)
+	login.POST("/", adminHandler.AdminLogin)
 	// }
 	// // signup
 	// // signup := api.Group("/signup")
@@ -57,19 +57,19 @@ func AdminRoutes(api *gin.RouterGroup, authHandler handlerInterface.AuthHandler,
 	// 		product.POST("/product-item", productHandler.AddProductItem)
 	// 	}
 	// 	// order
-	// 	order := api.Group("/orders")
-	// 	{
-	// 		order.GET("/", orderHandler.GetAllShopOrders)
-	// 		order.GET("items", orderHandler.GetOrderItemsByShopOrderItems)
-	// 		order.PUT("/", orderHandler.UdateOrderStatus)
+	order := api.Group("/orders")
+	{
+		order.GET("/", orderHandler.GetAllShopOrders)
+		order.GET("items", orderHandler.GetOrderItemsByShopOrderItems)
+		order.PUT("/", orderHandler.UdateOrderStatus)
 
-	// 		order.GET("/statuses", orderHandler.GetAllOrderStatuses)
+		order.GET("/statuses", orderHandler.GetAllOrderStatuses)
 
-	// 		//return requests
-	// 		order.GET("/returns", orderHandler.GetAllOrderReturns)
-	// 		order.GET("/returns/pending", orderHandler.GetAllPendingReturns)
-	// 		order.PUT("/returns/pending", orderHandler.UpdateReturnRequest)
-	// 	}
+		//return requests
+		order.GET("/returns", orderHandler.GetAllOrderReturns)
+		order.GET("/returns/pending", orderHandler.GetAllPendingReturns)
+		order.PUT("/returns/pending", orderHandler.UpdateReturnRequest)
+	}
 
 	// 	// payment_method
 	// 	paymentMethod := api.Group("/payment-method")
