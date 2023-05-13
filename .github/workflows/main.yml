@@ -3,7 +3,9 @@ name: ecommerce-project-test
 on:
   push:
     branches:
-      -master
+      - master
+  pull_request:
+>>>>>>> Stashed changes
 
 jobs:
   test:
