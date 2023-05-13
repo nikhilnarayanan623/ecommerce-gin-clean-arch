@@ -230,7 +230,7 @@ func TestUserRenewRefreshToken(t *testing.T) {
 
 			engine := gin.New()
 			url := "/renew-access-token"
-			engine.POST(url, authHandler.UserRenewRefreshToken())
+			engine.POST(url, authHandler.UserRenewAccessToken())
 
 			responseRecorder := httptest.NewRecorder()
 

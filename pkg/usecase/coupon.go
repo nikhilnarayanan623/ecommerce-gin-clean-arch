@@ -132,7 +132,7 @@ func (c *couponUseCase) ApplyCouponToCart(ctx context.Context, userID uint, coup
 	}
 
 	// check the coupon is user already used or not
-	couponUses, err := c.couponRepo.FindCouponUses(ctx, userID, coupon.CouponID)
+	couponUses, err := c.couponRepo.FindCouponUsesByCouponAndUserID(ctx, userID, coupon.CouponID)
 	if err != nil {
 		return discountAmount, err
 	} else if couponUses.CouponUsesID != 0 {

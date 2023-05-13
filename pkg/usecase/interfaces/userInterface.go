@@ -11,8 +11,6 @@ import (
 type UserUseCase interface {
 	Signup(ctx context.Context, user domain.User) error
 
-	GoogleLogin(ctx context.Context, user domain.User) (domain.User, error)
-
 	Account(ctx context.Context, userId uint) (domain.User, error)
 	EditAccount(ctx context.Context, user domain.User) error
 

@@ -11,8 +11,8 @@ import (
 type OrderUseCase interface {
 
 	// pyment
-	AddPaymentMethod(ctx context.Context,paymentMethod domain.PaymentMethod)error 
-	EditPaymentMethod(ctx context.Context,paymentMethod domain.PaymentMethod)error
+	AddPaymentMethod(ctx context.Context, paymentMethod domain.PaymentMethod) error
+	EditPaymentMethod(ctx context.Context, paymentMethod domain.PaymentMethod) error
 	GetAllPaymentMethods(ctx context.Context) ([]domain.PaymentMethod, error)
 	GetPaymentMethodByID(ctx context.Context, paymentMethodID uint) (domain.PaymentMethod, error)
 
@@ -35,17 +35,16 @@ type OrderUseCase interface {
 
 	// cancell order and change order status
 	GetAllOrderStatuses(ctx context.Context) (orderStatuses []domain.OrderStatus, err error)
-	ChangeOrderStatus(ctx context.Context, shopOrderID, changeStatusID uint) error
+	UpdateOrderStatus(ctx context.Context, shopOrderID, changeStatusID uint) error
 	CancellOrder(ctx context.Context, shopOrderID uint) error
 
-	// return order and updte
-	SubmitReturnRequest(ctx context.Context, body req.ReqReturn) error
-	GetAllPendingOrderReturns(ctx context.Context, pagination req.ReqPagination) (orderReturns []res.ResOrderReturn, err error)
-	GetAllOrderReturns(ctx context.Context, pagination req.ReqPagination) (orderReturns []res.ResOrderReturn, err error)
-	UpdateReturnRequest(ctx context.Context, body req.ReqUpdatReturnOrder) error
+	// return and update
+	SubmitReturnRequest(ctx context.Context, returnDetails req.ReqReturn) error
+	GetAllPendingOrderReturns(ctx context.Context, pagination req.ReqPagination) ([]res.ResOrderReturn, error)
+	GetAllOrderReturns(ctx context.Context, pagination req.ReqPagination) ([]res.ResOrderReturn, error)
+	UpdateReturnDetails(ctx context.Context, updateDetails req.UpdatOrderReturn) error
 
 	// wallet
 	GetUserWallet(ctx context.Context, userID uint) (wallet domain.Wallet, err error)
-
 	GetUserWalletTransactions(ctx context.Context, userID uint, pagination req.ReqPagination) (transactions []domain.Transaction, err error)
 }

@@ -123,7 +123,7 @@ func (c *couponDatabase) UpdateCoupon(ctx context.Context, coupon domain.Coupon)
 }
 
 // find couponUses which is also uses for checking a user is a coupon is used or not
-func (c *couponDatabase) FindCouponUses(ctx context.Context, userID, couopnID uint) (couponUses domain.CouponUses, err error) {
+func (c *couponDatabase) FindCouponUsesByCouponAndUserID(ctx context.Context, userID, couopnID uint) (couponUses domain.CouponUses, err error) {
 	query := `SELECT * FROM  coupon_uses WHERE user_id = $1 AND coupon_id = $2`
 	err = c.DB.Raw(query, userID, couopnID).Scan(&couponUses).Error
 	if err != nil {
@@ -134,16 +134,12 @@ func (c *couponDatabase) FindCouponUses(ctx context.Context, userID, couopnID ui
 
 // save a couponUses
 func (c *couponDatabase) SaveCouponUses(ctx context.Context, couponUses domain.CouponUses) error {
-	query := `INSERT INTO coupon_uses ( user_id, coupon_id, used_at) VALUES ($1, $2, $3)`
 
 	usedAt := time.Now()
+	query := `INSERT INTO coupon_uses ( user_id, coupon_id, used_at) VALUES ($1, $2, $3)`
 	err := c.DB.Exec(query, couponUses.UserID, couponUses.CouponID, usedAt).Error
 
-	if err != nil {
-		return fmt.Errorf("faild save coupon for user_id %v with coupon_id %v", couponUses.UserID, couponUses.CouponID)
-	}
-
-	return nil
+	return err
 }
 
 // find all coupons for user

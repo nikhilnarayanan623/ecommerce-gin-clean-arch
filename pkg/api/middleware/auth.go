@@ -2,7 +2,6 @@ package middleware
 
 import (
 	"errors"
-	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -40,6 +39,7 @@ func (c *middleware) GetAdminMiddleware() gin.HandlerFunc {
 	return c.middlewareUsingCookie(token.TokenForAdmin)
 }
 
+//! middleware for token with header
 // func (c *middleware) middleware(tokenUser token.UserType) gin.HandlerFunc {
 // 	return func(ctx *gin.Context) {
 
@@ -82,11 +82,12 @@ func (c *middleware) middlewareUsingCookie(tokenUser token.UserType) gin.Handler
 
 		cookieName := "auth-" + string(tokenUser)
 		accessToken, err := ctx.Cookie(cookieName)
+
 		if err != nil || accessToken == "" {
 			if accessToken == "" {
 				err = errors.Join(err, errors.New("there is no access token"))
 			}
-			response := res.ErrorResponse(401, "faild to authenticate", err.Error(), nil)
+			response := res.ErrorResponse(401, "unauthorized user", err.Error(), nil)
 			ctx.AbortWithStatusJSON(http.StatusUnauthorized, response)
 			return
 		}
@@ -94,11 +95,10 @@ func (c *middleware) middlewareUsingCookie(tokenUser token.UserType) gin.Handler
 
 		if err != nil {
 			ctx.Abort()
-			response := res.ErrorResponse(401, "faild to authenticate", err.Error(), nil)
+			response := res.ErrorResponse(401, "unauthorized user", err.Error(), nil)
 			ctx.AbortWithStatusJSON(http.StatusUnauthorized, response)
 			return
 		}
-		fmt.Println("payload", payload.UserID)
 		ctx.Set("userId", payload.UserID)
 	}
 

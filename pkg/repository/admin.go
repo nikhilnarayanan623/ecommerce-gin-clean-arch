@@ -21,13 +21,20 @@ func NewAdminRepository(DB *gorm.DB) interfaces.AdminRepository {
 	return &adminDatabase{DB: DB}
 }
 
-func (c *adminDatabase) FindAdmin(ctx context.Context, admin domain.Admin) (domain.Admin, error) {
+func (c *adminDatabase) FindAdminByEmail(ctx context.Context, email string) (domain.Admin, error) {
 
-	if c.DB.Raw("SELECT * FROM admins WHERE email=? OR user_name=?", admin.Email, admin.UserName).Scan(&admin).Error != nil {
-		return admin, errors.New("faild to find admin")
-	}
+	var admin domain.Admin
+	err := c.DB.Raw("SELECT * FROM admins WHERE email = $1", email).Scan(&admin).Error
 
-	return admin, nil
+	return admin, err
+}
+
+func (c *adminDatabase) FindAdminByUserName(ctx context.Context, userName string) (domain.Admin, error) {
+
+	var admin domain.Admin
+	err := c.DB.Raw("SELECT * FROM admins WHERE user_name = $1", userName).Scan(&admin).Error
+
+	return admin, err
 }
 
 func (c *adminDatabase) SaveAdmin(ctx context.Context, admin domain.Admin) error {

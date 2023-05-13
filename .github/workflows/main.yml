@@ -5,22 +5,37 @@ on:
     branches:
       - master
   pull_request:
->>>>>>> Stashed changes
 
 jobs:
   test:
-    name: Uint Test
+    name: Unit Test
     runs-on: ubuntu-latest
 
     steps:
-    - name: Setup Go
-      uses: actions/setup-go@v2
-      with:
-        go-version: ^1.20.2
-      id: go
+      - name: Setup action
+        uses: actions/checkout@v3
+
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: '1.20.4'
+
+      - name: Install dependencies
+        run: |
+          go mod tidy
+          go mod verify
+          go install github.com/golang/mock/mockgen@v1.6.0
+      
+      - name: Create mock files and Test the code
+        run: |
+          go get github.com/google/wire/cmd/wire@v0.5.0
+          go generate ./...
+          go test -v -cover ./...
+      
+      - name: Build executalbe file
+        run: |
+          mkdir -p build/bin
+          GOARCH=amd64 go build -v -o build/bin/api-linux-amd64 ./cmd/api
+
+      
     
-    - name: Install dependencies
-      run: make deps
-    
-    - name : Run tests
-      run: make test

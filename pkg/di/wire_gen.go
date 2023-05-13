@@ -12,6 +12,7 @@ import (
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/api/middleware"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/config"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/db"
+	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/otp"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/repository"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/token"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/usecase"
@@ -28,7 +29,8 @@ func InitializeApi(cfg config.Config) (*http.ServerHTTP, error) {
 	tokenAuth := token.NewJWTAuth(cfg)
 	userRepository := repository.NewUserRepository(gormDB)
 	adminRepository := repository.NewAdminRepository(gormDB)
-	authUseCase := usecase.NewAuthUseCase(authRepository, tokenAuth, userRepository, adminRepository)
+	otpVerification := otp.NewTwiloOtp(cfg)
+	authUseCase := usecase.NewAuthUseCase(authRepository, tokenAuth, userRepository, adminRepository, otpVerification)
 	authHandler := handler.NewAuthHandler(authUseCase)
 	middlewareMiddleware := middleware.NewMiddleware(tokenAuth)
 	adminUseCase := usecase.NewAdminUseCase(adminRepository)
@@ -42,9 +44,9 @@ func InitializeApi(cfg config.Config) (*http.ServerHTTP, error) {
 	productUseCase := usecase.NewProductUseCase(productRepository)
 	productHandler := handler.NewProductHandler(productUseCase)
 	orderRepository := repository.NewOrderRepository(gormDB)
-	orderUseCase := usecase.NewOrderUseCase(orderRepository, cartRepository)
-	orderHandler := handler.NewOrderHandler(orderUseCase)
 	couponRepository := repository.NewCouponRepository(gormDB)
+	orderUseCase := usecase.NewOrderUseCase(orderRepository, cartRepository, userRepository, couponRepository)
+	orderHandler := handler.NewOrderHandler(orderUseCase)
 	couponUseCase := usecase.NewCouponUseCase(couponRepository)
 	couponHandler := handler.NewCouponHandler(couponUseCase)
 	serverHTTP := http.NewServerHTTP(authHandler, middlewareMiddleware, adminHandler, userHandler, cartHandler, productHandler, orderHandler, couponHandler)

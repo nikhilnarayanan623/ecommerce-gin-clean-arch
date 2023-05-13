@@ -24,16 +24,24 @@ func NewAdminUseCase(repo interfaces.AdminRepository) service.AdminUseCase {
 	return &adminUseCase{adminRepo: repo}
 }
 
-func (c *adminUseCase) SignUp(ctx context.Context, admin domain.Admin) error {
+func (c *adminUseCase) SignUp(ctx context.Context, loginDetails domain.Admin) error {
 
-	if admin, err := c.adminRepo.FindAdmin(ctx, admin); err != nil {
+	admin, err := c.adminRepo.FindAdminByEmail(ctx, loginDetails.Email)
+	if err != nil {
 		return err
 	} else if admin.ID != 0 {
-		return errors.New("can't save admin already exist with this details")
+		return errors.New("can't save admin \nan admin already exist with this email")
+	}
+
+	admin, err = c.adminRepo.FindAdminByUserName(ctx, loginDetails.UserName)
+	if err != nil {
+		return err
+	} else if admin.ID != 0 {
+		return errors.New("can't save admin \nan admin already exist with this user_name")
 	}
 
 	// generate a hashed password for admin
-	hashPass, err := bcrypt.GenerateFromPassword([]byte(admin.Password), 10)
+	hashPass, err := bcrypt.GenerateFromPassword([]byte(loginDetails.Password), 10)
 
 	if err != nil {
 		return errors.New("faild to generate hashed password for admin")
@@ -42,24 +50,6 @@ func (c *adminUseCase) SignUp(ctx context.Context, admin domain.Admin) error {
 	admin.Password = string(hashPass)
 
 	return c.adminRepo.SaveAdmin(ctx, admin)
-}
-
-func (c *adminUseCase) Login(ctx context.Context, admin domain.Admin) (domain.Admin, error) {
-
-	// get the admin from database
-	dbAdmin, err := c.adminRepo.FindAdmin(ctx, admin)
-	if err != nil {
-		return admin, err
-	} else if dbAdmin.ID == 0 {
-		return admin, errors.New("admin not exist with given details")
-	}
-
-	// check db password with given password
-	if bcrypt.CompareHashAndPassword([]byte(dbAdmin.Password), []byte(admin.Password)) != nil {
-		return admin, errors.New("wrong password")
-	}
-
-	return dbAdmin, nil
 }
 
 func (c *adminUseCase) FindAllUser(ctx context.Context, pagination req.ReqPagination) (users []res.UserRespStrcut, err error) {

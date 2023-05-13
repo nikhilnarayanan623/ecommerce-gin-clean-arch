@@ -92,8 +92,8 @@ func GenerateCouponCode(couponCodeLenth int) string {
 // function for generate razorpay order
 func GenerateRazorpayOrder(razorPayAmount uint, recieptIdOptional string) (razorpayOrderID interface{}, err error) {
 	// get razor pay key and secret
-	razorpayKey := config.GetCofig().RazorPayKey
-	razorpaySecret := config.GetCofig().RazorPaySecret
+	razorpayKey := config.GetConfig().RazorPayKey
+	razorpaySecret := config.GetConfig().RazorPaySecret
 
 	//create a razorpay client
 	client := razorpay.NewClient(razorpayKey, razorpaySecret)
@@ -116,8 +116,8 @@ func GenerateRazorpayOrder(razorPayAmount uint, recieptIdOptional string) (razor
 
 func VeifyRazorpayPayment(razorpayOrderID, razorpayPaymentID, razorpaySignatur string) error {
 
-	razorpayKey := config.GetCofig().RazorPayKey
-	razorPaySecret := config.GetCofig().RazorPaySecret
+	razorpayKey := config.GetConfig().RazorPayKey
+	razorPaySecret := config.GetConfig().RazorPaySecret
 
 	//varify signature
 	data := razorpayOrderID + "|" + razorpayPaymentID
@@ -163,7 +163,7 @@ func StringToTime(timeString string) (timeValue time.Time, err error) {
 
 func GenerateStipeClientSecret(amountToPay uint, recieptEmail string) (clientSecret string, err error) {
 	// set up the stip secret key
-	stripe.Key = config.GetCofig().StripSecretKey
+	stripe.Key = config.GetConfig().StripSecretKey
 
 	// create a payment param
 	params := &stripe.PaymentIntentParams{
@@ -191,7 +191,7 @@ func GenerateStipeClientSecret(amountToPay uint, recieptEmail string) (clientSec
 
 func VeifyStripePaymentIntentByID(paymentID string) error {
 
-	stripe.Key = config.GetCofig().StripSecretKey
+	stripe.Key = config.GetConfig().StripSecretKey
 
 	// get payment by payment_id
 	paymentIntent, err := paymentintent.Get(paymentID, nil)
