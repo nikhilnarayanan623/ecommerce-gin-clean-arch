@@ -23,11 +23,6 @@ func NewAuthHandler(authUsecase usecaseInterface.AuthUseCase) handlerInterface.A
 	}
 }
 
-const (
-	authorizationType      = "bearer"
-	authorizationHeaderKey = "authorization"
-)
-
 // UserLogin godoc
 // @summary api for user to login
 // @description Enter user_name | phone | email with password
@@ -90,14 +85,13 @@ func (u *AuthHandler) UserLoginOtpSend(ctx *gin.Context) {
 	otpRes, err := u.authUseCase.UserLoginOtpSend(ctx, body)
 
 	if err != nil {
-		var response res.Response
 		if errors.Is(err, errors.New("faild to send otp")) {
-			response = res.ErrorResponse(500, "faild to send otp", err.Error(), nil)
+			response := res.ErrorResponse(500, "faild to send otp", err.Error(), nil)
+			ctx.JSON(http.StatusInternalServerError, response)
 		} else {
-			response = res.ErrorResponse(400, "can't login", err.Error(), nil)
+			response := res.ErrorResponse(400, "can't login", err.Error(), nil)
+			ctx.JSON(http.StatusBadRequest, response)
 		}
-
-		ctx.JSON(http.StatusBadRequest, response)
 		return
 	}
 
