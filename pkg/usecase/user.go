@@ -28,36 +28,6 @@ func NewUserUseCase(userRepo interfaces.UserRepository, cartRepo interfaces.Cart
 	}
 }
 
-
-func (c *userUserCase) Signup(ctx context.Context, user domain.User) error {
-	// check the user already exist with this details
-	// checkUser, err := c.userRepo.FindUser(ctx, user)
-	var (
-		checkUser domain.User
-		err       error
-	)
-	if err != nil {
-		return err
-	}
-	// if user not exist then create user
-	if checkUser.ID == 0 {
-		//hash the password
-		hashPass, err := bcrypt.GenerateFromPassword([]byte(user.Password), 10)
-		if err != nil {
-			return errors.New("error to hash the password")
-		}
-		user.Password = string(hashPass)
-
-		_, err = c.userRepo.SaveUser(ctx, user)
-		if err != nil {
-			return err
-		}
-		return nil
-	}
-	// if user exist then check which field is exist
-	return utils.CompareUsers(user, checkUser)
-}
-
 func (c *userUserCase) Account(ctx context.Context, userID uint) (domain.User, error) {
 
 	var user = domain.User{ID: userID}
@@ -70,11 +40,11 @@ func (c *userUserCase) Account(ctx context.Context, userID uint) (domain.User, e
 func (c *userUserCase) EditAccount(ctx context.Context, user domain.User) error {
 
 	// first check any other user exist with this entered unique fields
-	checkUser, err := c.userRepo.CheckOtherUserWithDetails(ctx, user)
+	checkUser, err := c.userRepo.FindUserByUserNameEmailOrPhoneNotID(ctx, user)
 	if err != nil {
 		return err
 	} else if checkUser.ID != 0 { // if there is an user exist with given details then make it as error
-		err = utils.CompareUsers(user, checkUser)
+		err = utils.CompareUserExistingDetails(user, checkUser)
 		return err
 	}
 

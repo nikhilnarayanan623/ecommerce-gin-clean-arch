@@ -144,6 +144,20 @@ func (mr *MockAuthUseCaseMockRecorder) UserLoginOtpSend(arg0, arg1 interface{}) 
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UserLoginOtpSend", reflect.TypeOf((*MockAuthUseCase)(nil).UserLoginOtpSend), arg0, arg1)
 }
 
+// UserSignUp mocks base method.
+func (m *MockAuthUseCase) UserSignUp(arg0 context.Context, arg1 domain.User) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UserSignUp", arg0, arg1)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// UserSignUp indicates an expected call of UserSignUp.
+func (mr *MockAuthUseCaseMockRecorder) UserSignUp(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UserSignUp", reflect.TypeOf((*MockAuthUseCase)(nil).UserSignUp), arg0, arg1)
+}
+
 // VerifyAndGetRefreshTokenSession mocks base method.
 func (m *MockAuthUseCase) VerifyAndGetRefreshTokenSession(arg0 context.Context, arg1 string, arg2 token.UserType) (domain.RefreshSession, error) {
 	m.ctrl.T.Helper()

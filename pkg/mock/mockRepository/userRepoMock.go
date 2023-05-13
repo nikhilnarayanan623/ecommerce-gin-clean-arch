@@ -36,21 +36,6 @@ func (m *MockUserRepository) EXPECT() *MockUserRepositoryMockRecorder {
 	return m.recorder
 }
 
-// CheckOtherUserWithDetails mocks base method.
-func (m *MockUserRepository) CheckOtherUserWithDetails(arg0 context.Context, arg1 domain.User) (domain.User, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "CheckOtherUserWithDetails", arg0, arg1)
-	ret0, _ := ret[0].(domain.User)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// CheckOtherUserWithDetails indicates an expected call of CheckOtherUserWithDetails.
-func (mr *MockUserRepositoryMockRecorder) CheckOtherUserWithDetails(arg0, arg1 interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CheckOtherUserWithDetails", reflect.TypeOf((*MockUserRepository)(nil).CheckOtherUserWithDetails), arg0, arg1)
-}
-
 // FindAddressByID mocks base method.
 func (m *MockUserRepository) FindAddressByID(arg0 context.Context, arg1 uint) (domain.Address, error) {
 	m.ctrl.T.Helper()
@@ -184,6 +169,21 @@ func (m *MockUserRepository) FindUserByUserName(arg0 context.Context, arg1 strin
 func (mr *MockUserRepositoryMockRecorder) FindUserByUserName(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindUserByUserName", reflect.TypeOf((*MockUserRepository)(nil).FindUserByUserName), arg0, arg1)
+}
+
+// FindUserByUserNameEmailOrPhoneNotID mocks base method.
+func (m *MockUserRepository) FindUserByUserNameEmailOrPhoneNotID(arg0 context.Context, arg1 domain.User) (domain.User, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "FindUserByUserNameEmailOrPhoneNotID", arg0, arg1)
+	ret0, _ := ret[0].(domain.User)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// FindUserByUserNameEmailOrPhoneNotID indicates an expected call of FindUserByUserNameEmailOrPhoneNotID.
+func (mr *MockUserRepositoryMockRecorder) FindUserByUserNameEmailOrPhoneNotID(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindUserByUserNameEmailOrPhoneNotID", reflect.TypeOf((*MockUserRepository)(nil).FindUserByUserNameEmailOrPhoneNotID), arg0, arg1)
 }
 
 // FindWishListItem mocks base method.

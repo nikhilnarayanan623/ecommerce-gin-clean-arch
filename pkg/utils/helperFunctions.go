@@ -58,14 +58,15 @@ func GenerateSKU() string {
 	return hex.EncodeToString(sku)
 }
 
-func CompareUsers(user, checkUser domain.User) (err error) {
-	if checkUser.Email == user.Email {
+func CompareUserExistingDetails(compare1, compare2 domain.User) (err error) {
+
+	if compare1.Email == compare2.Email {
 		err = errors.Join(err, errors.New("user already exist with this email"))
 	}
-	if checkUser.UserName == user.UserName {
+	if compare1.UserName == compare2.UserName {
 		err = errors.Join(err, errors.New("user already exist with this user name"))
 	}
-	if checkUser.Phone == user.Phone {
+	if compare1.Phone == compare2.Phone {
 		err = errors.Join(err, errors.New("user already exist with this phone"))
 	}
 

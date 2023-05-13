@@ -6,7 +6,9 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/jinzhu/copier"
 	handlerInterface "github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/api/handler/interfaces"
+	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/domain"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/token"
 	usecaseInterface "github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/usecase/interfaces"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/utils/req"
@@ -128,6 +130,39 @@ func (c *AuthHandler) UserLoginOtpVerify(ctx *gin.Context) {
 	}
 
 	c.setupTokenAndReponse(ctx, token.TokenForUser, userID)
+}
+
+// UserSignUp godoc
+// @summary api for user to signup
+// @security ApiKeyAuth
+// @id UserSignUp
+// @tags User Signup
+// @Param input body req.ReqUserDetails{} true "Input Fields"
+// @Router /signup [post]
+// @Success 200 "Successfully account created for user"
+// @Failure 400 "invalid input"
+func (c *AuthHandler) UserSignUp(ctx *gin.Context) {
+
+	var body req.UserSignUp
+
+	if err := ctx.ShouldBindJSON(&body); err != nil {
+		response := res.ErrorResponse(400, "invalid input", err.Error(), body)
+
+		ctx.JSON(http.StatusBadRequest, response)
+		return
+	}
+
+	var user domain.User
+	copier.Copy(&user, body)
+	err := c.authUseCase.UserSignUp(ctx, user)
+	if err != nil {
+		response := res.ErrorResponse(400, "faild to signup", err.Error(), body)
+		ctx.JSON(http.StatusBadRequest, response)
+		return
+	}
+
+	response := res.SuccessResponse(200, "Successfully Account Created", body)
+	ctx.JSON(200, response)
 }
 
 func (c *AuthHandler) UserRenewAccessToken() gin.HandlerFunc {

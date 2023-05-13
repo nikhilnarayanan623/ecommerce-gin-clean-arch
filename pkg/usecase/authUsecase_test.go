@@ -106,7 +106,7 @@ func TestUserLogin(t *testing.T) {
 				mockRepo.EXPECT().FindUserByEmail(gomock.Any(), loginDetails.Email).
 					Times(1).Return(outputUser, nil)
 			},
-			expectedError: fmt.Errorf("user not exist with given lgoin details"),
+			expectedError: fmt.Errorf("user not exist with given login details"),
 		},
 		{
 			testName:       "UserBlockedByAdminShouldReturnError",

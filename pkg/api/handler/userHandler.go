@@ -23,38 +23,6 @@ func NewUserHandler(userUsecase interfaces.UserUseCase) handlerInterface.UserHan
 	return &UserHandler{userUseCase: userUsecase}
 }
 
-// UserSignUp godoc
-// @summary api for user to signup
-// @security ApiKeyAuth
-// @id UserSignUp
-// @tags User Signup
-// @Param input body req.ReqUserDetails{} true "Input Fields"
-// @Router /signup [post]
-// @Success 200 "Successfully account created for user"
-// @Failure 400 "invalid input"
-func (u *UserHandler) UserSignUp(ctx *gin.Context) {
-
-	var body req.ReqUserDetails
-
-	if err := ctx.ShouldBindJSON(&body); err != nil {
-		response := res.ErrorResponse(400, "invalid input", err.Error(), body)
-
-		ctx.JSON(http.StatusBadRequest, response)
-		return
-	}
-
-	var user domain.User
-	copier.Copy(&user, body)
-
-	if err := u.userUseCase.Signup(ctx, user); err != nil {
-		response := res.ErrorResponse(400, "faild to signup", err.Error(), body)
-		ctx.JSON(http.StatusBadRequest, response)
-		return
-	}
-
-	response := res.SuccessResponse(200, "Successfully Account Created", body)
-	ctx.JSON(200, response)
-}
 
 // Home godoc
 // @summary api for showing home page of user
@@ -149,17 +117,17 @@ func (u *UserHandler) Account(ctx *gin.Context) {
 // @security ApiKeyAuth
 // @id UpateAccount
 // @tags User Account
-// @Param input body req.ReqEditUser{} true "input field"
+// @Param input body req.EditUser{} true "input field"
 // @Router /account [put]
 // @Success 200 {object} res.Response{} "successfully updated user details"
 // @Failure 400 {object} res.Response{} "invalid input"
 func (u *UserHandler) UpateAccount(ctx *gin.Context) {
 	userID := utils.GetUserIdFromContext(ctx)
 
-	var body req.ReqEditUser
+	var body req.EditUser
 
 	if err := ctx.ShouldBindJSON(&body); err != nil { // showing epty struct which is user for know what are the fields need enter
-		response := res.ErrorResponse(400, "invalid input", err.Error(), req.ReqUserDetails{})
+		response := res.ErrorResponse(400, "invalid input", err.Error(), body)
 		ctx.JSON(http.StatusBadRequest, response)
 		return
 	}
