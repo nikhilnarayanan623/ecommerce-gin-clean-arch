@@ -13,6 +13,7 @@ import (
 //go:generate mockgen -destination=../../mock/mockUseCase/authUseCaseMock.go -package=mockUseCase . AuthUseCase
 type AuthUseCase interface {
 	//user
+	UserSignUp(ctx context.Context, signUpDetails domain.User) error
 	GoogleLogin(ctx context.Context, user domain.User) (userID uint, err error)
 	UserLogin(ctx context.Context, loginDetails req.Login) (userID uint, err error)
 	UserLoginOtpSend(ctx context.Context, loginDetails req.OTPLogin) (otpRes res.OTPResponse, err error)

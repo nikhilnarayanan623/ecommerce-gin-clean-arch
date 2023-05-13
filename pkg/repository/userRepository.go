@@ -50,14 +50,12 @@ func (c *userDatabse) FindUserByUserName(ctx context.Context, userName string) (
 	return user, err
 }
 
-func (c *userDatabse) CheckOtherUserWithDetails(ctx context.Context, user domain.User) (domain.User, error) {
-	var checkUser domain.User
-	query := `SELECT * FROM users WHERE id != ? AND email = ? OR id != ? AND phone = ? OR id != ? AND user_name = ?`
-	if c.DB.Raw(query, user.ID, user.Email, user.ID, user.Phone, user.ID, user.UserName).Scan(&checkUser).Error != nil {
-		return checkUser, errors.New("faild to check user details")
-	}
+func (c *userDatabse) FindUserByUserNameEmailOrPhoneNotID(ctx context.Context, user domain.User) (domain.User, error) {
 
-	return checkUser, nil
+	query := `SELECT * FROM users WHERE (user_name = $1 OR email = $2 OR phone = $3) AND id != $4`
+	err := c.DB.Raw(query, user.UserName, user.Email, user.Phone, user.ID).Scan(&user).Error
+
+	return user, err
 }
 
 func (c *userDatabse) SaveUser(ctx context.Context, user domain.User) (userID uint, err error) {

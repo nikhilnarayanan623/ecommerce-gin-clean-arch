@@ -16,6 +16,7 @@ import (
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/utils"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/utils/req"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/utils/res"
+	"golang.org/x/crypto/bcrypt"
 )
 
 type authUseCase struct {
@@ -43,7 +44,6 @@ func NewAuthUseCase(authRepo interfaces.AuthRepository, tokenAuth token.TokenAut
 func (c *authUseCase) UserLogin(ctx context.Context, loginDetails req.Login) (userID uint, err error) {
 
 	var user domain.User
-
 	if loginDetails.Email != "" {
 		user, err = c.userRepo.FindUserByEmail(ctx, loginDetails.Email)
 	} else if loginDetails.UserName != "" {
@@ -59,7 +59,7 @@ func (c *authUseCase) UserLogin(ctx context.Context, loginDetails req.Login) (us
 	}
 
 	if user.ID == 0 {
-		return userID, fmt.Errorf("user not exist with given lgoin details")
+		return userID, fmt.Errorf("user not exist with given login details")
 	}
 
 	if user.BlockStatus {
@@ -90,7 +90,7 @@ func (c *authUseCase) UserLoginOtpSend(ctx context.Context, loginDetails req.OTP
 	if err != nil {
 		return otpRes, fmt.Errorf("can't find the user \nerror:%v", err.Error())
 	} else if user.ID == 0 {
-		return otpRes, errors.New("user not exist with this details")
+		return otpRes, fmt.Errorf("user not exist with given login details")
 	}
 
 	// check user block_status user is blocked or not
@@ -247,6 +247,34 @@ func (c *authUseCase) VerifyAndGetRefreshTokenSession(ctx context.Context, refre
 	}
 
 	return refreshSession, nil
+}
+
+func (c *authUseCase) UserSignUp(ctx context.Context, signUpDetails domain.User) error {
+
+	existUser, err := c.userRepo.FindUserByUserNameEmailOrPhoneNotID(ctx, signUpDetails)
+	if err != nil {
+		return fmt.Errorf("faild to check user details already exist \nerror:%v", err.Error())
+	}
+
+	if existUser.ID != 0 {
+		err = utils.CompareUserExistingDetails(existUser, signUpDetails)
+		if err == nil {
+			return fmt.Errorf("user already exist with given detail \nand faild to find the existing details")
+		}
+		return err
+	}
+
+	hashPass, err := bcrypt.GenerateFromPassword([]byte(signUpDetails.Password), 10)
+	if err != nil {
+		return errors.New("error to hash the password")
+	}
+	signUpDetails.Password = string(hashPass)
+
+	_, err = c.userRepo.SaveUser(ctx, signUpDetails)
+	if err != nil {
+		return fmt.Errorf("faild to save user details \nerror:%v", err.Error())
+	}
+	return nil
 }
 
 // google login

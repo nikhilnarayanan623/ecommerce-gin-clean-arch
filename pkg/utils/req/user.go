@@ -1,6 +1,6 @@
 package req
 
-type ReqUserDetails struct {
+type UserSignUp struct {
 	UserName        string `json:"user_name"  binding:"required,min=3,max=15"`
 	FirstName       string `json:"first_name"  binding:"required,min=2,max=50"`
 	LastName        string `json:"last_name"  binding:"required,min=1,max=50"`
@@ -50,7 +50,7 @@ type ReqCartCount struct {
 	Count         uint `json:"count" binding:"omitempty,gte=1"`
 }
 
-type ReqEditUser struct {
+type EditUser struct {
 	UserName        string `json:"user_name"  binding:"required,min=3,max=15"`
 	FirstName       string `json:"first_name"  binding:"required,min=2,max=50"`
 	LastName        string `json:"last_name"  binding:"required,min=1,max=50"`

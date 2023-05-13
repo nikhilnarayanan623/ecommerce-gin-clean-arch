@@ -19,17 +19,18 @@ func UserRoutes(api *gin.RouterGroup, authHandler handlerInterface.AuthHandler, 
 		login.POST("/otp-send", authHandler.UserLoginOtpSend)
 		login.POST("/otp-verify", authHandler.UserLoginOtpVerify)
 
-		// // 	// login page
+		// login page
 		login.GET("/", authHandler.UserGoogleAuthLoginPage)
 		login.GET("/auth/", authHandler.UserGoogleAuthIntialize)
 		login.GET("/auth/google/callback", authHandler.UserGoogleAuthCallBack)
 	}
 	api.POST("/renew-access-token", authHandler.UserRenewAccessToken())
-	// //signup
-	// signup := api.Group("/signup")
-	// {
-	// 	signup.POST("/", userHandler.UserSignUp)
-	// }
+
+	//signup
+	signup := api.Group("/signup")
+	{
+		signup.POST("/", authHandler.UserSignUp)
+	}
 
 	api.Use(middleware.GetUserMiddleware())
 	{
