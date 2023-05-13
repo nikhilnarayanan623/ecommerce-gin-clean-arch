@@ -19,7 +19,7 @@ func (c *AuthHandler) UserGoogleAuthLoginPage(ctx *gin.Context) {
 	ctx.HTML(200, "goauth.html", nil)
 }
 
-func (c *AuthHandler) IntitializeGoogleAuth(ctx *gin.Context) {
+func (c *AuthHandler) UserGoogleAuthIntialize(ctx *gin.Context) {
 
 	// setup the google provider
 	goauthClientID := config.GetConfig().GoathClientID
@@ -35,7 +35,7 @@ func (c *AuthHandler) IntitializeGoogleAuth(ctx *gin.Context) {
 	gothic.BeginAuthHandler(ctx.Writer, ctx.Request)
 }
 
-func (c *AuthHandler) CallbackAuth(ctx *gin.Context) {
+func (c *AuthHandler) UserGoogleAuthCallBack(ctx *gin.Context) {
 
 	googleUser, err := gothic.CompleteUserAuth(ctx.Writer, ctx.Request)
 
