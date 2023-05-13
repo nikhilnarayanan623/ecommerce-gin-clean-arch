@@ -1,7 +1,7 @@
 package main
 
 import (
-	"log"
+	"log
 
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/config"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/di"
