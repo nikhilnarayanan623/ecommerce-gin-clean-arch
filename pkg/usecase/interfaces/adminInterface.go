@@ -9,7 +9,6 @@ import (
 )
 
 type AdminUseCase interface {
-	Login(ctx context.Context, admin domain.Admin) (domain.Admin, error)
 	SignUp(ctx context.Context, admin domain.Admin) error
 
 	FindAllUser(ctx context.Context, pagination req.ReqPagination) (users []res.UserRespStrcut, err error)

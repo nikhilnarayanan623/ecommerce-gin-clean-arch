@@ -15,6 +15,7 @@ type OrderHandler interface {
 	GetOrderItemsByShopOrderItems(ctx *gin.Context)
 
 	//admin side
+	GetAllShopOrders(ctx *gin.Context)
 	UdateOrderStatus(ctx *gin.Context)
 	GetAllOrderReturns(ctx *gin.Context)
 	GetAllPendingReturns(ctx *gin.Context)

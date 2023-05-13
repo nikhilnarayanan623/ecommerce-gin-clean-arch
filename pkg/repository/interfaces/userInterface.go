@@ -9,13 +9,13 @@ import (
 
 //go:generate mockgen -destination=../../mock/mockRepository/userRepoMock.go -package=mockRepository . UserRepository
 type UserRepository interface {
+	FindUserByUserID(ctx context.Context, userID uint) (user domain.User, err error)
 	FindUserByEmail(ctx context.Context, email string) (user domain.User, err error)
 	FindUserByUserName(ctx context.Context, userName string) (user domain.User, err error)
 	FindUserByPhoneNumber(ctx context.Context, phoneNumber string) (user domain.User, err error)
 
 	CheckOtherUserWithDetails(ctx context.Context, user domain.User) (domain.User, error) // find user exept this id
 	SaveUser(ctx context.Context, user domain.User) (userID uint, err error)
-	SaveUserWithGoogleDetails(ctx context.Context, user domain.User) (userID uint, err error)
 	UpdateUser(ctx context.Context, user domain.User) (err error)
 
 	//address

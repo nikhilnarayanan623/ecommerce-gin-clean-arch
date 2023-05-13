@@ -9,7 +9,8 @@ import (
 )
 
 type AdminRepository interface {
-	FindAdmin(ctx context.Context, admin domain.Admin) (domain.Admin, error)
+	FindAdminByEmail(ctx context.Context, email string) (domain.Admin, error)
+	FindAdminByUserName(ctx context.Context, userName string) (domain.Admin, error)
 	SaveAdmin(ctx context.Context, admin domain.Admin) error
 
 	FindAllUser(ctx context.Context, pagination req.ReqPagination) (users []res.UserRespStrcut, err error)

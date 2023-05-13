@@ -77,7 +77,7 @@ type CartItem struct {
 // for ENUM Data type
 
 type Wallet struct {
-	WalletID    uint `json:"wallet_id" gorm:"primaryKey;not null"`
+	ID          uint `json:"wallet_id" gorm:"primaryKey;not null"`
 	UserID      uint `json:"user_id" gorm:"not null"`
 	TotalAmount uint `json:"total_amount" gorm:"not null"`
 }

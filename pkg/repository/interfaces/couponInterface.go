@@ -20,7 +20,8 @@ type CouponRepository interface {
 	UpdateCoupon(ctx context.Context, coupon domain.Coupon) error
 
 	// uses coupon
-	FindCouponUses(ctx context.Context, userID, couopnID uint) (couponUses domain.CouponUses, err error)
+	FindCouponUsesByCouponAndUserID(ctx context.Context, userID, couopnID uint) (couponUses domain.CouponUses, err error)
+	SaveCouponUses(ctx context.Context, couponUses domain.CouponUses) error
 
 	// find all coupon for user
 	FindAllCouponForUser(ctx context.Context, userID uint, pagination req.ReqPagination) (coupons []res.ResUserCoupon, err error)

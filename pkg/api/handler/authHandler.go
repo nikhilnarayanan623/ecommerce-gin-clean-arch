@@ -56,43 +56,7 @@ func (c *AuthHandler) UserLogin(ctx *gin.Context) {
 		return
 	}
 
-	accessTokenExpireDate := time.Now().Add(time.Minute * 15)
-	accessToken, err := c.authUseCase.GenerateAccessToken(ctx, usecaseInterface.GenerateTokenParams{
-		UserID:     userID,
-		UserType:   token.TokenForUser,
-		ExpireDate: accessTokenExpireDate,
-	})
-	if err != nil {
-		respnonse := res.ErrorResponse(500, "faild to create access token", err.Error(), nil)
-		ctx.JSON(http.StatusInternalServerError, respnonse)
-		return
-	}
-
-	refreshTokenExpireDate := time.Now().Add(time.Hour * 24 * 7)
-	refreshToken, err := c.authUseCase.GenerateRefreshToken(ctx, usecaseInterface.GenerateTokenParams{
-		UserID:     userID,
-		UserType:   token.TokenForUser,
-		ExpireDate: refreshTokenExpireDate,
-	})
-	if err != nil {
-		respnonse := res.ErrorResponse(500, "faild to create refresh token", err.Error(), nil)
-		ctx.JSON(http.StatusInternalServerError, respnonse)
-		return
-	}
-
-	// authorizationValue := authorizationType + " " + accessToken
-	// ctx.Header(authorizationHeaderKey, authorizationValue)
-
-	//ctx.Header("access_token", accessToken)
-	//ctx.Header("refresh_token", refreshToken)
-	cookieName := "auth-" + string(token.TokenForUser)
-	ctx.SetCookie(cookieName, accessToken, 15*60, "", "", false, true)
-
-	response := res.SuccessResponse(200, "successfully logged in", res.TokenResponse{
-		AccessToken:  accessToken,
-		RefreshToken: refreshToken,
-	})
-	ctx.JSON(http.StatusOK, response)
+	c.setupTokenAndReponse(ctx, token.TokenForUser, userID)
 }
 
 // UserLoginOtpSend godoc
@@ -169,10 +133,41 @@ func (c *AuthHandler) UserLoginOtpVerify(ctx *gin.Context) {
 		return
 	}
 
+	c.setupTokenAndReponse(ctx, token.TokenForUser, userID)
+}
+
+func (c *AuthHandler) UserRenewAccessToken() gin.HandlerFunc {
+	return c.renewAccessToken(token.TokenForUser)
+}
+
+func (c *AuthHandler) AdminLogin(ctx *gin.Context) {
+	var body req.Login
+
+	err := ctx.ShouldBindJSON(&body)
+	if err != nil {
+		response := res.ErrorResponse(400, "faild to bind json input", err.Error(), body)
+		ctx.JSON(http.StatusBadRequest, response)
+		return
+	}
+
+	adminID, err := c.authUseCase.AdminLogin(ctx, body)
+	if err != nil {
+		response := res.ErrorResponse(400, "faild to login", err.Error(), nil)
+		ctx.JSON(400, response)
+		return
+	}
+	c.setupTokenAndReponse(ctx, token.TokenForAdmin, adminID)
+}
+
+func (c *AuthHandler) AdminRenewAccessToken() gin.HandlerFunc {
+	return c.renewAccessToken(token.TokenForAdmin)
+}
+
+func (c *AuthHandler) setupTokenAndReponse(ctx *gin.Context, tokenUser token.UserType, userID uint) {
 	accessTokenExpireDate := time.Now().Add(time.Minute * 15)
 	accessToken, err := c.authUseCase.GenerateAccessToken(ctx, usecaseInterface.GenerateTokenParams{
 		UserID:     userID,
-		UserType:   token.TokenForUser,
+		UserType:   tokenUser,
 		ExpireDate: accessTokenExpireDate,
 	})
 	if err != nil {
@@ -184,7 +179,7 @@ func (c *AuthHandler) UserLoginOtpVerify(ctx *gin.Context) {
 	refreshTokenExpireDate := time.Now().Add(time.Hour * 24 * 7)
 	refreshToken, err := c.authUseCase.GenerateRefreshToken(ctx, usecaseInterface.GenerateTokenParams{
 		UserID:     userID,
-		UserType:   token.TokenForUser,
+		UserType:   tokenUser,
 		ExpireDate: refreshTokenExpireDate,
 	})
 	if err != nil {
@@ -198,7 +193,7 @@ func (c *AuthHandler) UserLoginOtpVerify(ctx *gin.Context) {
 
 	//ctx.Header("access_token", accessToken)
 	//ctx.Header("refresh_token", refreshToken)
-	cookieName := "auth-" + string(token.TokenForUser)
+	cookieName := "auth-" + string(tokenUser)
 	ctx.SetCookie(cookieName, accessToken, 15*60, "", "", false, true)
 
 	response := res.SuccessResponse(200, "successfully logged in", res.TokenResponse{
@@ -208,23 +203,19 @@ func (c *AuthHandler) UserLoginOtpVerify(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, response)
 }
 
-func (c *AuthHandler) UserRenewRefreshToken() gin.HandlerFunc {
-	return c.renewAccessToken(token.TokenForUser)
-}
-
-func (c *AuthHandler) renewAccessToken(usedFor token.UserType) gin.HandlerFunc {
+func (c *AuthHandler) renewAccessToken(tokenUser token.UserType) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 
 		var body req.RefreshToken
 
 		err := ctx.ShouldBindJSON(&body)
 		if err != nil {
-			response := res.ErrorResponse(400, "faild to bind inputs", err.Error(), nil)
+			response := res.ErrorResponse(400, "faild to bind inputs", err.Error(), body)
 			ctx.JSON(http.StatusBadRequest, response)
 			return
 		}
 
-		refreshSession, err := c.authUseCase.VerifyAndGetRefreshTokenSession(ctx, body.RefreshToken, usedFor)
+		refreshSession, err := c.authUseCase.VerifyAndGetRefreshTokenSession(ctx, body.RefreshToken, tokenUser)
 
 		if err != nil {
 			response := res.ErrorResponse(400, "faild to get refresh sessions", err.Error(), nil)
@@ -234,7 +225,7 @@ func (c *AuthHandler) renewAccessToken(usedFor token.UserType) gin.HandlerFunc {
 		accessTokenExpireDate := time.Now().Add(time.Minute * 15)
 		accessTokenParams := usecaseInterface.GenerateTokenParams{
 			UserID:     refreshSession.UserID,
-			UserType:   usedFor,
+			UserType:   tokenUser,
 			ExpireDate: accessTokenExpireDate,
 		}
 		accessToken, err := c.authUseCase.GenerateAccessToken(ctx, accessTokenParams)
@@ -244,7 +235,7 @@ func (c *AuthHandler) renewAccessToken(usedFor token.UserType) gin.HandlerFunc {
 			ctx.JSON(http.StatusInternalServerError, response)
 			return
 		}
-		cookieName := "auth-" + string(token.TokenForUser)
+		cookieName := "auth-" + string(tokenUser)
 		ctx.SetCookie(cookieName, accessToken, 15*60, "", "", false, true)
 
 		response := res.SuccessResponse(http.StatusOK, "successfylly access token generated using refresh token",

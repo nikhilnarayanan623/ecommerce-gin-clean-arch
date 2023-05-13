@@ -24,7 +24,7 @@ func UserRoutes(api *gin.RouterGroup, authHandler handlerInterface.AuthHandler, 
 		// login.GET("/auth/", userHandler.IntitializeGoogleAuth)
 		// login.GET("/auth/google/callback", userHandler.CallbackAuth)
 	}
-	api.POST("/renew-access-token", authHandler.UserRenewRefreshToken())
+	api.POST("/renew-access-token", authHandler.UserRenewAccessToken())
 	// //signup
 	// signup := api.Group("/signup")
 	// {

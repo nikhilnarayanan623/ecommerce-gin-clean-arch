@@ -7,9 +7,7 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/jinzhu/copier"
 	handlerInterface "github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/api/handler/interfaces"
-	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/auth"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/domain"
 	service "github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/usecase/interfaces"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/utils"
@@ -53,56 +51,6 @@ func (a *AdminHandler) AdminSignUp(ctx *gin.Context) {
 
 	respone := res.SuccessResponse(200, "successfully account created for admin", nil)
 	ctx.JSON(http.StatusOK, respone)
-}
-
-// AdminLogin godoc
-// @summary api for admin to login
-// @id AdminLogin
-// @tags Admin Login
-// @Param input body req.LoginStruct{} true "inputs"
-// @Router /admin/login [post]
-// @Success 200 {object} res.Response{} "successfully logged in"
-// @Failure 400 {object} res.Response{} "invalid input"
-// @Failure 500 {object} res.Response{} "faild to generate jwt token"
-func (a *AdminHandler) AdminLogin(ctx *gin.Context) {
-
-	var body req.LoginStruct
-
-	if err := ctx.ShouldBindJSON(&body); err != nil {
-		response := res.ErrorResponse(400, "invalid input", err.Error(), body)
-		ctx.JSON(http.StatusBadRequest, response)
-		return
-	}
-
-	// then check all field is empty
-	if body.Email == "" && body.UserName == "" {
-		err := errors.New("enter email or user_name atleast")
-		response := res.ErrorResponse(400, "invalid input", err.Error(), body)
-		ctx.JSON(http.StatusBadRequest, response)
-		return
-	}
-
-	var admin domain.Admin
-	copier.Copy(&admin, &body)
-	admin, err := a.adminUseCase.Login(ctx, admin)
-
-	if err != nil {
-		response := res.ErrorResponse(400, "faild to login", err.Error(), admin)
-		ctx.JSON(http.StatusBadRequest, response)
-		return
-	}
-
-	tokenString, err := auth.GenerateJWT(admin.ID)
-	if err != nil {
-		response := res.ErrorResponse(500, "faild to generate jwt token", err.Error(), nil)
-		ctx.JSON(http.StatusInternalServerError, response)
-		return
-	}
-
-	ctx.SetCookie("admin-auth", tokenString["accessToken"], 60*60, "", "", false, true)
-
-	response := res.SuccessResponse(200, "successfully logged in", nil)
-	ctx.JSON(http.StatusOK, response)
 }
 
 // AdminHome godoc

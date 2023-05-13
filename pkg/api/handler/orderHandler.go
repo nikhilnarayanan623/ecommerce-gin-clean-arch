@@ -259,8 +259,8 @@ func (c *OrderHandler) UdateOrderStatus(ctx *gin.Context) {
 		return
 	}
 
-	//update the order
-	if err := c.orderUseCase.ChangeOrderStatus(ctx, body.ShopOrderID, body.OrderStatusID); err != nil {
+	err := c.orderUseCase.UpdateOrderStatus(ctx, body.ShopOrderID, body.OrderStatusID)
+	if err != nil {
 		respose := res.ErrorResponse(400, "faild to update order status", err.Error(), nil)
 		ctx.JSON(http.StatusBadRequest, respose)
 		return
@@ -471,16 +471,16 @@ func (c *OrderHandler) GetAllPendingReturns(ctx *gin.Context) {
 // @Failure 500 {object} res.Response{} "invalid input"
 func (c *OrderHandler) UpdateReturnRequest(ctx *gin.Context) {
 
-	var body req.ReqUpdatReturnOrder
+	var body req.UpdatOrderReturn
 	if err := ctx.ShouldBindJSON(&body); err != nil {
-		response := res.ErrorResponse(400, "invalid input", err.Error(), nil)
+		response := res.ErrorResponse(400, "invalid input", err.Error(), body)
 		ctx.JSON(http.StatusBadRequest, response)
 		return
 	}
 
-	err := c.orderUseCase.UpdateReturnRequest(ctx, body)
+	err := c.orderUseCase.UpdateReturnDetails(ctx, body)
 	if err != nil {
-		response := res.ErrorResponse(400, "faild to update order_return", err.Error(), body)
+		response := res.ErrorResponse(400, "faild to update order_return", err.Error(), nil)
 		ctx.JSON(http.StatusBadRequest, response)
 		return
 	}

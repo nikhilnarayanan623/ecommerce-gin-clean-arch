@@ -19,10 +19,17 @@ type userDatabse struct {
 func NewUserRepository(DB *gorm.DB) interfaces.UserRepository {
 	return &userDatabse{DB: DB}
 }
+func (c *userDatabse) FindUserByUserID(ctx context.Context, userID uint) (user domain.User, err error) {
+
+	query := `SELECT * FROM users WHERE id = $1`
+	err = c.DB.Raw(query, userID).Scan(&user).Error
+
+	return user, err
+}
 
 func (c *userDatabse) FindUserByEmail(ctx context.Context, email string) (user domain.User, err error) {
-	fmt.Println("called")
-	query := `SELECT * FROM users WHERE email = ?`
+
+	query := `SELECT * FROM users WHERE email = $1`
 	err = c.DB.Raw(query, email).Scan(&user).Error
 
 	return user, err
@@ -30,14 +37,14 @@ func (c *userDatabse) FindUserByEmail(ctx context.Context, email string) (user d
 
 func (c *userDatabse) FindUserByPhoneNumber(ctx context.Context, phoneNumber string) (user domain.User, err error) {
 
-	query := `SELECT * FROM users WHERE phone = ?`
+	query := `SELECT * FROM users WHERE phone = $1`
 	err = c.DB.Raw(query, phoneNumber).Scan(&user).Error
 
 	return user, err
 }
 func (c *userDatabse) FindUserByUserName(ctx context.Context, userName string) (user domain.User, err error) {
 
-	query := `SELECT * FROM users WHERE user_name = ?`
+	query := `SELECT * FROM users WHERE user_name = $1`
 	err = c.DB.Raw(query, userName).Scan(&user).Error
 
 	return user, err
@@ -63,27 +70,7 @@ func (c *userDatabse) SaveUser(ctx context.Context, user domain.User) (userID ui
 	err = c.DB.Raw(query, user.UserName, user.FirstName, user.LastName,
 		user.Age, user.Email, user.Phone, user.Password, createdAt).Scan(&user).Error
 
-	if err != nil {
-		return 0, fmt.Errorf("faild to save user %s", user.UserName)
-	}
-	return userID, nil
-}
-
-// for google signup
-func (c *userDatabse) SaveUserWithGoogleDetails(ctx context.Context, user domain.User) (userID uint, err error) {
-
-	//save the user details
-	query := `INSERT INTO users (user_name, first_name, last_name, email,created_at) 
-	VALUES ($1, $2, $3, $4, $5 ) RETURNING id`
-
-	createdAt := time.Now()
-	err = c.DB.Raw(query, user.UserName, user.FirstName, user.LastName,
-		user.Email, createdAt).Scan(&user).Error
-
-	if err != nil {
-		return 0, fmt.Errorf("faild to save user %s", user.UserName)
-	}
-	return userID, nil
+	return userID, err
 }
 
 func (c *userDatabse) UpdateUser(ctx context.Context, user domain.User) (err error) {

@@ -11,38 +11,31 @@ import (
 type OrderRepository interface {
 	Transaction(callBack func(transactionRepo OrderRepository) error) error
 
-	//!
-	SaveShopOrder(ctx context.Context, shopOrder domain.ShopOrder) (shopOrderID uint,err error)
-
-	GetUserEmailAndPhone(ctx context.Context, userID uint) (emailAndPhone res.ResEmailAndPhone, err error)
-
-	//FindUserCoupon(ctx context.Context, couponCode string) (domain.UserCoupon, error)
-	UpdateCouponUsedForUser(ctx context.Context, userID, couponID uint) error
-	ValidateAddressID(ctx context.Context, addressID uint) error
-
 	SaveOrderLine(ctx context.Context, orderLine domain.OrderLine) error
-	//!
 
-	//save order and update
-	//SaveOrderByCart(ctx context.Context, shopOrder domain.ShopOrder) error //!
 	UpdateShopOrderOrderStatus(ctx context.Context, shopOrderID, changeStatusID uint) error
 
 	// shop order order
-	FindAllShopOrders(ctx context.Context, pagination req.ReqPagination) (shopOrders []res.ResShopOrder, err error)
+	SaveShopOrder(ctx context.Context, shopOrder domain.ShopOrder) (shopOrderID uint, err error)
 	FindShopOrderByShopOrderID(ctx context.Context, shopOrderID uint) (domain.ShopOrder, error)
+	FindAllShopOrders(ctx context.Context, pagination req.ReqPagination) (shopOrders []res.ResShopOrder, err error)
 	FindAllShopOrdersByUserID(ctx context.Context, userID uint, pagination req.ReqPagination) ([]res.ResShopOrder, error)
 
 	// find shop order items
 	FindAllOrdersItemsByShopOrderID(ctx context.Context, shopOrderID uint, pagination req.ReqPagination) (orderItems []res.ResOrderItem, err error)
+
 	// order status
-	FindOrderStatus(ctx context.Context, orderStatus domain.OrderStatus) (domain.OrderStatus, error)
+	FindOrderStatusByID(ctx context.Context, orderStatusID uint) (domain.OrderStatus, error)
+	FindOrderStatusByStatus(ctx context.Context, orderStatus string) (domain.OrderStatus, error)
 	FindAllOrderStauses(ctx context.Context) ([]domain.OrderStatus, error)
 
 	//order return
-	FindOrderReturn(ctx context.Context, orderReturn domain.OrderReturn) (domain.OrderReturn, error)
-	FindAllOrderReturns(ctx context.Context, onlyPending bool, pagination req.ReqPagination) (orderReturns []res.ResOrderReturn, errr error)
+	FindOrderReturnByReturnID(ctx context.Context, orderReturnID uint) (domain.OrderReturn, error)
+	FindOrderReturnByShopOrderID(ctx context.Context, shopOrderID uint) (orderReturn domain.OrderReturn, err error)
+	FindAllOrderReturns(ctx context.Context, pagination req.ReqPagination) ([]res.ResOrderReturn, error)
+	FindAllPendingOrderReturns(ctx context.Context, pagination req.ReqPagination) ([]res.ResOrderReturn, error)
 	SaveOrderReturn(ctx context.Context, orderReturn domain.OrderReturn) error
-	UpdateOrderReturn(ctx context.Context, body req.ReqUpdatReturnOrder) error
+	UpdateOrderReturn(ctx context.Context, orderReturn domain.OrderReturn) error
 
 	// payments
 	FindPaymentMethodByID(ctx context.Context, paymenMethodtID uint) (domain.PaymentMethod, error)
@@ -54,7 +47,8 @@ type OrderRepository interface {
 	// wallet
 	FindWalletByUserID(ctx context.Context, userID uint) (wallet domain.Wallet, err error)
 	SaveWallet(ctx context.Context, userID uint) (walletID uint, err error)
-	UpdateWallet(ctx context.Context, walletID, amount uint, transactionType domain.TransactionType) error
+	UpdateWallet(ctx context.Context, walletID, upateTotalAmount uint) error
+	SaveWalletTransaction(ctx context.Context, walletTrx domain.Transaction) error
 
 	FindWalletTransactions(ctx context.Context, walletID uint, pagination req.ReqPagination) (transaction []domain.Transaction, err error)
 }
