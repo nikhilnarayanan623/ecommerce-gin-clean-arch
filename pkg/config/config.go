@@ -13,8 +13,6 @@ type Config struct {
 	DBPassword string `mapstructure:"DB_PASSWORD"`
 	DBPort     string `mapstructure:"DB_PORT"`
 
-	JWT string `mapstructure:"JWT_CODE"`
-
 	JWTAdmin string `mapstructure:"JWT_SECRET_ADMIN"`
 	JWTUser  string `mapstructure:"JWT_SECRET_USER"`
 
@@ -37,61 +35,38 @@ type Config struct {
 // to hold all names of env variables
 var envsNames = []string{
 	"DB_HOST", "DB_NAME", "DB_USER", "DB_PASSWORD", "DB_PORT", // databse
-	"JWT_CODE", "JWT_SECRET_ADMIN", "JWT_SECRET_USER", // jwt
+	"JWT_SECRET_ADMIN", "JWT_SECRET_USER", // jwt
 	"AUTH_TOKEN", "ACCOUNT_SID", "SERVICE_SID", // twillio
 	"RAZOR_PAY_KEY", "RAZOR_PAY_SECRET", // razor pay
 	"STRIPE_SECRET", "STRIPE_PUBLISH_KEY", "STRIPE_WEBHOOK", // stripe
-
-	"GOAUTH_CLIENT_ID", "GOAUTH_CLIENT_SECRET", "GOAUTH_CALL_BACK_URL",
+	"GOAUTH_CLIENT_ID", "GOAUTH_CLIENT_SECRET", "GOAUTH_CALL_BACK_URL", //goath
 }
 
-var config Config // create an instance of Config
-// func to get env variable and store it on struct Config and retuen it with error as nil or error
+var config Config
+
 func LoadConfig() (Config, error) {
 
 	// set-up viper
-	viper.AddConfigPath("./")   // add the config path
-	viper.SetConfigFile(".env") // set up the file name to viper
-	viper.ReadInConfig()        // read the env file
+	viper.AddConfigPath("./")
+	viper.SetConfigFile(".env")
+	viper.ReadInConfig()
 
-	// range through through the envNames and take each envName and bind that env variable to viper
 	for _, env := range envsNames {
 		if err := viper.BindEnv(env); err != nil {
-			return config, err // error when binding the env to viper
+			return config, err
 		}
 	}
 
-	// then unmarshel the viper into config variable
 	if err := viper.Unmarshal(&config); err != nil {
-		return config, err // error when unmarsheling the viper to env
+		return config, err
 	}
 
-	// atlast validate the config file using validator pakage
-	// create instance and direct validte
 	if err := validator.New().Struct(config); err != nil {
-		return config, err // error when validating struct
+		return config, err
 	}
-	//successfully loaded the env values into struct config
 	return config, nil
 }
 
-// to get the secred code for jwt
-func GetJWTSecret() JwtSecret {
-	return JwtSecret{
-		JWTAdmin: config.JWTAdmin,
-		JWTUser:  config.JWTUser,
-	}
-}
-func GetJWTCofig() string {
-	return config.JWT
-}
-
-type JwtSecret struct {
-	JWTAdmin string
-	JWTUser  string
-}
-
 func GetConfig() Config {
-
 	return config
 }

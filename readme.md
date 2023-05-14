@@ -1,68 +1,87 @@
-# `Ecommerce` Project using `Go programing` with `gin` framework
-# Here I'm follwing `clean-code architecture` for my project
+# Ecommerce Project using Go Programming with Gin Framework
+This project is an ecommerce application built using Go programming language and the Gin framework. It follows the clean code architecture, which promotes separation of concerns and maintainability.
 
-# Used Packages 
-1. [GIN](github.com/gin-gonic/gin) is a web framework written in Go (Golang). It features a martini-like API with performance that is up to 40 times faster thanks to httprouter. If you need performance and good productivity, you will love Gin.
-2. [JWT](github.com/golang-jwt/jwt) A go (or 'golang' for search engine friendliness) implementation of JSON Web Tokens.
-3. [GORM](https://gorm.io/index.html) with [PostgresSQL](https://gorm.io/docs/connecting_to_the_database.html#PostgreSQL)The fantastic ORM library for Golang aims to be developer friendly.
-4. [Wire](https://github.com/google/wire) is a code generation tool that automates connecting components using dependency injection.
-5. [Viper](https://github.com/spf13/viper) is a complete configuration solution for Go applications including 12-Factor apps. It is designed to work within an application, and can handle all types of configuration needs and formats.
-6. [swag](https://github.com/swaggo/swag) converts Go annotations to Swagger Documentation 2.0 with [gin-swagger](https://github.com/swaggo/gin-swagger) and [swaggo files](github.com/swaggo/files)
+## Project Overview
+The ecommerce-gin-clean-arch project is designed to provide a performant and feature-rich ecommerce solution. It includes functionalities such as user authentication, product management, shopping cart, order processing, and payment integration.
 
-# To Use and check my `ecommerce-gin-clean-arch` Project
+## Used Packages
+The project utilizes the following packages:
+1. [GIN](github.com/gin-gonic/gin): A web framework written in Go that combines high performance with an API similar to Martini.
+2. [JWT](github.com/golang-jwt/jwt): A Go implementation of JSON Web Tokens for secure authentication and authorization.
+3. [GORM](https://gorm.io/index.html) with [PostgreSQL](https://gorm.io/docs/connecting_to_the_database.html#PostgreSQL): A powerful ORM library for Go that simplifies database operations.
+4. [Wire](https://github.com/google/wire): A code generation tool for dependency injection, making it easier to connect components.
+5. [Viper](https://github.com/spf13/viper): A configuration solution for Go applications, supporting various formats and 12-Factor app principles.
+6. [swag](https://github.com/swaggo/swag) with [gin-swagger](https://github.com/swaggo/gin-swagger) and [swaggo files](github.com/swaggo/files): Converts Go annotations to Swagger Documentation 2.0 for API documentation.
 
-# Follow these steps
+# Setup Instructions
+To use and test the ecommerce-gin-clean-arch project, please follow these steps:
 
-1. clone my github `ecommerce-gin-clean-arch` repository to your system
-2. use these bash commands
+### Prerequisites
+Make sure you have the following installed on your system:
+- Go (https://golang.org/doc/install)
+- PostgreSQL (https://www.postgresql.org/download/)
 
-``` bash commands
-## these bash comands are set-up on makefilie ##
-
-# Step 1 :  Navigate into project directory
-cd ./ecommerce-gin-clean-arch
-
-# Step 2 : Install needed dependencies
-make deps 
-#or
-go mod tidy
-
-# Step 3 : Setup Env file directions are given below
-
-# Step 4 : If you want to use swagger api documetation
-
-make swag
-
-# Step 5 : Run the Server
-make run
-
-# If you want to use in post man : then check localhost:8000
- 
-# If you want to use the swagger 
-#  Open any browser and visit localhost:8000/swagger/index.html (!you should generate swagger files use `make swag`)
-
-# !Direction for creating creating Env file
-# Crate create a new " .env " file in your root directory
-
-# database details
-DB_HOST=(Your Datbase host name (localhost))
-DB_NAME="Your Database name"
-DB_USER="Your Database owner name"
-DB_PASSWORD="Your database owner password"
-DB_PORT="Your database host port number"
-
-#JWT
-JWT_CODE= "secret code that you wan't to use for jwt signature"
-
-# Twilio
-# Register an account on twilio and create a messaging service
-AUTH_TOKEN="Your Twilio Authenticatino token (authe token)"
-ACCOUNT_SID="Your Twilio Account SID (account sid)"
-SERVICE_SID="Your Twilio SID (messaging service id)"
-
-#Razorpay
-# Create an razorpay account
-RAZOR_PAY_KEY="Your Razorpay test key"
-RAZOR_PAY_SECRET="your Razropay secret key"
-
+### 1. Clone the Repository
+Clone the ecommerce-gin-clean-arch repository to your local system:
+```bash
+git clone https://github.com/nikhilnarayanan623/ecommerce-gin-clean-arch.git
+cd ecommerce-gin-clean-arch
 ```
+### 2. Install Dependencies
+Install the required dependencies using either the provided Makefile command or Go's built-in module management:
+```bash
+# Using Makefile
+make deps
+# OR using Go
+go mod tidy
+```
+### 3. Configure Environment Variables
+details provided at the end of file
+### 4. Make Swagger Files (For Swagger API Documentation)
+```bash
+make swag
+```
+# To Run The Application
+```bash
+make run
+```
+### To See The API Documentation
+1. visit [swagger] ***http://localhost:8000/swagger/index.html***
+
+# To Test The Application
+### 1. Generate Mock Files
+```bash
+make generate
+```
+### 2. Run The Test Functions
+```bash
+make test
+```
+
+# Set up Environment Variables
+Set up the necessary environment variables in a .env file at the project's root directory. Below are the variables required:
+### PostgreSQL database details
+1. DB_HOST="```your database host name```"
+2. DB_NAME="```your database name```"
+3. DB_USER="```your database user name```"
+4. DB_PASSWORD="```your database owner password```"
+5. DB_PORT="```your database running port number```"
+### JWT
+1. JWT_SECRET_ADMIN="```secret code for signing admin JWT token```"
+2. JWT_SECRET_USER="```secret code for signing user JWT token```"
+### Twilio
+1. AUTH_TOKEN="your Twilio authentication token"
+2. ACCOUNT_SID="```your Twilio account SID```"
+3. SERVICE_SID="```your Twilio messaging service SID```"
+### Razorpay
+1. RAZOR_PAY_KEY="```your Razorpay API test key```"
+2. RAZOR_PAY_SECRET="```your Razorpay API test secret key```"
+### Stripe
+1. STRIPE_SECRET="```your Stripe account secret key```"
+2. STRIPE_PUBLISH_KEY="```your Stripe account publish key```"
+3. STRIPE_WEBHOOK="```your Stripe account webhook key```"
+### Google Auth
+1. GOAUTH_CLIENT_ID="```your Google Auth client ID```"
+2. GOAUTH_CLIENT_SECRET="```your Google Auth secret key```"
+3. GOAUTH_CALL_BACK_URL="```your registered callback URL for Google Auth```"
+

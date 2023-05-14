@@ -6,7 +6,7 @@ vendor/
 
 # remove build file and air auto reloading
 build/bin/*
-/cmd/api/tmp
+./cmd/api/tmp
 ./tmp
 
 ./cmd/api/docs
