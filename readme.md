@@ -12,6 +12,12 @@ The project utilizes the following packages:
 4. [Wire](https://github.com/google/wire): A code generation tool for dependency injection, making it easier to connect components.
 5. [Viper](https://github.com/spf13/viper): A configuration solution for Go applications, supporting various formats and 12-Factor app principles.
 6. [swag](https://github.com/swaggo/swag) with [gin-swagger](https://github.com/swaggo/gin-swagger) and [swaggo files](github.com/swaggo/files): Converts Go annotations to Swagger Documentation 2.0 for API documentation.
+7. [Stripe](https://github.com/stripe/stripe-go): A Go client library for the Stripe API, allowing seamless integration with Stripe's payment platform.
+8. [Google Auth]([https://github.com/google/google-auth-library-go](https://pkg.go.dev/github.com/markbates/goth@v1.77.0/providers/google): A Go library for handling authentication and authorization with Google services.
+9. [Twilio](https://github.com/twilio/twilio-go): A Go client library for the Twilio API, enabling communication via SMS, voice, and other channels.
+10. [Razorpay](https://github.com/razorpay/razorpay-go): A Go client library for the Razorpay API, facilitating payment processing and management.
+
+Please refer to the respective package documentation for more information on how to use and integrate these packages into your Go application.
 
 # Setup Instructions
 To use and test the ecommerce-gin-clean-arch project, please follow these steps:
