@@ -148,6 +148,7 @@ func TestUserLogin(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(test.testName, func(t *testing.T) {
+			t.Parallel()
 			ctl := gomock.NewController(t)
 			defer ctl.Finish()
 
