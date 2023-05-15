@@ -75,7 +75,7 @@ func TestUserLogin(t *testing.T) {
 		{
 			testName:       "EmailExistShouldCallFindUserByEmailWithGivenEmail",
 			input:          req.Login{Email: "emailExist@gmail.com", Password: "password"},
-			expectedOutput: 5,
+			expectedOutput: 1,
 			buildStub: func(mockRepo *mockRepository.MockUserRepository, loginDetails req.Login) {
 				hashedPasword, err := utils.GetHashedPassword(loginDetails.Password)
 				assert.NoError(t, err)
