@@ -93,6 +93,14 @@ func (c *userDatabse) UpdateUser(ctx context.Context, user domain.User) (err err
 	return nil
 }
 
+func (c *userDatabse) UpdateBlockStatus(ctx context.Context, userID uint, blockStatus bool) error {
+
+	querry := `UPDATE users SET block_status = $1 WHERE id = $2`
+	err := c.DB.Exec(querry, blockStatus, userID).Error
+
+	return err
+}
+
 func (c *userDatabse) FindAddressByID(ctx context.Context, addressID uint) (domain.Address, error) {
 
 	var address domain.Address

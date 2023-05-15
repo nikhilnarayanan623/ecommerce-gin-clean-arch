@@ -33,7 +33,7 @@ func InitializeApi(cfg config.Config) (*http.ServerHTTP, error) {
 	authUseCase := usecase.NewAuthUseCase(authRepository, tokenAuth, userRepository, adminRepository, otpVerification)
 	authHandler := handler.NewAuthHandler(authUseCase)
 	middlewareMiddleware := middleware.NewMiddleware(tokenAuth)
-	adminUseCase := usecase.NewAdminUseCase(adminRepository)
+	adminUseCase := usecase.NewAdminUseCase(adminRepository, userRepository)
 	adminHandler := handler.NewAdminHandler(adminUseCase)
 	cartRepository := repository.NewCartRepository(gormDB)
 	userUseCase := usecase.NewUserUseCase(userRepository, cartRepository)

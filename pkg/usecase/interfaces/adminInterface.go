@@ -12,7 +12,7 @@ type AdminUseCase interface {
 	SignUp(ctx context.Context, admin domain.Admin) error
 
 	FindAllUser(ctx context.Context, pagination req.ReqPagination) (users []res.UserRespStrcut, err error)
-	BlockUser(ctx context.Context, userID uint) error
+	BlockOrUblockUser(ctx context.Context, blockDetails req.BlockUser) error
 
 	GetFullSalesReport(ctx context.Context, requestData req.ReqSalesReport) (salesReport []res.SalesReport, err error)
 

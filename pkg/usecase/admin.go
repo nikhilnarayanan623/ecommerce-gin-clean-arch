@@ -17,11 +17,15 @@ import (
 
 type adminUseCase struct {
 	adminRepo interfaces.AdminRepository
+	userRepo  interfaces.UserRepository
 }
 
-func NewAdminUseCase(repo interfaces.AdminRepository) service.AdminUseCase {
+func NewAdminUseCase(repo interfaces.AdminRepository, userRepo interfaces.UserRepository) service.AdminUseCase {
 
-	return &adminUseCase{adminRepo: repo}
+	return &adminUseCase{
+		adminRepo: repo,
+		userRepo:  userRepo,
+	}
 }
 
 func (c *adminUseCase) SignUp(ctx context.Context, loginDetails domain.Admin) error {
@@ -67,10 +71,24 @@ func (c *adminUseCase) FindAllUser(ctx context.Context, pagination req.ReqPagina
 	return responce, nil
 }
 
-// to block or unblock a user
-func (c *adminUseCase) BlockUser(ctx context.Context, userID uint) error {
+func (c *adminUseCase) BlockOrUblockUser(ctx context.Context, blockDetails req.BlockUser) error {
 
-	return c.adminRepo.BlockUser(ctx, userID)
+	userToBlock, err := c.userRepo.FindUserByUserID(ctx, blockDetails.UserID)
+	if err != nil {
+		return fmt.Errorf("faild to find user \nerror:%v", err.Error())
+	} else if userToBlock.ID == 0 {
+		return fmt.Errorf("invalid user_id")
+	}
+
+	if userToBlock.BlockStatus == blockDetails.Block {
+		return fmt.Errorf("user block status already in given status")
+	}
+
+	err = c.userRepo.UpdateBlockStatus(ctx, blockDetails.UserID, blockDetails.Block)
+	if err != nil {
+		return fmt.Errorf("faild to update user block status \nerror:%v", err.Error())
+	}
+	return nil
 }
 
 func (c *adminUseCase) GetFullSalesReport(ctx context.Context, requestData req.ReqSalesReport) (salesReport []res.SalesReport, err error) {

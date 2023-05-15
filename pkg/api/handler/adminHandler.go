@@ -121,7 +121,7 @@ func (a *AdminHandler) ListUsers(ctx *gin.Context) {
 // @Failure 400 {object} res.Response{} "invalid input"
 func (a *AdminHandler) BlockUser(ctx *gin.Context) {
 
-	var body req.BlockStruct
+	var body req.BlockUser
 
 	if err := ctx.ShouldBindJSON(&body); err != nil {
 		response := res.ErrorResponse(400, "invalid input", err.Error(), body)
@@ -129,7 +129,7 @@ func (a *AdminHandler) BlockUser(ctx *gin.Context) {
 		return
 	}
 
-	err := a.adminUseCase.BlockUser(ctx, body.UserID)
+	err := a.adminUseCase.BlockOrUblockUser(ctx, body)
 	if err != nil {
 		response := res.ErrorResponse(400, "faild to change user block_status", err.Error(), nil)
 		ctx.JSON(http.StatusBadRequest, response)

@@ -6,13 +6,6 @@ import (
 	"github.com/google/uuid"
 )
 
-// login struct for user and admin
-type LoginStruct struct {
-	UserName string `json:"user_name" binding:"omitempty,min=3,max=15"`
-	Phone    string `json:"phone" binding:"omitempty,min=10,max=10"`
-	Email    string `json:"email" binding:"omitempty,email"`
-	Password string `json:"password" binding:"required,min=5,max=30"`
-}
 type OTPLogin struct {
 	Email    string `json:"email" binding:"omitempty,email"`
 	UserName string `json:"user_name" binding:"omitempty,min=3,max=16"`
@@ -24,8 +17,9 @@ type OTPVerify struct {
 	OTPID uuid.UUID `json:"otp_id" gorm:"not null" binding:"required"`
 }
 
-type BlockStruct struct {
+type BlockUser struct {
 	UserID uint `json:"user_id" binding:"required,numeric"`
+	Block  bool `json:"block"`
 }
 
 type ReqPagination struct {
