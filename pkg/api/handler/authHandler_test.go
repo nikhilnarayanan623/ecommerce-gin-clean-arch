@@ -21,14 +21,12 @@ import (
 
 func TestUserLogin(t *testing.T) {
 
-	tests := []struct {
-		testName     string
+	tests := map[string]struct {
 		loginDetails req.Login
 		buildStub    func(useCaseMock *mockUseCase.MockAuthUseCase, loginDetails req.Login)
 		checkReponse func(t *testing.T, responseRecorder *httptest.ResponseRecorder)
 	}{
-		{
-			testName:     "EmptyLoginDetailsShouldReturnBadRequestError",
+		"EmptyLoginDetailsShouldReturnBadRequestError": {
 			loginDetails: req.Login{},
 			buildStub: func(useCaseMock *mockUseCase.MockAuthUseCase, loginDetails req.Login) {
 				// not expecting any call to useCase
@@ -37,8 +35,7 @@ func TestUserLogin(t *testing.T) {
 				assert.Equal(t, http.StatusBadRequest, responseRecorder.Code)
 			},
 		},
-		{
-			testName:     "InvalidEmailShouldReturnErrorOnBinding",
+		"InvalidEmailShouldReturnErrorOnBinding": {
 			loginDetails: req.Login{Email: "invalidEmail666", Password: "password"},
 			buildStub: func(useCaseMock *mockUseCase.MockAuthUseCase, loginDetails req.Login) {
 				//not expecting any calls
@@ -47,8 +44,7 @@ func TestUserLogin(t *testing.T) {
 				assert.Equal(t, http.StatusBadRequest, responseRecorder.Code)
 			},
 		},
-		{
-			testName:     "ValidLoginDetailsAndUserNotExist",
+		"ValidLoginDetailsAndUserNotExist": {
 			loginDetails: req.Login{Email: "validNonExistEmail@gmail.com", Password: "validPassword"},
 			buildStub: func(useCaseMock *mockUseCase.MockAuthUseCase, loginDetails req.Login) {
 				useCaseMock.EXPECT().UserLogin(gomock.Any(), loginDetails).
@@ -60,8 +56,7 @@ func TestUserLogin(t *testing.T) {
 			},
 		},
 
-		{
-			testName:     "FaildToGenerateAccessTokenShouldReturnInternalServerError",
+		"FaildToGenerateAccessTokenShouldReturnInternalServerError": {
 			loginDetails: req.Login{UserName: "userName", Password: "password"},
 			buildStub: func(useCaseMock *mockUseCase.MockAuthUseCase, loginDetails req.Login) {
 				useCaseMock.EXPECT().UserLogin(gomock.Any(), loginDetails).
@@ -73,8 +68,7 @@ func TestUserLogin(t *testing.T) {
 				assert.Equal(t, http.StatusInternalServerError, responseRecorder.Code)
 			},
 		},
-		{
-			testName:     "FaildToGenerateRefreshTokenShouldReturnInternalServerError",
+		"FaildToGenerateRefreshTokenShouldReturnInternalServerError": {
 			loginDetails: req.Login{Phone: "9078659867", Password: "password"},
 			buildStub: func(useCaseMock *mockUseCase.MockAuthUseCase, loginDetails req.Login) {
 
@@ -89,8 +83,7 @@ func TestUserLogin(t *testing.T) {
 				assert.Equal(t, http.StatusInternalServerError, responseRecorder.Code)
 			},
 		},
-		{
-			testName:     "SuccessfullLoginShouldSetTokenOnHeaderAndResponse",
+		"SuccessfullLoginShouldSetTokenOnHeaderAndResponse": {
 			loginDetails: req.Login{UserName: "userName", Password: "password"},
 			buildStub: func(useCaseMock *mockUseCase.MockAuthUseCase, loginDetails req.Login) {
 				useCaseMock.EXPECT().UserLogin(gomock.Any(), loginDetails).
@@ -120,10 +113,10 @@ func TestUserLogin(t *testing.T) {
 		},
 	}
 
-	for _, test := range tests {
-
-		t.Run(test.testName, func(t *testing.T) {
-
+	for testName, test := range tests {
+		t.Run(testName, func(t *testing.T) {
+			test := test
+			t.Parallel()
 			ctl := gomock.NewController(t)
 			mockUseCase := mockUseCase.NewMockAuthUseCase(ctl)
 			test.buildStub(mockUseCase, test.loginDetails)
