@@ -23,9 +23,9 @@ func NewProductUseCase(productRepo interfaces.ProductRepository) service.Product
 }
 
 // to get all Category , all variation , all variation value
-func (c *productUseCase) GetCategory(ctx context.Context) (res.RespFullCategory, error) {
+func (c *productUseCase) GetCategory(ctx context.Context) (res.FullCategory, error) {
 	var (
-		resFullCategories res.RespFullCategory
+		resFullCategories res.FullCategory
 		err               error
 	)
 	// find all categories
@@ -86,7 +86,7 @@ func (c *productUseCase) AddVariationOption(ctx context.Context, variationOption
 }
 
 // to get all product
-func (c *productUseCase) GetProducts(ctx context.Context, pagination req.ReqPagination) (products []res.ResponseProduct, err error) {
+func (c *productUseCase) GetProducts(ctx context.Context, pagination req.Pagination) (products []res.Product, err error) {
 	return c.productRepo.FindAllProducts(ctx, pagination)
 }
 
@@ -103,7 +103,7 @@ func (c *productUseCase) AddProduct(ctx context.Context, product domain.Product)
 }
 
 // for add new productItem for a speicific product
-func (c *productUseCase) AddProductItem(ctx context.Context, productItem req.ReqProductItem) error {
+func (c *productUseCase) AddProductItem(ctx context.Context, productItem req.ProductItem) error {
 
 	// validate the product_id
 	product, err := c.productRepo.FindProductByID(ctx, productItem.ProductID)
@@ -124,7 +124,7 @@ func (c *productUseCase) AddProductItem(ctx context.Context, productItem req.Req
 }
 
 // for get all productItem for a specific product
-func (c *productUseCase) GetProductItems(ctx context.Context, productID uint) (productItems []res.RespProductItems, err error) {
+func (c *productUseCase) GetProductItems(ctx context.Context, productID uint) (productItems []res.ProductItems, err error) {
 
 	//validate the productID
 	if product, err := c.productRepo.FindProduct(ctx, domain.Product{ID: productID}); err != nil {

@@ -9,9 +9,9 @@ import (
 )
 
 type CartUseCase interface {
-	SaveToCart(ctx context.Context, body req.ReqCart) error          // save product_item to cart
-	RemoveCartItem(ctx context.Context, body req.ReqCart) error      // remove product_item from cart
-	UpdateCartItem(ctx context.Context, body req.ReqCartCount) error // edit cartItems( quantity change )
+	SaveToCart(ctx context.Context, body req.Cart) error               // save product_item to cart
+	RemoveCartItem(ctx context.Context, body req.Cart) error           // remove product_item from cart
+	UpdateCartItem(ctx context.Context, body req.UpdateCartItem) error // edit cartItems( quantity change )
 	GetUserCart(ctx context.Context, userID uint) (cart domain.Cart, err error)
-	GetUserCartItems(ctx context.Context, cartId uint) (cartItems []res.ResCartItem, err error)
+	GetUserCartItems(ctx context.Context, cartId uint) (cartItems []res.CartItem, err error)
 }

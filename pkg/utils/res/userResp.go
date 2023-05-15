@@ -3,7 +3,7 @@ package res
 import "time"
 
 // user details response
-type UserRespStrcut struct {
+type User struct {
 	ID          uint      `json:"id" copier:"must"`
 	FirstName   string    `json:"first_name" copier:"must"`
 	LastName    string    `json:"last_name" copier:"must"`
@@ -16,13 +16,7 @@ type UserRespStrcut struct {
 	UpdatedAt   time.Time `json:"updated_at"`
 }
 
-// home page response
-type ResUserHome struct {
-	Products []ResponseProduct `json:"products"`
-	User     UserRespStrcut    `json:"user"`
-}
-
-type ResCartItem struct {
+type CartItem struct {
 	ProductItemId uint   `json:"product_item_id"`
 	ProductName   string `json:"product_name"`
 	Price         uint   `json:"price"`
@@ -32,15 +26,15 @@ type ResCartItem struct {
 	SubTotal      uint   `json:"sub_total"`
 }
 
-type ResCart struct {
-	CartItems       []ResCartItem
+type Cart struct {
+	CartItems       []CartItem
 	AppliedCouponID uint `json:"applied_coupon_id"`
 	TotalPrice      uint `json:"total_price"`
 	DiscountAmount  uint `json:"discount_amount"`
 }
 
 // address
-type ResAddress struct {
+type Address struct {
 	ID          uint   `json:"address_id"`
 	Name        string `json:"name"`
 	PhoneNumber string `json:"phone_number"`
@@ -56,7 +50,7 @@ type ResAddress struct {
 }
 
 // wish list response
-type ResWishList struct {
+type WishList struct {
 	ProductItemID uint   `json:"product_item_id"`
 	ProductName   string `json:"product_name"`
 	Price         uint   `json:"price"`

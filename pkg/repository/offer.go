@@ -120,8 +120,8 @@ func (c *productDatabase) FindOfferCategory(ctx context.Context, offerCategory d
 }
 
 // find all offer_category
-func (c *productDatabase) FindAllOfferCategories(ctx context.Context) ([]res.ResOfferCategory, error) {
-	var offerCategories []res.ResOfferCategory
+func (c *productDatabase) FindAllOfferCategories(ctx context.Context) ([]res.OfferCategory, error) {
+	var offerCategories []res.OfferCategory
 	query := `SELECT oc.id AS offer_category_id, oc.category_id,c.category_name,oc.offer_id,o.offer_name, o.discount_rate 
 	FROM offer_categories oc INNER JOIN categories c ON c.id = oc.category_id 
 	INNER JOIN offers o ON oc.offer_id = o.id`
@@ -200,8 +200,8 @@ func (c *productDatabase) FindOfferProductByProductID(ctx context.Context, produ
 }
 
 // find all offer_products
-func (c *productDatabase) FindAllOfferProducts(ctx context.Context) ([]res.ResOfferProduct, error) {
-	var offerProducts []res.ResOfferProduct
+func (c *productDatabase) FindAllOfferProducts(ctx context.Context) ([]res.OfferProduct, error) {
+	var offerProducts []res.OfferProduct
 	query := `SELECT op.id AS offer_product_id, op.product_id,p.product_name,op.offer_id,o.offer_name, o.discount_rate  
 	FROM offer_products op INNER JOIN products p ON p.id = op.product_id 
 	INNER JOIN offers o ON o.id = op.offer_id`

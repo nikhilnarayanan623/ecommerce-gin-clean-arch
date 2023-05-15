@@ -17,7 +17,7 @@ import (
 // add a new payment_method
 func (c *OrderHandler) AddPaymentMethod(ctx *gin.Context) {
 
-	var body req.ReqPaymentMethod
+	var body req.PaymentMethod
 
 	if err := ctx.ShouldBindJSON(&body); err != nil {
 		response := res.ErrorResponse(400, "invalid inputs", err.Error(), body)
@@ -43,7 +43,7 @@ func (c *OrderHandler) AddPaymentMethod(ctx *gin.Context) {
 // update an exisisting payment method
 func (c *OrderHandler) UpdatePaymentMethod(ctx *gin.Context) {
 
-	var body req.ReqPaymentMethodUpdate
+	var body req.PaymentMethodUpdate
 
 	if err := ctx.ShouldBindJSON(&body); err != nil {
 		response := res.ErrorResponse(400, "invalid inputs", err.Error(), body)
@@ -122,7 +122,7 @@ func (c *OrderHandler) RazorpayCheckout(ctx *gin.Context) {
 		return
 	}
 
-	body := req.ReqPlaceOrder{
+	body := req.PlaceOrder{
 		PaymentMethodID: paymentMethodID,
 		AddressID:       addressID,
 	}

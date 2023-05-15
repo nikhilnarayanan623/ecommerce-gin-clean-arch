@@ -23,7 +23,6 @@ func NewUserHandler(userUsecase interfaces.UserUseCase) handlerInterface.UserHan
 	return &UserHandler{userUseCase: userUsecase}
 }
 
-
 // Home godoc
 // @summary api for showing home page of user
 // @description after user login user will seen this page with user informations
@@ -104,7 +103,7 @@ func (u *UserHandler) Account(ctx *gin.Context) {
 		return
 	}
 
-	var data res.UserRespStrcut
+	var data res.User
 	copier.Copy(&data, &user)
 
 	response := res.SuccessResponse(200, "Successfully user account details found", data)
@@ -154,13 +153,13 @@ func (u *UserHandler) UpateAccount(ctx *gin.Context) {
 // @security ApiKeyAuth
 // @id AddAddress
 // @tags User Address
-// @Param inputs body req.ReqAddress{} true "Input Field"
+// @Param inputs body req.Address{} true "Input Field"
 // @Router /account/address [post]
 // @Success 200 {object} res.Response{} "Successfully address added"
 // @Failure 400 {object} res.Response{} "inavlid input"
 func (u *UserHandler) AddAddress(ctx *gin.Context) {
 
-	var body req.ReqAddress
+	var body req.Address
 	if err := ctx.ShouldBindJSON(&body); err != nil {
 		response := res.ErrorResponse(400, "inavlid input", err.Error(), nil)
 		ctx.JSON(http.StatusBadRequest, response)
@@ -225,14 +224,14 @@ func (u *UserHandler) GetAddresses(ctx *gin.Context) {
 // @security ApiKeyAuth
 // @id EditAddress
 // @tags User Address
-// @Param input body req.ReqEditAddress{} true "Input Field"
+// @Param input body req.EditAddress{} true "Input Field"
 // @Router /account/address [put]
 // @Success 200 {object} res.Response{} "successfully addresses updated"
 // @Failure 400 {object} res.Response{} "can't update the address"
 func (u *UserHandler) EditAddress(ctx *gin.Context) {
 
 	userID := utils.GetUserIdFromContext(ctx)
-	var body req.ReqEditAddress
+	var body req.EditAddress
 
 	if err := ctx.ShouldBindJSON(&body); err != nil {
 		respone := res.ErrorResponse(400, "invalid input", err.Error(), nil)

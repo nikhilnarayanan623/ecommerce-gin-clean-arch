@@ -39,6 +39,16 @@ func (c *cartDatabase) SaveCart(ctx context.Context, userID uint) (cartID uint, 
 	return cartID, err
 }
 
+func (c *cartDatabase) UpdateCart(ctx context.Context, cartId, discountAmount, couponID uint) error {
+
+	query := `UPDATE carts SET discount_amount = $1, applied_coupon_id = $2 WHERE cart_id = $3`
+	err := c.DB.Exec(query, discountAmount, couponID, cartId).Error
+	if err != nil {
+		return fmt.Errorf("faild to udpate discount price on cart for coupon")
+	}
+	return nil
+}
+
 // find cart_items
 func (c *cartDatabase) FindCartItemByID(ctx context.Context, cartItemID uint) (cartItem domain.CartItem, err error) {
 	query := `SELECT * FROM cart_items WHERE cart_item_id = ?`
@@ -103,7 +113,7 @@ func (c *cartDatabase) UpdateCartItemQty(ctx context.Context, cartItemId, qty ui
 }
 
 // get all itmes from cart
-func (c *cartDatabase) FindAllCartItemsByCartID(ctx context.Context, cartID uint) (cartItems []res.ResCartItem, err error) {
+func (c *cartDatabase) FindAllCartItemsByCartID(ctx context.Context, cartID uint) (cartItems []res.CartItem, err error) {
 
 	// get the cartItem of all user with subtotal
 	query := `SELECT ci.product_item_id, p.product_name, ci.qty,pi.price ,

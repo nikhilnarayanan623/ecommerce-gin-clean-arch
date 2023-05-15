@@ -179,7 +179,7 @@ func (c *productDatabase) UpdateProduct(ctx context.Context, product domain.Prod
 }
 
 // get all products from database
-func (c *productDatabase) FindAllProducts(ctx context.Context, pagination req.ReqPagination) (products []res.ResponseProduct, err error) {
+func (c *productDatabase) FindAllProducts(ctx context.Context, pagination req.Pagination) (products []res.Product, err error) {
 
 	limit := pagination.Count
 	offset := (pagination.PageNumber - 1) * limit
@@ -207,7 +207,7 @@ func (c *productDatabase) FindProductItem(ctx context.Context, productItemID uin
 }
 
 // add a new product Items on database
-func (c *productDatabase) SaveProductItem(ctx context.Context, reqProductItem req.ReqProductItem) error {
+func (c *productDatabase) SaveProductItem(ctx context.Context, reqProductItem req.ProductItem) error {
 
 	trx := c.DB.Begin()
 
@@ -268,7 +268,7 @@ func (c *productDatabase) SaveProductItem(ctx context.Context, reqProductItem re
 }
 
 // for get all products items for a product
-func (c *productDatabase) FindAllProductItems(ctx context.Context, productID uint) (productItems []res.RespProductItems, err error) {
+func (c *productDatabase) FindAllProductItems(ctx context.Context, productID uint) (productItems []res.ProductItems, err error) {
 
 	// first find all product_items
 

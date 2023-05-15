@@ -91,13 +91,13 @@ func (p *ProductHandler) AddCategory(ctx *gin.Context) {
 // @security ApiKeyAuth
 // @tags Admin Category
 // @id AddVariation
-// @Param input body req.ReqVariation{} true "Input field"
+// @Param input body req.Variation{} true "Input field"
 // @Router /admin/category/variation [post]
 // @Success 200 {object} res.Response{} "successfully variation added"
 // @Failure 400 {object} res.Response{} "invalid input"
 func (p *ProductHandler) AddVariation(ctx *gin.Context) {
 
-	var body req.ReqVariation
+	var body req.Variation
 	if err := ctx.ShouldBindJSON(&body); err != nil {
 		response := res.ErrorResponse(400, "invalid inputs", err.Error(), body)
 		ctx.JSON(http.StatusBadRequest, response)
@@ -126,13 +126,13 @@ func (p *ProductHandler) AddVariation(ctx *gin.Context) {
 // @security ApiKeyAuth
 // @tags Admin Category
 // @id AddVariationOption
-// @Param input body req.ReqVariationOption{} true "Input field"
+// @Param input body req.VariationOption{} true "Input field"
 // @Router /admin/category/variation-option [post]
 // @Success 200 {object} res.Response{} "successfully added variation option"
 // @Failure 400 {object} res.Response{} "invalid input"
 func (p *ProductHandler) AddVariationOption(ctx *gin.Context) {
 
-	var body req.ReqVariationOption
+	var body req.VariationOption
 	if err := ctx.ShouldBindJSON(&body); err != nil {
 		response := res.ErrorResponse(400, "invalid input", err.Error(), body)
 		ctx.JSON(http.StatusBadRequest, response)
@@ -185,7 +185,7 @@ func (p *ProductHandler) ListProducts(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, response)
 		return
 	}
-	pagination := req.ReqPagination{
+	pagination := req.Pagination{
 		PageNumber: pageNumber,
 		Count:      count,
 	}
@@ -213,13 +213,13 @@ func (p *ProductHandler) ListProducts(ctx *gin.Context) {
 // @summary api for admin to update a product
 // @id AddProducts
 // @tags Admin Products
-// @Param input body req.ReqProduct{} true "inputs"
+// @Param input body req.Product{} true "inputs"
 // @Router /admin/products [post]
 // @Success 200 {object} res.Response{} "successfully product added"
 // @Failure 400 {object} res.Response{} "invalid input"
 func (p *ProductHandler) AddProducts(ctx *gin.Context) {
 
-	var body req.ReqProduct
+	var body req.Product
 
 	if err := ctx.ShouldBindJSON(&body); err != nil {
 		respones := res.ErrorResponse(400, "invalid input", err.Error(), body)
@@ -246,13 +246,13 @@ func (p *ProductHandler) AddProducts(ctx *gin.Context) {
 // @summary api for admin to update a product
 // @id UpdateProduct
 // @tags Admin Products
-// @Param input body req.ReqProductUpdate{} true "inputs"
+// @Param input body req.UpdateProduct{} true "inputs"
 // @Router /admin/products [put]
 // @Success 200 {object} res.Response{} "successfully product updated"
 // @Failure 400 {object} res.Response{} "invalid input"
 func (c *ProductHandler) UpdateProduct(ctx *gin.Context) {
 
-	var body req.ReqProductUpdate
+	var body req.UpdateProduct
 
 	if err := ctx.ShouldBindJSON(&body); err != nil {
 		response := res.ErrorResponse(400, "invalid input", err.Error(), body)
@@ -280,13 +280,13 @@ func (c *ProductHandler) UpdateProduct(ctx *gin.Context) {
 // @summary api for admin to add product-items for a specific product
 // @id AddProductItem
 // @tags Admin Products
-// @Param input body req.ReqProductItem{} true "inputs"
+// @Param input body req.ProductItem{} true "inputs"
 // @Router /admin/products/product-items [post]
 // @Success 200 {object} res.Response{} "Successfully product item added"
 // @Failure 400 {object} res.Response{} "invalid input"
 func (p *ProductHandler) AddProductItem(ctx *gin.Context) {
 	// signle variation_value multiple images
-	var body req.ReqProductItem
+	var body req.ProductItem
 
 	if err := ctx.ShouldBindJSON(&body); err != nil {
 		response := res.ErrorResponse(400, "invalid input", err.Error(), body)

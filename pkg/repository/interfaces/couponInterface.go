@@ -15,7 +15,7 @@ type CouponRepository interface {
 	FindCouponByCouponCode(ctx context.Context, couponCode string) (coupon domain.Coupon, err error)
 	FindCouponByName(ctx context.Context, couponName string) (coupon domain.Coupon, err error)
 
-	FindAllCoupons(ctx context.Context, pagination req.ReqPagination) (coupons []domain.Coupon, err error)
+	FindAllCoupons(ctx context.Context, pagination req.Pagination) (coupons []domain.Coupon, err error)
 	SaveCoupon(ctx context.Context, coupon domain.Coupon) error
 	UpdateCoupon(ctx context.Context, coupon domain.Coupon) error
 
@@ -24,10 +24,6 @@ type CouponRepository interface {
 	SaveCouponUses(ctx context.Context, couponUses domain.CouponUses) error
 
 	// find all coupon for user
-	FindAllCouponForUser(ctx context.Context, userID uint, pagination req.ReqPagination) (coupons []res.ResUserCoupon, err error)
+	FindAllCouponForUser(ctx context.Context, userID uint, pagination req.Pagination) (coupons []res.UserCoupon, err error)
 
-	//!cart
-	FindCartByUserID(ctx context.Context, userID uint) (cart domain.Cart, err error)
-	UpdateCart(ctx context.Context, cartId, discountAmount, couponID uint) error
-	//!end
 }

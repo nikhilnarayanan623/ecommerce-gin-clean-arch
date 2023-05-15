@@ -125,9 +125,9 @@ func (c *userDatabse) FindAddressByUserID(ctx context.Context, address domain.Ad
 	return address, nil
 }
 
-func (c *userDatabse) FindAllAddressByUserID(ctx context.Context, userID uint) ([]res.ResAddress, error) {
+func (c *userDatabse) FindAllAddressByUserID(ctx context.Context, userID uint) ([]res.Address, error) {
 
-	var addresses []res.ResAddress
+	var addresses []res.Address
 
 	query := `SELECT a.id, a.house,a.name,a.phone_number,a.area,a.land_mark,a.city,a.pincode,a.country_id,c.country_name,ua.is_default
 	 FROM user_addresses ua JOIN addresses a ON ua.address_id=a.id 
@@ -241,9 +241,9 @@ func (c *userDatabse) FindWishListItem(ctx context.Context, productID, userID ui
 	return wishList, nil
 }
 
-func (c *userDatabse) FindAllWishListItemsByUserID(ctx context.Context, userID uint) ([]res.ResWishList, error) {
+func (c *userDatabse) FindAllWishListItemsByUserID(ctx context.Context, userID uint) ([]res.WishList, error) {
 
-	var wishLists []res.ResWishList
+	var wishLists []res.WishList
 
 	query := `SELECT * FROM product_items pi JOIN products p ON pi.product_id=p.id JOIN wish_lists w ON w.product_item_id=pi.id AND w.user_id=?`
 	if c.DB.Raw(query, userID).Scan(&wishLists).Error != nil {

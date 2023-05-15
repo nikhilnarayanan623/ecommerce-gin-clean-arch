@@ -72,7 +72,7 @@ func (c *couponDatabase) FindCouponByName(ctx context.Context, couponName string
 	return coupon, nil
 }
 
-func (c *couponDatabase) FindAllCoupons(ctx context.Context, pagination req.ReqPagination) (coupons []domain.Coupon, err error) {
+func (c *couponDatabase) FindAllCoupons(ctx context.Context, pagination req.Pagination) (coupons []domain.Coupon, err error) {
 
 	limit := pagination.Count
 	offset := (pagination.PageNumber - 1) * limit
@@ -144,7 +144,7 @@ func (c *couponDatabase) SaveCouponUses(ctx context.Context, couponUses domain.C
 
 // find all coupons for user
 
-func (c *couponDatabase) FindAllCouponForUser(ctx context.Context, userID uint, pagination req.ReqPagination) (coupons []res.ResUserCoupon, err error) {
+func (c *couponDatabase) FindAllCouponForUser(ctx context.Context, userID uint, pagination req.Pagination) (coupons []res.UserCoupon, err error) {
 
 	limit := pagination.Count
 	offset := (pagination.PageNumber - 1) * limit
@@ -164,24 +164,3 @@ func (c *couponDatabase) FindAllCouponForUser(ctx context.Context, userID uint, 
 	return coupons, nil
 }
 
-// !apply coupon cart functions
-func (c *couponDatabase) FindCartByUserID(ctx context.Context, userID uint) (cart domain.Cart, err error) {
-
-	query := `SELECT * FROM carts WHERE user_id = ?`
-	if c.DB.Raw(query, userID).Scan(&cart).Error != nil {
-		return cart, errors.New("faild to get cartItem of user")
-	}
-	return cart, nil
-}
-
-func (c *couponDatabase) UpdateCart(ctx context.Context, cartId, discountAmount, couponID uint) error {
-
-	query := `UPDATE carts SET discount_amount = $1, applied_coupon_id = $2 WHERE cart_id = $3`
-	err := c.DB.Exec(query, discountAmount, couponID, cartId).Error
-	if err != nil {
-		return fmt.Errorf("faild to udpate discount price on cart for coupon")
-	}
-	return nil
-}
-
-//! end

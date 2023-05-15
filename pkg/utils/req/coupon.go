@@ -2,7 +2,7 @@ package req
 
 import "time"
 
-type ReqCoupon struct {
+type Coupon struct {
 	CouponName  string `json:"coupon_name" binding:"required,min=3,max=25"`
 	Description string `json:"description"  binding:"required,min=6,max=150"`
 
@@ -12,7 +12,7 @@ type ReqCoupon struct {
 	Image            string    `json:"image" binding:"required"`
 	BlockStatus      bool      `json:"block_status"`
 }
-type ReqEditCoupon struct {
+type EditCoupon struct {
 	CouponID    uint   `json:"coupon_id"`
 	CouponName  string `json:"coupon_name" binding:"required,min=3,max=25"`
 	Description string `json:"description"  binding:"required,min=6,max=150"`
@@ -24,6 +24,6 @@ type ReqEditCoupon struct {
 	BlockStatus      bool      `json:"block_status"`
 }
 
-type ReqApplyCoupon struct {
+type ApplyCoupon struct {
 	CouponCode string `json:"coupon_code" binding:"required"`
 }

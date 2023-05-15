@@ -12,7 +12,7 @@ type UserSignUp struct {
 }
 
 // for address add address
-type ReqAddress struct {
+type Address struct {
 	Name        string `json:"name" binding:"required,min=2,max=50"`
 	PhoneNumber string `json:"phone_number" binding:"required,min=10,max=10"`
 	House       string `json:"house" binding:"required"`
@@ -24,7 +24,7 @@ type ReqAddress struct {
 
 	IsDefault *bool `json:"is_default"`
 }
-type ReqEditAddress struct {
+type EditAddress struct {
 	ID          uint   `json:"address_id" binding:"required"`
 	Name        string `json:"name" binding:"required,min=2,max=50"`
 	PhoneNumber string `json:"phone_number" binding:"required,min=10,max=10"`
@@ -39,12 +39,12 @@ type ReqEditAddress struct {
 }
 
 // user side
-type ReqCart struct {
+type Cart struct {
 	UserID        uint `json:"-"`
 	ProductItemID uint `json:"product_item_id" binding:"required"`
 }
 
-type ReqCartCount struct {
+type UpdateCartItem struct {
 	UserID        uint `json:"-"`
 	ProductItemID uint `json:"product_item_id" binding:"required"`
 	Count         uint `json:"count" binding:"omitempty,gte=1"`

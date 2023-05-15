@@ -2,13 +2,13 @@ package req
 
 import "time"
 
-type ReqUpdateOrder struct {
+type UpdateOrder struct {
 	ShopOrderID   uint `json:"shop_order_id" binding:"required"`
 	OrderStatusID uint `json:"order_status_id"`
 }
 
 // return request
-type ReqReturn struct {
+type Return struct {
 	ShopOrderID  uint   `json:"shop_order_id" binding:"required"`
 	ReturnReason string `json:"return_reason" binding:"required,min=6,max=150"`
 }
@@ -20,12 +20,12 @@ type UpdatOrderReturn struct {
 	AdminComment  string    `json:"admin_comment" bindin:"requied,min=6,max=150"`
 }
 
-type ReqPlaceOrder struct {
+type PlaceOrder struct {
 	PaymentMethodID uint `json:"payment_method_id" binding:"required"`
 	AddressID       uint `json:"address_id" binding:"required"`
 }
 
-type ReqRazorpayVeification struct {
+type RazorpayVeification struct {
 	RazorpayPaymentID string `json:"razorpay_payment_id"`
 	RazorpayOrderID   string `json:"razorpay_order_id"`
 	RazorpaySignature string `json:"razorpay_signature"`

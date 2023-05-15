@@ -2,7 +2,7 @@ package res
 
 import "time"
 
-type ResUserCoupon struct {
+type UserCoupon struct {
 	CouponID   uint   `json:"coupon_id"`
 	CouponCode string `json:"coupon_code" `
 	CouponName string `json:"coupon_name"`

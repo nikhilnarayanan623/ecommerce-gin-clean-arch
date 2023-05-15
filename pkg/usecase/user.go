@@ -108,7 +108,7 @@ func (c *userUserCase) SaveAddress(ctx context.Context, userID uint, address dom
 	return nil
 }
 
-func (c *userUserCase) EditAddress(ctx context.Context, addressBody req.ReqEditAddress, userID uint) error {
+func (c *userUserCase) EditAddress(ctx context.Context, addressBody req.EditAddress, userID uint) error {
 
 	// first validate the addessId is valid or not
 	address, err := c.userRepo.FindAddressByID(ctx, addressBody.ID)
@@ -149,7 +149,7 @@ func (c *userUserCase) EditAddress(ctx context.Context, addressBody req.ReqEditA
 }
 
 // get all address
-func (c *userUserCase) GetAddresses(ctx context.Context, userID uint) ([]res.ResAddress, error) {
+func (c *userUserCase) GetAddresses(ctx context.Context, userID uint) ([]res.Address, error) {
 
 	return c.userRepo.FindAllAddressByUserID(ctx, userID)
 }
@@ -212,6 +212,6 @@ func (c *userUserCase) RemoveFromWishList(ctx context.Context, wishList domain.W
 	return c.userRepo.RemoveWishListItem(ctx, wishList)
 }
 
-func (c *userUserCase) GetWishListItems(ctx context.Context, userID uint) ([]res.ResWishList, error) {
+func (c *userUserCase) GetWishListItems(ctx context.Context, userID uint) ([]res.WishList, error) {
 	return c.userRepo.FindAllWishListItemsByUserID(ctx, userID)
 }

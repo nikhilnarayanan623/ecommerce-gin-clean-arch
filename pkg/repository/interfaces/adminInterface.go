@@ -13,12 +13,12 @@ type AdminRepository interface {
 	FindAdminByUserName(ctx context.Context, userName string) (domain.Admin, error)
 	SaveAdmin(ctx context.Context, admin domain.Admin) error
 
-	FindAllUser(ctx context.Context, pagination req.ReqPagination) (users []res.UserRespStrcut, err error)
+	FindAllUser(ctx context.Context, pagination req.Pagination) (users []res.User, err error)
 
-	CreateFullSalesReport(ctc context.Context, reqData req.ReqSalesReport) (salesReport []res.SalesReport, err error)
+	CreateFullSalesReport(ctc context.Context, reqData req.SalesReport) (salesReport []res.SalesReport, err error)
 
 	//stock side
-	FindStockBySKU(ctx context.Context, sku string) (stock res.RespStock, err error)
-	FindAllStockDetails(ctx context.Context, pagination req.ReqPagination) (stocks []res.RespStock, err error)
-	UpdateStock(ctx context.Context, valuesToUpdate req.ReqUpdateStock) error
+	FindStockBySKU(ctx context.Context, sku string) (stock res.Stock, err error)
+	FindAllStockDetails(ctx context.Context, pagination req.Pagination) (stocks []res.Stock, err error)
+	UpdateStock(ctx context.Context, valuesToUpdate req.UpdateStock) error
 }

@@ -40,7 +40,7 @@ func (c *OrderHandler) GetUserWalletTransactions(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, response)
 		return
 	}
-	pagination := req.ReqPagination{
+	pagination := req.Pagination{
 		PageNumber: pageNumber,
 		Count:      count,
 	}

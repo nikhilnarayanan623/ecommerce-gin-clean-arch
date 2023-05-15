@@ -56,7 +56,7 @@ func (c *adminUseCase) SignUp(ctx context.Context, loginDetails domain.Admin) er
 	return c.adminRepo.SaveAdmin(ctx, admin)
 }
 
-func (c *adminUseCase) FindAllUser(ctx context.Context, pagination req.ReqPagination) (users []res.UserRespStrcut, err error) {
+func (c *adminUseCase) FindAllUser(ctx context.Context, pagination req.Pagination) (users []res.User, err error) {
 
 	users, err = c.adminRepo.FindAllUser(ctx, pagination)
 
@@ -65,7 +65,7 @@ func (c *adminUseCase) FindAllUser(ctx context.Context, pagination req.ReqPagina
 	}
 
 	// if no error then copy users details to an array responce struct
-	var responce []res.UserRespStrcut
+	var responce []res.User
 	copier.Copy(&responce, &users)
 
 	return responce, nil
@@ -91,7 +91,7 @@ func (c *adminUseCase) BlockOrUblockUser(ctx context.Context, blockDetails req.B
 	return nil
 }
 
-func (c *adminUseCase) GetFullSalesReport(ctx context.Context, requestData req.ReqSalesReport) (salesReport []res.SalesReport, err error) {
+func (c *adminUseCase) GetFullSalesReport(ctx context.Context, requestData req.SalesReport) (salesReport []res.SalesReport, err error) {
 	salesReport, err = c.adminRepo.CreateFullSalesReport(ctx, requestData)
 
 	if err != nil {
@@ -104,7 +104,7 @@ func (c *adminUseCase) GetFullSalesReport(ctx context.Context, requestData req.R
 	return salesReport, nil
 }
 
-func (c *adminUseCase) GetAllStockDetails(ctx context.Context, pagination req.ReqPagination) (stocks []res.RespStock, err error) {
+func (c *adminUseCase) GetAllStockDetails(ctx context.Context, pagination req.Pagination) (stocks []res.Stock, err error) {
 	stocks, err = c.adminRepo.FindAllStockDetails(ctx, pagination)
 
 	if err != nil {
@@ -115,7 +115,7 @@ func (c *adminUseCase) GetAllStockDetails(ctx context.Context, pagination req.Re
 	return stocks, nil
 }
 
-func (c *adminUseCase) UpdateStock(ctx context.Context, valuesToUpdate req.ReqUpdateStock) error {
+func (c *adminUseCase) UpdateStock(ctx context.Context, valuesToUpdate req.UpdateStock) error {
 
 	// validate the sku
 	stock, err := c.adminRepo.FindStockBySKU(ctx, valuesToUpdate.SKU)

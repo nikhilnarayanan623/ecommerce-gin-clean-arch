@@ -27,13 +27,13 @@ func NewCartHandler(cartUseCase usecase.CartUseCase) interfaces.CartHandler {
 // @security ApiKeyAuth
 // @id AddToCart
 // @tags User Cart
-// @Param input body req.ReqCart true "Input Field"
+// @Param input body req.Cart true "Input Field"
 // @Router /carts [post]
 // @Success 200 "Successfully productItem added to cart"
 // @Failure 400 "can't add the product item into cart"
 func (u *cartHandler) AddToCart(ctx *gin.Context) {
 
-	var body req.ReqCart
+	var body req.Cart
 	if err := ctx.ShouldBindJSON(&body); err != nil {
 		response := res.ErrorResponse(400, "invalid input", err.Error(), nil)
 		ctx.JSON(http.StatusBadRequest, response)
@@ -61,14 +61,14 @@ func (u *cartHandler) AddToCart(ctx *gin.Context) {
 // @security ApiKeyAuth
 // @id RemoveFromCart
 // @tags User Cart
-// @Param input body req.ReqCart{} true "Input Field"
+// @Param input body req.Cart{} true "Input Field"
 // @Router /carts [delete]
 // @Success 200 {object} res.Response{} "Successfully productItem removed from cart"
 // @Failure 400 {object} res.Response{}  "invalid input"
 // @Failure 500 {object} res.Response{}  "can't remove product item from cart"
 func (u cartHandler) RemoveFromCart(ctx *gin.Context) {
 
-	var body req.ReqCart
+	var body req.Cart
 	if err := ctx.ShouldBindJSON(&body); err != nil {
 		response := res.ErrorResponse(400, "invalid input", err.Error(), nil)
 		ctx.JSON(http.StatusBadRequest, response)
@@ -95,14 +95,14 @@ func (u cartHandler) RemoveFromCart(ctx *gin.Context) {
 // @security ApiKeyAuth
 // @id UpdateCart
 // @tags User Cart
-// @Param input body req.ReqCartCount{} true "Input Field"
+// @Param input body req.UpdateCartItem{} true "Input Field"
 // @Router /carts [put]
 // @Success 200 "Successfully productItem count change on cart"
 // @Failure 400  "invalid input"
 // @Failure 500  "can't update the count of product item on cart"
 func (u *cartHandler) UpdateCart(ctx *gin.Context) {
 
-	var body req.ReqCartCount
+	var body req.UpdateCartItem
 
 	if err := ctx.ShouldBindJSON(&body); err != nil {
 		response := res.ErrorResponse(400, "invalid input", err.Error(), nil)
@@ -166,7 +166,7 @@ func (u *cartHandler) ShowCart(ctx *gin.Context) {
 		return
 	}
 
-	resposeCart := res.ResCart{
+	resposeCart := res.Cart{
 		CartItems:       cartItems,
 		AppliedCouponID: cart.AppliedCouponID,
 		TotalPrice:      cart.TotalPrice,

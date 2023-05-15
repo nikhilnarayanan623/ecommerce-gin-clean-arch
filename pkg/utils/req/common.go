@@ -22,19 +22,19 @@ type BlockUser struct {
 	Block  bool `json:"block"`
 }
 
-type ReqPagination struct {
+type Pagination struct {
 	Count      uint `json:"count"`
 	PageNumber uint `json:"page_number"`
 }
 
-type ReqSalesReport struct {
-	StartDate  time.Time     `json:"start_date"`
-	EndDate    time.Time     `json:"end_date"`
-	Pagination ReqPagination `json:"pagination"`
+type SalesReport struct {
+	StartDate  time.Time  `json:"start_date"`
+	EndDate    time.Time  `json:"end_date"`
+	Pagination Pagination `json:"pagination"`
 }
 
 // stock
-type ReqUpdateStock struct {
+type UpdateStock struct {
 	SKU      string `json:"sku"`
 	QtyToAdd uint   `json:"qty_to_add"`
 }

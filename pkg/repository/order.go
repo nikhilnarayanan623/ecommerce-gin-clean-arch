@@ -46,12 +46,12 @@ func (c *OrderDatabase) FindShopOrderByShopOrderID(ctx context.Context, shopOrde
 }
 
 // get all shop order of user
-func (c *OrderDatabase) FindAllShopOrdersByUserID(ctx context.Context, userID uint, pagination req.ReqPagination) ([]res.ResShopOrder, error) {
+func (c *OrderDatabase) FindAllShopOrdersByUserID(ctx context.Context, userID uint, pagination req.Pagination) ([]res.ShopOrder, error) {
 
 	limit := pagination.Count
 	offset := (pagination.PageNumber - 1) * limit
 
-	var shopOrders []res.ResShopOrder
+	var shopOrders []res.ShopOrder
 	query := `SELECT so.user_id, so.id AS shop_order_id, so.order_date, so.order_total_price,so.discount, 
 	so.order_status_id, os.status AS order_status,so.address_id,so.payment_method_id, pm.payment_type  
 	FROM shop_orders so JOIN order_statuses os ON so.order_status_id = os.id 
@@ -63,7 +63,7 @@ func (c *OrderDatabase) FindAllShopOrdersByUserID(ctx context.Context, userID ui
 	// take full address and add to it
 	query = `SELECT adrs.id AS address_id, adrs.name,adrs.phone_number,adrs.house,adrs.area, adrs.land_mark,adrs.city,adrs.pincode,adrs.country_id,c.country_name 
 	FROM addresses adrs JOIN countries c ON adrs.country_id = c.id  WHERE adrs.id= ?`
-	var address res.ResAddress
+	var address res.Address
 	for i, order := range shopOrders {
 
 		if c.DB.Raw(query, order.AddressID).Scan(&address).Error != nil {
@@ -75,7 +75,7 @@ func (c *OrderDatabase) FindAllShopOrdersByUserID(ctx context.Context, userID ui
 }
 
 // find all shop orders with user
-func (c *OrderDatabase) FindAllShopOrders(ctx context.Context, pagination req.ReqPagination) (shopOrders []res.ResShopOrder, err error) {
+func (c *OrderDatabase) FindAllShopOrders(ctx context.Context, pagination req.Pagination) (shopOrders []res.ShopOrder, err error) {
 
 	limit := pagination.Count
 	offset := (pagination.PageNumber - 1) * limit
@@ -89,7 +89,7 @@ func (c *OrderDatabase) FindAllShopOrders(ctx context.Context, pagination req.Re
 		return shopOrders, errors.New("faild to get order list")
 	}
 
-	var address res.ResAddress
+	var address res.Address
 	query = `SELECT adrs.id, adrs.name,adrs.phone_number,adrs.house,adrs.area, adrs.land_mark,adrs.city,adrs.pincode,adrs.country_id,c.country_name 
 	FROM addresses adrs JOIN countries c ON adrs.country_id = c.id  WHERE adrs.id= ?`
 	for i, order := range shopOrders {
@@ -104,7 +104,7 @@ func (c *OrderDatabase) FindAllShopOrders(ctx context.Context, pagination req.Re
 }
 
 // get order items of a specific order
-func (c *OrderDatabase) FindAllOrdersItemsByShopOrderID(ctx context.Context, shopOrderID uint, pagination req.ReqPagination) (orderItems []res.ResOrderItem, err error) {
+func (c *OrderDatabase) FindAllOrdersItemsByShopOrderID(ctx context.Context, shopOrderID uint, pagination req.Pagination) (orderItems []res.OrderItem, err error) {
 
 	limit := pagination.Count
 	offset := (pagination.PageNumber - 1) * limit
@@ -202,11 +202,11 @@ func (c *OrderDatabase) FindOrderReturnByShopOrderID(ctx context.Context, shopOr
 	return orderReturn, err
 }
 
-func (c *OrderDatabase) FindAllOrderReturns(ctx context.Context, pagination req.ReqPagination) ([]res.ResOrderReturn, error) {
+func (c *OrderDatabase) FindAllOrderReturns(ctx context.Context, pagination req.Pagination) ([]res.OrderReturn, error) {
 
 	limit := pagination.Count
 	offset := (pagination.PageNumber - 1) * limit
-	var orderReturns []res.ResOrderReturn
+	var orderReturns []res.OrderReturn
 
 	query := `SELECT ors.id AS order_return_id, ors.shop_order_id, ors.request_date, ors.return_reason, 
 		os.id AS order_status_id, os.status AS order_status,ors.refund_amount, ors.admin_comment, ors.is_approved, ors.approval_date, ors.return_date 
@@ -218,12 +218,12 @@ func (c *OrderDatabase) FindAllOrderReturns(ctx context.Context, pagination req.
 	return orderReturns, err
 }
 
-func (c *OrderDatabase) FindAllPendingOrderReturns(ctx context.Context, pagination req.ReqPagination) ([]res.ResOrderReturn, error) {
+func (c *OrderDatabase) FindAllPendingOrderReturns(ctx context.Context, pagination req.Pagination) ([]res.OrderReturn, error) {
 	limit := pagination.Count
 	offset := (pagination.PageNumber - 1) * limit
-	var pendingorderReturns []res.ResOrderReturn
+	var pendingorderReturns []res.OrderReturn
 
-	returnRequested, err1 := c.FindOrderStatusByStatus(ctx, "return requested")
+	returnuested, err1 := c.FindOrderStatusByStatus(ctx, "return requested")
 	returnApproved, err2 := c.FindOrderStatusByStatus(ctx, "return approved")
 	err := errors.Join(err1, err2)
 	if err != nil {
@@ -236,7 +236,7 @@ func (c *OrderDatabase) FindAllPendingOrderReturns(ctx context.Context, paginati
 	INNER JOIN order_statuses os ON so.order_status_id = os.id 
 	WHERE so.order_status_id = $1 OR so.order_status_id = $2 
 	ORDER BY ors.request_date DESC LIMIT $3 OFFSET $4`
-	err = c.DB.Raw(query, returnRequested.ID, returnApproved.ID, limit, offset).Scan(&pendingorderReturns).Error
+	err = c.DB.Raw(query, returnuested.ID, returnApproved.ID, limit, offset).Scan(&pendingorderReturns).Error
 
 	return pendingorderReturns, err
 }

@@ -67,10 +67,10 @@ func (mr *MockUserRepositoryMockRecorder) FindAddressByUserID(arg0, arg1, arg2 i
 }
 
 // FindAllAddressByUserID mocks base method.
-func (m *MockUserRepository) FindAllAddressByUserID(arg0 context.Context, arg1 uint) ([]res.ResAddress, error) {
+func (m *MockUserRepository) FindAllAddressByUserID(arg0 context.Context, arg1 uint) ([]res.Address, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "FindAllAddressByUserID", arg0, arg1)
-	ret0, _ := ret[0].([]res.ResAddress)
+	ret0, _ := ret[0].([]res.Address)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -82,10 +82,10 @@ func (mr *MockUserRepositoryMockRecorder) FindAllAddressByUserID(arg0, arg1 inte
 }
 
 // FindAllWishListItemsByUserID mocks base method.
-func (m *MockUserRepository) FindAllWishListItemsByUserID(arg0 context.Context, arg1 uint) ([]res.ResWishList, error) {
+func (m *MockUserRepository) FindAllWishListItemsByUserID(arg0 context.Context, arg1 uint) ([]res.WishList, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "FindAllWishListItemsByUserID", arg0, arg1)
-	ret0, _ := ret[0].([]res.ResWishList)
+	ret0, _ := ret[0].([]res.WishList)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }

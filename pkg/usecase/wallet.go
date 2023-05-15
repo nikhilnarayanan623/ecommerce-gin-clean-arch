@@ -27,7 +27,7 @@ func (c *OrderUseCase) GetUserWallet(ctx context.Context, userID uint) (wallet d
 }
 
 func (c *OrderUseCase) GetUserWalletTransactions(ctx context.Context,
-	userID uint, pagination req.ReqPagination) (transactions []domain.Transaction, err error) {
+	userID uint, pagination req.Pagination) (transactions []domain.Transaction, err error) {
 
 	// first find the user wallet
 	wallet, err := c.orderRepo.FindWalletByUserID(ctx, userID)
