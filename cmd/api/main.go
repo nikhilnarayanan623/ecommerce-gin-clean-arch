@@ -11,7 +11,7 @@ func main() {
 
 	cfg, err := config.LoadConfig()
 
-	if err != nil {
+	if err !=
 		log.Fatal("Error to load the config")
 	}
 
