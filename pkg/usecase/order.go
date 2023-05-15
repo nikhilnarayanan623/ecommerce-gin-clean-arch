@@ -44,7 +44,7 @@ func (c *OrderUseCase) GetAllOrderStatuses(ctx context.Context) (orderStatuses [
 }
 
 // func to get all shop order
-func (c *OrderUseCase) GetAllShopOrders(ctx context.Context, pagination req.ReqPagination) (shopOrders []res.ResShopOrder, err error) {
+func (c *OrderUseCase) GetAllShopOrders(ctx context.Context, pagination req.Pagination) (shopOrders []res.ShopOrder, err error) {
 
 	// first find all shopOrders
 	if shopOrders, err = c.orderRepo.FindAllShopOrders(ctx, pagination); err != nil {
@@ -54,7 +54,7 @@ func (c *OrderUseCase) GetAllShopOrders(ctx context.Context, pagination req.ReqP
 }
 
 // get order items of a spicific order
-func (c *OrderUseCase) GetOrderItemsByShopOrderID(ctx context.Context, shopOrderID uint, pagination req.ReqPagination) (orderItems []res.ResOrderItem, err error) {
+func (c *OrderUseCase) GetOrderItemsByShopOrderID(ctx context.Context, shopOrderID uint, pagination req.Pagination) (orderItems []res.OrderItem, err error) {
 	//validate the shopOrderId
 	shopOdrer, err := c.orderRepo.FindShopOrderByShopOrderID(ctx, shopOrderID)
 	if err != nil {
@@ -72,7 +72,7 @@ func (c *OrderUseCase) GetOrderItemsByShopOrderID(ctx context.Context, shopOrder
 }
 
 // get all orders of user
-func (c *OrderUseCase) GetUserShopOrder(ctx context.Context, userID uint, pagination req.ReqPagination) ([]res.ResShopOrder, error) {
+func (c *OrderUseCase) GetUserShopOrder(ctx context.Context, userID uint, pagination req.Pagination) ([]res.ShopOrder, error) {
 	return c.orderRepo.FindAllShopOrdersByUserID(ctx, userID, pagination)
 }
 
@@ -149,7 +149,7 @@ func (c *OrderUseCase) CancellOrder(ctx context.Context, shopOrderID uint) error
 }
 
 // to get pending order returns
-func (c *OrderUseCase) GetAllPendingOrderReturns(ctx context.Context, pagination req.ReqPagination) ([]res.ResOrderReturn, error) {
+func (c *OrderUseCase) GetAllPendingOrderReturns(ctx context.Context, pagination req.Pagination) ([]res.OrderReturn, error) {
 
 	pendingOrderReturns, err := c.orderRepo.FindAllPendingOrderReturns(ctx, pagination)
 	if err != nil {
@@ -159,7 +159,7 @@ func (c *OrderUseCase) GetAllPendingOrderReturns(ctx context.Context, pagination
 }
 
 // to get all order return
-func (c *OrderUseCase) GetAllOrderReturns(ctx context.Context, pagination req.ReqPagination) ([]res.ResOrderReturn, error) {
+func (c *OrderUseCase) GetAllOrderReturns(ctx context.Context, pagination req.Pagination) ([]res.OrderReturn, error) {
 
 	orderReturns, err := c.orderRepo.FindAllOrderReturns(ctx, pagination)
 	if err != nil {
@@ -168,7 +168,7 @@ func (c *OrderUseCase) GetAllOrderReturns(ctx context.Context, pagination req.Re
 	return orderReturns, nil
 }
 
-func (c *OrderUseCase) SubmitReturnRequest(ctx context.Context, returnDetails req.ReqReturn) error {
+func (c *OrderUseCase) SubmitReturnuest(ctx context.Context, returnDetails req.Return) error {
 
 	shopOrder, err := c.orderRepo.FindShopOrderByShopOrderID(ctx, returnDetails.ShopOrderID)
 	if err != nil {
@@ -329,7 +329,7 @@ func (c *OrderUseCase) UpdateReturnDetails(ctx context.Context, updateDetails re
 }
 
 // ! place order
-func (c *OrderUseCase) GetOrderDetails(ctx context.Context, userID uint, body req.ReqPlaceOrder) (userOrder res.ResUserOrder, err error) {
+func (c *OrderUseCase) GetOrderDetails(ctx context.Context, userID uint, body req.PlaceOrder) (userOrder res.UserOrder, err error) {
 
 	// find the payment method_id
 	paymentMethod, err := c.orderRepo.FindPaymentMethodByID(ctx, body.PaymentMethodID)
@@ -369,7 +369,7 @@ func (c *OrderUseCase) GetOrderDetails(ctx context.Context, userID uint, body re
 	return userOrder, nil
 }
 
-func (c *OrderUseCase) GetStripeOrder(ctx context.Context, userID uint, userOrder res.ResUserOrder) (stipeOrder res.StripeOrder, err error) {
+func (c *OrderUseCase) GetStripeOrder(ctx context.Context, userID uint, userOrder res.UserOrder) (stipeOrder res.StripeOrder, err error) {
 	// get user email and phone of user
 	userDetails, err := c.userRepo.FindUserByUserID(ctx, userID)
 	if err != nil {
@@ -395,7 +395,7 @@ func (c *OrderUseCase) GetStripeOrder(ctx context.Context, userID uint, userOrde
 }
 
 // generate razorpay order
-func (c *OrderUseCase) GetRazorpayOrder(ctx context.Context, userID uint, userOrder res.ResUserOrder) (razorpayOrder res.ResRazorpayOrder, err error) {
+func (c *OrderUseCase) GetRazorpayOrder(ctx context.Context, userID uint, userOrder res.UserOrder) (razorpayOrder res.RazorpayOrder, err error) {
 
 	// get user email and phone of user
 	userDetails, err := c.userRepo.FindUserByUserID(ctx, userID)

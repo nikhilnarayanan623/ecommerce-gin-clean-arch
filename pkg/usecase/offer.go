@@ -106,7 +106,7 @@ func (c *productUseCase) AddOfferCategory(ctx context.Context, offerCategory dom
 }
 
 // get all offer_category
-func (c *productUseCase) GetAllOffersOfCategories(ctx context.Context) ([]res.ResOfferCategory, error) {
+func (c *productUseCase) GetAllOffersOfCategories(ctx context.Context) ([]res.OfferCategory, error) {
 
 	return c.productRepo.FindAllOfferCategories(ctx)
 }
@@ -198,7 +198,7 @@ func (c *productUseCase) AddOfferProduct(ctx context.Context, offerProduct domai
 }
 
 // get all offers for products
-func (c *productUseCase) GetAllOffersOfProducts(ctx context.Context) ([]res.ResOfferProduct, error) {
+func (c *productUseCase) GetAllOffersOfProducts(ctx context.Context) ([]res.OfferProduct, error) {
 	return c.productRepo.FindAllOfferProducts(ctx)
 }
 

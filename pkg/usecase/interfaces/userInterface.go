@@ -9,7 +9,6 @@ import (
 )
 
 type UserUseCase interface {
-
 	Account(ctx context.Context, userId uint) (domain.User, error)
 	EditAccount(ctx context.Context, user domain.User) error
 
@@ -17,11 +16,11 @@ type UserUseCase interface {
 
 	//address side
 	SaveAddress(ctx context.Context, userID uint, address domain.Address, isDefault bool) error // save address
-	EditAddress(ctx context.Context, addressBody req.ReqEditAddress, userID uint) error
-	GetAddresses(ctx context.Context, userID uint) ([]res.ResAddress, error) // to get all address of a user
+	EditAddress(ctx context.Context, addressBody req.EditAddress, userID uint) error
+	GetAddresses(ctx context.Context, userID uint) ([]res.Address, error) // to get all address of a user
 
 	// wishlist
 	AddToWishList(ctx context.Context, wishList domain.WishList) error
 	RemoveFromWishList(ctx context.Context, wishList domain.WishList) error
-	GetWishListItems(ctx context.Context, userID uint) ([]res.ResWishList, error)
+	GetWishListItems(ctx context.Context, userID uint) ([]res.WishList, error)
 }

@@ -40,7 +40,7 @@ func (c *OrderHandler) StripPaymentCheckout(ctx *gin.Context) {
 		return
 	}
 
-	body := req.ReqPlaceOrder{
+	body := req.PlaceOrder{
 		PaymentMethodID: paymentMethodID,
 		AddressID:       addressID,
 	}

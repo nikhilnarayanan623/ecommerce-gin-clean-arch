@@ -5,7 +5,7 @@ import (
 )
 
 // response for product
-type ResponseProduct struct {
+type Product struct {
 	ID            uint      `json:"product_id"`
 	ProductName   string    `json:"product_name"`
 	Description   string    `json:"description" `
@@ -43,14 +43,14 @@ type VariationValue struct {
 }
 
 // fo all category, variation, variation_value
-type RespFullCategory struct {
+type FullCategory struct {
 	Category       []Category
 	VariationName  []VariationName
 	VariationValue []VariationValue
 }
 
 // for reponse a specific products all product items
-type RespProductItems struct {
+type ProductItems struct {
 	ID                uint   `json:"product_item_id"`
 	ProductName       string `json:"product_name"`
 	ProductID         uint   `json:"product_id"`
@@ -63,7 +63,7 @@ type RespProductItems struct {
 }
 
 // offer response
-type ResOfferCategory struct {
+type OfferCategory struct {
 	OfferCategoryID uint   `json:"offer_category_id"`
 	CategoryID      uint   `json:"category_id"`
 	CategoryName    string `json:"category_name"`
@@ -72,7 +72,7 @@ type ResOfferCategory struct {
 	OfferName       string `json:"offer_name"`
 }
 
-type ResOfferProduct struct {
+type OfferProduct struct {
 	OfferProductID uint   `json:"offer_product_id"`
 	ProductID      uint   `json:"product_id"`
 	ProductName    string `json:"product_name"`

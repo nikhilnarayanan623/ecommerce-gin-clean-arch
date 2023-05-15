@@ -23,7 +23,7 @@ type UserRepository interface {
 	FindCountryByID(ctx context.Context, countryID uint) (domain.Country, error)                          // find country by id
 	FindAddressByID(ctx context.Context, addressID uint) (domain.Address, error)                          // find address by id
 	FindAddressByUserID(ctx context.Context, address domain.Address, userID uint) (domain.Address, error) // find address with userID and addres values
-	FindAllAddressByUserID(ctx context.Context, userID uint) ([]res.ResAddress, error)                    // to get all address of user
+	FindAllAddressByUserID(ctx context.Context, userID uint) ([]res.Address, error)                    // to get all address of user
 	SaveAddress(ctx context.Context, address domain.Address) (addressID uint, err error)                  // save a full address
 	UpdateAddress(ctx context.Context, address domain.Address) error
 	// address join table
@@ -32,7 +32,7 @@ type UserRepository interface {
 
 	//wishlist
 	FindWishListItem(ctx context.Context, productID, userID uint) (domain.WishList, error)
-	FindAllWishListItemsByUserID(ctx context.Context, userID uint) ([]res.ResWishList, error)
+	FindAllWishListItemsByUserID(ctx context.Context, userID uint) ([]res.WishList, error)
 	SaveWishListItem(ctx context.Context, wishList domain.WishList) error
 	RemoveWishListItem(ctx context.Context, wishList domain.WishList) error
 }

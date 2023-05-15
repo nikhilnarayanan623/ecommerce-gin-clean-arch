@@ -48,7 +48,7 @@ func (c *adminDatabase) SaveAdmin(ctx context.Context, admin domain.Admin) error
 	return nil
 }
 
-func (c *adminDatabase) FindAllUser(ctx context.Context, pagination req.ReqPagination) (users []res.UserRespStrcut, err error) {
+func (c *adminDatabase) FindAllUser(ctx context.Context, pagination req.Pagination) (users []res.User, err error) {
 
 	limit := pagination.Count
 	offset := (pagination.PageNumber - 1) * limit
@@ -60,7 +60,7 @@ func (c *adminDatabase) FindAllUser(ctx context.Context, pagination req.ReqPagin
 }
 
 // sales report from order // !add  product wise report
-func (c *adminDatabase) CreateFullSalesReport(ctc context.Context, reqData req.ReqSalesReport) (salesReport []res.SalesReport, err error) {
+func (c *adminDatabase) CreateFullSalesReport(ctc context.Context, reqData req.SalesReport) (salesReport []res.SalesReport, err error) {
 
 	limit := reqData.Pagination.Count
 	offset := (reqData.Pagination.PageNumber - 1) * limit
@@ -84,7 +84,7 @@ func (c *adminDatabase) CreateFullSalesReport(ctc context.Context, reqData req.R
 }
 
 // stock side
-func (c *adminDatabase) FindStockBySKU(ctx context.Context, sku string) (stock res.RespStock, err error) {
+func (c *adminDatabase) FindStockBySKU(ctx context.Context, sku string) (stock res.Stock, err error) {
 	query := `SELECT pi.sku, pi.qty_in_stock, pi.price, p.product_name, vo.variation_value 
 	FROM product_items pi INNER JOIN products p ON p.id = pi.product_id 
 	INNER JOIN product_configurations pc ON pc.product_item_id = pi.id 
@@ -99,7 +99,7 @@ func (c *adminDatabase) FindStockBySKU(ctx context.Context, sku string) (stock r
 	return stock, nil
 }
 
-func (c *adminDatabase) FindAllStockDetails(ctx context.Context, pagination req.ReqPagination) (stocks []res.RespStock, err error) {
+func (c *adminDatabase) FindAllStockDetails(ctx context.Context, pagination req.Pagination) (stocks []res.Stock, err error) {
 
 	limit := pagination.Count
 	offset := (pagination.PageNumber - 1) * limit
@@ -119,7 +119,7 @@ func (c *adminDatabase) FindAllStockDetails(ctx context.Context, pagination req.
 	return stocks, nil
 }
 
-func (c *adminDatabase) UpdateStock(ctx context.Context, valuesToUpdate req.ReqUpdateStock) error {
+func (c *adminDatabase) UpdateStock(ctx context.Context, valuesToUpdate req.UpdateStock) error {
 
 	query := `UPDATE product_items SET qty_in_stock = qty_in_stock + $1 WHERE sku = $2`
 

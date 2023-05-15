@@ -4,12 +4,12 @@ import (
 	"time"
 )
 
-type ResEmailAndPhone struct {
+type EmailAndPhone struct {
 	Email string `json:"email"`
 	Phone string `json:"phone"`
 }
 
-type ResUserOrder struct {
+type UserOrder struct {
 	AmountToPay uint `json:"amount_to_pay"`
 	Discount    uint `json:"discount"`
 	CouponID    uint `json:"coupon_id"`
@@ -25,7 +25,7 @@ type PlaceOrder struct {
 	AddressID       uint   `json:"address_id"`
 }
 
-type ResOrderItem struct {
+type OrderItem struct {
 	ProductItemID uint   `json:"product_item_id"`
 	ProductName   string `json:"product_name"`
 	Image         string `json:""`
@@ -36,12 +36,12 @@ type ResOrderItem struct {
 	Status        string `json:"status"`
 }
 
-type ResShopOrder struct {
+type ShopOrder struct {
 	UserID          uint       `json:"user_id"`
 	ShopOrderID     uint       `json:"shop_order_id"`
 	OrderDate       time.Time  `json:"order_date"`
 	AddressID       uint       `json:"address_id" `
-	Address         ResAddress `json:"address"`
+	Address         Address `json:"address"`
 	OrderTotalPrice uint       `json:"order_total_price" `
 	Discount        uint       `json:"discount"`
 	OrderStatusID   uint       `json:"order_status_id"`
@@ -51,14 +51,14 @@ type ResShopOrder struct {
 }
 
 // checkout
-type ResCheckOut struct {
-	Addresses    []ResAddress  `json:"addresses"`
-	ProductItems []ResCartItem `json:"product_items"`
+type CheckOut struct {
+	Addresses    []Address  `json:"addresses"`
+	ProductItems []CartItem `json:"product_items"`
 	TotalPrice   uint          `json:"total_price"`
 }
 
 // return
-type ResOrderReturn struct {
+type OrderReturn struct {
 	OrderReturnID uint      `json:"order_return_id" copier:"ID"`
 	ShopOrderID   uint      `json:"shop_order_id"`
 	RequestDate   time.Time `json:"request_date" `
@@ -74,7 +74,7 @@ type ResOrderReturn struct {
 }
 
 // razorpay
-type ResRazorpayOrder struct {
+type RazorpayOrder struct {
 	RazorpayKey     string      `json:"razorpay_key"`
 	UserID          uint        `json:"user_id"`
 	AmountToPay     uint        `json:"amount_to_pay"`

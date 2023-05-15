@@ -18,11 +18,11 @@ type OrderRepository interface {
 	// shop order order
 	SaveShopOrder(ctx context.Context, shopOrder domain.ShopOrder) (shopOrderID uint, err error)
 	FindShopOrderByShopOrderID(ctx context.Context, shopOrderID uint) (domain.ShopOrder, error)
-	FindAllShopOrders(ctx context.Context, pagination req.ReqPagination) (shopOrders []res.ResShopOrder, err error)
-	FindAllShopOrdersByUserID(ctx context.Context, userID uint, pagination req.ReqPagination) ([]res.ResShopOrder, error)
+	FindAllShopOrders(ctx context.Context, pagination req.Pagination) (shopOrders []res.ShopOrder, err error)
+	FindAllShopOrdersByUserID(ctx context.Context, userID uint, pagination req.Pagination) ([]res.ShopOrder, error)
 
 	// find shop order items
-	FindAllOrdersItemsByShopOrderID(ctx context.Context, shopOrderID uint, pagination req.ReqPagination) (orderItems []res.ResOrderItem, err error)
+	FindAllOrdersItemsByShopOrderID(ctx context.Context, shopOrderID uint, pagination req.Pagination) (orderItems []res.OrderItem, err error)
 
 	// order status
 	FindOrderStatusByID(ctx context.Context, orderStatusID uint) (domain.OrderStatus, error)
@@ -32,8 +32,8 @@ type OrderRepository interface {
 	//order return
 	FindOrderReturnByReturnID(ctx context.Context, orderReturnID uint) (domain.OrderReturn, error)
 	FindOrderReturnByShopOrderID(ctx context.Context, shopOrderID uint) (orderReturn domain.OrderReturn, err error)
-	FindAllOrderReturns(ctx context.Context, pagination req.ReqPagination) ([]res.ResOrderReturn, error)
-	FindAllPendingOrderReturns(ctx context.Context, pagination req.ReqPagination) ([]res.ResOrderReturn, error)
+	FindAllOrderReturns(ctx context.Context, pagination req.Pagination) ([]res.OrderReturn, error)
+	FindAllPendingOrderReturns(ctx context.Context, pagination req.Pagination) ([]res.OrderReturn, error)
 	SaveOrderReturn(ctx context.Context, orderReturn domain.OrderReturn) error
 	UpdateOrderReturn(ctx context.Context, orderReturn domain.OrderReturn) error
 
@@ -50,5 +50,5 @@ type OrderRepository interface {
 	UpdateWallet(ctx context.Context, walletID, upateTotalAmount uint) error
 	SaveWalletTransaction(ctx context.Context, walletTrx domain.Transaction) error
 
-	FindWalletTransactions(ctx context.Context, walletID uint, pagination req.ReqPagination) (transaction []domain.Transaction, err error)
+	FindWalletTransactions(ctx context.Context, walletID uint, pagination req.Pagination) (transaction []domain.Transaction, err error)
 }

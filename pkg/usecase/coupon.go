@@ -16,10 +16,14 @@ import (
 
 type couponUseCase struct {
 	couponRepo interfaces.CouponRepository
+	cartRepo   interfaces.CartRepository
 }
 
-func NewCouponUseCase(couponRepo interfaces.CouponRepository) service.CouponUseCase {
-	return &couponUseCase{couponRepo: couponRepo}
+func NewCouponUseCase(couponRepo interfaces.CouponRepository, cartRepo interfaces.CartRepository) service.CouponUseCase {
+	return &couponUseCase{
+		couponRepo: couponRepo,
+		cartRepo:   cartRepo,
+	}
 }
 
 func (c *couponUseCase) AddCoupon(ctx context.Context, coupon domain.Coupon) error {
@@ -52,7 +56,7 @@ func (c *couponUseCase) AddCoupon(ctx context.Context, coupon domain.Coupon) err
 
 	return nil
 }
-func (c *couponUseCase) GetAllCoupons(ctx context.Context, pagination req.ReqPagination) (coupons []domain.Coupon, err error) {
+func (c *couponUseCase) GetAllCoupons(ctx context.Context, pagination req.Pagination) (coupons []domain.Coupon, err error) {
 
 	coupons, err = c.couponRepo.FindAllCoupons(ctx, pagination)
 	if err != nil {
@@ -64,7 +68,7 @@ func (c *couponUseCase) GetAllCoupons(ctx context.Context, pagination req.ReqPag
 }
 
 // get all coupon for user
-func (c *couponUseCase) GetCouponsForUser(ctx context.Context, userID uint, pagination req.ReqPagination) (coupons []res.ResUserCoupon, err error) {
+func (c *couponUseCase) GetCouponsForUser(ctx context.Context, userID uint, pagination req.Pagination) (coupons []res.UserCoupon, err error) {
 
 	coupons, err = c.couponRepo.FindAllCouponForUser(ctx, userID, pagination)
 
@@ -140,7 +144,7 @@ func (c *couponUseCase) ApplyCouponToCart(ctx context.Context, userID uint, coup
 	}
 
 	// get the cart of user
-	cart, err := c.couponRepo.FindCartByUserID(ctx, userID)
+	cart, err := c.cartRepo.FindCartByUserID(ctx, userID)
 	if err != nil {
 		return discountAmount, err
 	} else if cart.CartID == 0 {
@@ -164,7 +168,7 @@ func (c *couponUseCase) ApplyCouponToCart(ctx context.Context, userID uint, coup
 	// calculate a discount for cart
 	discountAmount = (cart.TotalPrice * coupon.DiscountRate) / 100
 	// update the cart
-	err = c.couponRepo.UpdateCart(ctx, cart.CartID, discountAmount, coupon.CouponID)
+	err = c.cartRepo.UpdateCart(ctx, cart.CartID, discountAmount, coupon.CouponID)
 	if err != nil {
 		return discountAmount, err
 	}

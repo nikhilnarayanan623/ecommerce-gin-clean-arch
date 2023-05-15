@@ -36,7 +36,7 @@ func (c *cartUseCase) GetUserCart(ctx context.Context, userID uint) (cart domain
 	return cart, nil
 }
 
-func (c *cartUseCase) SaveToCart(ctx context.Context, body req.ReqCart) (err error) {
+func (c *cartUseCase) SaveToCart(ctx context.Context, body req.Cart) (err error) {
 
 	// get the productitem to check product is valid
 	productItem, err := c.productRepo.FindProductItem(ctx, body.ProductItemID)
@@ -80,7 +80,7 @@ func (c *cartUseCase) SaveToCart(ctx context.Context, body req.ReqCart) (err err
 	return nil
 }
 
-func (c *cartUseCase) RemoveCartItem(ctx context.Context, body req.ReqCart) error {
+func (c *cartUseCase) RemoveCartItem(ctx context.Context, body req.Cart) error {
 
 	// validate the product
 	productItem, err := c.productRepo.FindProductItem(ctx, body.ProductItemID)
@@ -116,7 +116,7 @@ func (c *cartUseCase) RemoveCartItem(ctx context.Context, body req.ReqCart) erro
 	return nil
 }
 
-func (c *cartUseCase) UpdateCartItem(ctx context.Context, body req.ReqCartCount) error {
+func (c *cartUseCase) UpdateCartItem(ctx context.Context, body req.UpdateCartItem) error {
 
 	//check the given product_item_id is valid or not
 	productItem, err := c.productRepo.FindProductItem(ctx, body.ProductItemID)
@@ -160,7 +160,7 @@ func (c *cartUseCase) UpdateCartItem(ctx context.Context, body req.ReqCartCount)
 	return nil
 }
 
-func (c *cartUseCase) GetUserCartItems(ctx context.Context, cartId uint) (cartItems []res.ResCartItem, err error) {
+func (c *cartUseCase) GetUserCartItems(ctx context.Context, cartId uint) (cartItems []res.CartItem, err error) {
 	// get the cart_items of user
 	cartItems, err = c.cartRepo.FindAllCartItemsByCartID(ctx, cartId)
 	if err != nil {

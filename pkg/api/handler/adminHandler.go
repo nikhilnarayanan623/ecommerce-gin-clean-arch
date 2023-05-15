@@ -87,7 +87,7 @@ func (a *AdminHandler) ListUsers(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, response)
 		return
 	}
-	pagination := req.ReqPagination{
+	pagination := req.Pagination{
 		PageNumber: pageNumber,
 		Count:      count,
 	}
@@ -165,15 +165,15 @@ func (c *AdminHandler) FullSalesReport(ctx *gin.Context) {
 	// join all error and send it if its not nil
 	err1 = errors.Join(err1, err2, err3, err4)
 	if err1 != nil {
-		response := res.ErrorResponse(400, "invalid inputs", err1.Error(), req.ReqSalesReport{})
+		response := res.ErrorResponse(400, "invalid inputs", err1.Error(), req.SalesReport{})
 		ctx.JSON(http.StatusBadRequest, response)
 		return
 	}
 
-	reqData := req.ReqSalesReport{
+	reqData := req.SalesReport{
 		StartDate: startDate,
 		EndDate:   endDate,
-		Pagination: req.ReqPagination{
+		Pagination: req.Pagination{
 			Count:      count,
 			PageNumber: pageNumber,
 		},
@@ -242,7 +242,7 @@ func (c *AdminHandler) GetAllStockDetails(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, response)
 		return
 	}
-	pagination := req.ReqPagination{
+	pagination := req.Pagination{
 		PageNumber: pageNumber,
 		Count:      count,
 	}
@@ -267,7 +267,7 @@ func (c *AdminHandler) GetAllStockDetails(ctx *gin.Context) {
 
 func (c *AdminHandler) UpdateStock(ctx *gin.Context) {
 
-	var body req.ReqUpdateStock
+	var body req.UpdateStock
 
 	err := ctx.ShouldBindJSON(&body)
 	if err != nil {

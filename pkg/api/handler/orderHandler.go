@@ -66,14 +66,14 @@ func (c *OrderHandler) CartOrderPayementSelectPage(ctx *gin.Context) {
 // @security ApiKeyAuth
 // @tags User Cart
 // @id PlaceOrderCartCOD
-// @Param        inputs   body     req.ReqPlaceOrder{}   true  "Input Field"
+// @Param        inputs   body     req.PlaceOrder{}   true  "Input Field"
 // @Router /carts/place-order/cod [post]
 // @Success 200 {object} res.Response{} "successfully order placed in COD"
 // @Failure 400 {object} res.Response{}  "invalid input"
 // @Failure 500 {object} res.Response{}  "faild to save shop order"
 func (c *OrderHandler) PlaceOrderCartCOD(ctx *gin.Context) {
 
-	var body req.ReqPlaceOrder
+	var body req.PlaceOrder
 	if err := ctx.ShouldBindJSON(&body); err != nil {
 		response := res.ErrorResponse(400, "invalid input", err.Error(), body)
 		ctx.JSON(http.StatusBadRequest, response)
@@ -158,7 +158,7 @@ func (c *OrderHandler) GetUserOrder(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, response)
 		return
 	}
-	pagination := req.ReqPagination{
+	pagination := req.Pagination{
 		PageNumber: pageNumber,
 		Count:      count,
 	}
@@ -217,7 +217,7 @@ func (c *OrderHandler) GetOrderItemsByShopOrderItems(ctx *gin.Context) {
 		return
 	}
 
-	pagination := req.ReqPagination{
+	pagination := req.Pagination{
 		PageNumber: pageNumber,
 		Count:      count,
 	}
@@ -251,7 +251,7 @@ func (c *OrderHandler) GetOrderItemsByShopOrderItems(ctx *gin.Context) {
 // @Failure 400 {object} res.Response{} "invalid input"
 func (c *OrderHandler) UdateOrderStatus(ctx *gin.Context) {
 
-	var body req.ReqUpdateOrder
+	var body req.UpdateOrder
 
 	if err := ctx.ShouldBindJSON(&body); err != nil {
 		response := res.ErrorResponse(400, "invalid input", err.Error(), nil)
@@ -321,7 +321,7 @@ func (c *OrderHandler) GetAllShopOrders(ctx *gin.Context) {
 		return
 	}
 
-	pagination := req.ReqPagination{
+	pagination := req.Pagination{
 		PageNumber: pageNumber,
 		Count:      count,
 	}
@@ -348,19 +348,20 @@ func (c *OrderHandler) GetAllShopOrders(ctx *gin.Context) {
 // @description user can request return for placed orders
 // @id SubmitReturnRequest
 // @tags User Orders
-// @Param input body req.ReqReturn true "Input Fields"
+// @Param input body req.Return true "Input Fields"
 // @Router /orders/return [post]
 // @Success 200 {object} res.Response{} "successfully submited return request for order"
 // @Failure 400 {object} res.Response{} "invalid input"
 func (c OrderHandler) SubmitReturnRequest(ctx *gin.Context) {
-	var body req.ReqReturn
+
+	var body req.Return
 	if err := ctx.ShouldBindJSON(&body); err != nil {
 		response := res.ErrorResponse(400, "invalid input", err.Error(), nil)
 		ctx.JSON(http.StatusBadRequest, response)
 		return
 	}
 
-	err := c.orderUseCase.SubmitReturnRequest(ctx, body)
+	err := c.orderUseCase.SubmitReturnuest(ctx, body)
 	if err != nil {
 		response := res.ErrorResponse(400, "faild to place return request", err.Error(), nil)
 		ctx.JSON(http.StatusBadRequest, response)
@@ -393,7 +394,7 @@ func (c *OrderHandler) GetAllOrderReturns(ctx *gin.Context) {
 		return
 	}
 
-	pagination := req.ReqPagination{
+	pagination := req.Pagination{
 		PageNumber: pageNumber,
 		Count:      count,
 	}
@@ -438,7 +439,7 @@ func (c *OrderHandler) GetAllPendingReturns(ctx *gin.Context) {
 		return
 	}
 
-	pagination := req.ReqPagination{
+	pagination := req.Pagination{
 		PageNumber: pageNumber,
 		Count:      count,
 	}

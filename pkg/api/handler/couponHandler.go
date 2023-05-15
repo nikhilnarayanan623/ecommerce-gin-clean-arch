@@ -27,13 +27,13 @@ func NewCouponHandler(couponUseCase interfaces.CouponUseCase) handlerInterface.C
 // @security ApiKeyAuth
 // @tags Admin Coupon
 // @id AddCoupon
-// @Param        inputs   body     req.ReqCoupon{}   true  "Input Field"
+// @Param        inputs   body     req.Coupon{}   true  "Input Field"
 // @Router /admin/coupons [post]
 // @Success 200 {object} res.Response{} "successfully coupon added"
 // @Failure 400 {object} res.Response{}  "invalid input"
 func (c *CouponHandler) AddCoupon(ctx *gin.Context) {
 
-	var body req.ReqCoupon
+	var body req.Coupon
 
 	if err := ctx.ShouldBindJSON(&body); err != nil {
 		response := res.ErrorResponse(400, "invalid input", err.Error(), body)
@@ -77,7 +77,7 @@ func (c *CouponHandler) GetAllCoupons(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, response)
 		return
 	}
-	pagination := req.ReqPagination{
+	pagination := req.Pagination{
 		PageNumber: pageNumber,
 		Count:      count,
 	}
@@ -121,7 +121,7 @@ func (c *CouponHandler) GetAllCouponsForUser(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, response)
 		return
 	}
-	pagination := req.ReqPagination{
+	pagination := req.Pagination{
 		PageNumber: pageNumber,
 		Count:      count,
 	}
@@ -155,7 +155,7 @@ func (c *CouponHandler) GetAllCouponsForUser(ctx *gin.Context) {
 // @Failure 400 {object} res.Response{}  "invalid input"
 func (c *CouponHandler) UpdateCoupon(ctx *gin.Context) {
 
-	var body req.ReqEditCoupon
+	var body req.EditCoupon
 
 	if err := ctx.ShouldBindJSON(&body); err != nil {
 		response := res.ErrorResponse(400, "invalid input", err.Error(), body)
@@ -189,7 +189,7 @@ func (c *CouponHandler) UpdateCoupon(ctx *gin.Context) {
 // @Failure 400 {object} res.Response{}  "invalid input"
 func (c *CouponHandler) ApplyCouponToCart(ctx *gin.Context) {
 
-	var body req.ReqApplyCoupon
+	var body req.ApplyCoupon
 
 	if err := ctx.ShouldBindJSON(&body); err != nil {
 		response := res.ErrorResponse(400, "invalid input", err.Error(), body)

@@ -54,7 +54,7 @@ func (c *OrderDatabase) SaveWalletTransaction(ctx context.Context, walletTrx dom
 
 // find wallet transaction history
 
-func (c *OrderDatabase) FindWalletTransactions(ctx context.Context, walletID uint, pagination req.ReqPagination) (transaction []domain.Transaction, err error) {
+func (c *OrderDatabase) FindWalletTransactions(ctx context.Context, walletID uint, pagination req.Pagination) (transaction []domain.Transaction, err error) {
 
 	limit := pagination.Count
 	offset := (pagination.PageNumber - 1) * limit

@@ -11,15 +11,15 @@ import (
 type AdminUseCase interface {
 	SignUp(ctx context.Context, admin domain.Admin) error
 
-	FindAllUser(ctx context.Context, pagination req.ReqPagination) (users []res.UserRespStrcut, err error)
+	FindAllUser(ctx context.Context, pagination req.Pagination) (users []res.User, err error)
 	BlockOrUblockUser(ctx context.Context, blockDetails req.BlockUser) error
 
-	GetFullSalesReport(ctx context.Context, requestData req.ReqSalesReport) (salesReport []res.SalesReport, err error)
+	GetFullSalesReport(ctx context.Context, requestData req.SalesReport) (salesReport []res.SalesReport, err error)
 
 	// stock side
-	GetAllStockDetails(ctx context.Context, pagination req.ReqPagination) (stocks []res.RespStock, err error)
-	UpdateStock(ctx context.Context, valuesToUpdate req.ReqUpdateStock) error
+	GetAllStockDetails(ctx context.Context, pagination req.Pagination) (stocks []res.Stock, err error)
+	UpdateStock(ctx context.Context, valuesToUpdate req.UpdateStock) error
 }
 
-// GetCategory(ctx context.Context) (helper.ReqCategory, any)
-// 	SetCategory(ctx context.Context, body helper.ReqCategory)
+// GetCategory(ctx context.Context) (helper.Category, any)
+// 	SetCategory(ctx context.Context, body helper.Category)
