@@ -59,22 +59,6 @@ func (c *adminDatabase) FindAllUser(ctx context.Context, pagination req.ReqPagin
 	return users, err
 }
 
-func (c *adminDatabase) BlockUser(ctx context.Context, userID uint) error {
-
-	// first check ther user is valid or not
-	var user domain.User
-	c.DB.Raw("SELECT * FROM users WHERE id=?", userID).Scan(&user)
-	if user.Email == "" { // here given id so check with email
-		return errors.New("invalid user id user doesn't exist")
-	}
-
-	query := `UPDATE users SET block_status = $1 WHERE id = $2`
-	if c.DB.Exec(query, !user.BlockStatus, userID).Error != nil {
-		return fmt.Errorf("faild update user block_status to %v", !user.BlockStatus)
-	}
-	return nil
-}
-
 // sales report from order // !add  product wise report
 func (c *adminDatabase) CreateFullSalesReport(ctc context.Context, reqData req.ReqSalesReport) (salesReport []res.SalesReport, err error) {
 

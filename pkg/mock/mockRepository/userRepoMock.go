@@ -287,6 +287,20 @@ func (mr *MockUserRepositoryMockRecorder) UpdateAddress(arg0, arg1 interface{}) 
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateAddress", reflect.TypeOf((*MockUserRepository)(nil).UpdateAddress), arg0, arg1)
 }
 
+// UpdateBlockStatus mocks base method.
+func (m *MockUserRepository) UpdateBlockStatus(arg0 context.Context, arg1 uint, arg2 bool) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UpdateBlockStatus", arg0, arg1, arg2)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// UpdateBlockStatus indicates an expected call of UpdateBlockStatus.
+func (mr *MockUserRepositoryMockRecorder) UpdateBlockStatus(arg0, arg1, arg2 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateBlockStatus", reflect.TypeOf((*MockUserRepository)(nil).UpdateBlockStatus), arg0, arg1, arg2)
+}
+
 // UpdateUser mocks base method.
 func (m *MockUserRepository) UpdateUser(arg0 context.Context, arg1 domain.User) error {
 	m.ctrl.T.Helper()

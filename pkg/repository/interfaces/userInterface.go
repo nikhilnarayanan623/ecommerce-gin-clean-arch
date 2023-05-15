@@ -17,6 +17,7 @@ type UserRepository interface {
 
 	SaveUser(ctx context.Context, user domain.User) (userID uint, err error)
 	UpdateUser(ctx context.Context, user domain.User) (err error)
+	UpdateBlockStatus(ctx context.Context, userID uint, blockStatus bool)error
 
 	//address
 	FindCountryByID(ctx context.Context, countryID uint) (domain.Country, error)                          // find country by id
