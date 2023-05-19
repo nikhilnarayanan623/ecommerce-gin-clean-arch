@@ -1,12 +1,4 @@
-#Igonore Env file
+
 .env
-
-# Dependency directories (remove the comment below to include it)
-vendor/
-
-# remove build file and air auto reloading
-build/bin/*
-./cmd/api/tmp
-./tmp
-
-./cmd/api/docs
+build/
+config/
