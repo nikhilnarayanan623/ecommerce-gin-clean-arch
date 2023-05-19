@@ -97,7 +97,6 @@ func (c *OrderDatabase) FindAllShopOrders(ctx context.Context, pagination req.Pa
 		if c.DB.Raw(query, order.AddressID).Scan(&address).Error != nil {
 			return shopOrders, errors.New("faild to get addresses")
 		}
-		fmt.Println(address, order.AddressID)
 		shopOrders[i].Address = address
 	}
 	return shopOrders, nil
