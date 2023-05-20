@@ -13,7 +13,7 @@ services:
       - database:/var/lib/postgresql/data
 # webapp container
   app:
-    image: nikhil382/ecommerce-gin-clean-arch:1.0
+    image: nikhil382/ecommerce-gin-clean-arch
     ports:
       - 8000:8000
     environment:
