@@ -36,14 +36,14 @@ func UserRoutes(api *gin.RouterGroup, authHandler handlerInterface.AuthHandler, 
 	{
 
 		api.GET("/", userHandler.Home)
-		// 	api.POST("/logout", userHandler.UserLogout)
+		// api.POST("/logout", userHandler.UserLogout)
 
-		// 	// products
-		// 	products := api.Group("/products")
-		// 	{
-		// 		products.GET("/", ProductHandler.ListProducts)                            // show products
-		// 		products.GET("/product-item/:product_id", ProductHandler.GetProductItems) // show product items of a product
-		// 	}
+		// products
+		products := api.Group("/products")
+		{
+			products.GET("/", ProductHandler.GetAllProducts)                          // show products
+			products.GET("/product-item/:product_id", ProductHandler.GetProductItems) // show product items of a product
+		}
 
 		// 	// cart
 		cart := api.Group("/carts")

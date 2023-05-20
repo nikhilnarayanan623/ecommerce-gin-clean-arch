@@ -153,28 +153,28 @@ func (p *ProductHandler) AddVariationOption(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, response)
 }
 
-// ListProducts-Admin godoc
+// GetAllProducts-Admin godoc
 // @summary api for admin to show products
 // @security ApiKeyAuth
 // @tags Admin Products
-// @id ListProducts-Admin
+// @id GetAllProducts-Admin
 // @Param page_number query int false "Page Number"
 // @Param count query int false "Count Of Order"
 // @Router /admin/products [get]
 // @Success 200 {object} res.Response{} "successfully got all products"
 // @Failure 500 {object} res.Response{}  "faild to get all products"
 
-// ListProducts-User godoc
+// GetAllProducts-User godoc
 // @summary api for user to show products
 // @security ApiKeyAuth
 // @tags User Products
-// @id ListProducts-User
+// @id GetAllProducts-User
 // @Param page_number query int false "Page Number"
 // @Param count query int false "Count Of Order"
 // @Router /products [get]
 // @Success 200 {object} res.Response{} "successfully got all products"
 // @Failure 500 {object} res.Response{}  "faild to get all products"
-func (p *ProductHandler) ListProducts(ctx *gin.Context) {
+func (p *ProductHandler) GetAllProducts(ctx *gin.Context) {
 
 	count, err1 := utils.StringToUint(ctx.Query("count"))
 	pageNumber, err2 := utils.StringToUint(ctx.Query("page_number"))
