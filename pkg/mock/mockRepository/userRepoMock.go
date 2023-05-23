@@ -37,10 +37,10 @@ func (m *MockUserRepository) EXPECT() *MockUserRepositoryMockRecorder {
 }
 
 // FindAddressByID mocks base method.
-func (m *MockUserRepository) FindAddressByID(arg0 context.Context, arg1 uint) (domain.Address, error) {
+func (m *MockUserRepository) FindAddressByID(arg0 context.Context, arg1 uint) (res.Address, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "FindAddressByID", arg0, arg1)
-	ret0, _ := ret[0].(domain.Address)
+	ret0, _ := ret[0].(res.Address)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -49,21 +49,6 @@ func (m *MockUserRepository) FindAddressByID(arg0 context.Context, arg1 uint) (d
 func (mr *MockUserRepositoryMockRecorder) FindAddressByID(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindAddressByID", reflect.TypeOf((*MockUserRepository)(nil).FindAddressByID), arg0, arg1)
-}
-
-// FindAddressByUserID mocks base method.
-func (m *MockUserRepository) FindAddressByUserID(arg0 context.Context, arg1 domain.Address, arg2 uint) (domain.Address, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "FindAddressByUserID", arg0, arg1, arg2)
-	ret0, _ := ret[0].(domain.Address)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// FindAddressByUserID indicates an expected call of FindAddressByUserID.
-func (mr *MockUserRepositoryMockRecorder) FindAddressByUserID(arg0, arg1, arg2 interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindAddressByUserID", reflect.TypeOf((*MockUserRepository)(nil).FindAddressByUserID), arg0, arg1, arg2)
 }
 
 // FindAllAddressByUserID mocks base method.
@@ -199,6 +184,36 @@ func (m *MockUserRepository) FindWishListItem(arg0 context.Context, arg1, arg2 u
 func (mr *MockUserRepositoryMockRecorder) FindWishListItem(arg0, arg1, arg2 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindWishListItem", reflect.TypeOf((*MockUserRepository)(nil).FindWishListItem), arg0, arg1, arg2)
+}
+
+// IsAddressAlreadyExistForUser mocks base method.
+func (m *MockUserRepository) IsAddressAlreadyExistForUser(arg0 context.Context, arg1 domain.Address, arg2 uint) (bool, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "IsAddressAlreadyExistForUser", arg0, arg1, arg2)
+	ret0, _ := ret[0].(bool)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// IsAddressAlreadyExistForUser indicates an expected call of IsAddressAlreadyExistForUser.
+func (mr *MockUserRepositoryMockRecorder) IsAddressAlreadyExistForUser(arg0, arg1, arg2 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "IsAddressAlreadyExistForUser", reflect.TypeOf((*MockUserRepository)(nil).IsAddressAlreadyExistForUser), arg0, arg1, arg2)
+}
+
+// IsAddressIDExist mocks base method.
+func (m *MockUserRepository) IsAddressIDExist(arg0 context.Context, arg1 uint) (bool, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "IsAddressIDExist", arg0, arg1)
+	ret0, _ := ret[0].(bool)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// IsAddressIDExist indicates an expected call of IsAddressIDExist.
+func (mr *MockUserRepositoryMockRecorder) IsAddressIDExist(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "IsAddressIDExist", reflect.TypeOf((*MockUserRepository)(nil).IsAddressIDExist), arg0, arg1)
 }
 
 // RemoveWishListItem mocks base method.

@@ -17,17 +17,18 @@ type UserRepository interface {
 
 	SaveUser(ctx context.Context, user domain.User) (userID uint, err error)
 	UpdateUser(ctx context.Context, user domain.User) (err error)
-	UpdateBlockStatus(ctx context.Context, userID uint, blockStatus bool)error
+	UpdateBlockStatus(ctx context.Context, userID uint, blockStatus bool) error
 
 	//address
-	FindCountryByID(ctx context.Context, countryID uint) (domain.Country, error)                          // find country by id
-	FindAddressByID(ctx context.Context, addressID uint) (domain.Address, error)                          // find address by id
-	FindAddressByUserID(ctx context.Context, address domain.Address, userID uint) (domain.Address, error) // find address with userID and addres values
-	FindAllAddressByUserID(ctx context.Context, userID uint) ([]res.Address, error)                    // to get all address of user
-	SaveAddress(ctx context.Context, address domain.Address) (addressID uint, err error)                  // save a full address
+	FindCountryByID(ctx context.Context, countryID uint) (domain.Country, error)
+	FindAddressByID(ctx context.Context, addressID uint) (res.Address, error)
+	IsAddressIDExist(ctx context.Context, addressID uint) (exist bool, err error)
+	IsAddressAlreadyExistForUser(ctx context.Context, address domain.Address, userID uint) (bool, error)
+	FindAllAddressByUserID(ctx context.Context, userID uint) ([]res.Address, error)
+	SaveAddress(ctx context.Context, address domain.Address) (addressID uint, err error)
 	UpdateAddress(ctx context.Context, address domain.Address) error
 	// address join table
-	SaveUserAddress(ctx context.Context, userAdress domain.UserAddress) error // save address for user(join table)
+	SaveUserAddress(ctx context.Context, userAdress domain.UserAddress) error
 	UpdateUserAddress(ctx context.Context, userAddress domain.UserAddress) error
 
 	//wishlist

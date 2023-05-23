@@ -101,9 +101,14 @@ func (c *userDatabse) UpdateBlockStatus(ctx context.Context, userID uint, blockS
 	return err
 }
 
-func (c *userDatabse) FindAddressByID(ctx context.Context, addressID uint) (domain.Address, error) {
+func (c *userDatabse) IsAddressIDExist(ctx context.Context, addressID uint) (exist bool, err error) {
+	query := `SELECT EXISTS(SELECT 1 FROM addresses WHERE id = $1) AS exist FROM addresses`
+	err = c.DB.Raw(query, addressID).Scan(&exist).Error
 
-	var address domain.Address
+	return
+}
+func (c *userDatabse) FindAddressByID(ctx context.Context, addressID uint) (res.Address, error) {
+	var address res.Address
 	query := `SELECT * FROM addresses WHERE id=?`
 	if c.DB.Raw(query, addressID).Scan(&address).Error != nil {
 		return address, errors.New("faild to find address")
@@ -112,7 +117,6 @@ func (c *userDatabse) FindAddressByID(ctx context.Context, addressID uint) (doma
 	return address, nil
 }
 
-// find address with userId and addressess
 func (c *userDatabse) FindAddressByUserID(ctx context.Context, address domain.Address, userID uint) (domain.Address, error) {
 
 	// find the address with house,land_mark,pincode,coutry_id
@@ -123,6 +127,14 @@ func (c *userDatabse) FindAddressByUserID(ctx context.Context, address domain.Ad
 		return address, errors.New("faild to find the address")
 	}
 	return address, nil
+}
+func (c *userDatabse) IsAddressAlreadyExistForUser(ctx context.Context, address domain.Address, userID uint) (bool, error) {
+	var exist bool
+	query := `SELECT CASE WHEN (SELECT id FROM addresses WHERE name = $1 AND house = $2 AND land_mark = $3 
+        AND pincode = $4 AND country_id = $5)  != 0 THEN 'T' ELSE 'F' END AS exist 
+		FROM user_addresses AS urs WHERE urs.user_id = $6`
+	err := c.DB.Raw(query, address.Name, address.House, address.LandMark, address.Pincode, address.CountryID, userID).Scan(&exist).Error
+	return exist, err
 }
 
 func (c *userDatabse) FindAllAddressByUserID(ctx context.Context, userID uint) ([]res.Address, error) {
