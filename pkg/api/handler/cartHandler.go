@@ -146,14 +146,14 @@ func (u *cartHandler) ShowCart(ctx *gin.Context) {
 	}
 
 	// user have not cart created
-	if cart.CartID == 0 {
+	if cart.ID == 0 {
 		respone := res.SuccessResponse(200, "user didn't add any product in cart", nil)
 		ctx.JSON(http.StatusOK, respone)
 		return
 	}
 
 	// get user cart items
-	cartItems, err := u.carUseCase.GetUserCartItems(ctx, cart.CartID)
+	cartItems, err := u.carUseCase.GetUserCartItems(ctx, cart.ID)
 	if err != nil {
 		response := res.ErrorResponse(500, "faild to get cart items", err.Error(), nil)
 		ctx.JSON(http.StatusInternalServerError, response)

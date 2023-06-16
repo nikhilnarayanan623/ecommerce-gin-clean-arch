@@ -79,7 +79,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/req.ReqEditUser"
+                            "$ref": "#/definitions/req.EditUser"
                         }
                     }
                 ],
@@ -146,7 +146,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/req.ReqEditAddress"
+                            "$ref": "#/definitions/req.EditAddress"
                         }
                     }
                 ],
@@ -184,7 +184,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/req.ReqAddress"
+                            "$ref": "#/definitions/req.Address"
                         }
                     }
                 ],
@@ -305,7 +305,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/req.ReqVariation"
+                            "$ref": "#/definitions/req.Variation"
                         }
                     }
                 ],
@@ -344,7 +344,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/req.ReqVariationOption"
+                            "$ref": "#/definitions/req.VariationOption"
                         }
                     }
                 ],
@@ -423,7 +423,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/req.ReqEditCoupon"
+                            "$ref": "#/definitions/req.EditCoupon"
                         }
                     }
                 ],
@@ -460,7 +460,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/req.ReqCoupon"
+                            "$ref": "#/definitions/req.Coupon"
                         }
                     }
                 ],
@@ -473,46 +473,6 @@ const docTemplate = `{
                     },
                     "400": {
                         "description": "invalid input",
-                        "schema": {
-                            "$ref": "#/definitions/res.Response"
-                        }
-                    }
-                }
-            }
-        },
-        "/admin/login": {
-            "post": {
-                "tags": [
-                    "Admin Login"
-                ],
-                "summary": "api for admin to login",
-                "operationId": "AdminLogin",
-                "parameters": [
-                    {
-                        "description": "inputs",
-                        "name": "input",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/req.LoginStruct"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "successfully logged in",
-                        "schema": {
-                            "$ref": "#/definitions/res.Response"
-                        }
-                    },
-                    "400": {
-                        "description": "invalid input",
-                        "schema": {
-                            "$ref": "#/definitions/res.Response"
-                        }
-                    },
-                    "500": {
-                        "description": "faild to generate jwt token",
                         "schema": {
                             "$ref": "#/definitions/res.Response"
                         }
@@ -534,7 +494,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/req.ReqOffer"
+                            "$ref": "#/definitions/req.Offer"
                         }
                     }
                 ],
@@ -612,7 +572,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/req.ReqOfferCategory"
+                            "$ref": "#/definitions/req.OfferCategory"
                         }
                     }
                 ],
@@ -646,7 +606,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/req.ReqOfferCategory"
+                            "$ref": "#/definitions/req.OfferCategory"
                         }
                     }
                 ],
@@ -701,7 +661,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/req.ReqOfferProduct"
+                            "$ref": "#/definitions/req.OfferProduct"
                         }
                     }
                 ],
@@ -733,7 +693,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/req.ReqOfferProduct"
+                            "$ref": "#/definitions/req.OfferProduct"
                         }
                     }
                 ],
@@ -838,7 +798,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/req.ReqUpdateOrder"
+                            "$ref": "#/definitions/req.UpdateOrder"
                         }
                     }
                 ],
@@ -946,7 +906,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/req.ReqUpdatReturnOrder"
+                            "$ref": "#/definitions/req.UpdatOrderReturn"
                         }
                     }
                 ],
@@ -994,6 +954,98 @@ const docTemplate = `{
                 }
             }
         },
+        "/admin/payment-method": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "tags": [
+                    "User Payment"
+                ],
+                "summary": "api for get all payment methods",
+                "operationId": "GetAllPaymentMethods",
+                "responses": {
+                    "200": {
+                        "description": "successfully get payment method",
+                        "schema": {
+                            "$ref": "#/definitions/res.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "faild to get all payment methods",
+                        "schema": {
+                            "$ref": "#/definitions/res.Response"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "tags": [
+                    "Admin Payment"
+                ],
+                "summary": "api for admin to update payment details",
+                "operationId": "UpdatePaymentMethod",
+                "responses": {
+                    "200": {
+                        "description": "successfully updated payment method",
+                        "schema": {
+                            "$ref": "#/definitions/res.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "faild to bind input",
+                        "schema": {
+                            "$ref": "#/definitions/res.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "faild to update payment details",
+                        "schema": {
+                            "$ref": "#/definitions/res.Response"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "tags": [
+                    "Admin Payment"
+                ],
+                "summary": "api for admin to add a new payment method",
+                "operationId": "AddPaymentMethod",
+                "responses": {
+                    "200": {
+                        "description": "successfully payment added",
+                        "schema": {
+                            "$ref": "#/definitions/res.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "faild to bind input",
+                        "schema": {
+                            "$ref": "#/definitions/res.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "faild to add payment method",
+                        "schema": {
+                            "$ref": "#/definitions/res.Response"
+                        }
+                    }
+                }
+            }
+        },
         "/admin/products": {
             "put": {
                 "tags": [
@@ -1008,7 +1060,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/req.ReqProductUpdate"
+                            "$ref": "#/definitions/req.UpdateProduct"
                         }
                     }
                 ],
@@ -1040,7 +1092,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/req.ReqProduct"
+                            "$ref": "#/definitions/req.Product"
                         }
                     }
                 ],
@@ -1074,7 +1126,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/req.ReqProductItem"
+                            "$ref": "#/definitions/req.ProductItem"
                         }
                     }
                 ],
@@ -1194,7 +1246,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/req.BlockStruct"
+                            "$ref": "#/definitions/req.BlockUser"
                         }
                     }
                 ],
@@ -1261,7 +1313,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/req.ReqCartCount"
+                            "$ref": "#/definitions/req.UpdateCartItem"
                         }
                     }
                 ],
@@ -1296,7 +1348,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/req.ReqCart"
+                            "$ref": "#/definitions/req.Cart"
                         }
                     }
                 ],
@@ -1328,7 +1380,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/req.ReqCart"
+                            "$ref": "#/definitions/req.Cart"
                         }
                     }
                 ],
@@ -1389,6 +1441,34 @@ const docTemplate = `{
                 }
             }
         },
+        "/carts/checkout/payemt-select-page": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "tags": [
+                    "User Payment"
+                ],
+                "summary": "api for render the html page of payment select",
+                "operationId": "CartOrderPayementSelectPage",
+                "responses": {
+                    "200": {
+                        "description": "successfully order placed",
+                        "schema": {
+                            "$ref": "#/definitions/res.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "faild to render payment page",
+                        "schema": {
+                            "$ref": "#/definitions/res.Response"
+                        }
+                    }
+                }
+            }
+        },
         "/carts/coupons": {
             "patch": {
                 "security": [
@@ -1408,7 +1488,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/req.ReqApplyCoupon"
+                            "$ref": "#/definitions/req.ApplyCoupon"
                         }
                     }
                 ],
@@ -1428,6 +1508,51 @@ const docTemplate = `{
                 }
             }
         },
+        "/carts/place-order/": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "tags": [
+                    "User Cart"
+                ],
+                "summary": "api for user to place an order on cart with COD",
+                "operationId": "PlaceOrder",
+                "parameters": [
+                    {
+                        "description": "Input Field",
+                        "name": "inputs",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/req.OrderPayment"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successfully order placed",
+                        "schema": {
+                            "$ref": "#/definitions/res.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "invalid input",
+                        "schema": {
+                            "$ref": "#/definitions/res.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "faild to save shop order",
+                        "schema": {
+                            "$ref": "#/definitions/res.Response"
+                        }
+                    }
+                }
+            }
+        },
         "/carts/place-order/cod": {
             "post": {
                 "security": [
@@ -1439,7 +1564,7 @@ const docTemplate = `{
                     "User Cart"
                 ],
                 "summary": "api for user to place an order on cart with COD",
-                "operationId": "PlaceOrderCartCOD",
+                "operationId": "ApproveOrderCOD",
                 "parameters": [
                     {
                         "description": "Input Field",
@@ -1447,7 +1572,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/req.ReqPlaceOrder"
+                            "$ref": "#/definitions/req.OrderPayment"
                         }
                     }
                 ],
@@ -1483,8 +1608,8 @@ const docTemplate = `{
                 "tags": [
                     "User Cart"
                 ],
-                "summary": "api for create an razorpay order",
-                "operationId": "RazorpayPage",
+                "summary": "api for create razorpay payment order for shop order",
+                "operationId": "RazorpayCheckout",
                 "parameters": [
                     {
                         "type": "integer",
@@ -1495,21 +1620,21 @@ const docTemplate = `{
                     },
                     {
                         "type": "integer",
-                        "description": "Address ID",
-                        "name": "address_id",
+                        "description": "ShopOrder ID",
+                        "name": "shop_order_id",
                         "in": "formData",
                         "required": true
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "place order",
+                        "description": "successfully razorpay payment order created",
                         "schema": {
                             "$ref": "#/definitions/res.Response"
                         }
                     },
                     "400": {
-                        "description": "faill place order",
+                        "description": "faild to create razorpay payment order",
                         "schema": {
                             "$ref": "#/definitions/res.Response"
                         }
@@ -1531,24 +1656,38 @@ const docTemplate = `{
                 "operationId": "RazorpayVerify",
                 "parameters": [
                     {
-                        "type": "integer",
-                        "description": "Payment Method ID",
-                        "name": "payment_method_id",
-                        "in": "formData",
-                        "required": true
-                    },
-                    {
-                        "type": "integer",
-                        "description": "Address ID",
-                        "name": "address_id",
+                        "type": "string",
+                        "description": "razorpay_order_id",
+                        "name": "razorpay_order_id",
                         "in": "formData",
                         "required": true
                     },
                     {
                         "type": "string",
-                        "description": "Coupon Code",
-                        "name": "coupon_code",
+                        "description": "razorpay_payment_id",
+                        "name": "razorpay_payment_id",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "razorpay_signature",
+                        "name": "razorpay_signature",
                         "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "shop_order_id",
+                        "name": "shop_order_id",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "payment_method_id",
+                        "name": "payment_method_id",
+                        "in": "formData",
+                        "required": true
                     }
                 ],
                 "responses": {
@@ -1675,7 +1814,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/req.OTPLoginStruct"
+                            "$ref": "#/definitions/req.OTPLogin"
                         }
                     }
                 ],
@@ -1721,7 +1860,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/req.OTPVerifyStruct"
+                            "$ref": "#/definitions/req.OTPVerify"
                         }
                     }
                 ],
@@ -1876,7 +2015,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/req.ReqReturn"
+                            "$ref": "#/definitions/req.Return"
                         }
                     }
                 ],
@@ -1907,7 +2046,7 @@ const docTemplate = `{
                     "User Products"
                 ],
                 "summary": "api for user to show products",
-                "operationId": "ListProducts-User",
+                "operationId": "GetAllProducts-User",
                 "parameters": [
                     {
                         "type": "integer",
@@ -1989,7 +2128,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/req.ReqUserDetails"
+                            "$ref": "#/definitions/req.UserSignUp"
                         }
                     }
                 ],
@@ -2106,105 +2245,7 @@ const docTemplate = `{
                 }
             }
         },
-        "req.BlockStruct": {
-            "type": "object",
-            "required": [
-                "user_id"
-            ],
-            "properties": {
-                "user_id": {
-                    "type": "integer"
-                }
-            }
-        },
-        "req.Login": {
-            "type": "object",
-            "required": [
-                "password"
-            ],
-            "properties": {
-                "email": {
-                    "type": "string"
-                },
-                "password": {
-                    "type": "string",
-                    "maxLength": 30,
-                    "minLength": 5
-                },
-                "phone": {
-                    "type": "string",
-                    "maxLength": 10,
-                    "minLength": 10
-                },
-                "user_name": {
-                    "type": "string",
-                    "maxLength": 15,
-                    "minLength": 3
-                }
-            }
-        },
-        "req.LoginStruct": {
-            "type": "object",
-            "required": [
-                "password"
-            ],
-            "properties": {
-                "email": {
-                    "type": "string"
-                },
-                "password": {
-                    "type": "string",
-                    "maxLength": 30,
-                    "minLength": 5
-                },
-                "phone": {
-                    "type": "string",
-                    "maxLength": 10,
-                    "minLength": 10
-                },
-                "user_name": {
-                    "type": "string",
-                    "maxLength": 15,
-                    "minLength": 3
-                }
-            }
-        },
-        "req.OTPLoginStruct": {
-            "type": "object",
-            "properties": {
-                "email": {
-                    "type": "string"
-                },
-                "phone": {
-                    "type": "string",
-                    "maxLength": 10,
-                    "minLength": 10
-                },
-                "user_name": {
-                    "type": "string",
-                    "maxLength": 16,
-                    "minLength": 3
-                }
-            }
-        },
-        "req.OTPVerifyStruct": {
-            "type": "object",
-            "required": [
-                "otp",
-                "user_id"
-            ],
-            "properties": {
-                "otp": {
-                    "type": "string",
-                    "maxLength": 8,
-                    "minLength": 4
-                },
-                "user_id": {
-                    "type": "integer"
-                }
-            }
-        },
-        "req.ReqAddress": {
+        "req.Address": {
             "type": "object",
             "required": [
                 "country_id",
@@ -2248,7 +2289,7 @@ const docTemplate = `{
                 }
             }
         },
-        "req.ReqApplyCoupon": {
+        "req.ApplyCoupon": {
             "type": "object",
             "required": [
                 "coupon_code"
@@ -2259,33 +2300,32 @@ const docTemplate = `{
                 }
             }
         },
-        "req.ReqCart": {
+        "req.BlockUser": {
             "type": "object",
             "required": [
-                "product_item_id"
+                "user_id"
             ],
             "properties": {
-                "product_item_id": {
-                    "type": "integer"
-                }
-            }
-        },
-        "req.ReqCartCount": {
-            "type": "object",
-            "required": [
-                "product_item_id"
-            ],
-            "properties": {
-                "count": {
-                    "type": "integer",
-                    "minimum": 1
+                "block": {
+                    "type": "boolean"
                 },
+                "user_id": {
+                    "type": "integer"
+                }
+            }
+        },
+        "req.Cart": {
+            "type": "object",
+            "required": [
+                "product_item_id"
+            ],
+            "properties": {
                 "product_item_id": {
                     "type": "integer"
                 }
             }
         },
-        "req.ReqCoupon": {
+        "req.Coupon": {
             "type": "object",
             "required": [
                 "coupon_name",
@@ -2326,7 +2366,7 @@ const docTemplate = `{
                 }
             }
         },
-        "req.ReqEditAddress": {
+        "req.EditAddress": {
             "type": "object",
             "required": [
                 "address_id",
@@ -2374,7 +2414,7 @@ const docTemplate = `{
                 }
             }
         },
-        "req.ReqEditCoupon": {
+        "req.EditCoupon": {
             "type": "object",
             "required": [
                 "coupon_name",
@@ -2418,7 +2458,7 @@ const docTemplate = `{
                 }
             }
         },
-        "req.ReqEditUser": {
+        "req.EditUser": {
             "type": "object",
             "required": [
                 "age",
@@ -2463,7 +2503,68 @@ const docTemplate = `{
                 }
             }
         },
-        "req.ReqOffer": {
+        "req.Login": {
+            "type": "object",
+            "required": [
+                "password"
+            ],
+            "properties": {
+                "email": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string",
+                    "maxLength": 30,
+                    "minLength": 5
+                },
+                "phone": {
+                    "type": "string",
+                    "maxLength": 10,
+                    "minLength": 10
+                },
+                "user_name": {
+                    "type": "string",
+                    "maxLength": 15,
+                    "minLength": 3
+                }
+            }
+        },
+        "req.OTPLogin": {
+            "type": "object",
+            "properties": {
+                "email": {
+                    "type": "string"
+                },
+                "phone": {
+                    "type": "string",
+                    "maxLength": 10,
+                    "minLength": 10
+                },
+                "user_name": {
+                    "type": "string",
+                    "maxLength": 16,
+                    "minLength": 3
+                }
+            }
+        },
+        "req.OTPVerify": {
+            "type": "object",
+            "required": [
+                "otp",
+                "otp_id"
+            ],
+            "properties": {
+                "otp": {
+                    "type": "string",
+                    "maxLength": 8,
+                    "minLength": 4
+                },
+                "otp_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "req.Offer": {
             "type": "object",
             "required": [
                 "description",
@@ -2494,7 +2595,7 @@ const docTemplate = `{
                 }
             }
         },
-        "req.ReqOfferCategory": {
+        "req.OfferCategory": {
             "type": "object",
             "required": [
                 "category_id",
@@ -2509,7 +2610,7 @@ const docTemplate = `{
                 }
             }
         },
-        "req.ReqOfferProduct": {
+        "req.OfferProduct": {
             "type": "object",
             "required": [
                 "offer_id",
@@ -2524,22 +2625,18 @@ const docTemplate = `{
                 }
             }
         },
-        "req.ReqPlaceOrder": {
+        "req.OrderPayment": {
             "type": "object",
-            "required": [
-                "address_id",
-                "payment_method_id"
-            ],
             "properties": {
-                "address_id": {
+                "payment_id": {
                     "type": "integer"
                 },
-                "payment_method_id": {
+                "shop_order_id": {
                     "type": "integer"
                 }
             }
         },
-        "req.ReqProduct": {
+        "req.Product": {
             "type": "object",
             "required": [
                 "category_id",
@@ -2570,7 +2667,7 @@ const docTemplate = `{
                 }
             }
         },
-        "req.ReqProductItem": {
+        "req.ProductItem": {
             "type": "object",
             "required": [
                 "images",
@@ -2602,12 +2699,78 @@ const docTemplate = `{
                 }
             }
         },
-        "req.ReqProductUpdate": {
+        "req.Return": {
+            "type": "object",
+            "required": [
+                "return_reason",
+                "shop_order_id"
+            ],
+            "properties": {
+                "return_reason": {
+                    "type": "string",
+                    "maxLength": 150,
+                    "minLength": 6
+                },
+                "shop_order_id": {
+                    "type": "integer"
+                }
+            }
+        },
+        "req.UpdatOrderReturn": {
+            "type": "object",
+            "required": [
+                "order_return_id",
+                "order_status_id"
+            ],
+            "properties": {
+                "admin_comment": {
+                    "type": "string"
+                },
+                "order_return_id": {
+                    "type": "integer"
+                },
+                "order_status_id": {
+                    "type": "integer"
+                },
+                "return_date": {
+                    "type": "string"
+                }
+            }
+        },
+        "req.UpdateCartItem": {
+            "type": "object",
+            "required": [
+                "product_item_id"
+            ],
+            "properties": {
+                "count": {
+                    "type": "integer",
+                    "minimum": 1
+                },
+                "product_item_id": {
+                    "type": "integer"
+                }
+            }
+        },
+        "req.UpdateOrder": {
+            "type": "object",
+            "required": [
+                "shop_order_id"
+            ],
+            "properties": {
+                "order_status_id": {
+                    "type": "integer"
+                },
+                "shop_order_id": {
+                    "type": "integer"
+                }
+            }
+        },
+        "req.UpdateProduct": {
             "type": "object",
             "required": [
                 "category_id",
                 "description",
-                "id",
                 "image",
                 "price",
                 "product_name"
@@ -2637,56 +2800,7 @@ const docTemplate = `{
                 }
             }
         },
-        "req.ReqReturn": {
-            "type": "object",
-            "required": [
-                "return_reason",
-                "shop_order_id"
-            ],
-            "properties": {
-                "return_reason": {
-                    "type": "string",
-                    "maxLength": 150,
-                    "minLength": 6
-                },
-                "shop_order_id": {
-                    "type": "integer"
-                }
-            }
-        },
-        "req.ReqUpdatReturnOrder": {
-            "type": "object",
-            "required": [
-                "order_return_id",
-                "order_status_id"
-            ],
-            "properties": {
-                "admin_comment": {
-                    "type": "string"
-                },
-                "order_return_id": {
-                    "type": "integer"
-                },
-                "order_status_id": {
-                    "type": "integer"
-                }
-            }
-        },
-        "req.ReqUpdateOrder": {
-            "type": "object",
-            "required": [
-                "shop_order_id"
-            ],
-            "properties": {
-                "order_status_id": {
-                    "type": "integer"
-                },
-                "shop_order_id": {
-                    "type": "integer"
-                }
-            }
-        },
-        "req.ReqUserDetails": {
+        "req.UserSignUp": {
             "type": "object",
             "required": [
                 "age",
@@ -2733,7 +2847,7 @@ const docTemplate = `{
                 }
             }
         },
-        "req.ReqVariation": {
+        "req.Variation": {
             "type": "object",
             "required": [
                 "category_id",
@@ -2748,7 +2862,7 @@ const docTemplate = `{
                 }
             }
         },
-        "req.ReqVariationOption": {
+        "req.VariationOption": {
             "type": "object",
             "required": [
                 "variation_id",

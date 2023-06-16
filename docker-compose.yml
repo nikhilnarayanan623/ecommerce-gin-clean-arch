@@ -26,13 +26,13 @@ services:
       - postgresdb
 
 # pg admin for showing the database on GUI
-  pg-admin:
-    image:  dpage/pgadmin4
-    ports:
-      - 8080:80
-    environment:
-      - PGADMIN_DEFAULT_EMAIL=nikhil@gmail.com
-      - PGADMIN_DEFAULT_PASSWORD=password
+  # pg-admin:
+  #   image:  dpage/pgadmin4
+  #   ports:
+  #     - 8080:80
+  #   environment:
+  #     - PGADMIN_DEFAULT_EMAIL=nikhil@gmail.com
+  #     - PGADMIN_DEFAULT_PASSWORD=password
 
 # storing datas on docker side
 volumes:

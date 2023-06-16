@@ -6,8 +6,11 @@ type OrderHandler interface {
 	GetAllOrderStatuses(ctx *gin.Context)
 
 	//user side
-	CartOrderPayementSelectPage(ctx *gin.Context)
-	PlaceOrderCartCOD(ctx *gin.Context)
+	RazorpayCheckout(ctx *gin.Context)
+	RazorpayVerify(ctx *gin.Context)
+
+	PlaceOrder(ctx *gin.Context)
+	ApproveOrderCOD(ctx *gin.Context)
 	CancellOrder(ctx *gin.Context)
 	SubmitReturnRequest(ctx *gin.Context)
 
@@ -20,4 +23,8 @@ type OrderHandler interface {
 	GetAllOrderReturns(ctx *gin.Context)
 	GetAllPendingReturns(ctx *gin.Context)
 	UpdateReturnRequest(ctx *gin.Context)
+
+	// walltet
+	GetUserWallet(ctx *gin.Context)
+	GetUserWalletTransactions(ctx *gin.Context)
 }

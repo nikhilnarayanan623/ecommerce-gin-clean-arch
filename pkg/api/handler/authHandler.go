@@ -47,6 +47,7 @@ func (c *AuthHandler) UserLogin(ctx *gin.Context) {
 	}
 
 	userID, err := c.authUseCase.UserLogin(ctx, body)
+
 	if err != nil {
 		response := res.ErrorResponse(400, "faild to login", err.Error(), nil)
 		ctx.JSON(400, response)
@@ -62,7 +63,7 @@ func (c *AuthHandler) UserLogin(ctx *gin.Context) {
 // @security ApiKeyAuth
 // @id UserLoginOtpSend
 // @tags User Login
-// @Param inputs body req.OTPLoginStruct true "Input Field"
+// @Param inputs body req.OTPLogin{} true "Input Field"
 // @Router /login/otp-send [post]
 // @Success 200 {object} res.Response{}  "Successfully Otp Send to registered number"
 // @Failure 400 {object} res.Response{}  "Enter input properly"
@@ -107,7 +108,7 @@ func (u *AuthHandler) UserLoginOtpSend(ctx *gin.Context) {
 // @security ApiKeyAuth
 // @id UserLoginOtpVerify
 // @tags User Login
-// @param inputs body req.OTPVerifyStruct{} true "Input Field"
+// @param inputs body req.OTPVerify{} true "Input Field"
 // @Router /login/otp-verify [post]
 // @Success 200 "successfully logged in uing otp"
 // @Failure 400 "invalid login_otp"
@@ -137,7 +138,7 @@ func (c *AuthHandler) UserLoginOtpVerify(ctx *gin.Context) {
 // @security ApiKeyAuth
 // @id UserSignUp
 // @tags User Signup
-// @Param input body req.ReqUserDetails{} true "Input Fields"
+// @Param input body req.UserSignUp{} true "Input Fields"
 // @Router /signup [post]
 // @Success 200 "Successfully account created for user"
 // @Failure 400 "invalid input"
@@ -154,7 +155,9 @@ func (c *AuthHandler) UserSignUp(ctx *gin.Context) {
 
 	var user domain.User
 	copier.Copy(&user, body)
+
 	err := c.authUseCase.UserSignUp(ctx, user)
+
 	if err != nil {
 		response := res.ErrorResponse(400, "faild to signup", err.Error(), body)
 		ctx.JSON(http.StatusBadRequest, response)

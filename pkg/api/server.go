@@ -18,7 +18,7 @@ type ServerHTTP struct {
 
 func NewServerHTTP(authHandler handlerInterface.AuthHandler, middleware middleware.Middleware,
 	adminHandler handlerInterface.AdminHandler, userHandler handlerInterface.UserHandler,
-	cartHandler handlerInterface.CartHandler,
+	cartHandler handlerInterface.CartHandler, paymentHandler handlerInterface.PaymentHandler,
 	productHandler handlerInterface.ProductHandler, orderHandler handlerInterface.OrderHandler,
 	couponHandler handlerInterface.CouponHandler) *ServerHTTP {
 
@@ -32,8 +32,10 @@ func NewServerHTTP(authHandler handlerInterface.AuthHandler, middleware middlewa
 	engine.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
 
 	// set up routes
-	routes.UserRoutes(engine.Group("/"), authHandler, middleware, userHandler, cartHandler, productHandler, orderHandler, couponHandler)
-	routes.AdminRoutes(engine.Group("/admin"), authHandler, middleware, adminHandler, productHandler, orderHandler, couponHandler)
+	routes.UserRoutes(engine.Group("/"), authHandler, middleware,
+		userHandler, cartHandler, productHandler, paymentHandler, orderHandler, couponHandler)
+	routes.AdminRoutes(engine.Group("/admin"), authHandler,
+		middleware, adminHandler, productHandler, paymentHandler, orderHandler, couponHandler)
 
 	// no handler
 	engine.NoRoute(func(ctx *gin.Context) {

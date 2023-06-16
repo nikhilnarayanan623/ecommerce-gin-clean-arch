@@ -37,24 +37,24 @@ type OrderItem struct {
 }
 
 type ShopOrder struct {
-	UserID          uint       `json:"user_id"`
-	ShopOrderID     uint       `json:"shop_order_id"`
-	OrderDate       time.Time  `json:"order_date"`
-	AddressID       uint       `json:"address_id" `
-	Address         Address `json:"address"`
-	OrderTotalPrice uint       `json:"order_total_price" `
-	Discount        uint       `json:"discount"`
-	OrderStatusID   uint       `json:"order_status_id"`
-	OrderStatus     string     `json:"order_status"`
-	PaymentMethodID uint       `json:"payment_method_id" gorm:"primaryKey;not null"`
-	PaymentType     string     `json:"" gorm:"unique;not null"`
+	UserID          uint      `json:"user_id"`
+	ShopOrderID     uint      `json:"shop_order_id"`
+	OrderDate       time.Time `json:"order_date"`
+	AddressID       uint      `json:"address_id" `
+	Address         Address   `json:"address"`
+	OrderTotalPrice uint      `json:"order_total_price" `
+	Discount        uint      `json:"discount"`
+	OrderStatusID   uint      `json:"order_status_id"`
+	OrderStatus     string    `json:"order_status"`
+	PaymentMethodID uint      `json:"payment_method_id" gorm:"primaryKey;not null"`
+	PaymentType     string    `json:"" gorm:"unique;not null"`
 }
 
 // checkout
 type CheckOut struct {
 	Addresses    []Address  `json:"addresses"`
 	ProductItems []CartItem `json:"product_items"`
-	TotalPrice   uint          `json:"total_price"`
+	TotalPrice   uint       `json:"total_price"`
 }
 
 // return
@@ -82,8 +82,9 @@ type RazorpayOrder struct {
 	RazorpayOrderID interface{} `json:"razorpay_order_id"`
 	Email           string      `json:"email"`
 	Phone           string      `json:"phone"`
-	ShopOrderID     uint        `json:"shop_order_id"`
-	CouponID        uint        `json:"coupon_id"`
+
+	ShopOrderID     uint `json:"shop_order_id"`
+	PaymentMethodID uint `json:"payment_method_id"`
 }
 
 type StripeOrder struct {

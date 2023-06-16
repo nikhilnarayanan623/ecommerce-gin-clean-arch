@@ -10,23 +10,14 @@ import (
 
 type OrderUseCase interface {
 
-	// pyment
-	AddPaymentMethod(ctx context.Context, paymentMethod domain.PaymentMethod) error
-	EditPaymentMethod(ctx context.Context, paymentMethod domain.PaymentMethod) error
-	GetAllPaymentMethods(ctx context.Context) ([]domain.PaymentMethod, error)
-	GetPaymentMethodByID(ctx context.Context, paymentMethodID uint) (domain.PaymentMethod, error)
+	//
+	PlaceOrder(ctx context.Context, userID uint, placeOrder req.PlaceOrder) (shopOrder domain.ShopOrder, err error)
+	ApproveShopOrderAndClearCart(ctx context.Context, userID, shopOrderID, paymentID uint) error
 
 	// razorpay
-	GetRazorpayOrder(ctx context.Context, userID uint, userOrder res.UserOrder) (razorpayOrder res.RazorpayOrder, err error)
-
+	GetRazorpayOrder(ctx context.Context, userID, shopOrderID, paymentMethodID uint) (razorpayOrder res.RazorpayOrder, err error)
 	// stipe
 	GetStripeOrder(ctx context.Context, userID uint, userOrder res.UserOrder) (stipeOrder res.StripeOrder, err error)
-
-	// order placement
-	GetOrderDetails(ctx context.Context, userID uint, body req.PlaceOrder) (userOrder res.UserOrder, err error)
-	SaveOrder(ctx context.Context, shopOrder domain.ShopOrder) (shopOrderID uint, err error)
-	ApproveOrderAndClearCart(ctx context.Context, userID, shopOrderID, couponID uint) error
-	// end
 
 	// get order and orde items
 	GetAllShopOrders(ctx context.Context, pagination req.Pagination) (shopOrders []res.ShopOrder, err error)

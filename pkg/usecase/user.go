@@ -69,12 +69,11 @@ func (c *userUserCase) EditAccount(ctx context.Context, user domain.User) error 
 
 // adddress
 func (c *userUserCase) SaveAddress(ctx context.Context, userID uint, address domain.Address, isDefault bool) error {
-	//check the address is already exist for the user
-	address, err := c.userRepo.FindAddressByUserID(ctx, address, userID)
-	if err != nil {
-		return err
-	} else if address.ID != 0 { // user have already this address exist
-		return errors.New("user have already this address exist with same details")
+
+	if exist, err := c.userRepo.IsAddressAlreadyExistForUser(ctx, address, userID); err != nil {
+		return fmt.Errorf("faild to check address already exist \nerror:%v", err.Error())
+	} else if exist {
+		return fmt.Errorf("given address already exist for user")
 	}
 
 	//this address not exist then create it
@@ -110,21 +109,19 @@ func (c *userUserCase) SaveAddress(ctx context.Context, userID uint, address dom
 
 func (c *userUserCase) EditAddress(ctx context.Context, addressBody req.EditAddress, userID uint) error {
 
-	// first validate the addessId is valid or not
-	address, err := c.userRepo.FindAddressByID(ctx, addressBody.ID)
-	if err != nil {
+	if exist, err := c.userRepo.IsAddressIDExist(ctx, addressBody.ID); err != nil {
 		return err
-	} else if address.ID == 0 {
+	} else if !exist {
 		return errors.New("invalid address id")
 	}
 
-	// validate the country id
-	country, err := c.userRepo.FindCountryByID(ctx, addressBody.CountryID)
-	if err != nil {
+	if country, err := c.userRepo.FindCountryByID(ctx, addressBody.CountryID); err != nil {
 		return err
 	} else if country.ID == 0 {
 		return errors.New("invalid country id")
 	}
+
+	var address domain.Address
 	copier.Copy(&address, &addressBody)
 
 	if err := c.userRepo.UpdateAddress(ctx, address); err != nil {

@@ -55,24 +55,24 @@ func (c *cartUseCase) SaveToCart(ctx context.Context, body req.Cart) (err error)
 	cart, err := c.cartRepo.FindCartByUserID(ctx, body.UserID)
 	if err != nil {
 		return err
-	} else if cart.CartID == 0 { // if there is no cart is available for user then create it
-		cart.CartID, err = c.cartRepo.SaveCart(ctx, body.UserID)
+	} else if cart.ID == 0 { // if there is no cart is available for user then create it
+		cart.ID, err = c.cartRepo.SaveCart(ctx, body.UserID)
 		if err != nil {
 			return err
 		}
-		log.Println(cart.CartID)
+		log.Println(cart.ID)
 	}
 
 	// check the given product item is already exit in user cart
-	cartItem, err := c.cartRepo.FindCartItemByCartAndProductItemID(ctx, cart.CartID, body.ProductItemID)
+	cartItem, err := c.cartRepo.FindCartItemByCartAndProductItemID(ctx, cart.ID, body.ProductItemID)
 	if err != nil {
 		return err
-	} else if cartItem.CartItemID != 0 {
+	} else if cartItem.ID != 0 {
 		return errors.New("product_item already exist on the cart can't save product to cart")
 	}
 
 	// add productItem to cartItem
-	if err := c.cartRepo.SaveCartItem(ctx, cart.CartID, body.ProductItemID); err != nil {
+	if err := c.cartRepo.SaveCartItem(ctx, cart.ID, body.ProductItemID); err != nil {
 		return err
 	}
 
@@ -95,19 +95,19 @@ func (c *cartUseCase) RemoveCartItem(ctx context.Context, body req.Cart) error {
 	cart, err := c.cartRepo.FindCartByUserID(ctx, body.UserID)
 	if err != nil {
 		return err
-	} else if cart.CartID == 0 {
+	} else if cart.ID == 0 {
 		return errors.New("can't remove product_item from user cart \n user cart is empty")
 	}
 
 	// check the product_item exist on user cart
-	cartItem, err := c.cartRepo.FindCartItemByCartAndProductItemID(ctx, cart.CartID, body.ProductItemID)
+	cartItem, err := c.cartRepo.FindCartItemByCartAndProductItemID(ctx, cart.ID, body.ProductItemID)
 	if err != nil {
 		return err
-	} else if cartItem.CartItemID == 0 {
+	} else if cartItem.ID == 0 {
 		return fmt.Errorf("prduct_item with id %v is not exist on user cart", body.ProductItemID)
 	}
 	// then remvoe cart_item
-	err = c.cartRepo.DeleteCartItem(ctx, cartItem.CartItemID)
+	err = c.cartRepo.DeleteCartItem(ctx, cartItem.ID)
 	if err != nil {
 		return err
 	}
@@ -139,20 +139,20 @@ func (c *cartUseCase) UpdateCartItem(ctx context.Context, body req.UpdateCartIte
 	cart, err := c.cartRepo.FindCartByUserID(ctx, body.UserID)
 	if err != nil {
 		return err
-	} else if cart.CartID == 0 {
+	} else if cart.ID == 0 {
 		return errors.New("user cart is empty")
 	}
 
 	// find the cart_item with given product_id and user cart_id  and check the product_item present in cart or no
-	cartItem, err := c.cartRepo.FindCartItemByCartAndProductItemID(ctx, cart.CartID, body.ProductItemID)
+	cartItem, err := c.cartRepo.FindCartItemByCartAndProductItemID(ctx, cart.ID, body.ProductItemID)
 	if err != nil {
 		return err
-	} else if cartItem.CartItemID == 0 {
+	} else if cartItem.ID == 0 {
 		return fmt.Errorf("product_item not exist in the cart with given product_item_id %v", body.ProductItemID)
 	}
 
 	// update the cart_item qty
-	if err := c.cartRepo.UpdateCartItemQty(ctx, cartItem.CartItemID, body.Count); err != nil {
+	if err := c.cartRepo.UpdateCartItemQty(ctx, cartItem.ID, body.Count); err != nil {
 		return err
 	}
 

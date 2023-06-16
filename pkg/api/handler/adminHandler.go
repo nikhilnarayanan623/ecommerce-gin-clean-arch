@@ -115,7 +115,7 @@ func (a *AdminHandler) ListUsers(ctx *gin.Context) {
 // @summary api for admin to block or unblock user
 // @id BlockUser
 // @tags Admin User
-// @Param input body req.BlockStruct{} true "inputs"
+// @Param input body req.BlockUser{} true "inputs"
 // @Router /admin/users/block [patch]
 // @Success 200 {object} res.Response{} "Successfully changed user block_status"
 // @Failure 400 {object} res.Response{} "invalid input"

@@ -149,7 +149,7 @@ func (c *CouponHandler) GetAllCouponsForUser(ctx *gin.Context) {
 // @security ApiKeyAuth
 // @tags Admin Coupon
 // @id UpdateCoupon
-// @Param        inputs   body     req.ReqEditCoupon{}   true  "Input Field"
+// @Param        inputs   body     req.EditCoupon{}   true  "Input Field"
 // @Router /admin/coupons [put]
 // @Success 200 {object} res.Response{} "successfully update the coupon"
 // @Failure 400 {object} res.Response{}  "invalid input"
@@ -183,7 +183,7 @@ func (c *CouponHandler) UpdateCoupon(ctx *gin.Context) {
 // @security ApiKeyAuth
 // @tags User Cart
 // @id ApplyCouponToCart
-// @Param        inputs   body     req.ReqApplyCoupon{}   true  "Input Field"
+// @Param        inputs   body     req.ApplyCoupon{}   true  "Input Field"
 // @Router /carts/coupons [patch]
 // @Success 200 {object} res.Response{} "successfully updated the coupon code"
 // @Failure 400 {object} res.Response{}  "invalid input"

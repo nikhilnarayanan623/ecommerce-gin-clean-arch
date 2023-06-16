@@ -135,7 +135,7 @@ func TestFindUserByEmail(t *testing.T) {
 			gormDB, err := gorm.Open(postgres.New(postgres.Config{
 				Conn: db,
 			}), &gorm.Config{})
-			assert.Nil(t, err, "an error '%s' not expected when opening gorm datbase", err)
+			assert.Nil(t, err, "an error '%s' not expected when opening gorm database", err)
 
 			test.buildStub(mock)
 
