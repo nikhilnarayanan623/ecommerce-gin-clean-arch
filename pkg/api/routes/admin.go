@@ -8,6 +8,7 @@ import (
 
 func AdminRoutes(api *gin.RouterGroup, authHandler handlerInterface.AuthHandler, middleware middleware.Middleware,
 	adminHandler handlerInterface.AdminHandler, productHandler handlerInterface.ProductHandler,
+	paymentHandler handlerInterface.PaymentHandler,
 	orderHandler handlerInterface.OrderHandler, couponHandler handlerInterface.CouponHandler,
 
 ) {
@@ -72,13 +73,13 @@ func AdminRoutes(api *gin.RouterGroup, authHandler handlerInterface.AuthHandler,
 			order.PUT("/returns/pending", orderHandler.UpdateReturnRequest)
 		}
 
-		// 	// payment_method
-		// 	paymentMethod := api.Group("/payment-method")
-		// 	{
-		// 		paymentMethod.GET("/", orderHandler.GetAllPaymentMethods)
-		// 		paymentMethod.POST("/", orderHandler.AddPaymentMethod)
-		// 		paymentMethod.PUT("/", orderHandler.UpdatePaymentMethod)
-		// 	}
+		// payment_method
+		paymentMethod := api.Group("/payment-method")
+		{
+			paymentMethod.GET("/", paymentHandler.GetAllPaymentMethods)
+			paymentMethod.POST("/", paymentHandler.AddPaymentMethod)
+			paymentMethod.PUT("/", paymentHandler.UpdatePaymentMethod)
+		}
 
 		// 	// offer
 		// 	offer := api.Group("/offers")

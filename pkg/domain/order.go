@@ -16,7 +16,7 @@ type OrderStatus struct {
 	Status string `json:"status" gorm:"unique;not null"`
 }
 type ShopOrder struct {
-	ID              uint          `josn:"shop_order_id" gorm:"primaryKey;not null"`
+	ID              uint          `json:"shop_order_id" gorm:"primaryKey;not null"`
 	UserID          uint          `json:"user_id" gorm:"not null"`
 	User            User          `json:"-"`
 	OrderDate       time.Time     `json:"order_date" gorm:"not null"`
@@ -26,13 +26,13 @@ type ShopOrder struct {
 	Discount        uint          `json:"discount" gorm:"not null"`
 	OrderStatusID   uint          `json:"order_status_id" gorm:"not null"`
 	OrderStatus     OrderStatus   `json:"-"`
-	PaymentMethodID uint          `json:"payment_method_id" gorm:"not null"`
+	PaymentMethodID uint          `json:"payment_method_id"`
 	PaymentMethod   PaymentMethod `json:"-"`
 }
 
 type OrderLine struct {
 	ID            uint      `json:"id" gorm:"primaryKey;not null"`
-	ProductItemID uint      `json:"proudct_item_id" gorm:"not null"`
+	ProductItemID uint      `json:"product_item_id" gorm:"not null"`
 	ShopOrderID   uint      `json:"shop_order_id" gorm:"not null"`
 	ShopOrder     ShopOrder `json:"-"`
 	Qty           uint      `json:"qty" gorm:"not null"`

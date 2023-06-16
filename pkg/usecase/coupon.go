@@ -147,7 +147,7 @@ func (c *couponUseCase) ApplyCouponToCart(ctx context.Context, userID uint, coup
 	cart, err := c.cartRepo.FindCartByUserID(ctx, userID)
 	if err != nil {
 		return discountAmount, err
-	} else if cart.CartID == 0 {
+	} else if cart.ID == 0 {
 		return discountAmount, fmt.Errorf("there is no cart_items avialable for user with user_id %d", userID)
 	}
 
@@ -168,7 +168,7 @@ func (c *couponUseCase) ApplyCouponToCart(ctx context.Context, userID uint, coup
 	// calculate a discount for cart
 	discountAmount = (cart.TotalPrice * coupon.DiscountRate) / 100
 	// update the cart
-	err = c.cartRepo.UpdateCart(ctx, cart.CartID, discountAmount, coupon.CouponID)
+	err = c.cartRepo.UpdateCart(ctx, cart.ID, discountAmount, coupon.CouponID)
 	if err != nil {
 		return discountAmount, err
 	}

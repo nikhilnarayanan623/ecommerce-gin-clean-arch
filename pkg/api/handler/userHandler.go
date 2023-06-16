@@ -84,15 +84,15 @@ func (c *UserHandler) CheckOutCart(ctx *gin.Context) {
 }
 
 // ! ***** for user account ***** //
-// Account godoc
+// GetUserProfile godoc
 // @summary api for see use details
 // @security ApiKeyAuth
-// @id Account
-// @tags User Account
+// @id GetUserProfile
+// @tags User GetUserProfile
 // @Router /account [get]
 // @Success 200 "Successfully user account details found"
 // @Failure 500 {object} res.Response{} "faild to show user details"
-func (u *UserHandler) Account(ctx *gin.Context) {
+func (u *UserHandler) GetUserProfile(ctx *gin.Context) {
 
 	userID := utils.GetUserIdFromContext(ctx)
 
@@ -110,17 +110,17 @@ func (u *UserHandler) Account(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, response)
 }
 
-// UpateAccount godoc
+// UpdateUserProfile godoc
 // @summary api for edit user details
 // @description user can edit user details
 // @security ApiKeyAuth
-// @id UpateAccount
+// @id UpdateUserProfile
 // @tags User Account
 // @Param input body req.EditUser{} true "input field"
 // @Router /account [put]
 // @Success 200 {object} res.Response{} "successfully updated user details"
 // @Failure 400 {object} res.Response{} "invalid input"
-func (u *UserHandler) UpateAccount(ctx *gin.Context) {
+func (u *UserHandler) UpdateUserProfile(ctx *gin.Context) {
 	userID := utils.GetUserIdFromContext(ctx)
 
 	var body req.EditUser
@@ -156,12 +156,12 @@ func (u *UserHandler) UpateAccount(ctx *gin.Context) {
 // @Param inputs body req.Address{} true "Input Field"
 // @Router /account/address [post]
 // @Success 200 {object} res.Response{} "Successfully address added"
-// @Failure 400 {object} res.Response{} "inavlid input"
+// @Failure 400 {object} res.Response{} "invalid input"
 func (u *UserHandler) AddAddress(ctx *gin.Context) {
 
 	var body req.Address
 	if err := ctx.ShouldBindJSON(&body); err != nil {
-		response := res.ErrorResponse(400, "inavlid input", err.Error(), nil)
+		response := res.ErrorResponse(400, "invalid input", err.Error(), nil)
 		ctx.JSON(http.StatusBadRequest, response)
 		return
 	}
@@ -178,7 +178,7 @@ func (u *UserHandler) AddAddress(ctx *gin.Context) {
 
 	err := u.userUseCase.SaveAddress(ctx, userID, address, *body.IsDefault)
 	if err != nil {
-		response := res.ErrorResponse(400, "inavlid input", err.Error(), nil)
+		response := res.ErrorResponse(400, "invalid input", err.Error(), nil)
 		ctx.JSON(http.StatusBadRequest, response)
 		return
 	}
@@ -187,23 +187,23 @@ func (u *UserHandler) AddAddress(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, response)
 }
 
-// GetAddreses godoc
+// GetAllAddresses godoc
 // @summary api for get all address of user
-// @description user can show all adderss
+// @description user can show all address
 // @security ApiKeyAuth
-// @id GetAddresses
+// @id GetAllAddresses
 // @tags User Address
 // @Router /account/address [get]
 // @Success 200 {object} res.Response{} "successfully got user addresses"
-// @Failure 500 {object} res.Response{} "faild to show user addresses"
-func (u *UserHandler) GetAddresses(ctx *gin.Context) {
+// @Failure 500 {object} res.Response{} "failed to show user addresses"
+func (u *UserHandler) GetAllAddresses(ctx *gin.Context) {
 
 	userID := utils.GetUserIdFromContext(ctx)
 
 	addresses, err := u.userUseCase.GetAddresses(ctx, userID)
 
 	if err != nil {
-		response := res.ErrorResponse(500, "faild to show user addresses", err.Error(), nil)
+		response := res.ErrorResponse(500, "failed to show user addresses", err.Error(), nil)
 		ctx.JSON(http.StatusInternalServerError, response)
 		return
 	}
@@ -218,24 +218,24 @@ func (u *UserHandler) GetAddresses(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, response)
 }
 
-// EditAddress godoc
+// UpdateAddress godoc
 // @summary api for edit user address
 // @description user can change existing address
 // @security ApiKeyAuth
-// @id EditAddress
+// @id UpdateAddress
 // @tags User Address
 // @Param input body req.EditAddress{} true "Input Field"
 // @Router /account/address [put]
 // @Success 200 {object} res.Response{} "successfully addresses updated"
 // @Failure 400 {object} res.Response{} "can't update the address"
-func (u *UserHandler) EditAddress(ctx *gin.Context) {
+func (u *UserHandler) UpdateAddress(ctx *gin.Context) {
 
 	userID := utils.GetUserIdFromContext(ctx)
 	var body req.EditAddress
 
 	if err := ctx.ShouldBindJSON(&body); err != nil {
-		respone := res.ErrorResponse(400, "invalid input", err.Error(), nil)
-		ctx.JSON(http.StatusBadRequest, respone)
+		response := res.ErrorResponse(400, "invalid input", err.Error(), nil)
+		ctx.JSON(http.StatusBadRequest, response)
 		return
 	}
 
@@ -256,15 +256,15 @@ func (u *UserHandler) EditAddress(ctx *gin.Context) {
 
 }
 
-func (u *UserHandler) DeleteAddress(ctx *gin.Context) {
+// func (u *UserHandler) DeleteAddress(ctx *gin.Context) {
 
-}
+// }
 
 //todo ** wishList **
 
 // AddToWishList godoc
 // @summary api to add a productItem to wish list
-// @descritpion user can add productItem to wish list
+// @descriptions user can add productItem to wish list
 // @security ApiKeyAuth
 // @id AddToWishList
 // @tags Wishlist
@@ -302,7 +302,7 @@ func (u *UserHandler) AddToWishList(ctx *gin.Context) {
 
 // RemoveFromWishList godoc
 // @summary api to remove a productItem from wish list
-// @descritpion user can remove a productItem from wish list
+// @descriptions user can remove a productItem from wish list
 // @security ApiKeyAuth
 // @id RemoveFromWishList
 // @tags Wishlist
@@ -339,17 +339,17 @@ func (u *UserHandler) RemoveFromWishList(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, response)
 }
 
-// GetWishListI godoc
+// GetWishList godoc
 // @summary api get all wish list items of user
-// @descritpion user get all wish list items
+// @descriptions user get all wish list items
 // @security ApiKeyAuth
-// @id GetWishListI
+// @id GetWishList
 // @tags Wishlist
 // @Router /wishlist [get]
 // @Success 200 "Successfully wish list items got"
 // @Success 200 "Wish list is empty"
 // @Failure 400  "faild to get user wish list items"
-func (u *UserHandler) GetWishListI(ctx *gin.Context) {
+func (u *UserHandler) GetWishList(ctx *gin.Context) {
 
 	userID := utils.GetUserIdFromContext(ctx)
 	data, err := u.userUseCase.GetWishListItems(ctx, userID)

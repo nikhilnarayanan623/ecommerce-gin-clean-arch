@@ -13,9 +13,11 @@ type OrderRepository interface {
 
 	SaveOrderLine(ctx context.Context, orderLine domain.OrderLine) error
 
+	UpdateShopOrderStatusAndPaymentID(ctx context.Context, shopOrderID, statusID, paymentID uint) error
 	UpdateShopOrderOrderStatus(ctx context.Context, shopOrderID, changeStatusID uint) error
 
 	// shop order order
+	IsShpoOrderIDIsValid(ctx context.Context, shopOrderID uint) error
 	SaveShopOrder(ctx context.Context, shopOrder domain.ShopOrder) (shopOrderID uint, err error)
 	FindShopOrderByShopOrderID(ctx context.Context, shopOrderID uint) (domain.ShopOrder, error)
 	FindAllShopOrders(ctx context.Context, pagination req.Pagination) (shopOrders []res.ShopOrder, err error)
@@ -25,6 +27,7 @@ type OrderRepository interface {
 	FindAllOrdersItemsByShopOrderID(ctx context.Context, shopOrderID uint, pagination req.Pagination) (orderItems []res.OrderItem, err error)
 
 	// order status
+	FindOrderStatusByShopOrderID(ctx context.Context,shopOrderID uint)(domain.OrderStatus,error)
 	FindOrderStatusByID(ctx context.Context, orderStatusID uint) (domain.OrderStatus, error)
 	FindOrderStatusByStatus(ctx context.Context, orderStatus string) (domain.OrderStatus, error)
 	FindAllOrderStauses(ctx context.Context) ([]domain.OrderStatus, error)
@@ -36,13 +39,6 @@ type OrderRepository interface {
 	FindAllPendingOrderReturns(ctx context.Context, pagination req.Pagination) ([]res.OrderReturn, error)
 	SaveOrderReturn(ctx context.Context, orderReturn domain.OrderReturn) error
 	UpdateOrderReturn(ctx context.Context, orderReturn domain.OrderReturn) error
-
-	// payments
-	FindPaymentMethodByID(ctx context.Context, paymenMethodtID uint) (domain.PaymentMethod, error)
-	FindPaymentMethodByType(ctx context.Context, paymentType string) (paymentMethod domain.PaymentMethod, err error)
-	FindAllPaymentMethods(ctx context.Context) ([]domain.PaymentMethod, error)
-	SavePaymentMethod(ctx context.Context, paymentMethod domain.PaymentMethod) (paymentMethodID uint, err error)
-	UpdatePaymentMethod(ctx context.Context, paymentMethod domain.PaymentMethod) error
 
 	// wallet
 	FindWalletByUserID(ctx context.Context, userID uint) (wallet domain.Wallet, err error)

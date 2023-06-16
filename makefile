@@ -13,7 +13,7 @@ CODE_COVERAGE=code-coverage
 
 all: test build
 	
- ## to create binary directory if its not available(-p)
+# to create binary directory if its not available(-p)
 ${BINARY_DIR}:
 	mkdir -p $(BINARY_DIR)
 
@@ -54,8 +54,11 @@ dps-cleancache:
 wire:
 	cd pkg/di && wire
 
-# swag: ## Generate swagger docs
-# 	swag init --parseDependency --parseInternal --parseDepth 3 -g pkg/api/server.go -o ./cmd/api/docs
+swagger: ## install swagger and its dependencies for generate swagger using swag
+	go install github.com/swaggo/swag/cmd/swag@latest 
+	go get -u github.com/swaggo/swag/cmd/swag 
+	go get -u github.com/swaggo/gin-swagger 
+	go get -u github.com/swaggo/files
 
 ## Generate swagger docs
 swag: 
@@ -66,6 +69,12 @@ swag:
 generate:
 		$(GOCMD) generate ./...
 
+#docker
+docker-up:
+	docker-compose up 
+
+docker-down:
+	docker-compose down
  
 ## Display this help screen
 help:

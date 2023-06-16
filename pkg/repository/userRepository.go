@@ -12,14 +12,16 @@ import (
 	"gorm.io/gorm"
 )
 
-type userDatabse struct {
+type userDatabase struct {
 	DB *gorm.DB
 }
 
 func NewUserRepository(DB *gorm.DB) interfaces.UserRepository {
-	return &userDatabse{DB: DB}
+	return &userDatabase{DB: DB}
 }
-func (c *userDatabse) FindUserByUserID(ctx context.Context, userID uint) (user domain.User, err error) {
+
+
+func (c *userDatabase) FindUserByUserID(ctx context.Context, userID uint) (user domain.User, err error) {
 
 	query := `SELECT * FROM users WHERE id = $1`
 	err = c.DB.Raw(query, userID).Scan(&user).Error
@@ -27,7 +29,7 @@ func (c *userDatabse) FindUserByUserID(ctx context.Context, userID uint) (user d
 	return user, err
 }
 
-func (c *userDatabse) FindUserByEmail(ctx context.Context, email string) (user domain.User, err error) {
+func (c *userDatabase) FindUserByEmail(ctx context.Context, email string) (user domain.User, err error) {
 
 	query := `SELECT * FROM users WHERE email = $1`
 	err = c.DB.Raw(query, email).Scan(&user).Error
@@ -35,14 +37,14 @@ func (c *userDatabse) FindUserByEmail(ctx context.Context, email string) (user d
 	return user, err
 }
 
-func (c *userDatabse) FindUserByPhoneNumber(ctx context.Context, phoneNumber string) (user domain.User, err error) {
+func (c *userDatabase) FindUserByPhoneNumber(ctx context.Context, phoneNumber string) (user domain.User, err error) {
 
 	query := `SELECT * FROM users WHERE phone = $1`
 	err = c.DB.Raw(query, phoneNumber).Scan(&user).Error
 
 	return user, err
 }
-func (c *userDatabse) FindUserByUserName(ctx context.Context, userName string) (user domain.User, err error) {
+func (c *userDatabase) FindUserByUserName(ctx context.Context, userName string) (user domain.User, err error) {
 
 	query := `SELECT * FROM users WHERE user_name = $1`
 	err = c.DB.Raw(query, userName).Scan(&user).Error
@@ -50,7 +52,7 @@ func (c *userDatabse) FindUserByUserName(ctx context.Context, userName string) (
 	return user, err
 }
 
-func (c *userDatabse) FindUserByUserNameEmailOrPhoneNotID(ctx context.Context, user domain.User) (domain.User, error) {
+func (c *userDatabase) FindUserByUserNameEmailOrPhoneNotID(ctx context.Context, user domain.User) (domain.User, error) {
 
 	query := `SELECT * FROM users WHERE (user_name = $1 OR email = $2 OR phone = $3) AND id != $4`
 	err := c.DB.Raw(query, user.UserName, user.Email, user.Phone, user.ID).Scan(&user).Error
@@ -58,7 +60,7 @@ func (c *userDatabse) FindUserByUserNameEmailOrPhoneNotID(ctx context.Context, u
 	return user, err
 }
 
-func (c *userDatabse) SaveUser(ctx context.Context, user domain.User) (userID uint, err error) {
+func (c *userDatabase) SaveUser(ctx context.Context, user domain.User) (userID uint, err error) {
 
 	//save the user details
 	query := `INSERT INTO users (user_name, first_name, last_name, age, email, phone, password,created_at) 
@@ -71,7 +73,7 @@ func (c *userDatabse) SaveUser(ctx context.Context, user domain.User) (userID ui
 	return userID, err
 }
 
-func (c *userDatabse) UpdateUser(ctx context.Context, user domain.User) (err error) {
+func (c *userDatabase) UpdateUser(ctx context.Context, user domain.User) (err error) {
 
 	updatedAt := time.Now()
 	// check password need to update or not
@@ -88,47 +90,47 @@ func (c *userDatabse) UpdateUser(ctx context.Context, user domain.User) (err err
 	}
 
 	if err != nil {
-		return fmt.Errorf("faild to update user detail of user with user_id %d", user.ID)
+		return fmt.Errorf("filed to update user detail of user with user_id %d", user.ID)
 	}
 	return nil
 }
 
-func (c *userDatabse) UpdateBlockStatus(ctx context.Context, userID uint, blockStatus bool) error {
+func (c *userDatabase) UpdateBlockStatus(ctx context.Context, userID uint, blockStatus bool) error {
 
-	querry := `UPDATE users SET block_status = $1 WHERE id = $2`
-	err := c.DB.Exec(querry, blockStatus, userID).Error
+	query := `UPDATE users SET block_status = $1 WHERE id = $2`
+	err := c.DB.Exec(query, blockStatus, userID).Error
 
 	return err
 }
 
-func (c *userDatabse) IsAddressIDExist(ctx context.Context, addressID uint) (exist bool, err error) {
+func (c *userDatabase) IsAddressIDExist(ctx context.Context, addressID uint) (exist bool, err error) {
 	query := `SELECT EXISTS(SELECT 1 FROM addresses WHERE id = $1) AS exist FROM addresses`
 	err = c.DB.Raw(query, addressID).Scan(&exist).Error
 
 	return
 }
-func (c *userDatabse) FindAddressByID(ctx context.Context, addressID uint) (res.Address, error) {
+func (c *userDatabase) FindAddressByID(ctx context.Context, addressID uint) (res.Address, error) {
 	var address res.Address
 	query := `SELECT * FROM addresses WHERE id=?`
 	if c.DB.Raw(query, addressID).Scan(&address).Error != nil {
-		return address, errors.New("faild to find address")
+		return address, errors.New("filed to find address")
 	}
 
 	return address, nil
 }
 
-func (c *userDatabse) FindAddressByUserID(ctx context.Context, address domain.Address, userID uint) (domain.Address, error) {
+func (c *userDatabase) FindAddressByUserID(ctx context.Context, address domain.Address, userID uint) (domain.Address, error) {
 
 	// find the address with house,land_mark,pincode,coutry_id
 	query := `SELECT * FROM addresses adrs JOIN user_addresses usr_adrs 
 	ON adrs.id = usr_adrs.address_id AND user_id = ? AND house=? 
 	AND land_mark=? AND pincode=? AND country_id=?`
 	if c.DB.Raw(query, userID, address.House, address.LandMark, address.Pincode, address.CountryID).Scan(&address).Error != nil {
-		return address, errors.New("faild to find the address")
+		return address, errors.New("filed to find the address")
 	}
 	return address, nil
 }
-func (c *userDatabse) IsAddressAlreadyExistForUser(ctx context.Context, address domain.Address, userID uint) (bool, error) {
+func (c *userDatabase) IsAddressAlreadyExistForUser(ctx context.Context, address domain.Address, userID uint) (bool, error) {
 	var exist bool
 	query := `SELECT CASE WHEN (SELECT id FROM addresses WHERE name = $1 AND house = $2 AND land_mark = $3 
         AND pincode = $4 AND country_id = $5)  != 0 THEN 'T' ELSE 'F' END AS exist 
@@ -137,7 +139,7 @@ func (c *userDatabse) IsAddressAlreadyExistForUser(ctx context.Context, address 
 	return exist, err
 }
 
-func (c *userDatabse) FindAllAddressByUserID(ctx context.Context, userID uint) ([]res.Address, error) {
+func (c *userDatabase) FindAllAddressByUserID(ctx context.Context, userID uint) ([]res.Address, error) {
 
 	var addresses []res.Address
 
@@ -145,25 +147,25 @@ func (c *userDatabse) FindAllAddressByUserID(ctx context.Context, userID uint) (
 	 FROM user_addresses ua JOIN addresses a ON ua.address_id=a.id 
 	 INNER JOIN countries c ON a.country_id=c.id AND ua.user_id=?`
 	if c.DB.Raw(query, userID).Scan(&addresses).Error != nil {
-		return addresses, errors.New("faild to get address of user")
+		return addresses, errors.New("filed to get address of user")
 	}
 
 	return addresses, nil
 }
 
-func (c *userDatabse) FindCountryByID(ctx context.Context, countryID uint) (domain.Country, error) {
+func (c *userDatabase) FindCountryByID(ctx context.Context, countryID uint) (domain.Country, error) {
 
 	var country domain.Country
 
 	if c.DB.Raw("SELECT * FROM countries WHERE id = ?", countryID).Scan(&country).Error != nil {
-		return country, errors.New("faild to find the country")
+		return country, errors.New("filed to find the country")
 	}
 
 	return country, nil
 }
 
 // save address
-func (c *userDatabse) SaveAddress(ctx context.Context, address domain.Address) (addressID uint, err error) {
+func (c *userDatabase) SaveAddress(ctx context.Context, address domain.Address) (addressID uint, err error) {
 
 	query := `INSERT INTO addresses (name,phone_number,house,area,land_mark,city,pincode,country_id,created_at) 
 	VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING id`
@@ -174,13 +176,13 @@ func (c *userDatabse) SaveAddress(ctx context.Context, address domain.Address) (
 		address.House, address.Area, address.LandMark, address.City,
 		address.Pincode, address.CountryID, createdAt,
 	).Scan(&address).Error != nil {
-		return addressID, errors.New("faild to insert address on database")
+		return addressID, errors.New("filed to insert address on database")
 	}
 	return address.ID, nil
 }
 
 // update address
-func (c *userDatabse) UpdateAddress(ctx context.Context, address domain.Address) error {
+func (c *userDatabase) UpdateAddress(ctx context.Context, address domain.Address) error {
 
 	query := `UPDATE addresses SET name=$1, phone_number=$2, house=$3, area=$4, land_mark=$5, 
 	city=$6, pincode=$7,country_id=$8, updated_at = $9 WHERE id=$10`
@@ -189,19 +191,19 @@ func (c *userDatabse) UpdateAddress(ctx context.Context, address domain.Address)
 	if c.DB.Raw(query, address.Name, address.PhoneNumber, address.House,
 		address.Area, address.LandMark, address.City, address.Pincode,
 		address.CountryID, updatedAt, address.ID).Scan(&address).Error != nil {
-		return errors.New("faild to update the address for edit address")
+		return errors.New("filed to update the address for edit address")
 	}
 	return nil
 }
 
-func (c *userDatabse) SaveUserAddress(ctx context.Context, userAddress domain.UserAddress) error {
+func (c *userDatabase) SaveUserAddress(ctx context.Context, userAddress domain.UserAddress) error {
 
 	// first check user's first address is this or not
 	var userID uint
 	query := `SELECT address_id FROM user_addresses WHERE user_id = $1`
 	err := c.DB.Raw(query, userAddress.UserID).Scan(&userID).Error
 	if err != nil {
-		return fmt.Errorf("faild to check user have already address exit or not with user_id %v", userAddress.UserID)
+		return fmt.Errorf("filed to check user have already address exit or not with user_id %v", userAddress.UserID)
 	}
 
 	// if the given address is need to set default  then remove all other from default
@@ -210,75 +212,75 @@ func (c *userDatabse) SaveUserAddress(ctx context.Context, userAddress domain.Us
 	} else if userAddress.IsDefault {
 		query := `UPDATE user_addresses SET is_default = 'f' WHERE user_id = ?`
 		if c.DB.Raw(query, userAddress.UserID).Scan(&userAddress).Error != nil {
-			return errors.New("faild to remove default status of address")
+			return errors.New("filed to remove default status of address")
 		}
 	}
 
 	query = `INSERT INTO user_addresses (user_id,address_id,is_default) VALUES ($1, $2, $3)`
 	err = c.DB.Exec(query, userAddress.UserID, userAddress.AddressID, userAddress.IsDefault).Error
 	if err != nil {
-		return errors.New("faild to inser userAddress on database")
+		return errors.New("filed to insert userAddress on database")
 	}
 	return nil
 }
 
-func (c *userDatabse) UpdateUserAddress(ctx context.Context, userAddress domain.UserAddress) error {
+func (c *userDatabase) UpdateUserAddress(ctx context.Context, userAddress domain.UserAddress) error {
 
 	// if it need to set default the change the old default
 	if userAddress.IsDefault {
 
 		query := `UPDATE user_addresses SET is_default = 'f' WHERE user_id = ?`
 		if c.DB.Raw(query, userAddress.UserID).Scan(&userAddress).Error != nil {
-			return errors.New("faild to remove default status of address")
+			return errors.New("filed to remove default status of address")
 		}
 	}
 
 	// update the user address
 	query := `UPDATE user_addresses SET is_default = ? WHERE address_id=? AND user_id=?`
 	if c.DB.Raw(query, userAddress.IsDefault, userAddress.AddressID, userAddress.UserID).Scan(&userAddress).Error != nil {
-		return errors.New("faild to update user address")
+		return errors.New("filed to update user address")
 	}
 	return nil
 }
 
 // wish list
 
-func (c *userDatabse) FindWishListItem(ctx context.Context, productID, userID uint) (domain.WishList, error) {
+func (c *userDatabase) FindWishListItem(ctx context.Context, productID, userID uint) (domain.WishList, error) {
 
 	var wishList domain.WishList
 	query := `SELECT * FROM wish_lists WHERE user_id=? AND product_item_id=?`
 	if c.DB.Raw(query, userID, productID).Scan(&wishList).Error != nil {
-		return wishList, errors.New("faild to find wishlist item")
+		return wishList, errors.New("filed to find wishlist item")
 	}
 	return wishList, nil
 }
 
-func (c *userDatabse) FindAllWishListItemsByUserID(ctx context.Context, userID uint) ([]res.WishList, error) {
+func (c *userDatabase) FindAllWishListItemsByUserID(ctx context.Context, userID uint) ([]res.WishList, error) {
 
 	var wishLists []res.WishList
 
 	query := `SELECT * FROM product_items pi JOIN products p ON pi.product_id=p.id JOIN wish_lists w ON w.product_item_id=pi.id AND w.user_id=?`
 	if c.DB.Raw(query, userID).Scan(&wishLists).Error != nil {
-		return wishLists, errors.New("faild to get wish_list items")
+		return wishLists, errors.New("filed to get wish_list items")
 	}
 	return wishLists, nil
 }
 
-func (c *userDatabse) SaveWishListItem(ctx context.Context, wishList domain.WishList) error {
+func (c *userDatabase) SaveWishListItem(ctx context.Context, wishList domain.WishList) error {
 
 	query := `INSERT INTO wish_lists (user_id,product_item_id) VALUES ($1,$2) RETURNING *`
 
 	if c.DB.Raw(query, wishList.UserID, wishList.ProductItemID).Scan(&wishList).Error != nil {
-		return errors.New("faild to insert new wishlist on database")
+		return errors.New("filed to insert new wishlist on database")
 	}
 	return nil
 }
 
-func (c *userDatabse) RemoveWishListItem(ctx context.Context, wishList domain.WishList) error {
+func (c *userDatabase) RemoveWishListItem(ctx context.Context, wishList domain.WishList) error {
 
 	query := `DELETE FROM wish_lists WHERE id=?`
 	if c.DB.Raw(query, wishList.ID).Scan(&wishList).Error != nil {
-		return errors.New("faild to delete productItem from database")
+		return errors.New("filed to delete productItem from database")
 	}
 	return nil
 }

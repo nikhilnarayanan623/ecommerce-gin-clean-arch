@@ -2,12 +2,11 @@ package handler
 
 import (
 	"errors"
+	"fmt"
 	"net/http"
-	"time"
 
 	"github.com/gin-gonic/gin"
 	handlerInterface "github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/api/handler/interfaces"
-	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/domain"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/usecase/interfaces"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/utils"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/utils/req"
@@ -50,81 +49,61 @@ func (c *OrderHandler) GetAllOrderStatuses(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, response)
 }
 
-func (c *OrderHandler) CartOrderPayementSelectPage(ctx *gin.Context) {
-
-	Payments, err := c.orderUseCase.GetAllPaymentMethods(ctx)
-	if err != nil {
-		ctx.HTML(200, "paymentForm.html", nil)
-		return
-	}
-
-	ctx.HTML(200, "paymentForm.html", Payments)
-}
-
-// PlaceOrderCartCOD godoc
+// PlaceOrder godoc
 // @summary api for user to place an order on cart with COD
 // @security ApiKeyAuth
 // @tags User Cart
-// @id PlaceOrderCartCOD
-// @Param        inputs   body     req.PlaceOrder{}   true  "Input Field"
-// @Router /carts/place-order/cod [post]
-// @Success 200 {object} res.Response{} "successfully order placed in COD"
+// @id PlaceOrder
+// @Param        inputs   body     req.OrderPayment{}   true  "Input Field"
+// @Router /carts/place-order/ [post]
+// @Success 200 {object} res.Response{} "successfully order placed"
 // @Failure 400 {object} res.Response{}  "invalid input"
 // @Failure 500 {object} res.Response{}  "faild to save shop order"
-func (c *OrderHandler) PlaceOrderCartCOD(ctx *gin.Context) {
+func (c *OrderHandler) PlaceOrder(ctx *gin.Context) {
 
 	var body req.PlaceOrder
 	if err := ctx.ShouldBindJSON(&body); err != nil {
-		response := res.ErrorResponse(400, "invalid input", err.Error(), body)
+		response := res.ErrorResponse(400, "faild to bind input", err.Error(), body)
 		ctx.JSON(http.StatusBadRequest, response)
 		return
 	}
 	userID := utils.GetUserIdFromContext(ctx)
 
-	//get the payment method of given payment_id and validate it COD or not
-	paymentMethod, err := c.orderUseCase.GetPaymentMethodByID(ctx, body.PaymentMethodID)
+	shopOrder, err := c.orderUseCase.PlaceOrder(ctx, userID, body)
+
 	if err != nil {
-		response := res.ErrorResponse(400, "faild to place order on COD", err.Error(), nil)
-		ctx.AbortWithStatusJSON(http.StatusBadRequest, response)
-		return
-	}
-	// check payment type is  razorpay or not
-	if paymentMethod.PaymentType != "COD" {
-		respones := res.ErrorResponse(400, "can't place order order", "selected payment_method_id is not for COD ", nil)
-		ctx.AbortWithStatusJSON(400, respones)
+		response := res.ErrorResponse(500, "faild to save order", err.Error(), nil)
+		ctx.JSON(500, response)
 		return
 	}
 
-	// get order details of user
-	userOrder, err := c.orderUseCase.GetOrderDetails(ctx, userID, body)
-	if err != nil {
-		response := res.ErrorResponse(400, "faild to place order", err.Error(), nil)
+	response := res.SuccessResponse(200, "successfully order placed for payment_pending", shopOrder)
+	ctx.JSON(200, response)
+}
+
+// ApproveOrderCOD godoc
+// @summary api for user to place an order on cart with COD
+// @security ApiKeyAuth
+// @tags User Cart
+// @id ApproveOrderCOD
+// @Param       inputs   body     req.OrderPayment{}   true  "Input Field"
+// @Router /carts/place-order/cod [post]
+// @Success 200 {object} res.Response{} "successfully order placed in COD"
+// @Failure 400 {object} res.Response{}  "invalid input"
+// @Failure 500 {object} res.Response{}  "faild to save shop order"
+func (c *OrderHandler) ApproveOrderCOD(ctx *gin.Context) {
+
+	var body req.OrderPayment
+	if err := ctx.ShouldBindJSON(&body); err != nil {
+		response := res.ErrorResponse(400, "faild to bind input", err.Error(), body)
 		ctx.JSON(http.StatusBadRequest, response)
 		return
 	}
-
-	// save shopOrder
-	// make a shopOrder
-	shopOrder := domain.ShopOrder{
-		UserID:          userID,
-		PaymentMethodID: body.PaymentMethodID,
-		AddressID:       body.AddressID,
-		OrderTotalPrice: userOrder.AmountToPay,
-		Discount:        userOrder.Discount,
-		OrderDate:       time.Now(),
-	}
-
-	// save order details
-	shopOrderID, err := c.orderUseCase.SaveOrder(ctx, shopOrder)
-	if err != nil {
-		shopOrder.ID = shopOrderID
-		response := res.ErrorResponse(500, "faild to save shop order", err.Error(), shopOrder)
-		ctx.JSON(http.StatusInternalServerError, response)
-		return
-	}
+	fmt.Println("hererer", body)
+	userID := utils.GetUserIdFromContext(ctx)
 
 	// approve the order and clear the user cart
-	err = c.orderUseCase.ApproveOrderAndClearCart(ctx, userID, shopOrderID, userOrder.CouponID)
+	err := c.orderUseCase.ApproveShopOrderAndClearCart(ctx, userID, body.ShopOrderID, body.PaymentMethodID)
 
 	if err != nil {
 		respnose := res.ErrorResponse(500, "faild to update approve order and clear cart", err.Error(), nil)
@@ -245,7 +224,7 @@ func (c *OrderHandler) GetOrderItemsByShopOrderItems(ctx *gin.Context) {
 // @description admin can change User Orders status
 // @id UdateOrderStatus
 // @tags Admin Orders
-// @Param input body req.ReqUpdateOrder true "input field"
+// @Param input body req.UpdateOrder{} true "input field"
 // @Router /admin/orders/ [put]
 // @Success 200 {object} res.Response{} "successfully got order items"
 // @Failure 400 {object} res.Response{} "invalid input"
@@ -466,7 +445,7 @@ func (c *OrderHandler) GetAllPendingReturns(ctx *gin.Context) {
 // @description admin can approve, cancell etc. updation on User Orders_return
 // @id UpdategReturnRequest
 // @tags Admin Orders
-// @Param input body req.ReqUpdatReturnOrder{} true "Input Fiields"
+// @Param input body req.UpdatOrderReturn{} true "Input Fiields"
 // @Router /admin/orders/returns/pending [put]
 // @Success 200 {object} res.Response{} "successfully order_response updated"
 // @Failure 500 {object} res.Response{} "invalid input"

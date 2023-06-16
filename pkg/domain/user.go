@@ -2,7 +2,8 @@ package domain
 
 import "time"
 
-// remove phone / passowrd / age not null constraints for google instant login and signup
+
+
 type User struct {
 	ID          uint      `json:"id" gorm:"primaryKey;unique"`
 	FirstName   string    `json:"first_name" gorm:"not null" binding:"required,min=2,max=50"`

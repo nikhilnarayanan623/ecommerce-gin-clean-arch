@@ -16,7 +16,6 @@ type CartRepository interface {
 	FindAllCartItemsByCartID(ctx context.Context, cartID uint) (cartItems []res.CartItem, err error)
 	SaveCartItem(ctx context.Context, cartId, productItemId uint) error
 	DeleteCartItem(ctx context.Context, cartItemID uint) error
-	DeleteAllCartItemsByUserID(ctx context.Context, userID uint) error // this used for order time cart remove using user_id
 	DeleteAllCartItemsByCartID(ctx context.Context, cartID uint) error
 	UpdateCartItemQty(ctx context.Context, cartItemId, qty uint) error
 

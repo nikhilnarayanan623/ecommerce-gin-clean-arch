@@ -6,20 +6,33 @@ import (
 	"log"
 
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/domain"
+	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/repository/interfaces"
+	service "github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/usecase/interfaces"
+	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/utils/req"
 )
 
-func (c *OrderUseCase) GetAllPaymentMethods(ctx context.Context) ([]domain.PaymentMethod, error) {
-	return c.orderRepo.FindAllPaymentMethods(ctx)
+type paymentUseCase struct {
+	paymentRepo interfaces.PaymentRepository
 }
 
-func (c *OrderUseCase) GetPaymentMethodByID(ctx context.Context, paymentMethodID uint) (domain.PaymentMethod, error) {
-	return c.orderRepo.FindPaymentMethodByID(ctx, paymentMethodID)
+func NewPaymentUseCase(paymentRepo interfaces.PaymentRepository) service.PaymentUseCase {
+	return &paymentUseCase{
+		paymentRepo: paymentRepo,
+	}
 }
 
-func (c *OrderUseCase) AddPaymentMethod(ctx context.Context, paymentMethod domain.PaymentMethod) error {
+func (c *paymentUseCase) GetAllPaymentMethods(ctx context.Context) ([]domain.PaymentMethod, error) {
+	return c.paymentRepo.FindAllPaymentMethods(ctx)
+}
+
+func (c *paymentUseCase) GetPaymentMethodByID(ctx context.Context, paymentMethodID uint) (domain.PaymentMethod, error) {
+	return c.paymentRepo.FindPaymentMethodByID(ctx, paymentMethodID)
+}
+
+func (c *paymentUseCase) AddPaymentMethod(ctx context.Context, paymentMethod domain.PaymentMethod) error {
 
 	// first check the payment_method alreadcy exist with given payment_type
-	checkPayment, err := c.orderRepo.FindPaymentMethodByType(ctx, paymentMethod.PaymentType)
+	checkPayment, err := c.paymentRepo.FindPaymentMethodByType(ctx, paymentMethod.PaymentType)
 	if err != nil {
 		return err
 	} else if checkPayment.ID != 0 {
@@ -27,7 +40,7 @@ func (c *OrderUseCase) AddPaymentMethod(ctx context.Context, paymentMethod domai
 	}
 
 	// save payment
-	paymentMethodID, err := c.orderRepo.SavePaymentMethod(ctx, paymentMethod)
+	paymentMethodID, err := c.paymentRepo.SavePaymentMethod(ctx, paymentMethod)
 	if err != nil {
 		return err
 	}
@@ -35,25 +48,25 @@ func (c *OrderUseCase) AddPaymentMethod(ctx context.Context, paymentMethod domai
 	log.Printf("successfully saved payment method for payment_type %v with id %v", paymentMethod.PaymentType, paymentMethodID)
 	return nil
 }
-func (c *OrderUseCase) EditPaymentMethod(ctx context.Context, paymentMethod domain.PaymentMethod) error {
+func (c *paymentUseCase) EditPaymentMethod(ctx context.Context, paymentMethod req.PaymentMethodUpdate) error {
 
 	// first check the given payement_method_id is valid or not
-	checkPayment, err := c.orderRepo.FindPaymentMethodByID(ctx, paymentMethod.ID)
+	checkPayment, err := c.paymentRepo.FindPaymentMethodByID(ctx, paymentMethod.ID)
 	if err != nil {
 		return err
 	} else if checkPayment.ID == 0 {
 		return fmt.Errorf("invalid payment_method_id %v", paymentMethod.ID)
 	}
 
-	// check the given payment_type already exist
-	checkPayment, err = c.orderRepo.FindPaymentMethodByType(ctx, paymentMethod.PaymentType)
-	if err != nil {
-		return err
-	} else if checkPayment.ID != 0 && checkPayment.ID != paymentMethod.ID {
-		return fmt.Errorf("an payment_method already exist wtih given payment_type %v", paymentMethod.PaymentType)
-	}
+	// // check the given payment_type already exist
+	// checkPayment, err = c.paymentRepo.FindPaymentMethodByType(ctx, paymentMethod.PaymentType)
+	// if err != nil {
+	// 	return err
+	// } else if checkPayment.ID != 0 && checkPayment.ID != paymentMethod.ID {
+	// 	return fmt.Errorf("an payment_method already exist wtih given payment_type %v", paymentMethod.PaymentType)
+	// }
 
-	err = c.orderRepo.UpdatePaymentMethod(ctx, paymentMethod)
+	err = c.paymentRepo.UpdatePaymentMethod(ctx, paymentMethod)
 	if err != nil {
 		return err
 	}

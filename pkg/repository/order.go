@@ -36,6 +36,19 @@ func (c *OrderDatabase) Transaction(callBack func(trxRepo interfaces.OrderReposi
 	return err
 }
 
+func (c *OrderDatabase) IsShpoOrderIDIsValid(ctx context.Context, shopOrderID uint) error {
+	var exist bool
+	query := `SELECT EXISTS(SELECT 1 FROM shop_orders WHERE id = $1) AS exist`
+	err := c.DB.Raw(query, shopOrderID).Scan(&exist).Error
+	if err != nil {
+		return err
+	} else if !exist {
+		return fmt.Errorf("shop_order_id not exist")
+	}
+
+	return nil
+}
+
 // find a specific shop order by shopOrderID
 func (c *OrderDatabase) FindShopOrderByShopOrderID(ctx context.Context, shopOrderID uint) (shopOrder domain.ShopOrder, err error) {
 
@@ -53,9 +66,12 @@ func (c *OrderDatabase) FindAllShopOrdersByUserID(ctx context.Context, userID ui
 
 	var shopOrders []res.ShopOrder
 	query := `SELECT so.user_id, so.id AS shop_order_id, so.order_date, so.order_total_price,so.discount, 
-	so.order_status_id, os.status AS order_status,so.address_id,so.payment_method_id, pm.payment_type  
+	so.order_status_id, os.status AS order_status,so.address_id, 
+	CASE WHEN so.payment_method_id != 0 
+	THEN (SELECT payment_type FROM payment_methods WHERE id = so.payment_method_id) ELSE '' END AS payment_type  
 	FROM shop_orders so JOIN order_statuses os ON so.order_status_id = os.id 
-	INNER JOIN payment_methods pm ON so.payment_method_id = pm.id WHERE user_id = $1 ORDER BY order_date DESC LIMIT $2 OFFSET  $3`
+	WHERE user_id = $1 
+	ORDER BY order_date DESC LIMIT $2 OFFSET  $3`
 	err := c.DB.Raw(query, userID, limit, offset).Scan(&shopOrders).Error
 	if err != nil {
 		return shopOrders, err
@@ -125,12 +141,12 @@ func (c *OrderDatabase) SaveShopOrder(ctx context.Context, shopOrder domain.Shop
 
 	// save the shop_order
 	query := `INSERT INTO shop_orders (user_id,address_id, order_total_price, discount, 
-	order_status_id,order_date, payment_method_id) 
-	VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING id`
+	order_status_id,order_date) 
+	VALUES ($1, $2, $3, $4, $5, $6) RETURNING id`
 
 	orderDate := time.Now()
 	if c.DB.Raw(query, shopOrder.UserID, shopOrder.AddressID, shopOrder.OrderTotalPrice, shopOrder.Discount,
-		shopOrder.OrderStatusID, orderDate, shopOrder.PaymentMethodID).Scan(&shopOrderID).Error != nil {
+		shopOrder.OrderStatusID, orderDate).Scan(&shopOrderID).Error != nil {
 		return 0, errors.New("faild to save shop_order")
 	}
 
@@ -148,6 +164,14 @@ func (c *OrderDatabase) SaveOrderLine(ctx context.Context, orderLine domain.Orde
 }
 
 //!end
+
+func (c *OrderDatabase) FindOrderStatusByShopOrderID(ctx context.Context, shopOrderID uint) (orderStatus domain.OrderStatus, err error) {
+	query := `SELECT * FROM order_statuses
+	WHERE id = (SELECT order_status_id FROM shop_orders WHERE id = $1)`
+	err = c.DB.Raw(query, shopOrderID).Scan(&orderStatus).Error
+
+	return orderStatus, err
+}
 
 // find order status
 func (c *OrderDatabase) FindOrderStatusByID(ctx context.Context, orderStatusID uint) (domain.OrderStatus, error) {
@@ -174,17 +198,20 @@ func (c *OrderDatabase) FindAllOrderStauses(ctx context.Context) ([]domain.Order
 	return orderStatuses, nil
 }
 
-// admin side status change
 func (c *OrderDatabase) UpdateShopOrderOrderStatus(ctx context.Context, shopOrderID, changeStatusID uint) error {
 
-	// any other change the status
-	query := `UPDATE shop_orders SET order_status_id = ? WHERE id = ?`
+	query := `UPDATE shop_orders SET order_status_id = $1 WHERE id = $2`
 	err := c.DB.Exec(query, changeStatusID, shopOrderID).Error
 
 	return err
 }
 
-// order return
+func (c *OrderDatabase) UpdateShopOrderStatusAndPaymentID(ctx context.Context, shopOrderID, statusID, paymentID uint) error {
+	query := `UPDATE shop_orders SET order_status_id = $1 , payment_method_id = $2 WHERE id = $3`
+	err := c.DB.Exec(query, statusID, paymentID, shopOrderID).Error
+
+	return err
+}
 
 func (c *OrderDatabase) FindOrderReturnByReturnID(ctx context.Context, orderReturnID uint) (orderReturn domain.OrderReturn, err error) {
 

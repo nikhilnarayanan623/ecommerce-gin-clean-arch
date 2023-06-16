@@ -8,7 +8,7 @@ import (
 
 func UserRoutes(api *gin.RouterGroup, authHandler handlerInterface.AuthHandler, middleware middleware.Middleware,
 	userHandler handlerInterface.UserHandler, cartHandler handlerInterface.CartHandler,
-	ProductHandler handlerInterface.ProductHandler,
+	ProductHandler handlerInterface.ProductHandler, paymentHandler handlerInterface.PaymentHandler,
 	orderHandler handlerInterface.OrderHandler, couponHandler handlerInterface.CouponHandler,
 ) {
 
@@ -56,17 +56,16 @@ func UserRoutes(api *gin.RouterGroup, authHandler handlerInterface.AuthHandler, 
 			// 		cart.PATCH("/apply-coupon", couponHandler.ApplyCouponToCart)
 
 			// 		cart.GET("/paymet-methods", orderHandler.GetAllPaymentMethods)
+			cart.GET("/checkout/payemt-select-page", paymentHandler.CartOrderPayementSelectPage)
 
-			cart.POST("/place-order/cod", orderHandler.PlaceOrderCartCOD) // place an order
+			cart.POST("/place-order", orderHandler.PlaceOrder)
+			cart.POST("/place-order/cod", orderHandler.ApproveOrderCOD)
 
 			// 		//cart.GET("/checkout", userHandler.CheckOutCart, orderHandler.GetAllPaymentMethods)
 
-			// 		// page for select payment method
-			// 		cart.GET("/checkout/payemt-select-page", orderHandler.CartOrderPayementSelectPage)
-
 			// 		// make razorpay order and verify
-			// 		cart.POST("/place-order/razorpay-checkout", orderHandler.RazorpayCheckout)
-			// 		cart.POST("/place-order/razorpay-verify", orderHandler.RazorpayVerify)
+			cart.POST("/place-order/razorpay-checkout", orderHandler.RazorpayCheckout)
+			cart.POST("/place-order/razorpay-verify", orderHandler.RazorpayVerify)
 
 			// 		// stripe
 			// 		cart.POST("/place-order/stripe-checkout", orderHandler.StripPaymentCheckout)
@@ -81,21 +80,21 @@ func UserRoutes(api *gin.RouterGroup, authHandler handlerInterface.AuthHandler, 
 		// 		wishList.DELETE("/:id", userHandler.RemoveFromWishList)
 		// 	}
 
-		// 	// profile
-		// 	account := api.Group("/account")
-		// 	{
-		// 		account.GET("/", userHandler.Account)
-		// 		account.PUT("/", userHandler.UpateAccount)
+		// profile
+		account := api.Group("/account")
+		{
+			account.GET("/", userHandler.GetUserProfile)
+			account.PUT("/", userHandler.UpdateUserProfile)
 
-		// 		account.GET("/address", userHandler.GetAddresses) // to show all address and // show countries
-		// 		account.POST("/address", userHandler.AddAddress)  // to add a new address
-		// 		account.PUT("/address", userHandler.EditAddress)  // to edit address
-		// 		account.DELETE("/address", userHandler.DeleteAddress)
+			account.GET("/address", userHandler.GetAllAddresses) // to show all address and // show countries
+			account.POST("/address", userHandler.AddAddress)     // to add a new address
+			account.PUT("/address", userHandler.UpdateAddress)   // to edit address
+			// account.DELETE("/address", userHandler.DeleteAddress)
 
-		// 		// wallet for user
-		// 		account.GET("/wallet", orderHandler.GetUserWallet)
-		// 		account.GET("/wallet/transactions", orderHandler.GetUserWalletTransactions)
-		// 	}
+			// wallet for user
+			account.GET("/wallet", orderHandler.GetUserWallet)
+			account.GET("/wallet/transactions", orderHandler.GetUserWalletTransactions)
+		}
 
 		// 	// order
 		orders := api.Group("/orders")
@@ -104,7 +103,6 @@ func UserRoutes(api *gin.RouterGroup, authHandler handlerInterface.AuthHandler, 
 			orders.GET("/items", orderHandler.GetOrderItemsByShopOrderItems) //get order items for specific order
 
 			orders.POST("/return", orderHandler.SubmitReturnRequest)
-
 			orders.POST("/cancel/:shop_order_id", orderHandler.CancellOrder) // cancell an order
 		}
 

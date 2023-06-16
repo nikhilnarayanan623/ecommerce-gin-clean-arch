@@ -21,8 +21,12 @@ type UpdatOrderReturn struct {
 }
 
 type PlaceOrder struct {
-	PaymentMethodID uint `json:"payment_method_id" binding:"required"`
-	AddressID       uint `json:"address_id" binding:"required"`
+	AddressID uint `json:"address_id" binding:"required"`
+}
+
+type OrderPayment struct {
+	ShopOrderID     uint `json:"shop_order_id" binding:"required" `
+	PaymentMethodID uint `json:"payment_method_id"  binding:"required"`
 }
 
 type RazorpayVeification struct {

@@ -33,7 +33,7 @@ func (c *cartDatabase) FindCartByUserID(ctx context.Context, userID uint) (cart 
 // save cart for user
 func (c *cartDatabase) SaveCart(ctx context.Context, userID uint) (cartID uint, err error) {
 
-	query := `INSERT INTO carts (user_id,total_price) VALUES($1, $2) RETURNING cart_id`
+	query := `INSERT INTO carts (user_id,total_price) VALUES($1, $2) RETURNING id`
 	err = c.DB.Raw(query, userID, 0).Scan(&cartID).Error
 
 	return cartID, err
@@ -41,7 +41,7 @@ func (c *cartDatabase) SaveCart(ctx context.Context, userID uint) (cartID uint, 
 
 func (c *cartDatabase) UpdateCart(ctx context.Context, cartId, discountAmount, couponID uint) error {
 
-	query := `UPDATE carts SET discount_amount = $1, applied_coupon_id = $2 WHERE cart_id = $3`
+	query := `UPDATE carts SET discount_amount = $1, applied_coupon_id = $2 WHERE id = $3`
 	err := c.DB.Exec(query, discountAmount, couponID, cartId).Error
 	if err != nil {
 		return fmt.Errorf("faild to udpate discount price on cart for coupon")
@@ -51,7 +51,7 @@ func (c *cartDatabase) UpdateCart(ctx context.Context, cartId, discountAmount, c
 
 // find cart_items
 func (c *cartDatabase) FindCartItemByID(ctx context.Context, cartItemID uint) (cartItem domain.CartItem, err error) {
-	query := `SELECT * FROM cart_items WHERE cart_item_id = ?`
+	query := `SELECT * FROM cart_items WHERE id = ?`
 	if c.DB.Raw(query, cartItemID).Scan(&cartItem).Error != nil {
 		return cartItem, errors.New("faild to find cart_item with cart_item_id")
 	}
@@ -59,24 +59,20 @@ func (c *cartDatabase) FindCartItemByID(ctx context.Context, cartItemID uint) (c
 	return cartItem, nil
 }
 
-// find cart_item by cart_id and product_item id (can use for checking proudct already exit )
 func (c *cartDatabase) FindCartItemByCartAndProductItemID(ctx context.Context, cartID, productItemID uint) (cartItem domain.CartItem, err error) {
 	query := `SELECT * FROM cart_items WHERE cart_id = $1 AND product_item_id = $2`
-	if c.DB.Raw(query, cartID, productItemID).Scan(&cartItem).Error != nil {
-		return cartItem, errors.New("faild to find cart_item with given cart_id and product_item_id")
-	}
-	return cartItem, nil
+	err = c.DB.Raw(query, cartID, productItemID).Scan(&cartItem).Error
+
+	return cartItem, err
 }
 
 // add a productItem to cartitem
 func (c *cartDatabase) SaveCartItem(ctx context.Context, cartId, productItemId uint) error {
 
 	querry := `INSERT INTO cart_items (cart_id, product_item_id, qty) VALUES ($1, $2, $3)`
-	if c.DB.Exec(querry, cartId, productItemId, 1).Error != nil {
-		return errors.New("faild to save cart_items")
-	}
+	err := c.DB.Exec(querry, cartId, productItemId, 1).Error
 
-	return nil
+	return err
 }
 
 func (c *cartDatabase) DeleteCartItem(ctx context.Context, cartItemID uint) error {
@@ -88,13 +84,6 @@ func (c *cartDatabase) DeleteCartItem(ctx context.Context, cartItemID uint) erro
 
 	return nil
 }
-func (c *cartDatabase) DeleteAllCartItemsByUserID(ctx context.Context, userID uint) error {
-
-	query := ` DELETE FROM cart_items ci USING carts c WHERE c.cart_id = ci.cart_id AND c.user_id = $1`
-	err := c.DB.Exec(query, userID).Error
-
-	return err
-}
 
 func (c *cartDatabase) DeleteAllCartItemsByCartID(ctx context.Context, cartID uint) error {
 
@@ -104,8 +93,8 @@ func (c *cartDatabase) DeleteAllCartItemsByCartID(ctx context.Context, cartID ui
 }
 
 func (c *cartDatabase) UpdateCartItemQty(ctx context.Context, cartItemId, qty uint) error {
-
-	query := `UPDATE cart_items SET qty = $1 WHERE cart_item_id = $2`
+	fmt.Println("cart: ", cartItemId, qty)
+	query := `UPDATE cart_items SET qty = $1 WHERE id = $2`
 	if c.DB.Exec(query, qty, cartItemId).Error != nil {
 		return errors.New("faild to update the qty of cart_item")
 	}
@@ -140,7 +129,7 @@ func (c *cartDatabase) CheckcartIsValidForOrder(ctx context.Context, userID uint
 	var idOfOneOutOfStockProduct uint
 	query := `SELECT DISTINCT pi.id FROM product_items pi 
 	INNER JOIN cart_items ci ON pi.id = ci.product_item_id 
-	INNER JOIN carts c ON ci.cart_id = c.cart_id 
+	INNER JOIN carts c ON ci.cart_id = c.id 
 	WHERE c.user_id = 2 AND pi.qty_in_stock <= 0`
 
 	err = c.DB.Raw(query).Scan(&idOfOneOutOfStockProduct).Error

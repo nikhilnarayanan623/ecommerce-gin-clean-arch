@@ -9,8 +9,8 @@ type OrderHandler interface {
 	RazorpayCheckout(ctx *gin.Context)
 	RazorpayVerify(ctx *gin.Context)
 
-	CartOrderPayementSelectPage(ctx *gin.Context)
-	PlaceOrderCartCOD(ctx *gin.Context)
+	PlaceOrder(ctx *gin.Context)
+	ApproveOrderCOD(ctx *gin.Context)
 	CancellOrder(ctx *gin.Context)
 	SubmitReturnRequest(ctx *gin.Context)
 
@@ -24,8 +24,7 @@ type OrderHandler interface {
 	GetAllPendingReturns(ctx *gin.Context)
 	UpdateReturnRequest(ctx *gin.Context)
 
-	// payment
-	AddPaymentMethod(ctx *gin.Context)
-	UpdatePaymentMethod(ctx *gin.Context)
-	GetAllPaymentMethods(ctx *gin.Context)
+	// walltet
+	GetUserWallet(ctx *gin.Context)
+	GetUserWalletTransactions(ctx *gin.Context)
 }
