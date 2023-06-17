@@ -2,9 +2,12 @@ package token
 
 import (
 	"errors"
+	"fmt"
+	"time"
 
-	"github.com/golang-jwt/jwt"
+	"github.com/golang-jwt/jwt/v4"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/config"
+	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/utils"
 )
 
 type jwtAuth struct {
@@ -12,74 +15,113 @@ type jwtAuth struct {
 	userSecretKey  string
 }
 
-func NewJWTAuth(cfg config.Config) TokenAuth {
+// New TokenAuth
+func NewTokenService(cfg config.Config) TokenService {
+
 	return &jwtAuth{
-		adminSecretKey: cfg.JWTAdmin,
-		userSecretKey:  cfg.JWTUser,
+		adminSecretKey: cfg.AdminAuthKey,
+		userSecretKey:  cfg.UserAuthKey,
 	}
 }
 
-func (c *jwtAuth) CreateToken(payload *Payload, usedFor UserType) (tokenString string, err error) {
+var (
+	ErrInvalidUserType    = errors.New("invalid user type")
+	ErrInvalidToken       = errors.New("invalid token")
+	ErrFailedToParseToken = errors.New("failed to parse token to claims")
+	ErrExpiredToken       = errors.New("token expired")
+)
 
-	if payload == nil {
-		return "", errors.New("payload should not be nil")
+type jwtClaims struct {
+	TokenID   string
+	UserID    uint
+	ExpiresAt time.Time
+	// jwt.RegisteredClaims
+}
+
+// Generate a new JWT token string from token request
+func (c *jwtAuth) GenerateToken(req GenerateTokenRequest) (GenerateTokenResponse, error) {
+
+	if req.UsedFor != Admin && req.UsedFor != User {
+
+		return GenerateTokenResponse{}, ErrInvalidUserType
 	}
 
-	var signInKey []byte
-
-	switch usedFor {
-	case TokenForAdmin:
-		signInKey = []byte(c.adminSecretKey)
-	case TokenForUser:
-		signInKey = []byte(c.userSecretKey)
-	default:
-		return tokenString, errors.New("invalid user_type")
+	tokenID := utils.GenerateUniqueString()
+	claims := &jwtClaims{
+		TokenID: tokenID,
+		UserID:  req.UserID,
+		// RegisteredClaims: jwt.RegisteredClaims{
+		// 	ExpiresAt: jwt.NewNumericDate(req.ExpirationDate),
+		// },
+		ExpiresAt: req.ExpireAt,
 	}
 
-	jwtToken := jwt.NewWithClaims(jwt.SigningMethodHS256, payload)
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 
-	tokenString, err = jwtToken.SignedString(signInKey)
+	var (
+		tokenString string
+		err         error
+	)
+	// sign the token by user type
+	if req.UsedFor == Admin {
+		tokenString, err = token.SignedString([]byte(c.adminSecretKey))
+	} else {
+		tokenString, err = token.SignedString([]byte(c.userSecretKey))
+	}
+
 	if err != nil {
-		return "", errors.New("faild to sign the token with sign key")
+		return GenerateTokenResponse{}, fmt.Errorf("failed to sign the token \nerror:%w", err)
 	}
 
-	return tokenString, nil
+	response := GenerateTokenResponse{
+		TokenID:     tokenID,
+		TokenString: tokenString,
+	}
+
+	return response, nil
 }
 
-func (c *jwtAuth) VerifyToken(tokenString string, usedFor UserType) (payload Payload, err error) {
+// Verify JWT token string and return TokenResponse
+func (c *jwtAuth) VerifyToken(req VerifyTokenRequest) (VerifyTokenResponse, error) {
 
-	var signInKey []byte
-
-	switch usedFor {
-	case TokenForAdmin:
-		signInKey = []byte(c.adminSecretKey)
-	case TokenForUser:
-		signInKey = []byte(c.userSecretKey)
-	default:
-		return payload, errors.New("invalid user_type")
+	if req.UsedFor != Admin && req.UsedFor != User {
+		return VerifyTokenResponse{}, ErrInvalidUserType
 	}
 
-	jwtToken, err := jwt.ParseWithClaims(tokenString, &Payload{}, func(t *jwt.Token) (interface{}, error) {
+	token, err := jwt.ParseWithClaims(req.TokenString, &jwtClaims{}, func(t *jwt.Token) (interface{}, error) {
+
 		if _, ok := t.Method.(*jwt.SigningMethodHMAC); !ok {
-			return nil, errInvalidToken
+			return nil, ErrInvalidToken
 		}
-		return signInKey, nil
+		if req.UsedFor == Admin {
+			return []byte(c.adminSecretKey), nil
+		}
+		return []byte(c.userSecretKey), nil
 	})
 
 	if err != nil {
-		validationErr, ok := err.(*jwt.ValidationError)
-		if ok && errors.Is(validationErr.Inner, errExpiredToken) {
-			return payload, errExpiredToken
+		if errors.Is(err, ErrExpiredToken) {
+			return VerifyTokenResponse{}, ErrExpiredToken
 		}
-		return payload, errInvalidToken
+		return VerifyTokenResponse{}, ErrInvalidToken
 	}
 
-	convertedPayload, ok := jwtToken.Claims.(*Payload)
+	claims, ok := token.Claims.(*jwtClaims)
 	if !ok {
-		return payload, errInvalidToken
+		return VerifyTokenResponse{}, ErrFailedToParseToken
 	}
 
-	payload = *convertedPayload
+	response := VerifyTokenResponse{
+		TokenID: claims.TokenID,
+		UserID:  claims.UserID,
+	}
+	return response, nil
+}
 
-	return
+// Validate claims
+func (c *jwtClaims) Valid() error {
+	if time.Since(c.ExpiresAt) > 0 {
+		return ErrExpiredToken
+	}
+	return nil
 }
