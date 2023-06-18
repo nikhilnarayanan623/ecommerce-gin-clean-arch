@@ -21,7 +21,7 @@ func UserRoutes(api *gin.RouterGroup, authHandler handlerInterface.AuthHandler, 
 
 		// login page
 		login.GET("/", authHandler.UserGoogleAuthLoginPage)
-		login.GET("/auth/", authHandler.UserGoogleAuthIntialize)
+		login.GET("/auth/", authHandler.UserGoogleAuthInitialize)
 		login.GET("/auth/google/callback", authHandler.UserGoogleAuthCallBack)
 	}
 	api.POST("/renew-access-token", authHandler.UserRenewAccessToken())
@@ -32,7 +32,7 @@ func UserRoutes(api *gin.RouterGroup, authHandler handlerInterface.AuthHandler, 
 		signup.POST("/", authHandler.UserSignUp)
 	}
 
-	api.Use(middleware.GetUserMiddleware())
+	api.Use(middleware.GetUserAuthMiddleware())
 	{
 
 		api.GET("/", userHandler.Home)
@@ -41,22 +41,22 @@ func UserRoutes(api *gin.RouterGroup, authHandler handlerInterface.AuthHandler, 
 		// products
 		products := api.Group("/products")
 		{
-			products.GET("/", ProductHandler.GetAllProducts)                          // show products
-			products.GET("/product-item/:product_id", ProductHandler.GetProductItems) // show product items of a product
+			products.GET("/", ProductHandler.FindAllProducts)                          // show products
+			products.GET("/product-item/:product_id", ProductHandler.FindProductItems) // show product items of a product
 		}
 
 		// 	// cart
 		cart := api.Group("/carts")
 		{
-			cart.GET("/", cartHandler.ShowCart)
-			cart.POST("/", cartHandler.AddToCart)
+			cart.GET("/", cartHandler.FindCart)
+			cart.POST("/:product_item_id", cartHandler.AddToCart)
 			cart.PUT("/", cartHandler.UpdateCart)
 			cart.DELETE("/", cartHandler.RemoveFromCart)
 
 			// 		cart.PATCH("/apply-coupon", couponHandler.ApplyCouponToCart)
 
-			// 		cart.GET("/paymet-methods", orderHandler.GetAllPaymentMethods)
-			cart.GET("/checkout/payemt-select-page", paymentHandler.CartOrderPayementSelectPage)
+			// 		cart.GET("/payment-methods", orderHandler.GetAllPaymentMethods)
+			cart.GET("/checkout/payment-select-page", paymentHandler.CartOrderPaymentSelectPage)
 
 			cart.POST("/place-order", orderHandler.PlaceOrder)
 			cart.POST("/place-order/cod", orderHandler.ApproveOrderCOD)
@@ -83,27 +83,27 @@ func UserRoutes(api *gin.RouterGroup, authHandler handlerInterface.AuthHandler, 
 		// profile
 		account := api.Group("/account")
 		{
-			account.GET("/", userHandler.GetUserProfile)
-			account.PUT("/", userHandler.UpdateUserProfile)
+			account.GET("/", userHandler.FindProfile)
+			account.PUT("/", userHandler.UpdateProfile)
 
-			account.GET("/address", userHandler.GetAllAddresses) // to show all address and // show countries
-			account.POST("/address", userHandler.AddAddress)     // to add a new address
-			account.PUT("/address", userHandler.UpdateAddress)   // to edit address
+			account.GET("/address", userHandler.FindAllAddresses) // to show all address and // show countries
+			account.POST("/address", userHandler.SaveAddress)     // to add a new address
+			account.PUT("/address", userHandler.UpdateAddress)    // to edit address
 			// account.DELETE("/address", userHandler.DeleteAddress)
 
 			// wallet for user
-			account.GET("/wallet", orderHandler.GetUserWallet)
-			account.GET("/wallet/transactions", orderHandler.GetUserWalletTransactions)
+			account.GET("/wallet", orderHandler.FindUserWallet)
+			account.GET("/wallet/transactions", orderHandler.FindUserWalletTransactions)
 		}
 
 		// 	// order
 		orders := api.Group("/orders")
 		{
-			orders.GET("/", orderHandler.GetUserOrder)                       // get all order list for user
-			orders.GET("/items", orderHandler.GetOrderItemsByShopOrderItems) //get order items for specific order
+			orders.GET("/", orderHandler.FindUserOrder)          // get all order list for user
+			orders.GET("/items", orderHandler.FindAllOrderItems) //get order items for specific order
 
 			orders.POST("/return", orderHandler.SubmitReturnRequest)
-			orders.POST("/cancel/:shop_order_id", orderHandler.CancellOrder) // cancell an order
+			orders.POST("/cancel/:shop_order_id", orderHandler.CancelOrder) // cancell an order
 		}
 
 		// 	//coupons

@@ -8,8 +8,8 @@ import (
 
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/domain"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/repository/interfaces"
-	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/utils/req"
-	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/utils/res"
+	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/utils/request"
+	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/utils/response"
 	"gorm.io/gorm"
 )
 
@@ -38,17 +38,15 @@ func (c *adminDatabase) FindAdminByUserName(ctx context.Context, userName string
 }
 
 func (c *adminDatabase) SaveAdmin(ctx context.Context, admin domain.Admin) error {
-
-	querry := `INSERT INTO admins (user_name,email,password,created_at) VALUES ($1, $2, $3, $4)`
+	fmt.Println(admin)
+	query := `INSERT INTO admins (user_name, email, password, created_at) VALUES ($1, $2, $3, $4)`
 	createdAt := time.Now()
-	if c.DB.Exec(querry, admin.UserName, admin.Email, admin.Password, createdAt).Error != nil {
-		return errors.New("faild to save admin")
-	}
+	err := c.DB.Exec(query, admin.UserName, admin.Email, admin.Password, createdAt).Error
 
-	return nil
+	return err
 }
 
-func (c *adminDatabase) FindAllUser(ctx context.Context, pagination req.Pagination) (users []res.User, err error) {
+func (c *adminDatabase) FindAllUser(ctx context.Context, pagination request.Pagination) (users []response.User, err error) {
 
 	limit := pagination.Count
 	offset := (pagination.PageNumber - 1) * limit
@@ -60,7 +58,7 @@ func (c *adminDatabase) FindAllUser(ctx context.Context, pagination req.Paginati
 }
 
 // sales report from order // !add  product wise report
-func (c *adminDatabase) CreateFullSalesReport(ctc context.Context, reqData req.SalesReport) (salesReport []res.SalesReport, err error) {
+func (c *adminDatabase) CreateFullSalesReport(ctc context.Context, reqData request.SalesReport) (salesReport []response.SalesReport, err error) {
 
 	limit := reqData.Pagination.Count
 	offset := (reqData.Pagination.PageNumber - 1) * limit
@@ -84,7 +82,7 @@ func (c *adminDatabase) CreateFullSalesReport(ctc context.Context, reqData req.S
 }
 
 // stock side
-func (c *adminDatabase) FindStockBySKU(ctx context.Context, sku string) (stock res.Stock, err error) {
+func (c *adminDatabase) FindStockBySKU(ctx context.Context, sku string) (stock response.Stock, err error) {
 	query := `SELECT pi.sku, pi.qty_in_stock, pi.price, p.product_name, vo.variation_value 
 	FROM product_items pi INNER JOIN products p ON p.id = pi.product_id 
 	INNER JOIN product_configurations pc ON pc.product_item_id = pi.id 
@@ -92,14 +90,11 @@ func (c *adminDatabase) FindStockBySKU(ctx context.Context, sku string) (stock r
 	WHERE pi.sku = $1`
 
 	err = c.DB.Raw(query, sku).Scan(&stock).Error
-	if err != nil {
-		return stock, fmt.Errorf("faild to find stock detils of sku %v", sku)
-	}
 
-	return stock, nil
+	return stock, err
 }
 
-func (c *adminDatabase) FindAllStockDetails(ctx context.Context, pagination req.Pagination) (stocks []res.Stock, err error) {
+func (c *adminDatabase) FindAllStockDetails(ctx context.Context, pagination request.Pagination) (stocks []response.Stock, err error) {
 
 	limit := pagination.Count
 	offset := (pagination.PageNumber - 1) * limit
@@ -119,7 +114,7 @@ func (c *adminDatabase) FindAllStockDetails(ctx context.Context, pagination req.
 	return stocks, nil
 }
 
-func (c *adminDatabase) UpdateStock(ctx context.Context, valuesToUpdate req.UpdateStock) error {
+func (c *adminDatabase) UpdateStock(ctx context.Context, valuesToUpdate request.UpdateStock) error {
 
 	query := `UPDATE product_items SET qty_in_stock = qty_in_stock + $1 WHERE sku = $2`
 

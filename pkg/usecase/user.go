@@ -11,8 +11,8 @@ import (
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/repository/interfaces"
 	service "github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/usecase/interfaces"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/utils"
-	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/utils/req"
-	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/utils/res"
+	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/utils/request"
+	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/utils/response"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -28,7 +28,7 @@ func NewUserUseCase(userRepo interfaces.UserRepository, cartRepo interfaces.Cart
 	}
 }
 
-func (c *userUserCase) Account(ctx context.Context, userID uint) (domain.User, error) {
+func (c *userUserCase) FindProfile(ctx context.Context, userID uint) (domain.User, error) {
 
 	var user = domain.User{ID: userID}
 	// user, err := c.userRepo.FindUser(ctx, user)
@@ -37,7 +37,7 @@ func (c *userUserCase) Account(ctx context.Context, userID uint) (domain.User, e
 
 }
 
-func (c *userUserCase) EditAccount(ctx context.Context, user domain.User) error {
+func (c *userUserCase) UpdateProfile(ctx context.Context, user domain.User) error {
 
 	// first check any other user exist with this entered unique fields
 	checkUser, err := c.userRepo.FindUserByUserNameEmailOrPhoneNotID(ctx, user)
@@ -107,7 +107,7 @@ func (c *userUserCase) SaveAddress(ctx context.Context, userID uint, address dom
 	return nil
 }
 
-func (c *userUserCase) EditAddress(ctx context.Context, addressBody req.EditAddress, userID uint) error {
+func (c *userUserCase) UpdateAddress(ctx context.Context, addressBody request.EditAddress, userID uint) error {
 
 	if exist, err := c.userRepo.IsAddressIDExist(ctx, addressBody.ID); err != nil {
 		return err
@@ -146,13 +146,13 @@ func (c *userUserCase) EditAddress(ctx context.Context, addressBody req.EditAddr
 }
 
 // get all address
-func (c *userUserCase) GetAddresses(ctx context.Context, userID uint) ([]res.Address, error) {
+func (c *userUserCase) FindAddresses(ctx context.Context, userID uint) ([]response.Address, error) {
 
 	return c.userRepo.FindAllAddressByUserID(ctx, userID)
 }
 
 // to add new productItem to wishlist
-func (c *userUserCase) AddToWishList(ctx context.Context, wishList domain.WishList) error {
+func (c *userUserCase) SaveToWishList(ctx context.Context, wishList domain.WishList) error {
 
 	// first check the producItemID is valid or not
 	//productItem, err := c.userRepo.FindProductItem(ctx, wishList.ProductItemID)
@@ -209,6 +209,6 @@ func (c *userUserCase) RemoveFromWishList(ctx context.Context, wishList domain.W
 	return c.userRepo.RemoveWishListItem(ctx, wishList)
 }
 
-func (c *userUserCase) GetWishListItems(ctx context.Context, userID uint) ([]res.WishList, error) {
+func (c *userUserCase) FindAllWishListItems(ctx context.Context, userID uint) ([]response.WishList, error) {
 	return c.userRepo.FindAllWishListItemsByUserID(ctx, userID)
 }

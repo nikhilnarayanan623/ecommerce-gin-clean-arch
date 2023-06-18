@@ -12,8 +12,8 @@ import (
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/repository/interfaces"
 	service "github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/usecase/interfaces"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/utils"
-	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/utils/req"
-	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/utils/res"
+	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/utils/request"
+	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/utils/response"
 )
 
 type OrderUseCase struct {
@@ -37,7 +37,7 @@ func NewOrderUseCase(orderRepo interfaces.OrderRepository, cartRepo interfaces.C
 }
 
 // get all order statuses
-func (c *OrderUseCase) GetAllOrderStatuses(ctx context.Context) (orderStatuses []domain.OrderStatus, err error) {
+func (c *OrderUseCase) FindAllOrderStatuses(ctx context.Context) (orderStatuses []domain.OrderStatus, err error) {
 	orderStatuses, err = c.orderRepo.FindAllOrderStauses(ctx)
 	if err != nil {
 		return orderStatuses, err
@@ -46,8 +46,8 @@ func (c *OrderUseCase) GetAllOrderStatuses(ctx context.Context) (orderStatuses [
 	return orderStatuses, nil
 }
 
-// func to get all shop order
-func (c *OrderUseCase) GetAllShopOrders(ctx context.Context, pagination req.Pagination) (shopOrders []res.ShopOrder, err error) {
+// func to Find all shop order
+func (c *OrderUseCase) FindAllShopOrders(ctx context.Context, pagination request.Pagination) (shopOrders []response.ShopOrder, err error) {
 
 	// first find all shopOrders
 	if shopOrders, err = c.orderRepo.FindAllShopOrders(ctx, pagination); err != nil {
@@ -57,7 +57,7 @@ func (c *OrderUseCase) GetAllShopOrders(ctx context.Context, pagination req.Pagi
 	for i, order := range shopOrders {
 
 		if address, err := c.userRepo.FindAddressByID(ctx, order.AddressID); err != nil {
-			return shopOrders, fmt.Errorf("faild to get address")
+			return shopOrders, fmt.Errorf("faild to Find address")
 		} else {
 			shopOrders[i].Address = address
 		}
@@ -66,8 +66,9 @@ func (c *OrderUseCase) GetAllShopOrders(ctx context.Context, pagination req.Pagi
 	return shopOrders, nil
 }
 
-// get order items of a spicific order
-func (c *OrderUseCase) GetOrderItemsByShopOrderID(ctx context.Context, shopOrderID uint, pagination req.Pagination) (orderItems []res.OrderItem, err error) {
+// Find order items of a spicific order
+func (c *OrderUseCase) FindOrderItemsByShopOrderID(ctx context.Context, shopOrderID uint,
+	pagination request.Pagination) (orderItems []response.OrderItem, err error) {
 	//validate the shopOrderId
 	shopOdrer, err := c.orderRepo.FindShopOrderByShopOrderID(ctx, shopOrderID)
 	if err != nil {
@@ -84,8 +85,8 @@ func (c *OrderUseCase) GetOrderItemsByShopOrderID(ctx context.Context, shopOrder
 	return orderItems, nil
 }
 
-// get all orders of user
-func (c *OrderUseCase) GetUserShopOrder(ctx context.Context, userID uint, pagination req.Pagination) ([]res.ShopOrder, error) {
+// Find all orders of user
+func (c *OrderUseCase) FindUserShopOrder(ctx context.Context, userID uint, pagination request.Pagination) ([]response.ShopOrder, error) {
 	return c.orderRepo.FindAllShopOrdersByUserID(ctx, userID, pagination)
 }
 
@@ -127,7 +128,7 @@ func (c *OrderUseCase) UpdateOrderStatus(ctx context.Context, shopOrderID, chang
 	return nil
 }
 
-func (c *OrderUseCase) CancellOrder(ctx context.Context, shopOrderID uint) error {
+func (c *OrderUseCase) CancelOrder(ctx context.Context, shopOrderID uint) error {
 
 	shopOrder, err := c.orderRepo.FindShopOrderByShopOrderID(ctx, shopOrderID)
 	if err != nil {
@@ -162,26 +163,26 @@ func (c *OrderUseCase) CancellOrder(ctx context.Context, shopOrderID uint) error
 }
 
 // to get pending order returns
-func (c *OrderUseCase) GetAllPendingOrderReturns(ctx context.Context, pagination req.Pagination) ([]res.OrderReturn, error) {
+func (c *OrderUseCase) FindAllPendingOrderReturns(ctx context.Context, pagination request.Pagination) ([]response.OrderReturn, error) {
 
 	pendingOrderReturns, err := c.orderRepo.FindAllPendingOrderReturns(ctx, pagination)
 	if err != nil {
-		return pendingOrderReturns, fmt.Errorf("faild to get pengin order returns \nerror:%v", err.Error())
+		return pendingOrderReturns, fmt.Errorf("failed to Find pendin order returns \nerror:%v", err.Error())
 	}
 	return pendingOrderReturns, nil
 }
 
 // to get all order return
-func (c *OrderUseCase) GetAllOrderReturns(ctx context.Context, pagination req.Pagination) ([]res.OrderReturn, error) {
+func (c *OrderUseCase) FindAllOrderReturns(ctx context.Context, pagination request.Pagination) ([]response.OrderReturn, error) {
 
 	orderReturns, err := c.orderRepo.FindAllOrderReturns(ctx, pagination)
 	if err != nil {
-		return orderReturns, fmt.Errorf("faild to get all order returns \nerror:%v", err.Error())
+		return orderReturns, fmt.Errorf("faild to Find all order returns \nerror:%v", err.Error())
 	}
 	return orderReturns, nil
 }
 
-func (c *OrderUseCase) SubmitReturnuest(ctx context.Context, returnDetails req.Return) error {
+func (c *OrderUseCase) SubmitReturnRequest(ctx context.Context, returnDetails request.Return) error {
 
 	shopOrder, err := c.orderRepo.FindShopOrderByShopOrderID(ctx, returnDetails.ShopOrderID)
 	if err != nil {
@@ -234,18 +235,18 @@ func (c *OrderUseCase) SubmitReturnuest(ctx context.Context, returnDetails req.R
 	return nil
 }
 
-func (c *OrderUseCase) UpdateReturnDetails(ctx context.Context, updateDetails req.UpdatOrderReturn) error {
+func (c *OrderUseCase) UpdateReturnDetails(ctx context.Context, updateDetails request.UpdateOrderReturn) error {
 
 	orderReturn, err := c.orderRepo.FindOrderReturnByReturnID(ctx, updateDetails.OrderReturnID)
 	if err != nil {
-		return fmt.Errorf("faild to get order \nerror:%v", err.Error())
+		return fmt.Errorf("faild to Find order \nerror:%v", err.Error())
 	} else if orderReturn.ShopOrderID == 0 {
 		return errors.New("invalid order_return_id")
 	}
 
 	shopOrder, err := c.orderRepo.FindShopOrderByShopOrderID(ctx, orderReturn.ShopOrderID)
 	if err != nil {
-		return fmt.Errorf("faild to get order detaild \nerror:%v", err.Error())
+		return fmt.Errorf("faild to Find order details \nerror:%v", err.Error())
 	}
 
 	currentOrderStatus, err := c.orderRepo.FindOrderStatusByID(ctx, shopOrder.OrderStatusID)
@@ -326,7 +327,7 @@ func (c *OrderUseCase) UpdateReturnDetails(ctx context.Context, updateDetails re
 			})
 
 			if err != nil {
-				return fmt.Errorf("faild to save wallet transacation \nerror:%v", err.Error())
+				return fmt.Errorf("faild to save wallet transaction \nerror:%v", err.Error())
 			}
 		}
 		return nil
@@ -343,7 +344,8 @@ func (c *OrderUseCase) UpdateReturnDetails(ctx context.Context, updateDetails re
 
 // ! place order
 
-func (c *OrderUseCase) GetStripeOrder(ctx context.Context, userID uint, userOrder res.UserOrder) (stipeOrder res.StripeOrder, err error) {
+func (c *OrderUseCase) MakeStripeOrder(ctx context.Context, userID uint,
+	userOrder response.UserOrder) (stipeOrder response.StripeOrder, err error) {
 
 	userDetails, err := c.userRepo.FindUserByUserID(ctx, userID)
 	if err != nil {
@@ -364,7 +366,8 @@ func (c *OrderUseCase) GetStripeOrder(ctx context.Context, userID uint, userOrde
 }
 
 // generate razorpay order
-func (c *OrderUseCase) GetRazorpayOrder(ctx context.Context, userID, shopOrderID, paymentMethodID uint) (razorpayOrder res.RazorpayOrder, err error) {
+func (c *OrderUseCase) MakeRazorpayOrder(ctx context.Context, userID,
+	shopOrderID, paymentMethodID uint) (razorpayOrder response.RazorpayOrder, err error) {
 
 	shopOrder, err := c.orderRepo.FindShopOrderByShopOrderID(ctx, shopOrderID)
 	if err != nil {
@@ -399,7 +402,8 @@ func (c *OrderUseCase) GetRazorpayOrder(ctx context.Context, userID, shopOrderID
 	return razorpayOrder, nil
 }
 
-func (c *OrderUseCase) PlaceOrder(ctx context.Context, userID uint, placeOrder req.PlaceOrder) (shopOrder domain.ShopOrder, err error) {
+func (c *OrderUseCase) PlaceOrder(ctx context.Context, userID uint,
+	placeOrder request.PlaceOrder) (shopOrder domain.ShopOrder, err error) {
 	address, err := c.userRepo.FindAddressByID(ctx, placeOrder.AddressID)
 	if err != nil {
 		return shopOrder, err
@@ -408,7 +412,16 @@ func (c *OrderUseCase) PlaceOrder(ctx context.Context, userID uint, placeOrder r
 	}
 
 	// check the cart of user is valid for place order
-	cart, err := c.cartRepo.CheckcartIsValidForOrder(ctx, userID)
+	valid, err := c.cartRepo.IsCartValidForOrder(ctx, userID)
+	if err != nil {
+		return shopOrder, err
+	}
+
+	if !valid {
+		return shopOrder, fmt.Errorf("cart is not valid for order")
+	}
+
+	cart, err := c.cartRepo.FindCartByUserID(ctx, userID)
 	if err != nil {
 		return shopOrder, err
 	}
@@ -484,7 +497,7 @@ func (c *OrderUseCase) ApproveShopOrderAndClearCart(ctx context.Context, userID,
 	} else if orderStatus.Status != "payment pending" {
 		return fmt.Errorf("order status not payment pending can't approve the order ")
 	}
-	
+
 	orderPlacedStatus, err := c.orderRepo.FindOrderStatusByStatus(ctx, "order placed")
 	if err != nil {
 		return err

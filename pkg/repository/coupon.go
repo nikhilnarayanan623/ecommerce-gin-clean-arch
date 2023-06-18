@@ -8,8 +8,8 @@ import (
 
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/domain"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/repository/interfaces"
-	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/utils/req"
-	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/utils/res"
+	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/utils/request"
+	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/utils/response"
 	"gorm.io/gorm"
 )
 
@@ -72,7 +72,7 @@ func (c *couponDatabase) FindCouponByName(ctx context.Context, couponName string
 	return coupon, nil
 }
 
-func (c *couponDatabase) FindAllCoupons(ctx context.Context, pagination req.Pagination) (coupons []domain.Coupon, err error) {
+func (c *couponDatabase) FindAllCoupons(ctx context.Context, pagination request.Pagination) (coupons []domain.Coupon, err error) {
 
 	limit := pagination.Count
 	offset := (pagination.PageNumber - 1) * limit
@@ -144,7 +144,7 @@ func (c *couponDatabase) SaveCouponUses(ctx context.Context, couponUses domain.C
 
 // find all coupons for user
 
-func (c *couponDatabase) FindAllCouponForUser(ctx context.Context, userID uint, pagination req.Pagination) (coupons []res.UserCoupon, err error) {
+func (c *couponDatabase) FindAllCouponForUser(ctx context.Context, userID uint, pagination request.Pagination) (coupons []response.UserCoupon, err error) {
 
 	limit := pagination.Count
 	offset := (pagination.PageNumber - 1) * limit
@@ -163,4 +163,3 @@ func (c *couponDatabase) FindAllCouponForUser(ctx context.Context, userID uint, 
 
 	return coupons, nil
 }
-

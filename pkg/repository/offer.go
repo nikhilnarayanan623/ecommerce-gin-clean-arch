@@ -6,7 +6,7 @@ import (
 	"fmt"
 
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/domain"
-	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/utils/res"
+	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/utils/response"
 )
 
 // find offer by id or offer_name
@@ -120,8 +120,8 @@ func (c *productDatabase) FindOfferCategory(ctx context.Context, offerCategory d
 }
 
 // find all offer_category
-func (c *productDatabase) FindAllOfferCategories(ctx context.Context) ([]res.OfferCategory, error) {
-	var offerCategories []res.OfferCategory
+func (c *productDatabase) FindAllOfferCategories(ctx context.Context) ([]response.OfferCategory, error) {
+	var offerCategories []response.OfferCategory
 	query := `SELECT oc.id AS offer_category_id, oc.category_id,c.category_name,oc.offer_id,o.offer_name, o.discount_rate 
 	FROM offer_categories oc INNER JOIN categories c ON c.id = oc.category_id 
 	INNER JOIN offers o ON oc.offer_id = o.id`
@@ -200,8 +200,8 @@ func (c *productDatabase) FindOfferProductByProductID(ctx context.Context, produ
 }
 
 // find all offer_products
-func (c *productDatabase) FindAllOfferProducts(ctx context.Context) ([]res.OfferProduct, error) {
-	var offerProducts []res.OfferProduct
+func (c *productDatabase) FindAllOfferProducts(ctx context.Context) ([]response.OfferProduct, error) {
+	var offerProducts []response.OfferProduct
 	query := `SELECT op.id AS offer_product_id, op.product_id,p.product_name,op.offer_id,o.offer_name, o.discount_rate  
 	FROM offer_products op INNER JOIN products p ON p.id = op.product_id 
 	INNER JOIN offers o ON o.id = op.offer_id`

@@ -10,8 +10,8 @@ import (
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/repository/interfaces"
 	service "github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/usecase/interfaces"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/utils"
-	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/utils/req"
-	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/utils/res"
+	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/utils/request"
+	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/utils/response"
 )
 
 type couponUseCase struct {
@@ -56,7 +56,7 @@ func (c *couponUseCase) AddCoupon(ctx context.Context, coupon domain.Coupon) err
 
 	return nil
 }
-func (c *couponUseCase) GetAllCoupons(ctx context.Context, pagination req.Pagination) (coupons []domain.Coupon, err error) {
+func (c *couponUseCase) GetAllCoupons(ctx context.Context, pagination request.Pagination) (coupons []domain.Coupon, err error) {
 
 	coupons, err = c.couponRepo.FindAllCoupons(ctx, pagination)
 	if err != nil {
@@ -68,7 +68,7 @@ func (c *couponUseCase) GetAllCoupons(ctx context.Context, pagination req.Pagina
 }
 
 // get all coupon for user
-func (c *couponUseCase) GetCouponsForUser(ctx context.Context, userID uint, pagination req.Pagination) (coupons []res.UserCoupon, err error) {
+func (c *couponUseCase) GetCouponsForUser(ctx context.Context, userID uint, pagination request.Pagination) (coupons []response.UserCoupon, err error) {
 
 	coupons, err = c.couponRepo.FindAllCouponForUser(ctx, userID, pagination)
 

@@ -73,8 +73,8 @@ Set up the necessary environment variables in a .env file at the project's root 
 4. DB_PASSWORD="```your database owner password```"
 5. DB_PORT="```your database running port number```"
 ### JWT
-1. JWT_SECRET_ADMIN="```secret code for signing admin JWT token```"
-2. JWT_SECRET_USER="```secret code for signing user JWT token```"
+1. ADMIN_AUTH_KEY="```secret code for signing admin JWT token```"
+2. USER_AUTH_KEY="```secret code for signing user JWT token```"
 ### Twilio
 1. AUTH_TOKEN="your Twilio authentication token"
 2. ACCOUNT_SID="```your Twilio account SID```"

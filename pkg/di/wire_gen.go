@@ -26,13 +26,13 @@ func InitializeApi(cfg config.Config) (*http.ServerHTTP, error) {
 		return nil, err
 	}
 	authRepository := repository.NewAuthRepository(gormDB)
-	tokenAuth := token.NewJWTAuth(cfg)
+	tokenService := token.NewTokenService(cfg)
 	userRepository := repository.NewUserRepository(gormDB)
 	adminRepository := repository.NewAdminRepository(gormDB)
-	otpVerification := otp.NewTwiloOtp(cfg)
-	authUseCase := usecase.NewAuthUseCase(authRepository, tokenAuth, userRepository, adminRepository, otpVerification)
+	otpAuth := otp.NewOtpAuth(cfg)
+	authUseCase := usecase.NewAuthUseCase(authRepository, tokenService, userRepository, adminRepository, otpAuth)
 	authHandler := handler.NewAuthHandler(authUseCase)
-	middlewareMiddleware := middleware.NewMiddleware(tokenAuth)
+	middlewareMiddleware := middleware.NewMiddleware(tokenService)
 	adminUseCase := usecase.NewAdminUseCase(adminRepository, userRepository)
 	adminHandler := handler.NewAdminHandler(adminUseCase)
 	cartRepository := repository.NewCartRepository(gormDB)

@@ -6,12 +6,11 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/jinzhu/copier"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/domain"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/repository/interfaces"
 	service "github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/usecase/interfaces"
-	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/utils/req"
-	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/utils/res"
+	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/utils/request"
+	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/utils/response"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -28,19 +27,24 @@ func NewAdminUseCase(repo interfaces.AdminRepository, userRepo interfaces.UserRe
 	}
 }
 
+var (
+	ErrInvalidUserID = errors.New("invalid user id")
+	ErrInvalidSKU    = errors.New("invalid sku")
+)
+
 func (c *adminUseCase) SignUp(ctx context.Context, loginDetails domain.Admin) error {
 
-	admin, err := c.adminRepo.FindAdminByEmail(ctx, loginDetails.Email)
+	existAdmin, err := c.adminRepo.FindAdminByEmail(ctx, loginDetails.Email)
 	if err != nil {
 		return err
-	} else if admin.ID != 0 {
+	} else if existAdmin.ID != 0 {
 		return errors.New("can't save admin \nan admin already exist with this email")
 	}
 
-	admin, err = c.adminRepo.FindAdminByUserName(ctx, loginDetails.UserName)
+	existAdmin, err = c.adminRepo.FindAdminByUserName(ctx, loginDetails.UserName)
 	if err != nil {
 		return err
-	} else if admin.ID != 0 {
+	} else if existAdmin.ID != 0 {
 		return errors.New("can't save admin \nan admin already exist with this user_name")
 	}
 
@@ -48,50 +52,43 @@ func (c *adminUseCase) SignUp(ctx context.Context, loginDetails domain.Admin) er
 	hashPass, err := bcrypt.GenerateFromPassword([]byte(loginDetails.Password), 10)
 
 	if err != nil {
-		return errors.New("faild to generate hashed password for admin")
+		return errors.New("failed to generate hashed password for admin")
 	}
 	// set the hashed password on the admin
-	admin.Password = string(hashPass)
+	loginDetails.Password = string(hashPass)
 
-	return c.adminRepo.SaveAdmin(ctx, admin)
+	return c.adminRepo.SaveAdmin(ctx, loginDetails)
 }
 
-func (c *adminUseCase) FindAllUser(ctx context.Context, pagination req.Pagination) (users []res.User, err error) {
+func (c *adminUseCase) FindAllUser(ctx context.Context, pagination request.Pagination) (users []response.User, err error) {
 
 	users, err = c.adminRepo.FindAllUser(ctx, pagination)
 
-	if err != nil {
-		return nil, err
-	}
-
-	// if no error then copy users details to an array responce struct
-	var responce []res.User
-	copier.Copy(&responce, &users)
-
-	return responce, nil
+	return users, err
 }
 
-func (c *adminUseCase) BlockOrUblockUser(ctx context.Context, blockDetails req.BlockUser) error {
+// Block User
+func (c *adminUseCase) BlockOrUnBlockUser(ctx context.Context, blockDetails request.BlockUser) error {
 
 	userToBlock, err := c.userRepo.FindUserByUserID(ctx, blockDetails.UserID)
 	if err != nil {
-		return fmt.Errorf("faild to find user \nerror:%v", err.Error())
+		return fmt.Errorf("failed to find user \nerror:%w", err)
 	} else if userToBlock.ID == 0 {
-		return fmt.Errorf("invalid user_id")
+		return ErrInvalidUserID
 	}
 
 	if userToBlock.BlockStatus == blockDetails.Block {
-		return fmt.Errorf("user block status already in given status")
+		return ErrSameBlockStatus
 	}
 
 	err = c.userRepo.UpdateBlockStatus(ctx, blockDetails.UserID, blockDetails.Block)
 	if err != nil {
-		return fmt.Errorf("faild to update user block status \nerror:%v", err.Error())
+		return fmt.Errorf("failed to update user block status \nerror:%v", err.Error())
 	}
 	return nil
 }
 
-func (c *adminUseCase) GetFullSalesReport(ctx context.Context, requestData req.SalesReport) (salesReport []res.SalesReport, err error) {
+func (c *adminUseCase) GetFullSalesReport(ctx context.Context, requestData request.SalesReport) (salesReport []response.SalesReport, err error) {
 	salesReport, err = c.adminRepo.CreateFullSalesReport(ctx, requestData)
 
 	if err != nil {
@@ -104,7 +101,7 @@ func (c *adminUseCase) GetFullSalesReport(ctx context.Context, requestData req.S
 	return salesReport, nil
 }
 
-func (c *adminUseCase) GetAllStockDetails(ctx context.Context, pagination req.Pagination) (stocks []res.Stock, err error) {
+func (c *adminUseCase) GetAllStockDetails(ctx context.Context, pagination request.Pagination) (stocks []response.Stock, err error) {
 	stocks, err = c.adminRepo.FindAllStockDetails(ctx, pagination)
 
 	if err != nil {
@@ -115,23 +112,22 @@ func (c *adminUseCase) GetAllStockDetails(ctx context.Context, pagination req.Pa
 	return stocks, nil
 }
 
-func (c *adminUseCase) UpdateStock(ctx context.Context, valuesToUpdate req.UpdateStock) error {
+func (c *adminUseCase) UpdateStockBySKU(ctx context.Context, updateDetails request.UpdateStock) error {
 
-	// validate the sku
-	stock, err := c.adminRepo.FindStockBySKU(ctx, valuesToUpdate.SKU)
-	if err != nil {
-		return err
-	} else if stock.ProductName == "" {
-		return fmt.Errorf("invalid sku %v", valuesToUpdate.SKU)
-	}
-
-	// update the stock detils
-	err = c.adminRepo.UpdateStock(ctx, valuesToUpdate)
-
+	stock, err := c.adminRepo.FindStockBySKU(ctx, updateDetails.SKU)
 	if err != nil {
 		return err
 	}
+	if stock.SKU == "" {
+		return ErrInvalidSKU
+	}
 
-	log.Printf("successfully updated of stock details of stock with sku %v", valuesToUpdate.SKU)
+	err = c.adminRepo.UpdateStock(ctx, updateDetails)
+
+	if err != nil {
+		return err
+	}
+
+	log.Printf("successfully updated of stock details of stock with sku %v", updateDetails.SKU)
 	return nil
 }

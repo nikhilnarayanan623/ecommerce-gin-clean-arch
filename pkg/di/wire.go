@@ -20,8 +20,8 @@ func InitializeApi(cfg config.Config) (*http.ServerHTTP, error) {
 
 	wire.Build(db.ConnectDatbase,
 		//external
-		token.NewJWTAuth,
-		otp.NewTwiloOtp,
+		token.NewTokenService,
+		otp.NewOtpAuth,
 
 		// repository
 

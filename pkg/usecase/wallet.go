@@ -6,10 +6,10 @@ import (
 	"log"
 
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/domain"
-	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/utils/req"
+	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/utils/request"
 )
 
-func (c *OrderUseCase) GetUserWallet(ctx context.Context, userID uint) (wallet domain.Wallet, err error) {
+func (c *OrderUseCase) FindUserWallet(ctx context.Context, userID uint) (wallet domain.Wallet, err error) {
 
 	// first find the user wallet
 	wallet, err = c.orderRepo.FindWalletByUserID(ctx, userID)
@@ -26,8 +26,8 @@ func (c *OrderUseCase) GetUserWallet(ctx context.Context, userID uint) (wallet d
 	return wallet, nil
 }
 
-func (c *OrderUseCase) GetUserWalletTransactions(ctx context.Context,
-	userID uint, pagination req.Pagination) (transactions []domain.Transaction, err error) {
+func (c *OrderUseCase) FindUserWalletTransactions(ctx context.Context,
+	userID uint, pagination request.Pagination) (transactions []domain.Transaction, err error) {
 
 	// first find the user wallet
 	wallet, err := c.orderRepo.FindWalletByUserID(ctx, userID)
