@@ -383,7 +383,11 @@ func TestVerifyAndGetRefreshTokenSession(t *testing.T) {
 			actualOutput, actualError := authUseCase.
 				VerifyAndGetRefreshTokenSession(context.Background(), test.refreshToken, tokenUser)
 
-			assert.Equal(t, test.expectedError, actualError)
+			if test.expectedError == nil {
+				assert.NoError(t, actualError)
+			} else {
+				assert.Error(t, test.expectedError, actualError)
+			}
 			assert.Equal(t, test.expectedOutput, actualOutput)
 		})
 	}

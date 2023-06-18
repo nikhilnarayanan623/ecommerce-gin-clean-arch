@@ -2,8 +2,6 @@ package domain
 
 import "time"
 
-
-
 type User struct {
 	ID          uint      `json:"id" gorm:"primaryKey;unique"`
 	FirstName   string    `json:"first_name" gorm:"not null" binding:"required,min=2,max=50"`
@@ -38,7 +36,7 @@ type Address struct {
 	LandMark    string `json:"land_mark" gorm:"not null" binding:"required"`
 	City        string `json:"city" gorm:"not null"`
 	Pincode     uint   `json:"pincode" gorm:"not null" binding:"required,numeric,min=6,max=6"`
-	CountryID   uint   `jsong:"country_id" gorm:"not null" binding:"required"`
+	CountryID   uint   `json:"country_id" gorm:"not null" binding:"required"`
 	Country     Country
 	CreatedAt   time.Time `json:"created_at" gorm:"not null"`
 	UpdatedAt   time.Time `json:"updated_at"`
@@ -81,6 +79,7 @@ type CartItem struct {
 type Wallet struct {
 	ID          uint `json:"wallet_id" gorm:"primaryKey;not null"`
 	UserID      uint `json:"user_id" gorm:"not null"`
+	User        User
 	TotalAmount uint `json:"total_amount" gorm:"not null"`
 }
 
@@ -92,11 +91,11 @@ const (
 )
 
 type Transaction struct {
-	TransactionID   uint            `json:"transction_id" gorm:"primaryKey;not null"`
+	TransactionID   uint            `json:"transaction_id" gorm:"primaryKey;not null"`
 	WalletID        uint            `json:"wallet_id" gorm:"not null"`
 	Wallet          Wallet          `json:"-"`
 	TransactionDate time.Time       `json:"transaction_time" gorm:"not null"`
-	Amount          uint            `josn:"amount" gorm:"not null"`
+	Amount          uint            `json:"amount" gorm:"not null"`
 	TransactionType TransactionType `json:"transaction_type" gorm:"not null"`
 }
 

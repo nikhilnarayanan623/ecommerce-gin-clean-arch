@@ -304,6 +304,8 @@ func (c *AuthHandler) renewAccessToken(tokenUser token.UserType) gin.HandlerFunc
 			var statusCode int
 
 			switch true {
+			case errors.Is(err, usecase.ErrInvalidRefreshToken):
+				statusCode = http.StatusUnauthorized
 			case errors.Is(err, usecase.ErrRefreshSessionNotExist):
 				statusCode = http.StatusNotFound
 			case errors.Is(err, usecase.ErrRefreshSessionExpired):
