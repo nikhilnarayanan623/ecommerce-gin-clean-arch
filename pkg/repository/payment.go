@@ -5,7 +5,7 @@ import (
 
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/domain"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/repository/interfaces"
-	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/utils/req"
+	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/utils/request"
 	"gorm.io/gorm"
 )
 
@@ -52,7 +52,7 @@ func (c *paymentDatabase) SavePaymentMethod(ctx context.Context, paymentMethod d
 
 	return paymentMethod.ID, err
 }
-func (c *paymentDatabase) UpdatePaymentMethod(ctx context.Context, paymentMethod req.PaymentMethodUpdate) error {
+func (c *paymentDatabase) UpdatePaymentMethod(ctx context.Context, paymentMethod request.PaymentMethodUpdate) error {
 
 	query := `UPDATE payment_methods SET  block_status = $1, maximum_amount = $2 WHERE id = $3`
 

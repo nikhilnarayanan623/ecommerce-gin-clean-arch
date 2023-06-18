@@ -9,8 +9,8 @@ import (
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/domain"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/repository/interfaces"
 	service "github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/usecase/interfaces"
-	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/utils/req"
-	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/utils/res"
+	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/utils/request"
+	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/utils/response"
 )
 
 type productUseCase struct {
@@ -23,9 +23,9 @@ func NewProductUseCase(productRepo interfaces.ProductRepository) service.Product
 }
 
 // to get all Category , all variation , all variation value
-func (c *productUseCase) GetCategory(ctx context.Context) (res.FullCategory, error) {
+func (c *productUseCase) FindCategory(ctx context.Context) (response.FullCategory, error) {
 	var (
-		resFullCategories res.FullCategory
+		resFullCategories response.FullCategory
 		err               error
 	)
 	// find all categories
@@ -46,7 +46,7 @@ func (c *productUseCase) GetCategory(ctx context.Context) (res.FullCategory, err
 }
 
 // to add a new category or add new sub category
-func (c *productUseCase) AddCategory(ctx context.Context, category domain.Category) error {
+func (c *productUseCase) SaveCategory(ctx context.Context, category domain.Category) error {
 
 	// check the given category already exist or not
 	var checkCategory = domain.Category{CategoryName: category.CategoryName}
@@ -75,18 +75,18 @@ func (c *productUseCase) AddCategory(ctx context.Context, category domain.Catego
 }
 
 // to add new variation for a category
-func (c *productUseCase) AddVariation(ctx context.Context, vartaion domain.Variation) (domain.Variation, error) {
+func (c *productUseCase) SaveVariation(ctx context.Context, variation domain.Variation) error {
 
-	return c.productRepo.AddVariation(ctx, vartaion)
+	return c.productRepo.SaveVariation(ctx, variation)
 }
 
-// to add new variation value for varation
-func (c *productUseCase) AddVariationOption(ctx context.Context, variationOption domain.VariationOption) (domain.VariationOption, error) {
-	return c.productRepo.AddVariationOption(ctx, variationOption)
+// to add new variation value for variation
+func (c *productUseCase) SaveVariationOption(ctx context.Context, variationOption domain.VariationOption)  error{
+	return c.productRepo.SaveVariationOption(ctx, variationOption)
 }
 
 // to get all product
-func (c *productUseCase) GetProducts(ctx context.Context, pagination req.Pagination) (products []res.Product, err error) {
+func (c *productUseCase) FindAllProducts(ctx context.Context, pagination request.Pagination) (products []response.Product, err error) {
 	return c.productRepo.FindAllProducts(ctx, pagination)
 }
 
@@ -103,7 +103,7 @@ func (c *productUseCase) AddProduct(ctx context.Context, product domain.Product)
 }
 
 // for add new productItem for a speicific product
-func (c *productUseCase) AddProductItem(ctx context.Context, productItem req.ProductItem) error {
+func (c *productUseCase) AddProductItem(ctx context.Context, productItem request.ProductItem) error {
 
 	// validate the product_id
 	product, err := c.productRepo.FindProductByID(ctx, productItem.ProductID)
@@ -124,7 +124,7 @@ func (c *productUseCase) AddProductItem(ctx context.Context, productItem req.Pro
 }
 
 // for get all productItem for a specific product
-func (c *productUseCase) GetProductItems(ctx context.Context, productID uint) (productItems []res.ProductItems, err error) {
+func (c *productUseCase) FindProductItems(ctx context.Context, productID uint) (productItems []response.ProductItems, err error) {
 
 	//validate the productID
 	if product, err := c.productRepo.FindProduct(ctx, domain.Product{ID: productID}); err != nil {

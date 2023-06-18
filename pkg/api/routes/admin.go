@@ -17,14 +17,14 @@ func AdminRoutes(api *gin.RouterGroup, authHandler handlerInterface.AuthHandler,
 	{
 		login.POST("/", authHandler.AdminLogin)
 	}
-	// // signup
-	// // signup := api.Group("/signup")
-	// // {
-	// // 	signup.POST("/", adminHandler.AdminSignUp)
-	// // }
+	// signup
+	signup := api.Group("/signup")
+	{
+		signup.POST("/", adminHandler.AdminSignUp)
+	}
 	api.POST("/renew-access-token", authHandler.AdminRenewAccessToken())
 
-	api.Use(middleware.GetAdminMiddleware())
+	api.Use(middleware.GetAdminAuthMiddleware())
 	{
 		api.GET("/", adminHandler.AdminHome)
 
@@ -36,7 +36,7 @@ func AdminRoutes(api *gin.RouterGroup, authHandler handlerInterface.AuthHandler,
 		// user side
 		user := api.Group("/users")
 		{
-			user.GET("/", adminHandler.ListUsers)
+			user.GET("/", adminHandler.FindAllUsers)
 			user.PATCH("/block", adminHandler.BlockUser)
 		}
 		// // category
@@ -61,22 +61,22 @@ func AdminRoutes(api *gin.RouterGroup, authHandler handlerInterface.AuthHandler,
 		// 	// order
 		order := api.Group("/orders")
 		{
-			order.GET("/", orderHandler.GetAllShopOrders)
-			order.GET("items", orderHandler.GetOrderItemsByShopOrderItems)
-			order.PUT("/", orderHandler.UdateOrderStatus)
+			order.GET("/", orderHandler.FindAllShopOrders)
+			order.GET("items", orderHandler.FindAllOrderItems)
+			order.PUT("/", orderHandler.UpdateOrderStatus)
 
-			order.GET("/statuses", orderHandler.GetAllOrderStatuses)
+			order.GET("/statuses", orderHandler.FindAllOrderStatuses)
 
 			//return requests
-			order.GET("/returns", orderHandler.GetAllOrderReturns)
-			order.GET("/returns/pending", orderHandler.GetAllPendingReturns)
+			order.GET("/returns", orderHandler.FindAllOrderReturns)
+			order.GET("/returns/pending", orderHandler.FindAllPendingReturns)
 			order.PUT("/returns/pending", orderHandler.UpdateReturnRequest)
 		}
 
 		// payment_method
 		paymentMethod := api.Group("/payment-method")
 		{
-			paymentMethod.GET("/", paymentHandler.GetAllPaymentMethods)
+			paymentMethod.GET("/", paymentHandler.FindAllPaymentMethods)
 			paymentMethod.POST("/", paymentHandler.AddPaymentMethod)
 			paymentMethod.PUT("/", paymentHandler.UpdatePaymentMethod)
 		}
@@ -107,11 +107,11 @@ func AdminRoutes(api *gin.RouterGroup, authHandler handlerInterface.AuthHandler,
 		// 		coupons.PUT("/", couponHandler.UpdateCoupon)
 		// 	}
 
-		// 	stok := api.Group("/stocks")
+		// 	stock := api.Group("/stocks")
 		// 	{
-		// 		stok.GET("/", adminHandler.GetAllStockDetails)
+		// 		stock.GET("/", adminHandler.FindAllStockDetails)
 
-		// 		stok.PUT("/", adminHandler.UpdateStock)
+		// 		stock.PATCH("/", adminHandler.UpdateStock)
 		// 	}
 
 	}

@@ -8,7 +8,7 @@ import (
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/domain"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/repository/interfaces"
 	service "github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/usecase/interfaces"
-	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/utils/req"
+	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/utils/request"
 )
 
 type paymentUseCase struct {
@@ -21,15 +21,15 @@ func NewPaymentUseCase(paymentRepo interfaces.PaymentRepository) service.Payment
 	}
 }
 
-func (c *paymentUseCase) GetAllPaymentMethods(ctx context.Context) ([]domain.PaymentMethod, error) {
+func (c *paymentUseCase) FindAllPaymentMethods(ctx context.Context) ([]domain.PaymentMethod, error) {
 	return c.paymentRepo.FindAllPaymentMethods(ctx)
 }
 
-func (c *paymentUseCase) GetPaymentMethodByID(ctx context.Context, paymentMethodID uint) (domain.PaymentMethod, error) {
+func (c *paymentUseCase) FindPaymentMethodByID(ctx context.Context, paymentMethodID uint) (domain.PaymentMethod, error) {
 	return c.paymentRepo.FindPaymentMethodByID(ctx, paymentMethodID)
 }
 
-func (c *paymentUseCase) AddPaymentMethod(ctx context.Context, paymentMethod domain.PaymentMethod) error {
+func (c *paymentUseCase) SavePaymentMethod(ctx context.Context, paymentMethod domain.PaymentMethod) error {
 
 	// first check the payment_method alreadcy exist with given payment_type
 	checkPayment, err := c.paymentRepo.FindPaymentMethodByType(ctx, paymentMethod.PaymentType)
@@ -48,7 +48,7 @@ func (c *paymentUseCase) AddPaymentMethod(ctx context.Context, paymentMethod dom
 	log.Printf("successfully saved payment method for payment_type %v with id %v", paymentMethod.PaymentType, paymentMethodID)
 	return nil
 }
-func (c *paymentUseCase) EditPaymentMethod(ctx context.Context, paymentMethod req.PaymentMethodUpdate) error {
+func (c *paymentUseCase) UpdatePaymentMethod(ctx context.Context, paymentMethod request.PaymentMethodUpdate) error {
 
 	// first check the given payement_method_id is valid or not
 	checkPayment, err := c.paymentRepo.FindPaymentMethodByID(ctx, paymentMethod.ID)

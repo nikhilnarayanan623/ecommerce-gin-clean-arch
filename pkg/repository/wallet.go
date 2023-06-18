@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/domain"
-	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/utils/req"
+	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/utils/request"
 )
 
 // find wallet by userID
@@ -54,7 +54,7 @@ func (c *OrderDatabase) SaveWalletTransaction(ctx context.Context, walletTrx dom
 
 // find wallet transaction history
 
-func (c *OrderDatabase) FindWalletTransactions(ctx context.Context, walletID uint, pagination req.Pagination) (transaction []domain.Transaction, err error) {
+func (c *OrderDatabase) FindWalletTransactions(ctx context.Context, walletID uint, pagination request.Pagination) (transaction []domain.Transaction, err error) {
 
 	limit := pagination.Count
 	offset := (pagination.PageNumber - 1) * limit

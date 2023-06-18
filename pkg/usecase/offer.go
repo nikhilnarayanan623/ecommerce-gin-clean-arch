@@ -8,7 +8,7 @@ import (
 	"time"
 
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/domain"
-	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/utils/res"
+	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/utils/response"
 )
 
 func (c *productUseCase) AddOffer(ctx context.Context, offer domain.Offer) error {
@@ -49,7 +49,7 @@ func (c *productUseCase) RemoveOffer(ctx context.Context, offerID uint) error {
 	return c.productRepo.UpdateDiscountPrice(ctx)
 }
 
-func (c *productUseCase) GetAllOffers(ctx context.Context) ([]domain.Offer, error) {
+func (c *productUseCase) FindAllOffers(ctx context.Context) ([]domain.Offer, error) {
 
 	return c.productRepo.FindAllOffer(ctx)
 }
@@ -106,7 +106,7 @@ func (c *productUseCase) AddOfferCategory(ctx context.Context, offerCategory dom
 }
 
 // get all offer_category
-func (c *productUseCase) GetAllOffersOfCategories(ctx context.Context) ([]res.OfferCategory, error) {
+func (c *productUseCase) FindAllOffersOfCategories(ctx context.Context) ([]response.OfferCategory, error) {
 
 	return c.productRepo.FindAllOfferCategories(ctx)
 }
@@ -198,17 +198,17 @@ func (c *productUseCase) AddOfferProduct(ctx context.Context, offerProduct domai
 }
 
 // get all offers for products
-func (c *productUseCase) GetAllOffersOfProducts(ctx context.Context) ([]res.OfferProduct, error) {
+func (c *productUseCase) FindAllOffersOfProducts(ctx context.Context) ([]response.OfferProduct, error) {
 	return c.productRepo.FindAllOfferProducts(ctx)
 }
 
 // remove offer form products
 func (c *productUseCase) RemoveOfferProducts(ctx context.Context, offerProdcts domain.OfferProduct) error {
 
-	offerProdcts, err := c.productRepo.FindOfferProduct(ctx, offerProdcts)
+	offerProducts, err := c.productRepo.FindOfferProduct(ctx, offerProdcts)
 	if err != nil {
 		return err
-	} else if offerProdcts.OfferID == 0 {
+	} else if offerProducts.OfferID == 0 {
 		return errors.New("invalid offer_product_id")
 	}
 

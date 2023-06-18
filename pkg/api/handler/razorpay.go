@@ -2,12 +2,12 @@ package handler
 
 import (
 	"errors"
-	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/utils"
-	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/utils/res"
+	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/utils/request"
+	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/utils/response"
 )
 
 // RazorpayCheckout godoc
@@ -18,37 +18,34 @@ import (
 // @Param payment_method_id formData uint true "Payment Method ID"
 // @Param shop_order_id formData uint true "ShopOrder ID"
 // @Router /carts/place-order/razorpay-checkout [post]
-// @Success 200 {object} res.Response{} "successfully razorpay payment order created"
-// @Failure 400 {object} res.Response{}  "faild to create razorpay payment order"
+// @Success 200 {object} response.Response{} "successfully razorpay payment order created"
+// @Failure 400 {object} response.Response{}  "faild to create razorpay payment order"
 func (c *OrderHandler) RazorpayCheckout(ctx *gin.Context) {
 
 	UserID := utils.GetUserIdFromContext(ctx)
-	paymentMethodID, err1 := utils.StringToUint(ctx.Request.PostFormValue("payment_method_id"))
-	shopOrderID, err2 := utils.StringToUint(ctx.Request.PostFormValue("shop_order_id"))
+
+	paymentMethodID, err1 := request.GetFormValuesAsUint(ctx, "payment_method_id")
+	shopOrderID, err2 := request.GetFormValuesAsUint(ctx, "shop_order_id")
 
 	err := errors.Join(err1, err2)
+
 	if err != nil {
-		fmt.Println(err)
-		response := res.ErrorResponse(400, "invalid inputs", err.Error(), nil)
-		ctx.AbortWithStatusJSON(http.StatusBadRequest, response)
+		response.ErrorResponse(ctx, http.StatusBadRequest, BindFormValueMessage, err, nil)
 		return
 	}
 
-	// make razorpay order and make razorpay order respones
-	razorpayOrder, err := c.orderUseCase.GetRazorpayOrder(ctx, UserID, shopOrderID, paymentMethodID)
+	razorpayOrder, err := c.orderUseCase.MakeRazorpayOrder(ctx, UserID, shopOrderID, paymentMethodID)
+
 	if err != nil {
-		response := res.ErrorResponse(500, "faild to create razorpay order ", err.Error(), nil)
-		ctx.JSON(http.StatusInternalServerError, response)
+		response.ErrorResponse(ctx, http.StatusInternalServerError, "Failed to make razorpay order ", err, nil)
 		return
 	}
 
-	// make a respone of order and and razorpay for fron-end validation
-	response := gin.H{
+	razorPayRes := gin.H{
 		"Razorpay": true,
 		"Order":    razorpayOrder,
 	}
-
-	ctx.JSON(200, response)
+	response.SuccessResponse(ctx, http.StatusCreated, "Successfully razor pay order created", razorPayRes)
 }
 
 // razorpay verification
@@ -70,34 +67,31 @@ func (c *OrderHandler) RazorpayVerify(ctx *gin.Context) {
 
 	userID := utils.GetUserIdFromContext(ctx)
 
-	// take value as form value from ajax call
-	razorpayPaymentID := ctx.Request.PostFormValue("razorpay_payment_id")
-	razorpayOrderID := ctx.Request.PostFormValue("razorpay_order_id")
-	razorpaySignature := ctx.Request.PostFormValue("razorpay_signature")
-	shopOrderID, err1 := utils.StringToUint(ctx.Request.PostFormValue("shop_order_id"))
-	paymentMethodID, err2 := utils.StringToUint(ctx.Request.PostFormValue("payment_method_id"))
-	err := errors.Join(err1, err2)
+	razorpayPaymentID, err1 := request.GetFormValuesAsString(ctx, "razorpay_payment_id")
+	razorpayOrderID, err2 := request.GetFormValuesAsString(ctx, "razorpay_order_id")
+	razorpaySignature, err3 := request.GetFormValuesAsString(ctx, "razorpay_order_id")
+
+	shopOrderID, err4 := request.GetFormValuesAsUint(ctx, "shop_order_id")
+	paymentMethodID, err5 := request.GetFormValuesAsUint(ctx, "payment_method_id")
+
+	err := errors.Join(err1, err2, err3, err4, err5)
+
 	if err != nil {
-		response := res.ErrorResponse(400, "can't make order", "shop_order id is or coupon id is not int valid type", nil)
-		ctx.JSON(400, response)
+		response.ErrorResponse(ctx, http.StatusBadRequest, BindFormValueMessage, err, nil)
 		return
 	}
 
-	//verify the razorpay payment
-	err = utils.VeifyRazorpayPayment(razorpayOrderID, razorpayPaymentID, razorpaySignature)
+	err = utils.VerifyRazorpayPayment(razorpayOrderID, razorpayPaymentID, razorpaySignature)
 	if err != nil {
-		response := res.ErrorResponse(400, "faild to verfiy razorpay payment", err.Error(), nil)
-		ctx.JSON(http.StatusBadRequest, response)
+		response.ErrorResponse(ctx, http.StatusBadRequest, "Failed to verify razorpay payment", err, nil)
 		return
 	}
 
 	err = c.orderUseCase.ApproveShopOrderAndClearCart(ctx, userID, shopOrderID, paymentMethodID)
 	if err != nil {
-		response := res.ErrorResponse(400, "faild to place order faild on approve and clear cart", err.Error(), nil)
-		ctx.AbortWithStatusJSON(http.StatusBadRequest, response)
+		response.ErrorResponse(ctx, http.StatusInternalServerError, "Failed to Approve order", err, nil)
 		return
 	}
 
-	response := res.SuccessResponse(200, "successfully payment completed and order approved", nil)
-	ctx.JSON(200, response)
+	response.SuccessResponse(ctx, http.StatusOK, "Successfully razorpay payment verified", nil)
 }
