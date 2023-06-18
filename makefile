@@ -46,8 +46,11 @@ swagger: ## install swagger and its dependencies for generate swagger using swag
 swag: ## Generate swagger docs
 	swag init -g pkg/api/server/server.go -o ./cmd/api/docs
 
-generate: ## used here for generate mock files which defined top of interface
-	$(GOCMD) generate ./...
+mockgen: # Generate mock files for the test
+	mockgen -source=pkg/repository/interfaces/auth.go -destination=pkg/mock/mockrepo/auth_mock.go -package=mockrepo
+	mockgen -source=pkg/repository/interfaces/user.go -destination=pkg/mock/mockrepo/user_mock.go -package=mockrepo
+	mockgen -source=pkg/token/token.go -destination=pkg/mock/mockservice/token_mock.go -package=mockservice
+	mockgen -source=pkg/usecase/interfaces/auth.go -destination=pkg/mock/mockusecase/auth_mock.go -package=mockusecase
 
 docker-up: ## up docker file
 	docker-compose up 

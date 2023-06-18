@@ -14,9 +14,10 @@ var (
 	ErrInvalidOtp   = errors.New("invalid otp")
 
 	// refresh token
+	ErrInvalidRefreshToken    = errors.New("invalid refresh token")
 	ErrRefreshSessionNotExist = errors.New("there is no refresh token session for this token")
 	ErrRefreshSessionExpired  = errors.New("refresh token expired in session")
-	ErrRefreshSessionBlocked  = errors.New("refresh token blocked in session is blocked")
+	ErrRefreshSessionBlocked  = errors.New("refresh token blocked in session")
 
 	// signup
 	ErrUserAlreadyExit = errors.New("user already exist")

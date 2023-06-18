@@ -227,7 +227,7 @@ func (c *authUseCase) VerifyAndGetRefreshTokenSession(ctx context.Context, refre
 	}
 	verifyRes, err := c.tokenService.VerifyToken(verifyReq)
 	if err != nil {
-		return domain.RefreshSession{}, err
+		return domain.RefreshSession{}, utils.PrependMessageToError(ErrInvalidRefreshToken, err.Error())
 	}
 
 	refreshSession, err := c.authRepo.FindRefreshSessionByTokenID(ctx, verifyRes.TokenID)
