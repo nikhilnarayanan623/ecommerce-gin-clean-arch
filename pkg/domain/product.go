@@ -5,7 +5,7 @@ import "time"
 // represent a model of product
 type Product struct {
 	ID            uint      `json:"id" gorm:"primaryKey;not null"`
-	ProductName   string    `json:"product_name" gorm:"not null" binding:"required,min=3,max=50"`
+	Name          string    `json:"product_name" gorm:"not null" binding:"required,min=3,max=50"`
 	Description   string    `json:"description" gorm:"not null" binding:"required,min=10,max=100"`
 	CategoryID    uint      `json:"category_id" binding:"omitempty,numeric"`
 	Category      Category  `json:"-"`
@@ -21,7 +21,7 @@ type ProductItem struct {
 	ID            uint `json:"id" gorm:"primaryKey;not null"`
 	ProductID     uint `json:"product_id" gorm:"not null" binding:"required,numeric"`
 	Product       Product
-	QtyInStock    uint      `json:"qty_in_stock" gorm:"not null" binding:"required,numeric"` // no need of stock available column , because from this qty we can get it
+	QtyInStock    uint      `json:"qty_in_stock" gorm:"not null" binding:"required,numeric"`
 	Price         uint      `json:"price" gorm:"not null" binding:"required,numeric"`
 	SKU           string    `json:"sku" gorm:"unique;not null"`
 	DiscountPrice uint      `json:"discount_price"`
@@ -73,7 +73,7 @@ type ProductImage struct {
 // offer
 type Offer struct {
 	ID           uint      `json:"id" gorm:"primaryKey;not null" swaggerignore:"true"`
-	OfferName    string    `json:"offer_name" gorm:"not null;unique" binding:"required"`
+	Name         string    `json:"offer_name" gorm:"not null;unique" binding:"required"`
 	Description  string    `json:"description" gorm:"not null" binding:"required,min=6,max=50"`
 	DiscountRate uint      `json:"discount_rate" gorm:"not null" binding:"required,numeric,min=1,max=100"`
 	StartDate    time.Time `json:"start_date" gorm:"not null" binding:"required"`

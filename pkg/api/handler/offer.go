@@ -113,7 +113,7 @@ func (c *ProductHandler) FindAllOfferCategories(ctx *gin.Context) {
 // @summary api for admin to add offer for category
 // @id AddOfferCategory
 // @tags Offers
-// @Param input body req.OfferCategory{} true "input field"
+// @Param input body request.OfferCategory{} true "input field"
 // @Router /admin/offers/category [post]
 // @Success 200 {object} response.Response{} "successfully offer added for category"
 // @Failure 400 {object} response.Response{} "invalid input"

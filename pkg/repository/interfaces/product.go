@@ -9,19 +9,22 @@ import (
 )
 
 type ProductRepository interface {
+	Transactions(ctx context.Context, trxFn func(repo ProductRepository) error) error
 	//product
 	FindProductByID(ctx context.Context, productID uint) (product domain.Product, err error)
-	FindProduct(ctx context.Context, product domain.Product) (domain.Product, error)
+	FindProductByName(ctx context.Context, productName string) (product domain.Product, err error)
+	IsProductNameAlreadyExist(ctx context.Context, productName string) (exist bool, err error)
 
 	FindAllProducts(ctx context.Context, pagination request.Pagination) ([]response.Product, error)
-	SaveProduct(ctx context.Context, product domain.Product) error
+	SaveProduct(ctx context.Context, product request.Product) error
 	UpdateProduct(ctx context.Context, product domain.Product) error
 
 	// product items
 	FindProductItem(ctx context.Context, productItemID uint) (domain.ProductItem, error)
 	FindAllProductItems(ctx context.Context, productID uint) ([]response.ProductItems, error)
-	//FindAllProductItemImages(ctx context.Context, productItemID uint) (images []string, err error)
-	SaveProductItem(ctx context.Context, productItem request.ProductItem) error
+	IsProductItemAlreadyExist(ctx context.Context, productID, variationOptionID uint) (exist bool, err error)
+	SaveProductConfiguration(ctx context.Context, productItemID, variationOptionID uint) error
+	SaveProductItem(ctx context.Context, productItem domain.ProductItem) (productItemID uint, err error)
 
 	// category
 	FindCategoryByName(ctx context.Context, categoryName string) (domain.Category, error)
@@ -41,9 +44,13 @@ type ProductRepository interface {
 
 	// variation values
 	SaveVariationOption(ctx context.Context, variationOption request.VariationOption) error
+	IsValidVariationOptionID(ctx context.Context, variationOptionID uint) (valid bool, err error)
 	FindVariationOptionByValueAndVariationID(ctx context.Context,
 		variationOptionValue string, categoryID uint) (variationOption domain.VariationOption, err error)
 	FindAllVariationOptionsByVariationID(ctx context.Context, variationID uint) ([]response.VariationOption, error)
+
+	FindAllVariationValuesOfProductItem(ctx context.Context,
+		productItemID uint) (productVariations []response.ProductVariationValue, err error)
 
 	// offer
 	FindOffer(ctx context.Context, offer domain.Offer) (domain.Offer, error)

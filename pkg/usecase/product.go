@@ -2,9 +2,6 @@ package usecase
 
 import (
 	"context"
-	"errors"
-	"fmt"
-	"log"
 
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/domain"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/repository/interfaces"
@@ -166,51 +163,132 @@ func (c *productUseCase) FindAllProducts(ctx context.Context, pagination request
 }
 
 // to add new product
-func (c *productUseCase) AddProduct(ctx context.Context, product domain.Product) error {
-	//check product already exist or not
-	if product, err := c.productRepo.FindProduct(ctx, product); err != nil {
-		return err
-	} else if product.ID != 0 {
-		return fmt.Errorf("product already exist with %s product name", product.ProductName)
+func (c *productUseCase) SaveProduct(ctx context.Context, product request.Product) error {
+
+	category, err := c.productRepo.FindCategoryByID(ctx, product.CategoryID)
+	if err != nil {
+		return utils.PrependMessageToError(err, "failed to verify category id")
 	}
-	log.Printf("successfully product saved\n\n")
-	return c.productRepo.SaveProduct(ctx, product)
+	if category.ID == 0 {
+		return ErrInvalidCategoryID
+	}
+
+	exist, err := c.productRepo.IsProductNameAlreadyExist(ctx, product.Name)
+	if err != nil {
+		return utils.PrependMessageToError(err, "failed to check product name already exist")
+	}
+	if exist {
+		return ErrProductAlreadyExist
+	}
+
+	err = c.productRepo.SaveProduct(ctx, product)
+	if err != nil {
+		return utils.PrependMessageToError(err, "failed to save product")
+	}
+	return nil
 }
 
 // for add new productItem for a specific product
-func (c *productUseCase) AddProductItem(ctx context.Context, productItem request.ProductItem) error {
+func (c *productUseCase) SaveProductItem(ctx context.Context, productItem request.ProductItem) error {
 
-	// validate the product_id
 	product, err := c.productRepo.FindProductByID(ctx, productItem.ProductID)
 	if err != nil {
 		return err
-	} else if product.ID == 0 {
-		return fmt.Errorf("invalid product_id %v", productItem.ProductID)
+	}
+	if product.ID == 0 {
+		return ErrInvalidProductID
 	}
 
-	// save the product item
-	err = c.productRepo.SaveProductItem(ctx, productItem)
+	// check the given all combination already exist (Color:Red with Size:M)
+	productItemExist, err := c.isAllVariationCombinationExist(productItem.ProductID, productItem.VariationOptionID)
 	if err != nil {
 		return err
 	}
+	if productItemExist {
+		return ErrProductItemAlreadyExist
+	}
 
-	log.Printf("successfully product_item saved for product_id %v\n\n", productItem.ProductID)
+	err = c.productRepo.Transactions(ctx, func(trxRepo interfaces.ProductRepository) error {
+
+		sku := utils.GenerateSKU()
+		newProductItem := domain.ProductItem{
+			ProductID:  productItem.ProductID,
+			QtyInStock: productItem.QtyInStock,
+			Price:      productItem.Price,
+			SKU:        sku,
+		}
+
+		productItemID, err := trxRepo.SaveProductItem(ctx, newProductItem)
+		if err != nil {
+			return utils.PrependMessageToError(err, "failed to save product item")
+		}
+
+		// save all product configurations based on given variation option id
+		for _, variationOptionID := range productItem.VariationOptionID {
+
+			valid, err := c.productRepo.IsValidVariationOptionID(ctx, variationOptionID)
+			if err != nil {
+				return ErrInvalidVariationID
+			}
+			if !valid {
+				return ErrInvalidVariationOptionID
+			}
+
+			err = trxRepo.SaveProductConfiguration(ctx, productItemID, variationOptionID)
+			if err != nil {
+				return utils.PrependMessageToError(err, "failed to save product_item configuration")
+			}
+		}
+		return nil
+	})
+
+	if err != nil {
+		return err
+	}
 	return nil
+}
+
+// To check all variation option is exist for the product
+func (c *productUseCase) isAllVariationCombinationExist(productID uint, variationOptionIDs []uint) (exist bool, err error) {
+
+	for _, variationOptionID := range variationOptionIDs {
+		exist, err := c.productRepo.IsProductItemAlreadyExist(context.Background(), productID, variationOptionID)
+		if err != nil {
+			return false, utils.PrependMessageToError(err, "failed to check product item already exist with given configuration")
+		}
+		// one of the combination not exist then return
+		if !exist {
+			return false, nil
+		}
+	}
+
+	return true, nil
 }
 
 // for get all productItem for a specific product
 func (c *productUseCase) FindProductItems(ctx context.Context, productID uint) (productItems []response.ProductItems, err error) {
 
 	//validate the productID
-	if product, err := c.productRepo.FindProduct(ctx, domain.Product{ID: productID}); err != nil {
-		return productItems, err
-	} else if product.ProductName == "" {
-		return productItems, errors.New("invalid product_id")
+	product, err := c.productRepo.FindProductByID(ctx, productID)
+	if err != nil {
+		return nil, err
+	}
+	if product.Name == "" {
+		return nil, ErrInvalidProductID
 	}
 
 	productItems, err = c.productRepo.FindAllProductItems(ctx, productID)
 	if err != nil {
 		return productItems, err
+	}
+
+	// get all variation values of the product items
+	for i, productItem := range productItems {
+		variationValues, err := c.productRepo.FindAllVariationValuesOfProductItem(ctx, productItem.ID)
+		if err != nil {
+			return nil, utils.PrependMessageToError(err, "failed to find variation values product item")
+		}
+		productItems[i].VariationValues = variationValues
 	}
 
 	// for _, productItem := range productItems {
@@ -222,7 +300,6 @@ func (c *productUseCase) FindProductItems(ctx context.Context, productID uint) (
 	// 	fmt.Println(images, "images")
 	// }
 
-	log.Printf("successfully got all productItems for product_id %v", productID)
 	return productItems, nil
 }
 
@@ -230,18 +307,24 @@ func (c *productUseCase) UpdateProduct(ctx context.Context, product domain.Produ
 	// validate the product_id
 	checkProduct, err := c.productRepo.FindProductByID(ctx, product.ID)
 	if err != nil {
-		return err
-	} else if checkProduct.ProductName == "" {
-		return errors.New("invalid product_id")
+		return utils.PrependMessageToError(err, "failed to verify product id")
+	}
+	if checkProduct.ID == 0 {
+		return ErrInvalidProductItemID
 	}
 
 	// check the given product_name already exist or not
-	checkProduct, err = c.productRepo.FindProduct(ctx, domain.Product{ProductName: product.ProductName})
+	checkProduct, err = c.productRepo.FindProductByName(ctx, product.Name)
 	if err != nil {
 		return err
-	} else if checkProduct.ID != 0 && checkProduct.ID != product.ID {
-		return errors.New("can't update the product \nthere is alread a product exist with this product_name")
+	}
+	if checkProduct.ID != 0 && checkProduct.ID != product.ID {
+		return ErrProductAlreadyExist
 	}
 
-	return c.productRepo.UpdateProduct(ctx, product)
+	err = c.productRepo.UpdateProduct(ctx, product)
+	if err != nil {
+		return utils.PrependMessageToError(err, "failed to update product")
+	}
+	return nil
 }

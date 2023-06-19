@@ -51,7 +51,7 @@ func (c *OrderHandler) FindAllOrderStatuses(ctx *gin.Context) {
 // @security ApiKeyAuth
 // @tags User Cart
 // @id PlaceOrder
-// @Param        inputs   body     req.OrderPayment{}   true  "Input Field"
+// @Param        inputs   body     request.PlaceOrder{}   true  "Input Field"
 // @Router /carts/place-order/ [post]
 // @Success 200 {object} response.Response{} "successfully order placed"
 // @Failure 400 {object} response.Response{}  "invalid input"
@@ -83,9 +83,9 @@ func (c *OrderHandler) PlaceOrder(ctx *gin.Context) {
 // @id ApproveOrderCOD
 // @Param       inputs   body     request.OrderPayment{}   true  "Input Field"
 // @Router /carts/place-order/cod [post]
-// @Success 200 {object} res.Response{} "successfully order placed in COD"
-// @Failure 400 {object} res.Response{}  "invalid input"
-// @Failure 500 {object} res.Response{}  "failed to save shop order"
+// @Success 200 {object} response.Response{} "successfully order placed in COD"
+// @Failure 400 {object} response.Response{}  "invalid input"
+// @Failure 500 {object} response.Response{}  "failed to save shop order"
 func (c *OrderHandler) ApproveOrderCOD(ctx *gin.Context) {
 
 	var body request.OrderPayment
@@ -116,8 +116,8 @@ func (c *OrderHandler) ApproveOrderCOD(ctx *gin.Context) {
 // @Param page_number query int false "Page Number"
 // @Param count query int false "Count Of Order"
 // @Router /orders [get]
-// @Success 200 {object} res.Response{} "Successfully found all shop orders"
-// @Failure 500 {object} res.Response{} "Failed to find all user shop orders"
+// @Success 200 {object} response.Response{} "Successfully found all shop orders"
+// @Failure 500 {object} response.Response{} "Failed to find all user shop orders"
 func (c *OrderHandler) FindUserOrder(ctx *gin.Context) {
 
 	userId := utils.GetUserIdFromContext(ctx)
@@ -140,24 +140,25 @@ func (c *OrderHandler) FindUserOrder(ctx *gin.Context) {
 
 // FindAllOrderItems-User godoc
 // @summary api for admin to se order items of an order
-// @id FindAllOrderItems-Admin
+// @id FindAllOrderItems Admin
 // @tags User Orders
 // @Param shop_order_id query int false "Shop Order ID"
 // @Param page_number query int false "Page Number"
 // @Param count query int false "Count Of Order"
 // @Router /admin/orders/items [get]
-// @Success 200 {object} res.Response{} "successfully got order items"
-// @Failure 500 {object} res.Response{} "faild to get order list of user"
-// FindAllOrderItems-User godoc
+// @Success 200 {object} response.Response{} "Successfully found order items"
+// @Failure 500 {object} response.Response{} "Failed to find order items"
+
+// FindAllOrderItems User godoc
 // @summary api for show order items of a specific order
-// @id FindAllOrderItems-User
+// @id FindAllOrderItems User
 // @tags User Orders
 // @Param shop_order_id query int false "Shop Order ID"
 // @Param page_number query int false "Page Number"
 // @Param count query int false "Count"
 // @Router /orders/items [get]
-// @Success 200 {object} res.Response{} "Successfully found order items"
-// @Failure 500 {object} res.Response{} "Failed to find order items"
+// @Success 200 {object} response.Response{} "Successfully found order items"
+// @Failure 500 {object} response.Response{} "Failed to find order items"
 func (c *OrderHandler) FindAllOrderItems(ctx *gin.Context) {
 
 	shopOrderID, err := request.GetParamAsUint(ctx, "shop_order_id")
@@ -188,8 +189,8 @@ func (c *OrderHandler) FindAllOrderItems(ctx *gin.Context) {
 // @tags Admin Orders
 // @Param input body request.UpdateOrder{} true "input field"
 // @Router /admin/orders/ [put]
-// @Success 200 {object} res.Response{} "Successfully order status updated"
-// @Failure 400 {object} res.Response{} "invalid input"
+// @Success 200 {object} response.Response{} "Successfully order status updated"
+// @Failure 400 {object} response.Response{} "invalid input"
 func (c *OrderHandler) UpdateOrderStatus(ctx *gin.Context) {
 
 	var body request.UpdateOrder
@@ -215,8 +216,8 @@ func (c *OrderHandler) UpdateOrderStatus(ctx *gin.Context) {
 // @tags User Orders
 // @Params shop_order_id path int true "shop_order_id"
 // @Router /orders [post]
-// @Success 200 {object} res.Response{} "Successfully order cancelled"
-// @Failure 400 {object} res.Response{} "invalid input on param"
+// @Success 200 {object} response.Response{} "Successfully order cancelled"
+// @Failure 400 {object} response.Response{} "invalid input on param"
 func (c *OrderHandler) CancelOrder(ctx *gin.Context) {
 
 	shopOrderID, err := request.GetParamAsUint(ctx, "shop_order_id")
@@ -241,8 +242,8 @@ func (c *OrderHandler) CancelOrder(ctx *gin.Context) {
 // @Param page_number query int false "Page Number"
 // @Param count query int false "Count Of Order"
 // @Router /admin/orders [get]
-// @Success 200 {object} res.Response{} "Successfully found all shop orders"
-// @Failure 500 {object} res.Response{} "Failed to find all shop orders"
+// @Success 200 {object} response.Response{} "Successfully found all shop orders"
+// @Failure 500 {object} response.Response{} "Failed to find all shop orders"
 func (c *OrderHandler) FindAllShopOrders(ctx *gin.Context) {
 
 	pagination := request.GetPagination(ctx)
@@ -268,8 +269,8 @@ func (c *OrderHandler) FindAllShopOrders(ctx *gin.Context) {
 // @tags User Orders
 // @Param input body request.Return true "Input Fields"
 // @Router /orders/return [post]
-// @Success 200 {object} res.Response{} "Successfully return request submitted for order"
-// @Failure 400 {object} res.Response{} "invalid input"
+// @Success 200 {object} response.Response{} "Successfully return request submitted for order"
+// @Failure 400 {object} response.Response{} "invalid input"
 func (c OrderHandler) SubmitReturnRequest(ctx *gin.Context) {
 
 	var body request.Return
@@ -295,7 +296,7 @@ func (c OrderHandler) SubmitReturnRequest(ctx *gin.Context) {
 // @Param count query int false "Count Of Order"
 // @Router /admin/orders/returns [get]
 // @Success 200 {object} response.Response{} "Successfully found all order returns"
-// @Failure 500 {object} res.Response{} "Failed to find all order returns"
+// @Failure 500 {object} response.Response{} "Failed to find all order returns"
 func (c *OrderHandler) FindAllOrderReturns(ctx *gin.Context) {
 
 	pagination := request.GetPagination(ctx)
@@ -322,8 +323,8 @@ func (c *OrderHandler) FindAllOrderReturns(ctx *gin.Context) {
 // @Param page_number query int false "Page Number"
 // @Param count query int false "Count Of Order"
 // @Router /admin/orders/returns/pending [get]
-// @Success 200 {object} res.Response{} "Successfully found all pending orders return requests"
-// @Failure 500 {object} res.Response{} "Failed to find all pending order return requests"
+// @Success 200 {object} response.Response{} "Successfully found all pending orders return requests"
+// @Failure 500 {object} response.Response{} "Failed to find all pending order return requests"
 func (c *OrderHandler) FindAllPendingReturns(ctx *gin.Context) {
 
 	pagination := request.GetPagination(ctx)
@@ -347,10 +348,10 @@ func (c *OrderHandler) FindAllPendingReturns(ctx *gin.Context) {
 // @description admin can approve, cancel etc. updating on User Orders_return
 // @id UpdateReturnRequest
 // @tags Admin Orders
-// @Param input body req.UpdateOrderReturn{} true "Input Fields"
+// @Param input body request.UpdateOrderReturn{} true "Input Fields"
 // @Router /admin/orders/returns/pending [put]
-// @Success 200 {object} res.Response{} "successfully order_response updated"
-// @Failure 500 {object} res.Response{} "invalid input"
+// @Success 200 {object} response.Response{} "successfully order_response updated"
+// @Failure 500 {object} response.Response{} "invalid input"
 func (c *OrderHandler) UpdateReturnRequest(ctx *gin.Context) {
 
 	var body request.UpdateOrderReturn

@@ -28,8 +28,8 @@ func NewPaymentHandler(paymentUseCase interfaces.PaymentUseCase) handlerInterfac
 // @tags User Payment
 // @id CartOrderPaymentSelectPage
 // @Router /carts/checkout/payment-select-page [get]
-// @Success 200 {object} res.Response{} "successfully order placed"
-// @Failure 500 {object} res.Response{}   "Failed to render payment page"
+// @Success 200 {object} response.Response{} "successfully order placed"
+// @Failure 500 {object} response.Response{}   "Failed to render payment page"
 func (c *paymentHandler) CartOrderPaymentSelectPage(ctx *gin.Context) {
 
 	Payments, err := c.paymentUseCase.FindAllPaymentMethods(ctx)
@@ -47,9 +47,9 @@ func (c *paymentHandler) CartOrderPaymentSelectPage(ctx *gin.Context) {
 // @tags Admin Payment
 // @id AddPaymentMethod
 // @Router /admin/payment-method [post]
-// @Success 200 {object} res.Response{} "successfully payment added"
-// @Success 400 {object} res.Response{} "Failed to bind input"
-// @Failure 500 {object} res.Response{}  "Failed to add payment method"
+// @Success 200 {object} response.Response{} "successfully payment added"
+// @Success 400 {object} response.Response{} "Failed to bind input"
+// @Failure 500 {object} response.Response{}  "Failed to add payment method"
 func (c *paymentHandler) AddPaymentMethod(ctx *gin.Context) {
 
 	var body request.PaymentMethod
@@ -78,9 +78,9 @@ func (c *paymentHandler) AddPaymentMethod(ctx *gin.Context) {
 // @tags Admin Payment
 // @id UpdatePaymentMethod
 // @Router /admin/payment-method  [put]
-// @Success 200 {object} res.Response{} "Successfully payment method updated"
-// @Success 400 {object} res.Response{} "Failed to bind input"
-// @Failure 500 {object} res.Response{}  "Failed to update payment method"
+// @Success 200 {object} response.Response{} "Successfully payment method updated"
+// @Success 400 {object} response.Response{} "Failed to bind input"
+// @Failure 500 {object} response.Response{}  "Failed to update payment method"
 func (c *paymentHandler) UpdatePaymentMethod(ctx *gin.Context) {
 
 	var body request.PaymentMethodUpdate
@@ -106,8 +106,8 @@ func (c *paymentHandler) UpdatePaymentMethod(ctx *gin.Context) {
 // @tags User Payment
 // @id FindAllPaymentMethods
 // @Router /admin/payment-method [get]
-// @Success 200 {object} res.Response{} "Failed to find payment methods"
-// @Failure 500 {object} res.Response{}   "Successfully found all payment methods"
+// @Success 200 {object} response.Response{} "Failed to find payment methods"
+// @Failure 500 {object} response.Response{}   "Successfully found all payment methods"
 func (c *paymentHandler) FindAllPaymentMethods(ctx *gin.Context) {
 
 	paymentMethods, err := c.paymentUseCase.FindAllPaymentMethods(ctx)

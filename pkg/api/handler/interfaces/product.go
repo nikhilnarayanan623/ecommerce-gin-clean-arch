@@ -11,9 +11,9 @@ type ProductHandler interface {
 	FindAllVariations(ctx *gin.Context)
 
 	FindAllProducts(ctx *gin.Context)
-	SaveProducts(ctx *gin.Context)
+	SaveProduct(ctx *gin.Context)
 	UpdateProduct(ctx *gin.Context)
 
 	SaveProductItem(ctx *gin.Context)
-	FindProductItems(ctx *gin.Context)
+	FindAllProductItems(ctx *gin.Context)
 }

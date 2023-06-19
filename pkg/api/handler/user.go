@@ -51,16 +51,16 @@ func (u *UserHandler) UserLogout(ctx *gin.Context) {
 	response.SuccessResponse(ctx, http.StatusOK, "Successfully logged out", nil)
 }
 
-// CheckOutCart godoc
-// @summary api for cart checkout
-// @description user can checkout user cart items
-// @security ApiKeyAuth
-// @id CheckOutCart
-// @tags User Cart
-// @Router /carts/checkout [get]
-// @Success 200 {object} res.Response{} "successfully got checkout data"
-// @Failure 401 {object} res.Response{} "cart is empty so user can't call this api"
-// @Failure 500 {object} res.Response{} "failed to get checkout items"
+// // CheckOutCart godoc
+// // @summary api for cart checkout
+// // @description user can checkout user cart items
+// // @security ApiKeyAuth
+// // @id CheckOutCart
+// // @tags User Cart
+// // @Router /carts/checkout [get]
+// // @Success 200 {object} response.Response{} "successfully got checkout data"
+// // @Failure 401 {object} res.Response{} "cart is empty so user can't call this api"
+// // @Failure 500 {object} res.Response{} "failed to get checkout items"
 func (c *UserHandler) CheckOutCart(ctx *gin.Context) {
 
 	// userId := utils.GetUserIdFromContext(ctx)
@@ -90,7 +90,7 @@ func (c *UserHandler) CheckOutCart(ctx *gin.Context) {
 // @tags User GetUserProfile
 // @Router /account [get]
 // @Success 200 "Successfully user account details found"
-// @Failure 500 {object} res.Response{} "faild to show user details"
+// @Failure 500 {object} response.Response{} "faild to show user details"
 func (u *UserHandler) FindProfile(ctx *gin.Context) {
 
 	userID := utils.GetUserIdFromContext(ctx)
@@ -113,10 +113,10 @@ func (u *UserHandler) FindProfile(ctx *gin.Context) {
 // @security ApiKeyAuth
 // @id UpdateUserProfile
 // @tags User Account
-// @Param input body req.EditUser{} true "input field"
+// @Param input body request.EditUser{} true "input field"
 // @Router /account [put]
-// @Success 200 {object} res.Response{} "successfully updated user details"
-// @Failure 400 {object} res.Response{} "invalid input"
+// @Success 200 {object} response.Response{} "successfully updated user details"
+// @Failure 400 {object} response.Response{} "invalid input"
 func (u *UserHandler) UpdateProfile(ctx *gin.Context) {
 
 	userID := utils.GetUserIdFromContext(ctx)
@@ -147,10 +147,10 @@ func (u *UserHandler) UpdateProfile(ctx *gin.Context) {
 // @security ApiKeyAuth
 // @id AddAddress
 // @tags User Address
-// @Param inputs body req.Address{} true "Input Field"
+// @Param inputs body request.Address{} true "Input Field"
 // @Router /account/address [post]
-// @Success 200 {object} res.Response{} "Successfully address added"
-// @Failure 400 {object} res.Response{} "invalid input"
+// @Success 200 {object} response.Response{} "Successfully address added"
+// @Failure 400 {object} response.Response{} "invalid input"
 func (u *UserHandler) SaveAddress(ctx *gin.Context) {
 
 	var body request.Address
@@ -186,8 +186,8 @@ func (u *UserHandler) SaveAddress(ctx *gin.Context) {
 // @id FindAllAddresses
 // @tags User Address
 // @Router /account/address [get]
-// @Success 200 {object} res.Response{} "successfully got user addresses"
-// @Failure 500 {object} res.Response{} "failed to show user addresses"
+// @Success 200 {object} response.Response{} "successfully got user addresses"
+// @Failure 500 {object} response.Response{} "failed to show user addresses"
 func (u *UserHandler) FindAllAddresses(ctx *gin.Context) {
 
 	userID := utils.GetUserIdFromContext(ctx)
@@ -213,10 +213,10 @@ func (u *UserHandler) FindAllAddresses(ctx *gin.Context) {
 // @security ApiKeyAuth
 // @id UpdateAddress
 // @tags User Address
-// @Param input body req.EditAddress{} true "Input Field"
+// @Param input body request.EditAddress{} true "Input Field"
 // @Router /account/address [put]
-// @Success 200 {object} res.Response{} "successfully addresses updated"
-// @Failure 400 {object} res.Response{} "can't update the address"
+// @Success 200 {object} response.Response{} "successfully addresses updated"
+// @Failure 400 {object} response.Response{} "can't update the address"
 func (u *UserHandler) UpdateAddress(ctx *gin.Context) {
 
 	userID := utils.GetUserIdFromContext(ctx)
@@ -256,8 +256,8 @@ func (u *UserHandler) UpdateAddress(ctx *gin.Context) {
 // @tags Wishlist
 // @Param product_item_id body int true "product_item_id"
 // @Router /wishlist [post]
-// @Success 200 {object} res.Response{} "successfully added product item to wishlist"
-// @Failure 400 {object} res.Response{} "invalid input"
+// @Success 200 {object} response.Response{} "successfully added product item to wishlist"
+// @Failure 400 {object} response.Response{} "invalid input"
 func (u *UserHandler) AddToWishList(ctx *gin.Context) {
 
 	productItemID, err := request.GetParamAsUint(ctx, "product_item_id")
@@ -290,8 +290,8 @@ func (u *UserHandler) AddToWishList(ctx *gin.Context) {
 // @tags Wishlist
 // @Params product_item_id path int true "product_item_id"
 // @Router /wishlist [delete]
-// @Success 200 {object} res.Response{} "successfully removed product item from wishlist"
-// @Failure 400 {object} res.Response{} "invalid input"
+// @Success 200 {object} response.Response{} "successfully removed product item from wishlist"
+// @Failure 400 {object} response.Response{} "invalid input"
 func (u *UserHandler) RemoveFromWishList(ctx *gin.Context) {
 
 	productItemID, err := request.GetParamAsUint(ctx, "product_item_id")

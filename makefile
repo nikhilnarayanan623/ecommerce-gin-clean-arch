@@ -44,7 +44,7 @@ swagger: ## install swagger and its dependencies for generate swagger using swag
 	$(GOCMD) get -u github.com/swaggo/files
 
 swag: ## Generate swagger docs
-	swag init -g pkg/api/server/server.go -o ./cmd/api/docs
+	swag init -g pkg/api/server.go -o ./cmd/api/docs
 
 mockgen: # Generate mock files for the test
 	mockgen -source=pkg/repository/interfaces/auth.go -destination=pkg/mock/mockrepo/auth_mock.go -package=mockrepo

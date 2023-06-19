@@ -44,10 +44,10 @@ const docTemplate = `{
                     }
                 ],
                 "tags": [
-                    "User Account"
+                    "User GetUserProfile"
                 ],
                 "summary": "api for see use details",
-                "operationId": "Account",
+                "operationId": "FindUserProfile",
                 "responses": {
                     "200": {
                         "description": "Successfully user account details found"
@@ -55,7 +55,7 @@ const docTemplate = `{
                     "500": {
                         "description": "faild to show user details",
                         "schema": {
-                            "$ref": "#/definitions/res.Response"
+                            "$ref": "#/definitions/response.Response"
                         }
                     }
                 }
@@ -71,7 +71,7 @@ const docTemplate = `{
                     "User Account"
                 ],
                 "summary": "api for edit user details",
-                "operationId": "UpateAccount",
+                "operationId": "UpdateUserProfile",
                 "parameters": [
                     {
                         "description": "input field",
@@ -79,7 +79,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/req.EditUser"
+                            "$ref": "#/definitions/request.EditUser"
                         }
                     }
                 ],
@@ -87,13 +87,13 @@ const docTemplate = `{
                     "200": {
                         "description": "successfully updated user details",
                         "schema": {
-                            "$ref": "#/definitions/res.Response"
+                            "$ref": "#/definitions/response.Response"
                         }
                     },
                     "400": {
                         "description": "invalid input",
                         "schema": {
-                            "$ref": "#/definitions/res.Response"
+                            "$ref": "#/definitions/response.Response"
                         }
                     }
                 }
@@ -106,23 +106,23 @@ const docTemplate = `{
                         "ApiKeyAuth": []
                     }
                 ],
-                "description": "user can show all adderss",
+                "description": "user can show all address",
                 "tags": [
                     "User Address"
                 ],
                 "summary": "api for get all address of user",
-                "operationId": "GetAddresses",
+                "operationId": "FindAllAddresses",
                 "responses": {
                     "200": {
                         "description": "successfully got user addresses",
                         "schema": {
-                            "$ref": "#/definitions/res.Response"
+                            "$ref": "#/definitions/response.Response"
                         }
                     },
                     "500": {
-                        "description": "faild to show user addresses",
+                        "description": "failed to show user addresses",
                         "schema": {
-                            "$ref": "#/definitions/res.Response"
+                            "$ref": "#/definitions/response.Response"
                         }
                     }
                 }
@@ -138,7 +138,7 @@ const docTemplate = `{
                     "User Address"
                 ],
                 "summary": "api for edit user address",
-                "operationId": "EditAddress",
+                "operationId": "UpdateAddress",
                 "parameters": [
                     {
                         "description": "Input Field",
@@ -146,7 +146,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/req.EditAddress"
+                            "$ref": "#/definitions/request.EditAddress"
                         }
                     }
                 ],
@@ -154,13 +154,13 @@ const docTemplate = `{
                     "200": {
                         "description": "successfully addresses updated",
                         "schema": {
-                            "$ref": "#/definitions/res.Response"
+                            "$ref": "#/definitions/response.Response"
                         }
                     },
                     "400": {
                         "description": "can't update the address",
                         "schema": {
-                            "$ref": "#/definitions/res.Response"
+                            "$ref": "#/definitions/response.Response"
                         }
                     }
                 }
@@ -184,7 +184,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/req.Address"
+                            "$ref": "#/definitions/request.Address"
                         }
                     }
                 ],
@@ -192,13 +192,13 @@ const docTemplate = `{
                     "200": {
                         "description": "Successfully address added",
                         "schema": {
-                            "$ref": "#/definitions/res.Response"
+                            "$ref": "#/definitions/response.Response"
                         }
                     },
                     "400": {
-                        "description": "inavlid input",
+                        "description": "invalid input",
                         "schema": {
-                            "$ref": "#/definitions/res.Response"
+                            "$ref": "#/definitions/response.Response"
                         }
                     }
                 }
@@ -213,9 +213,9 @@ const docTemplate = `{
                 "operationId": "AdminHome",
                 "responses": {
                     "200": {
-                        "description": "successfully logged in",
+                        "description": "Admin home page",
                         "schema": {
-                            "$ref": "#/definitions/res.Response"
+                            "$ref": "#/definitions/response.Response"
                         }
                     }
                 }
@@ -231,19 +231,33 @@ const docTemplate = `{
                 "tags": [
                     "Admin Category"
                 ],
-                "summary": "api for adminn get all categories",
-                "operationId": "GetAlllCategories",
+                "summary": "api for admin get all categories",
+                "operationId": "FindAllCategories",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Page Number",
+                        "name": "page_number",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Count",
+                        "name": "count",
+                        "in": "query"
+                    }
+                ],
                 "responses": {
                     "200": {
-                        "description": "successfully update the coupon",
+                        "description": "Successfully found all categories",
                         "schema": {
-                            "$ref": "#/definitions/res.Response"
+                            "$ref": "#/definitions/response.Response"
                         }
                     },
                     "500": {
-                        "description": "faild to get all cateogires",
+                        "description": "Failed to find all categories",
                         "schema": {
-                            "$ref": "#/definitions/res.Response"
+                            "$ref": "#/definitions/response.Response"
                         }
                     }
                 }
@@ -254,11 +268,8 @@ const docTemplate = `{
                         "ApiKeyAuth": []
                     }
                 ],
-                "tags": [
-                    "Admin Category"
-                ],
-                "summary": "api for adminn add a new category",
-                "operationId": "AddCategory",
+                "summary": "api for admin add a new category",
+                "operationId": "SaveCategory",
                 "parameters": [
                     {
                         "description": "Input field",
@@ -272,15 +283,57 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "successfully added a new category",
+                        "description": "Successfully category added",
                         "schema": {
-                            "$ref": "#/definitions/res.Response"
+                            "$ref": "#/definitions/response.Response"
                         }
                     },
                     "400": {
                         "description": "invalid input",
                         "schema": {
-                            "$ref": "#/definitions/res.Response"
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/admin/category/sub-category": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "summary": "api for admin add a new sub category",
+                "operationId": "SaveSubCategory",
+                "parameters": [
+                    {
+                        "description": "Input field",
+                        "name": "input",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/domain.Category"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successfully sub category added",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "invalid input",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Failed to add sub category",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
                         }
                     }
                 }
@@ -296,8 +349,8 @@ const docTemplate = `{
                 "tags": [
                     "Admin Category"
                 ],
-                "summary": "api for adminn add a new variation",
-                "operationId": "AddVariation",
+                "summary": "api for admin add a new variation",
+                "operationId": "SaveVariation",
                 "parameters": [
                     {
                         "description": "Input field",
@@ -305,7 +358,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/req.Variation"
+                            "$ref": "#/definitions/request.Variation"
                         }
                     }
                 ],
@@ -313,13 +366,13 @@ const docTemplate = `{
                     "200": {
                         "description": "successfully variation added",
                         "schema": {
-                            "$ref": "#/definitions/res.Response"
+                            "$ref": "#/definitions/response.Response"
                         }
                     },
                     "400": {
                         "description": "invalid input",
                         "schema": {
-                            "$ref": "#/definitions/res.Response"
+                            "$ref": "#/definitions/response.Response"
                         }
                     }
                 }
@@ -335,8 +388,8 @@ const docTemplate = `{
                 "tags": [
                     "Admin Category"
                 ],
-                "summary": "api for adminn add a new variation options",
-                "operationId": "AddVariationOption",
+                "summary": "api for admin add a new variation options",
+                "operationId": "SaveVariationOption",
                 "parameters": [
                     {
                         "description": "Input field",
@@ -344,7 +397,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/req.VariationOption"
+                            "$ref": "#/definitions/request.VariationOption"
                         }
                     }
                 ],
@@ -352,13 +405,52 @@ const docTemplate = `{
                     "200": {
                         "description": "successfully added variation option",
                         "schema": {
-                            "$ref": "#/definitions/res.Response"
+                            "$ref": "#/definitions/response.Response"
                         }
                     },
                     "400": {
                         "description": "invalid input",
                         "schema": {
-                            "$ref": "#/definitions/res.Response"
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/admin/category/variations": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "tags": [
+                    "Admin Category"
+                ],
+                "summary": "api for admin to find all variations and its values",
+                "operationId": "FindAllVariations",
+                "parameters": [
+                    {
+                        "description": "Input field",
+                        "name": "input",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.VariationOption"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successfully found all variations and its values",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "invalid input",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
                         }
                     }
                 }
@@ -375,7 +467,7 @@ const docTemplate = `{
                     "Admin Coupon"
                 ],
                 "summary": "api for admin to see all coupons",
-                "operationId": "GetAllCoupons",
+                "operationId": "FindAllCoupons",
                 "parameters": [
                     {
                         "type": "integer",
@@ -385,7 +477,7 @@ const docTemplate = `{
                     },
                     {
                         "type": "integer",
-                        "description": "Count Of Order",
+                        "description": "Count",
                         "name": "count",
                         "in": "query"
                     }
@@ -394,13 +486,13 @@ const docTemplate = `{
                     "200": {
                         "description": "successfully go all the coupons",
                         "schema": {
-                            "$ref": "#/definitions/res.Response"
+                            "$ref": "#/definitions/response.Response"
                         }
                     },
                     "500": {
                         "description": "faild to get all coupons",
                         "schema": {
-                            "$ref": "#/definitions/res.Response"
+                            "$ref": "#/definitions/response.Response"
                         }
                     }
                 }
@@ -423,21 +515,21 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/req.EditCoupon"
+                            "$ref": "#/definitions/request.EditCoupon"
                         }
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "successfully update the coupon",
+                        "description": "Successfully updated the coupon",
                         "schema": {
-                            "$ref": "#/definitions/res.Response"
+                            "$ref": "#/definitions/response.Response"
                         }
                     },
                     "400": {
                         "description": "invalid input",
                         "schema": {
-                            "$ref": "#/definitions/res.Response"
+                            "$ref": "#/definitions/response.Response"
                         }
                     }
                 }
@@ -460,7 +552,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/req.Coupon"
+                            "$ref": "#/definitions/request.Coupon"
                         }
                     }
                 ],
@@ -468,13 +560,52 @@ const docTemplate = `{
                     "200": {
                         "description": "successfully coupon added",
                         "schema": {
-                            "$ref": "#/definitions/res.Response"
+                            "$ref": "#/definitions/response.Response"
                         }
                     },
                     "400": {
                         "description": "invalid input",
                         "schema": {
-                            "$ref": "#/definitions/res.Response"
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/admin/login": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "tags": [
+                    "Admin Authentication"
+                ],
+                "summary": "api for admin to login",
+                "operationId": "AdminLogin",
+                "parameters": [
+                    {
+                        "description": "Input Fields",
+                        "name": "input",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.Login"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successfully account created for user",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "invalid input",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
                         }
                     }
                 }
@@ -494,7 +625,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/req.Offer"
+                            "$ref": "#/definitions/request.Offer"
                         }
                     }
                 ],
@@ -502,13 +633,13 @@ const docTemplate = `{
                     "200": {
                         "description": "successfully offer added",
                         "schema": {
-                            "$ref": "#/definitions/res.Response"
+                            "$ref": "#/definitions/response.Response"
                         }
                     },
                     "400": {
                         "description": "invalid input",
                         "schema": {
-                            "$ref": "#/definitions/res.Response"
+                            "$ref": "#/definitions/response.Response"
                         }
                     }
                 }
@@ -520,18 +651,18 @@ const docTemplate = `{
                     "Offers"
                 ],
                 "summary": "api for show all offers",
-                "operationId": "ShowAllOffers",
+                "operationId": "FindAllOffers",
                 "responses": {
                     "200": {
                         "description": "successfully got all offers",
                         "schema": {
-                            "$ref": "#/definitions/res.Response"
+                            "$ref": "#/definitions/response.Response"
                         }
                     },
                     "500": {
                         "description": "faild to get offers",
                         "schema": {
-                            "$ref": "#/definitions/res.Response"
+                            "$ref": "#/definitions/response.Response"
                         }
                     }
                 }
@@ -543,18 +674,18 @@ const docTemplate = `{
                     "Offers"
                 ],
                 "summary": "api for admin to get all offers of categories",
-                "operationId": "GetOfferCategory",
+                "operationId": "FindAllOfferCategories",
                 "responses": {
                     "200": {
                         "description": "successfully got all offer_category",
                         "schema": {
-                            "$ref": "#/definitions/res.Response"
+                            "$ref": "#/definitions/response.Response"
                         }
                     },
                     "500": {
-                        "description": "faild to get offers_category",
+                        "description": "failed to get offers_category",
                         "schema": {
-                            "$ref": "#/definitions/res.Response"
+                            "$ref": "#/definitions/response.Response"
                         }
                     }
                 }
@@ -572,7 +703,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/req.OfferCategory"
+                            "$ref": "#/definitions/request.OfferCategory"
                         }
                     }
                 ],
@@ -580,13 +711,13 @@ const docTemplate = `{
                     "200": {
                         "description": "successfully offer added for category",
                         "schema": {
-                            "$ref": "#/definitions/res.Response"
+                            "$ref": "#/definitions/response.Response"
                         }
                     },
                     "400": {
                         "description": "invalid input",
                         "schema": {
-                            "$ref": "#/definitions/res.Response"
+                            "$ref": "#/definitions/response.Response"
                         }
                     }
                 }
@@ -606,7 +737,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/req.OfferCategory"
+                            "$ref": "#/definitions/request.OfferCategory"
                         }
                     }
                 ],
@@ -614,13 +745,13 @@ const docTemplate = `{
                     "200": {
                         "description": "successfully offer replaced for category",
                         "schema": {
-                            "$ref": "#/definitions/res.Response"
+                            "$ref": "#/definitions/response.Response"
                         }
                     },
                     "400": {
                         "description": "invalid input",
                         "schema": {
-                            "$ref": "#/definitions/res.Response"
+                            "$ref": "#/definitions/response.Response"
                         }
                     }
                 }
@@ -637,13 +768,13 @@ const docTemplate = `{
                     "200": {
                         "description": "successfully got all offers_categories",
                         "schema": {
-                            "$ref": "#/definitions/res.Response"
+                            "$ref": "#/definitions/response.Response"
                         }
                     },
                     "500": {
-                        "description": "faild to get offer_products",
+                        "description": "failed to get offer_products",
                         "schema": {
-                            "$ref": "#/definitions/res.Response"
+                            "$ref": "#/definitions/response.Response"
                         }
                     }
                 }
@@ -661,7 +792,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/req.OfferProduct"
+                            "$ref": "#/definitions/request.OfferProduct"
                         }
                     }
                 ],
@@ -669,13 +800,13 @@ const docTemplate = `{
                     "200": {
                         "description": "successfully offer replaced for product",
                         "schema": {
-                            "$ref": "#/definitions/res.Response"
+                            "$ref": "#/definitions/response.Response"
                         }
                     },
                     "400": {
                         "description": "invalid input",
                         "schema": {
-                            "$ref": "#/definitions/res.Response"
+                            "$ref": "#/definitions/response.Response"
                         }
                     }
                 }
@@ -693,7 +824,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/req.OfferProduct"
+                            "$ref": "#/definitions/request.OfferProduct"
                         }
                     }
                 ],
@@ -701,13 +832,13 @@ const docTemplate = `{
                     "200": {
                         "description": "successfully offer added for product",
                         "schema": {
-                            "$ref": "#/definitions/res.Response"
+                            "$ref": "#/definitions/response.Response"
                         }
                     },
                     "400": {
                         "description": "invalid input",
                         "schema": {
-                            "$ref": "#/definitions/res.Response"
+                            "$ref": "#/definitions/response.Response"
                         }
                     }
                 }
@@ -733,13 +864,13 @@ const docTemplate = `{
                     "200": {
                         "description": "successfully offer removed from product",
                         "schema": {
-                            "$ref": "#/definitions/res.Response"
+                            "$ref": "#/definitions/response.Response"
                         }
                     },
                     "400": {
                         "description": "invalid input on params",
                         "schema": {
-                            "$ref": "#/definitions/res.Response"
+                            "$ref": "#/definitions/response.Response"
                         }
                     }
                 }
@@ -752,7 +883,7 @@ const docTemplate = `{
                     "Admin Orders"
                 ],
                 "summary": "api for admin to show all order",
-                "operationId": "GetAllShopOrders",
+                "operationId": "FindAllShopOrders",
                 "parameters": [
                     {
                         "type": "integer",
@@ -769,15 +900,15 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "successfully order list got",
+                        "description": "Successfully found all shop orders",
                         "schema": {
-                            "$ref": "#/definitions/res.Response"
+                            "$ref": "#/definitions/response.Response"
                         }
                     },
                     "500": {
-                        "description": "faild to get shop order data",
+                        "description": "Failed to find all shop orders",
                         "schema": {
-                            "$ref": "#/definitions/res.Response"
+                            "$ref": "#/definitions/response.Response"
                         }
                     }
                 }
@@ -790,7 +921,7 @@ const docTemplate = `{
                     "Admin Orders"
                 ],
                 "summary": "api for admin to change the status of order",
-                "operationId": "UdateOrderStatus",
+                "operationId": "UpdateOrderStatus",
                 "parameters": [
                     {
                         "description": "input field",
@@ -798,21 +929,21 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/req.UpdateOrder"
+                            "$ref": "#/definitions/request.UpdateOrder"
                         }
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "successfully got order items",
+                        "description": "Successfully order status updated",
                         "schema": {
-                            "$ref": "#/definitions/res.Response"
+                            "$ref": "#/definitions/response.Response"
                         }
                     },
                     "400": {
                         "description": "invalid input",
                         "schema": {
-                            "$ref": "#/definitions/res.Response"
+                            "$ref": "#/definitions/response.Response"
                         }
                     }
                 }
@@ -823,8 +954,8 @@ const docTemplate = `{
                 "tags": [
                     "Admin Orders"
                 ],
-                "summary": "api for admin to see all order reutns",
-                "operationId": "GetAllOrderReturns",
+                "summary": "api for admin to see all order returns",
+                "operationId": "FindAllOrderReturns",
                 "parameters": [
                     {
                         "type": "integer",
@@ -841,15 +972,15 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "successfully got all order returns",
+                        "description": "Successfully found all order returns",
                         "schema": {
-                            "$ref": "#/definitions/res.Response"
+                            "$ref": "#/definitions/response.Response"
                         }
                     },
                     "500": {
-                        "description": "faild to get order returns",
+                        "description": "Failed to find all order returns",
                         "schema": {
-                            "$ref": "#/definitions/res.Response"
+                            "$ref": "#/definitions/response.Response"
                         }
                     }
                 }
@@ -862,7 +993,7 @@ const docTemplate = `{
                     "Admin Orders"
                 ],
                 "summary": "api for admin to show pending return request and update it",
-                "operationId": "GetAllPendingReturns",
+                "operationId": "FindAllPendingReturns",
                 "parameters": [
                     {
                         "type": "integer",
@@ -879,34 +1010,34 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "successfully got  pending orders return request",
+                        "description": "Successfully found all pending orders return requests",
                         "schema": {
-                            "$ref": "#/definitions/res.Response"
+                            "$ref": "#/definitions/response.Response"
                         }
                     },
                     "500": {
-                        "description": "faild to get pending order return requests",
+                        "description": "Failed to find all pending order return requests",
                         "schema": {
-                            "$ref": "#/definitions/res.Response"
+                            "$ref": "#/definitions/response.Response"
                         }
                     }
                 }
             },
             "put": {
-                "description": "admin can approve, cancell etc. updation on User Orders_return",
+                "description": "admin can approve, cancel etc. updating on User Orders_return",
                 "tags": [
                     "Admin Orders"
                 ],
-                "summary": "api for admin to supdate the order_return request from user",
-                "operationId": "UpdategReturnRequest",
+                "summary": "api for admin to update the order_return request from user",
+                "operationId": "UpdateReturnRequest",
                 "parameters": [
                     {
-                        "description": "Input Fiields",
+                        "description": "Input Fields",
                         "name": "input",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/req.UpdatOrderReturn"
+                            "$ref": "#/definitions/request.UpdateOrderReturn"
                         }
                     }
                 ],
@@ -914,13 +1045,13 @@ const docTemplate = `{
                     "200": {
                         "description": "successfully order_response updated",
                         "schema": {
-                            "$ref": "#/definitions/res.Response"
+                            "$ref": "#/definitions/response.Response"
                         }
                     },
                     "500": {
                         "description": "invalid input",
                         "schema": {
-                            "$ref": "#/definitions/res.Response"
+                            "$ref": "#/definitions/response.Response"
                         }
                     }
                 }
@@ -940,15 +1071,15 @@ const docTemplate = `{
                 "operationId": "GetAllOrderStatuses",
                 "responses": {
                     "200": {
-                        "description": "successfully got all order statueses",
+                        "description": "Successfully found all order statuses",
                         "schema": {
-                            "$ref": "#/definitions/res.Response"
+                            "$ref": "#/definitions/response.Response"
                         }
                     },
                     "500": {
-                        "description": "faild to get order statuses",
+                        "description": "failed to get order statuses",
                         "schema": {
-                            "$ref": "#/definitions/res.Response"
+                            "$ref": "#/definitions/response.Response"
                         }
                     }
                 }
@@ -965,18 +1096,18 @@ const docTemplate = `{
                     "User Payment"
                 ],
                 "summary": "api for get all payment methods",
-                "operationId": "GetAllPaymentMethods",
+                "operationId": "FindAllPaymentMethods",
                 "responses": {
                     "200": {
-                        "description": "successfully get payment method",
+                        "description": "Failed to find payment methods",
                         "schema": {
-                            "$ref": "#/definitions/res.Response"
+                            "$ref": "#/definitions/response.Response"
                         }
                     },
                     "500": {
-                        "description": "faild to get all payment methods",
+                        "description": "Successfully found all payment methods",
                         "schema": {
-                            "$ref": "#/definitions/res.Response"
+                            "$ref": "#/definitions/response.Response"
                         }
                     }
                 }
@@ -994,21 +1125,21 @@ const docTemplate = `{
                 "operationId": "UpdatePaymentMethod",
                 "responses": {
                     "200": {
-                        "description": "successfully updated payment method",
+                        "description": "Successfully payment method updated",
                         "schema": {
-                            "$ref": "#/definitions/res.Response"
+                            "$ref": "#/definitions/response.Response"
                         }
                     },
                     "400": {
-                        "description": "faild to bind input",
+                        "description": "Failed to bind input",
                         "schema": {
-                            "$ref": "#/definitions/res.Response"
+                            "$ref": "#/definitions/response.Response"
                         }
                     },
                     "500": {
-                        "description": "faild to update payment details",
+                        "description": "Failed to update payment method",
                         "schema": {
-                            "$ref": "#/definitions/res.Response"
+                            "$ref": "#/definitions/response.Response"
                         }
                     }
                 }
@@ -1028,19 +1159,19 @@ const docTemplate = `{
                     "200": {
                         "description": "successfully payment added",
                         "schema": {
-                            "$ref": "#/definitions/res.Response"
+                            "$ref": "#/definitions/response.Response"
                         }
                     },
                     "400": {
-                        "description": "faild to bind input",
+                        "description": "Failed to bind input",
                         "schema": {
-                            "$ref": "#/definitions/res.Response"
+                            "$ref": "#/definitions/response.Response"
                         }
                     },
                     "500": {
-                        "description": "faild to add payment method",
+                        "description": "Failed to add payment method",
                         "schema": {
-                            "$ref": "#/definitions/res.Response"
+                            "$ref": "#/definitions/response.Response"
                         }
                     }
                 }
@@ -1060,7 +1191,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/req.UpdateProduct"
+                            "$ref": "#/definitions/request.UpdateProduct"
                         }
                     }
                 ],
@@ -1068,13 +1199,13 @@ const docTemplate = `{
                     "200": {
                         "description": "successfully product updated",
                         "schema": {
-                            "$ref": "#/definitions/res.Response"
+                            "$ref": "#/definitions/response.Response"
                         }
                     },
                     "400": {
                         "description": "invalid input",
                         "schema": {
-                            "$ref": "#/definitions/res.Response"
+                            "$ref": "#/definitions/response.Response"
                         }
                     }
                 }
@@ -1084,7 +1215,7 @@ const docTemplate = `{
                     "Admin Products"
                 ],
                 "summary": "api for admin to update a product",
-                "operationId": "AddProducts",
+                "operationId": "SaveProduct",
                 "parameters": [
                     {
                         "description": "inputs",
@@ -1092,7 +1223,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/req.Product"
+                            "$ref": "#/definitions/request.Product"
                         }
                     }
                 ],
@@ -1100,13 +1231,13 @@ const docTemplate = `{
                     "200": {
                         "description": "successfully product added",
                         "schema": {
-                            "$ref": "#/definitions/res.Response"
+                            "$ref": "#/definitions/response.Response"
                         }
                     },
                     "400": {
                         "description": "invalid input",
                         "schema": {
-                            "$ref": "#/definitions/res.Response"
+                            "$ref": "#/definitions/response.Response"
                         }
                     }
                 }
@@ -1118,7 +1249,7 @@ const docTemplate = `{
                     "Admin Products"
                 ],
                 "summary": "api for admin to add product-items for a specific product",
-                "operationId": "AddProductItem",
+                "operationId": "SaveProductItem",
                 "parameters": [
                     {
                         "description": "inputs",
@@ -1126,7 +1257,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/req.ProductItem"
+                            "$ref": "#/definitions/request.ProductItem"
                         }
                     }
                 ],
@@ -1134,13 +1265,13 @@ const docTemplate = `{
                     "200": {
                         "description": "Successfully product item added",
                         "schema": {
-                            "$ref": "#/definitions/res.Response"
+                            "$ref": "#/definitions/response.Response"
                         }
                     },
                     "400": {
                         "description": "invalid input",
                         "schema": {
-                            "$ref": "#/definitions/res.Response"
+                            "$ref": "#/definitions/response.Response"
                         }
                     }
                 }
@@ -1156,13 +1287,13 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "Date that you wan't to start on Report",
+                        "description": "Sales report starting date",
                         "name": "start_date",
                         "in": "query"
                     },
                     {
                         "type": "string",
-                        "description": "Date that you wan't to start on Report",
+                        "description": "Sales report ending date",
                         "name": "end_date",
                         "in": "query"
                     },
@@ -1174,34 +1305,81 @@ const docTemplate = `{
                     },
                     {
                         "type": "integer",
-                        "description": "Count Of Order",
+                        "description": "Count",
                         "name": "count",
                         "in": "query"
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "ecommercesalesreport.csv",
+                        "description": "ecommerce_sales_report.csv",
                         "schema": {
-                            "$ref": "#/definitions/res.Response"
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "204": {
+                        "description": "No sales report found",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
                         }
                     },
                     "500": {
-                        "description": "faild to get sales report",
+                        "description": "failed to get sales report",
                         "schema": {
-                            "$ref": "#/definitions/res.Response"
+                            "$ref": "#/definitions/response.Response"
                         }
                     }
                 }
             }
         },
-        "/admin/users": {
+        "/admin/stocks": {
             "get": {
                 "tags": [
-                    "Admin User"
+                    "Admin Stock"
                 ],
-                "summary": "api for admin to list users",
-                "operationId": "ListUsers",
+                "summary": "api for admin to find all stock stock details",
+                "operationId": "FindAllStocks",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Page Number",
+                        "name": "page_number",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Count",
+                        "name": "count",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successfully found all stocks",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "204": {
+                        "description": "No stocks found",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Failed to find all stocks",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            },
+            "patch": {
+                "tags": [
+                    "Admin Stock"
+                ],
+                "summary": "api for admin to update a stock",
+                "operationId": "UpdateStock",
                 "parameters": [
                     {
                         "type": "integer",
@@ -1218,15 +1396,64 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "successfully got all users",
+                        "description": "Successfully updated sock",
                         "schema": {
-                            "$ref": "#/definitions/res.Response"
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "Failed to bind input",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
                         }
                     },
                     "500": {
-                        "description": "faild to get all users",
+                        "description": "Failed to update stock",
                         "schema": {
-                            "$ref": "#/definitions/res.Response"
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/admin/users": {
+            "get": {
+                "tags": [
+                    "Admin User"
+                ],
+                "summary": "api for admin to find all users",
+                "operationId": "FindAllUsers",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Page Number",
+                        "name": "page_number",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Count",
+                        "name": "count",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successfully got all users",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "204": {
+                        "description": "No users found",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Failed to find all users",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
                         }
                     }
                 }
@@ -1246,21 +1473,21 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/req.BlockUser"
+                            "$ref": "#/definitions/request.BlockUser"
                         }
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "Successfully changed user block_status",
+                        "description": "Successfully changed block status of user",
                         "schema": {
-                            "$ref": "#/definitions/res.Response"
+                            "$ref": "#/definitions/response.Response"
                         }
                     },
                     "400": {
                         "description": "invalid input",
                         "schema": {
-                            "$ref": "#/definitions/res.Response"
+                            "$ref": "#/definitions/response.Response"
                         }
                     }
                 }
@@ -1278,18 +1505,18 @@ const docTemplate = `{
                     "User Cart"
                 ],
                 "summary": "api for get all cart item of user",
-                "operationId": "User Cart",
+                "operationId": "FindCart",
                 "responses": {
                     "200": {
-                        "description": "successfully got user cart items",
+                        "description": "Successfully find user cart items",
                         "schema": {
-                            "$ref": "#/definitions/res.Response"
+                            "$ref": "#/definitions/response.Response"
                         }
                     },
                     "500": {
-                        "description": "faild to get cart items",
+                        "description": "Failed to get user cart",
                         "schema": {
-                            "$ref": "#/definitions/res.Response"
+                            "$ref": "#/definitions/response.Response"
                         }
                     }
                 }
@@ -1300,11 +1527,11 @@ const docTemplate = `{
                         "ApiKeyAuth": []
                     }
                 ],
-                "description": "user can inrement or drement count of a productItem in cart (min=1)",
+                "description": "user can increment or decrement count of a productItem in cart (min=1)",
                 "tags": [
                     "User Cart"
                 ],
-                "summary": "api for updte productItem count",
+                "summary": "api for update productItem count",
                 "operationId": "UpdateCart",
                 "parameters": [
                     {
@@ -1313,7 +1540,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/req.UpdateCartItem"
+                            "$ref": "#/definitions/request.UpdateCartItem"
                         }
                     }
                 ],
@@ -1322,42 +1549,16 @@ const docTemplate = `{
                         "description": "Successfully productItem count change on cart"
                     },
                     "400": {
-                        "description": "invalid input"
+                        "description": "invalid input",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
                     },
                     "500": {
-                        "description": "can't update the count of product item on cart"
-                    }
-                }
-            },
-            "post": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "description": "user can add a stock in product to user cart",
-                "tags": [
-                    "User Cart"
-                ],
-                "summary": "api for add productItem to user cart",
-                "operationId": "AddToCart",
-                "parameters": [
-                    {
-                        "description": "Input Field",
-                        "name": "input",
-                        "in": "body",
-                        "required": true,
+                        "description": "Failed to update product item in cart",
                         "schema": {
-                            "$ref": "#/definitions/req.Cart"
+                            "$ref": "#/definitions/response.Response"
                         }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Successfully productItem added to cart"
-                    },
-                    "400": {
-                        "description": "can't add the product item into cart"
                     }
                 }
             },
@@ -1380,68 +1581,33 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/req.Cart"
+                            "$ref": "#/definitions/request.Cart"
                         }
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "Successfully productItem removed from cart",
+                        "description": "Successfully product item removed form cart",
                         "schema": {
-                            "$ref": "#/definitions/res.Response"
+                            "$ref": "#/definitions/response.Response"
                         }
                     },
                     "400": {
                         "description": "invalid input",
                         "schema": {
-                            "$ref": "#/definitions/res.Response"
+                            "$ref": "#/definitions/response.Response"
                         }
                     },
                     "500": {
-                        "description": "can't remove product item from cart",
+                        "description": "Failed to remove product item from cart",
                         "schema": {
-                            "$ref": "#/definitions/res.Response"
+                            "$ref": "#/definitions/response.Response"
                         }
                     }
                 }
             }
         },
-        "/carts/checkout": {
-            "get": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "description": "user can checkout user cart items",
-                "tags": [
-                    "User Cart"
-                ],
-                "summary": "api for cart checkout",
-                "operationId": "CheckOutCart",
-                "responses": {
-                    "200": {
-                        "description": "successfully got checkout data",
-                        "schema": {
-                            "$ref": "#/definitions/res.Response"
-                        }
-                    },
-                    "401": {
-                        "description": "cart is empty so user can't call this api",
-                        "schema": {
-                            "$ref": "#/definitions/res.Response"
-                        }
-                    },
-                    "500": {
-                        "description": "faild to get checkout items",
-                        "schema": {
-                            "$ref": "#/definitions/res.Response"
-                        }
-                    }
-                }
-            }
-        },
-        "/carts/checkout/payemt-select-page": {
+        "/carts/checkout/payment-select-page": {
             "get": {
                 "security": [
                     {
@@ -1452,18 +1618,18 @@ const docTemplate = `{
                     "User Payment"
                 ],
                 "summary": "api for render the html page of payment select",
-                "operationId": "CartOrderPayementSelectPage",
+                "operationId": "CartOrderPaymentSelectPage",
                 "responses": {
                     "200": {
                         "description": "successfully order placed",
                         "schema": {
-                            "$ref": "#/definitions/res.Response"
+                            "$ref": "#/definitions/response.Response"
                         }
                     },
                     "500": {
-                        "description": "faild to render payment page",
+                        "description": "Failed to render payment page",
                         "schema": {
-                            "$ref": "#/definitions/res.Response"
+                            "$ref": "#/definitions/response.Response"
                         }
                     }
                 }
@@ -1488,21 +1654,21 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/req.ApplyCoupon"
+                            "$ref": "#/definitions/request.ApplyCoupon"
                         }
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "successfully updated the coupon code",
+                        "description": "Successfully coupon applied to user cart",
                         "schema": {
-                            "$ref": "#/definitions/res.Response"
+                            "$ref": "#/definitions/response.Response"
                         }
                     },
                     "400": {
                         "description": "invalid input",
                         "schema": {
-                            "$ref": "#/definitions/res.Response"
+                            "$ref": "#/definitions/response.Response"
                         }
                     }
                 }
@@ -1527,7 +1693,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/req.OrderPayment"
+                            "$ref": "#/definitions/request.PlaceOrder"
                         }
                     }
                 ],
@@ -1535,19 +1701,19 @@ const docTemplate = `{
                     "200": {
                         "description": "successfully order placed",
                         "schema": {
-                            "$ref": "#/definitions/res.Response"
+                            "$ref": "#/definitions/response.Response"
                         }
                     },
                     "400": {
                         "description": "invalid input",
                         "schema": {
-                            "$ref": "#/definitions/res.Response"
+                            "$ref": "#/definitions/response.Response"
                         }
                     },
                     "500": {
-                        "description": "faild to save shop order",
+                        "description": "failed to save shop order",
                         "schema": {
-                            "$ref": "#/definitions/res.Response"
+                            "$ref": "#/definitions/response.Response"
                         }
                     }
                 }
@@ -1572,7 +1738,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/req.OrderPayment"
+                            "$ref": "#/definitions/request.OrderPayment"
                         }
                     }
                 ],
@@ -1580,19 +1746,19 @@ const docTemplate = `{
                     "200": {
                         "description": "successfully order placed in COD",
                         "schema": {
-                            "$ref": "#/definitions/res.Response"
+                            "$ref": "#/definitions/response.Response"
                         }
                     },
                     "400": {
                         "description": "invalid input",
                         "schema": {
-                            "$ref": "#/definitions/res.Response"
+                            "$ref": "#/definitions/response.Response"
                         }
                     },
                     "500": {
-                        "description": "faild to save shop order",
+                        "description": "failed to save shop order",
                         "schema": {
-                            "$ref": "#/definitions/res.Response"
+                            "$ref": "#/definitions/response.Response"
                         }
                     }
                 }
@@ -1630,13 +1796,13 @@ const docTemplate = `{
                     "200": {
                         "description": "successfully razorpay payment order created",
                         "schema": {
-                            "$ref": "#/definitions/res.Response"
+                            "$ref": "#/definitions/response.Response"
                         }
                     },
                     "400": {
                         "description": "faild to create razorpay payment order",
                         "schema": {
-                            "$ref": "#/definitions/res.Response"
+                            "$ref": "#/definitions/response.Response"
                         }
                     }
                 }
@@ -1694,13 +1860,51 @@ const docTemplate = `{
                     "200": {
                         "description": "faild to veify payment",
                         "schema": {
-                            "$ref": "#/definitions/res.Response"
+                            "$ref": "#/definitions/response.Response"
                         }
                     },
                     "400": {
                         "description": "successfully payment completed and order approved",
                         "schema": {
-                            "$ref": "#/definitions/res.Response"
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/carts/{product_item_id}": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "user can add a stock in product to user cart",
+                "tags": [
+                    "User Cart"
+                ],
+                "summary": "api for add productItem to user cart",
+                "operationId": "AddToCart",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Product Item ID",
+                        "name": "product_item_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successfully product item added to cart",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "Failed to add product item into cart",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
                         }
                     }
                 }
@@ -1734,15 +1938,15 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "successfully go all the coupons",
+                        "description": "Successfully found all coupons for user",
                         "schema": {
-                            "$ref": "#/definitions/res.Response"
+                            "$ref": "#/definitions/response.Response"
                         }
                     },
                     "500": {
-                        "description": "faild to get all coupons",
+                        "description": "Failed to find all user",
                         "schema": {
-                            "$ref": "#/definitions/res.Response"
+                            "$ref": "#/definitions/response.Response"
                         }
                     }
                 }
@@ -1757,18 +1961,18 @@ const docTemplate = `{
                 ],
                 "description": "Enter user_name | phone | email with password",
                 "tags": [
-                    "User Login"
+                    "User Authentication"
                 ],
                 "summary": "api for user to login",
                 "operationId": "UserLogin",
                 "parameters": [
                     {
-                        "description": "Input Field",
+                        "description": "Input Fields",
                         "name": "inputs",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/req.Login"
+                            "$ref": "#/definitions/request.Login"
                         }
                     }
                 ],
@@ -1776,19 +1980,19 @@ const docTemplate = `{
                     "200": {
                         "description": "successfully logged in",
                         "schema": {
-                            "$ref": "#/definitions/res.Response"
+                            "$ref": "#/definitions/response.Response"
                         }
                     },
                     "400": {
                         "description": "invalid input",
                         "schema": {
-                            "$ref": "#/definitions/res.Response"
+                            "$ref": "#/definitions/response.Response"
                         }
                     },
                     "500": {
-                        "description": "faild to generat JWT",
+                        "description": "failed to generate JWT",
                         "schema": {
-                            "$ref": "#/definitions/res.Response"
+                            "$ref": "#/definitions/response.Response"
                         }
                     }
                 }
@@ -1803,7 +2007,7 @@ const docTemplate = `{
                 ],
                 "description": "user can enter email/user_name/phone will send an otp to user registered phone_number",
                 "tags": [
-                    "User Login"
+                    "User Authentication"
                 ],
                 "summary": "api for user to login with otp",
                 "operationId": "UserLoginOtpSend",
@@ -1814,27 +2018,27 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/req.OTPLogin"
+                            "$ref": "#/definitions/request.OTPLogin"
                         }
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "Successfully Otp Send to registered number",
+                        "description": "Successfully otp send to user's registered number",
                         "schema": {
-                            "$ref": "#/definitions/res.Response"
+                            "$ref": "#/definitions/response.Response"
                         }
                     },
                     "400": {
                         "description": "Enter input properly",
                         "schema": {
-                            "$ref": "#/definitions/res.Response"
+                            "$ref": "#/definitions/response.Response"
                         }
                     },
                     "500": {
-                        "description": "Faild to send otp",
+                        "description": "Failed to send otp",
                         "schema": {
-                            "$ref": "#/definitions/res.Response"
+                            "$ref": "#/definitions/response.Response"
                         }
                     }
                 }
@@ -1849,9 +2053,9 @@ const docTemplate = `{
                 ],
                 "description": "enter your otp that send to your registered number",
                 "tags": [
-                    "User Login"
+                    "User Authentication"
                 ],
-                "summary": "api for user to varify user login_otp",
+                "summary": "api for user to verify user login_otp",
                 "operationId": "UserLoginOtpVerify",
                 "parameters": [
                     {
@@ -1860,19 +2064,28 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/req.OTPVerify"
+                            "$ref": "#/definitions/request.OTPVerify"
                         }
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "successfully logged in uing otp"
+                        "description": "successfully logged in using otp",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
                     },
                     "400": {
-                        "description": "invalid login_otp"
+                        "description": "invalid login_otp",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
                     },
                     "500": {
-                        "description": "Faild to generate JWT"
+                        "description": "failed to generate JWT",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
                     }
                 }
             }
@@ -1888,7 +2101,7 @@ const docTemplate = `{
                 "tags": [
                     "User Logout"
                 ],
-                "summary": "api for user to lgout",
+                "summary": "api for user to logout",
                 "operationId": "UserLogout",
                 "responses": {
                     "200": {
@@ -1921,37 +2134,37 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "successfully got shop order list of user",
+                        "description": "Successfully found all shop orders",
                         "schema": {
-                            "$ref": "#/definitions/res.Response"
+                            "$ref": "#/definitions/response.Response"
                         }
                     },
                     "500": {
-                        "description": "faild to get user shop order list",
+                        "description": "Failed to find all user shop orders",
                         "schema": {
-                            "$ref": "#/definitions/res.Response"
+                            "$ref": "#/definitions/response.Response"
                         }
                     }
                 }
             },
             "post": {
-                "description": "user can cancell the order if it's not placed",
+                "description": "user can cancel the order if it's not placed",
                 "tags": [
                     "User Orders"
                 ],
-                "summary": "api for user to cancell the order",
-                "operationId": "CancellOrder",
+                "summary": "api for user to cancel the order",
+                "operationId": "CancelOrder",
                 "responses": {
                     "200": {
                         "description": "Successfully order cancelled",
                         "schema": {
-                            "$ref": "#/definitions/res.Response"
+                            "$ref": "#/definitions/response.Response"
                         }
                     },
                     "400": {
                         "description": "invalid input on param",
                         "schema": {
-                            "$ref": "#/definitions/res.Response"
+                            "$ref": "#/definitions/response.Response"
                         }
                     }
                 }
@@ -1963,7 +2176,7 @@ const docTemplate = `{
                     "User Orders"
                 ],
                 "summary": "api for show order items of a specific order",
-                "operationId": "GetOrderItemsByShopOrderItems-User",
+                "operationId": "FindAllOrderItems User",
                 "parameters": [
                     {
                         "type": "integer",
@@ -1979,22 +2192,22 @@ const docTemplate = `{
                     },
                     {
                         "type": "integer",
-                        "description": "Count Of Order",
+                        "description": "Count",
                         "name": "count",
                         "in": "query"
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "successfully got order items",
+                        "description": "Successfully found order items",
                         "schema": {
-                            "$ref": "#/definitions/res.Response"
+                            "$ref": "#/definitions/response.Response"
                         }
                     },
                     "500": {
-                        "description": "faild to get order list of user",
+                        "description": "Failed to find order items",
                         "schema": {
-                            "$ref": "#/definitions/res.Response"
+                            "$ref": "#/definitions/response.Response"
                         }
                     }
                 }
@@ -2015,21 +2228,21 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/req.Return"
+                            "$ref": "#/definitions/request.Return"
                         }
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "successfully submited return request for order",
+                        "description": "Successfully return request submitted for order",
                         "schema": {
-                            "$ref": "#/definitions/res.Response"
+                            "$ref": "#/definitions/response.Response"
                         }
                     },
                     "400": {
                         "description": "invalid input",
                         "schema": {
-                            "$ref": "#/definitions/res.Response"
+                            "$ref": "#/definitions/response.Response"
                         }
                     }
                 }
@@ -2046,7 +2259,7 @@ const docTemplate = `{
                     "User Products"
                 ],
                 "summary": "api for user to show products",
-                "operationId": "GetAllProducts-User",
+                "operationId": "FindAllProducts-User",
                 "parameters": [
                     {
                         "type": "integer",
@@ -2056,22 +2269,22 @@ const docTemplate = `{
                     },
                     {
                         "type": "integer",
-                        "description": "Count Of Order",
+                        "description": "Count",
                         "name": "count",
                         "in": "query"
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "successfully got all products",
+                        "description": "Successfully found all products",
                         "schema": {
-                            "$ref": "#/definitions/res.Response"
+                            "$ref": "#/definitions/response.Response"
                         }
                     },
                     "500": {
-                        "description": "faild to get all products",
+                        "description": "Failed to find all products",
                         "schema": {
-                            "$ref": "#/definitions/res.Response"
+                            "$ref": "#/definitions/response.Response"
                         }
                     }
                 }
@@ -2082,8 +2295,8 @@ const docTemplate = `{
                 "tags": [
                     "User Products"
                 ],
-                "summary": "api for get all product_items for a prooduct",
-                "operationId": "GetProductItems",
+                "summary": "api for get all product_items for a product",
+                "operationId": "FindAllProductItems",
                 "parameters": [
                     {
                         "type": "integer",
@@ -2097,13 +2310,13 @@ const docTemplate = `{
                     "200": {
                         "description": "successfully got all product_items for given product_id",
                         "schema": {
-                            "$ref": "#/definitions/res.Response"
+                            "$ref": "#/definitions/response.Response"
                         }
                     },
                     "400": {
                         "description": "invalid input on params",
                         "schema": {
-                            "$ref": "#/definitions/res.Response"
+                            "$ref": "#/definitions/response.Response"
                         }
                     }
                 }
@@ -2117,7 +2330,7 @@ const docTemplate = `{
                     }
                 ],
                 "tags": [
-                    "User Signup"
+                    "User Authentication"
                 ],
                 "summary": "api for user to signup",
                 "operationId": "UserSignUp",
@@ -2128,16 +2341,22 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/req.UserSignUp"
+                            "$ref": "#/definitions/request.UserSignUp"
                         }
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "Successfully account created for user"
+                        "description": "Successfully account created for user",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
                     },
                     "400": {
-                        "description": "invalid input"
+                        "description": "invalid input",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
                     }
                 }
             }
@@ -2153,13 +2372,13 @@ const docTemplate = `{
                     "Wishlist"
                 ],
                 "summary": "api get all wish list items of user",
-                "operationId": "GetWishListI",
+                "operationId": "FindWishList",
                 "responses": {
                     "200": {
                         "description": "Wish list is empty"
                     },
                     "400": {
-                        "description": "faild to get user wish list items"
+                        "description": "failed to get user wish list items"
                     }
                 }
             },
@@ -2176,8 +2395,8 @@ const docTemplate = `{
                 "operationId": "AddToWishList",
                 "parameters": [
                     {
-                        "description": "product_id",
-                        "name": "product_id",
+                        "description": "product_item_id",
+                        "name": "product_item_id",
                         "in": "body",
                         "required": true,
                         "schema": {
@@ -2189,13 +2408,13 @@ const docTemplate = `{
                     "200": {
                         "description": "successfully added product item to wishlist",
                         "schema": {
-                            "$ref": "#/definitions/res.Response"
+                            "$ref": "#/definitions/response.Response"
                         }
                     },
                     "400": {
                         "description": "invalid input",
                         "schema": {
-                            "$ref": "#/definitions/res.Response"
+                            "$ref": "#/definitions/response.Response"
                         }
                     }
                 }
@@ -2215,13 +2434,13 @@ const docTemplate = `{
                     "200": {
                         "description": "successfully removed product item from wishlist",
                         "schema": {
-                            "$ref": "#/definitions/res.Response"
+                            "$ref": "#/definitions/response.Response"
                         }
                     },
                     "400": {
                         "description": "invalid input",
                         "schema": {
-                            "$ref": "#/definitions/res.Response"
+                            "$ref": "#/definitions/response.Response"
                         }
                     }
                 }
@@ -2245,7 +2464,7 @@ const docTemplate = `{
                 }
             }
         },
-        "req.Address": {
+        "request.Address": {
             "type": "object",
             "required": [
                 "country_id",
@@ -2289,7 +2508,7 @@ const docTemplate = `{
                 }
             }
         },
-        "req.ApplyCoupon": {
+        "request.ApplyCoupon": {
             "type": "object",
             "required": [
                 "coupon_code"
@@ -2300,7 +2519,7 @@ const docTemplate = `{
                 }
             }
         },
-        "req.BlockUser": {
+        "request.BlockUser": {
             "type": "object",
             "required": [
                 "user_id"
@@ -2314,7 +2533,7 @@ const docTemplate = `{
                 }
             }
         },
-        "req.Cart": {
+        "request.Cart": {
             "type": "object",
             "required": [
                 "product_item_id"
@@ -2325,7 +2544,7 @@ const docTemplate = `{
                 }
             }
         },
-        "req.Coupon": {
+        "request.Coupon": {
             "type": "object",
             "required": [
                 "coupon_name",
@@ -2366,7 +2585,7 @@ const docTemplate = `{
                 }
             }
         },
-        "req.EditAddress": {
+        "request.EditAddress": {
             "type": "object",
             "required": [
                 "address_id",
@@ -2414,7 +2633,7 @@ const docTemplate = `{
                 }
             }
         },
-        "req.EditCoupon": {
+        "request.EditCoupon": {
             "type": "object",
             "required": [
                 "coupon_name",
@@ -2458,7 +2677,7 @@ const docTemplate = `{
                 }
             }
         },
-        "req.EditUser": {
+        "request.EditUser": {
             "type": "object",
             "required": [
                 "age",
@@ -2503,7 +2722,7 @@ const docTemplate = `{
                 }
             }
         },
-        "req.Login": {
+        "request.Login": {
             "type": "object",
             "required": [
                 "password"
@@ -2529,7 +2748,7 @@ const docTemplate = `{
                 }
             }
         },
-        "req.OTPLogin": {
+        "request.OTPLogin": {
             "type": "object",
             "properties": {
                 "email": {
@@ -2547,11 +2766,10 @@ const docTemplate = `{
                 }
             }
         },
-        "req.OTPVerify": {
+        "request.OTPVerify": {
             "type": "object",
             "required": [
-                "otp",
-                "otp_id"
+                "otp"
             ],
             "properties": {
                 "otp": {
@@ -2564,7 +2782,7 @@ const docTemplate = `{
                 }
             }
         },
-        "req.Offer": {
+        "request.Offer": {
             "type": "object",
             "required": [
                 "description",
@@ -2595,7 +2813,7 @@ const docTemplate = `{
                 }
             }
         },
-        "req.OfferCategory": {
+        "request.OfferCategory": {
             "type": "object",
             "required": [
                 "category_id",
@@ -2610,7 +2828,7 @@ const docTemplate = `{
                 }
             }
         },
-        "req.OfferProduct": {
+        "request.OfferProduct": {
             "type": "object",
             "required": [
                 "offer_id",
@@ -2625,10 +2843,14 @@ const docTemplate = `{
                 }
             }
         },
-        "req.OrderPayment": {
+        "request.OrderPayment": {
             "type": "object",
+            "required": [
+                "payment_method_id",
+                "shop_order_id"
+            ],
             "properties": {
-                "payment_id": {
+                "payment_method_id": {
                     "type": "integer"
                 },
                 "shop_order_id": {
@@ -2636,7 +2858,18 @@ const docTemplate = `{
                 }
             }
         },
-        "req.Product": {
+        "request.PlaceOrder": {
+            "type": "object",
+            "required": [
+                "address_id"
+            ],
+            "properties": {
+                "address_id": {
+                    "type": "integer"
+                }
+            }
+        },
+        "request.Product": {
             "type": "object",
             "required": [
                 "category_id",
@@ -2667,7 +2900,7 @@ const docTemplate = `{
                 }
             }
         },
-        "req.ProductItem": {
+        "request.ProductItem": {
             "type": "object",
             "required": [
                 "images",
@@ -2694,12 +2927,18 @@ const docTemplate = `{
                     "type": "integer",
                     "minimum": 1
                 },
+                "sku": {
+                    "type": "string"
+                },
                 "variation_option_id": {
-                    "type": "integer"
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
                 }
             }
         },
-        "req.Return": {
+        "request.Return": {
             "type": "object",
             "required": [
                 "return_reason",
@@ -2716,28 +2955,7 @@ const docTemplate = `{
                 }
             }
         },
-        "req.UpdatOrderReturn": {
-            "type": "object",
-            "required": [
-                "order_return_id",
-                "order_status_id"
-            ],
-            "properties": {
-                "admin_comment": {
-                    "type": "string"
-                },
-                "order_return_id": {
-                    "type": "integer"
-                },
-                "order_status_id": {
-                    "type": "integer"
-                },
-                "return_date": {
-                    "type": "string"
-                }
-            }
-        },
-        "req.UpdateCartItem": {
+        "request.UpdateCartItem": {
             "type": "object",
             "required": [
                 "product_item_id"
@@ -2752,7 +2970,7 @@ const docTemplate = `{
                 }
             }
         },
-        "req.UpdateOrder": {
+        "request.UpdateOrder": {
             "type": "object",
             "required": [
                 "shop_order_id"
@@ -2766,13 +2984,38 @@ const docTemplate = `{
                 }
             }
         },
-        "req.UpdateProduct": {
+        "request.UpdateOrderReturn": {
+            "type": "object",
+            "required": [
+                "admin_comment",
+                "order_return_id",
+                "order_status_id"
+            ],
+            "properties": {
+                "admin_comment": {
+                    "type": "string",
+                    "maxLength": 150,
+                    "minLength": 6
+                },
+                "order_return_id": {
+                    "type": "integer"
+                },
+                "order_status_id": {
+                    "type": "integer"
+                },
+                "return_date": {
+                    "type": "string"
+                }
+            }
+        },
+        "request.UpdateProduct": {
             "type": "object",
             "required": [
                 "category_id",
                 "description",
                 "image",
                 "price",
+                "product_id",
                 "product_name"
             ],
             "properties": {
@@ -2784,13 +3027,13 @@ const docTemplate = `{
                     "maxLength": 100,
                     "minLength": 10
                 },
-                "id": {
-                    "type": "integer"
-                },
                 "image": {
                     "type": "string"
                 },
                 "price": {
+                    "type": "integer"
+                },
+                "product_id": {
                     "type": "integer"
                 },
                 "product_name": {
@@ -2800,7 +3043,7 @@ const docTemplate = `{
                 }
             }
         },
-        "req.UserSignUp": {
+        "request.UserSignUp": {
             "type": "object",
             "required": [
                 "age",
@@ -2847,7 +3090,7 @@ const docTemplate = `{
                 }
             }
         },
-        "req.Variation": {
+        "request.Variation": {
             "type": "object",
             "required": [
                 "category_id",
@@ -2862,7 +3105,7 @@ const docTemplate = `{
                 }
             }
         },
-        "req.VariationOption": {
+        "request.VariationOption": {
             "type": "object",
             "required": [
                 "variation_id",
@@ -2879,16 +3122,16 @@ const docTemplate = `{
                 }
             }
         },
-        "res.Response": {
+        "response.Response": {
             "type": "object",
             "properties": {
                 "data": {},
-                "errors": {},
+                "error": {},
                 "message": {
                     "type": "string"
                 },
-                "status_code": {
-                    "type": "integer"
+                "success": {
+                    "type": "boolean"
                 }
             }
         }
@@ -2905,6 +3148,8 @@ var SwaggerInfo = &swag.Spec{
 	Description:      "",
 	InfoInstanceName: "swagger",
 	SwaggerTemplate:  docTemplate,
+	LeftDelim:        "{{",
+	RightDelim:       "}}",
 }
 
 func init() {

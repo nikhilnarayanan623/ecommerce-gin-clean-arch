@@ -12,12 +12,10 @@ import (
 // find offer by id or offer_name
 func (c *productDatabase) FindOffer(ctx context.Context, offer domain.Offer) (domain.Offer, error) {
 
-	query := `SELECT * FROM offers WHERE id = ? OR offer_name = ?`
-	if c.DB.Raw(query, offer.ID, offer.OfferName).Scan(&offer).Error != nil {
-		return offer, errors.New("faild to find offer")
-	}
+	query := `SELECT * FROM offers WHERE id = $1 OR name = $1`
+	err := c.DB.Raw(query, offer.ID, offer.Name).Scan(&offer).Error
 
-	return offer, nil
+	return offer, err
 }
 
 // findAll offers
@@ -34,7 +32,7 @@ func (c *productDatabase) SaveOffer(ctx context.Context, offer domain.Offer) err
 
 	query := `INSERT INTO offers (offer_name,description,discount_rate,start_date,end_date) VALUES ($1,$2,$3,$4,$5)`
 
-	if c.DB.Exec(query, offer.OfferName, offer.Description, offer.DiscountRate, offer.StartDate, offer.EndDate).Error != nil {
+	if c.DB.Exec(query, offer.Name, offer.Description, offer.DiscountRate, offer.StartDate, offer.EndDate).Error != nil {
 		return errors.New("faild to save offer")
 	}
 	return nil
@@ -43,7 +41,7 @@ func (c *productDatabase) SaveOffer(ctx context.Context, offer domain.Offer) err
 // update an existing offer
 func (c *productDatabase) UpdateOffer(ctx context.Context, offer domain.Offer) error {
 	query := `UPDATE offers SET offer_name=$1,description=$2,discount_rate=$3,start_date=$4,end_date=$5 WHERE id=$6`
-	if c.DB.Exec(query, offer.OfferName, offer.Description, offer.DiscountRate, offer.StartDate, offer.EndDate, offer.ID).Error != nil {
+	if c.DB.Exec(query, offer.Name, offer.Description, offer.DiscountRate, offer.StartDate, offer.EndDate, offer.ID).Error != nil {
 		return errors.New("faild to update offer")
 	}
 	return nil

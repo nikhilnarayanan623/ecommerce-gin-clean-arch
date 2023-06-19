@@ -59,8 +59,8 @@ func (p *ProductHandler) FindAllCategories(ctx *gin.Context) {
 // @id SaveCategory
 // @Param input body domain.Category{} true "Input field"
 // @Router /admin/category [post]
-// @Success 200 {object} res.Response{} "Successfully category added"
-// @Failure 400 {object} res.Response{} "invalid input"
+// @Success 200 {object} response.Response{} "Successfully category added"
+// @Failure 400 {object} response.Response{} "invalid input"
 func (p *ProductHandler) SaveCategory(ctx *gin.Context) {
 
 	var body request.Category
@@ -93,9 +93,9 @@ func (p *ProductHandler) SaveCategory(ctx *gin.Context) {
 // @id SaveSubCategory
 // @Param input body domain.Category{} true "Input field"
 // @Router /admin/category/sub-category [post]
-// @Success 200 {object} res.Response{} "Successfully sub category added"
-// @Failure 400 {object} res.Response{} "invalid input"
-// @Failure 500 {object} res.Response{} "Failed to add sub category"
+// @Success 200 {object} response.Response{} "Successfully sub category added"
+// @Failure 400 {object} response.Response{} "invalid input"
+// @Failure 500 {object} response.Response{} "Failed to add sub category"
 func (p *ProductHandler) SaveSubCategory(ctx *gin.Context) {
 
 	var body request.SubCategory
@@ -128,7 +128,7 @@ func (p *ProductHandler) SaveSubCategory(ctx *gin.Context) {
 // @security ApiKeyAuth
 // @tags Admin Category
 // @id SaveVariation
-// @Param input body req.Variation{} true "Input field"
+// @Param input body request.Variation{} true "Input field"
 // @Router /admin/category/variation [post]
 // @Success 200 {object} response.Response{} "successfully variation added"
 // @Failure 400 {object} response.Response{} "invalid input"
@@ -156,7 +156,7 @@ func (p *ProductHandler) SaveVariation(ctx *gin.Context) {
 // @security ApiKeyAuth
 // @tags Admin Category
 // @id SaveVariationOption
-// @Param input body req.VariationOption{} true "Input field"
+// @Param input body request.VariationOption{} true "Input field"
 // @Router /admin/category/variation-option [post]
 // @Success 200 {object} response.Response{} "successfully added variation option"
 // @Failure 400 {object} response.Response{} "invalid input"
@@ -182,7 +182,7 @@ func (p *ProductHandler) SaveVariationOption(ctx *gin.Context) {
 // @security ApiKeyAuth
 // @tags Admin Category
 // @id FindAllVariations
-// @Param input body req.VariationOption{} true "Input field"
+// @Param input body request.VariationOption{} true "Input field"
 // @Router /admin/category/variations [get]
 // @Success 200 {object} response.Response{} "Successfully found all variations and its values"
 // @Failure 400 {object} response.Response{} "invalid input"
@@ -220,8 +220,9 @@ func (c *ProductHandler) FindAllVariations(ctx *gin.Context) {
 // @Param page_number query int false "Page Number"
 // @Param count query int false "Count"
 // @Router /admin/products [get]
-// @Success 200 {object} response.Response{} "successfully got all products"
-// @Failure 500 {object} response.Response{}  "faild to get all products"
+// @Success 200 {object} response.Response{} "Successfully found all products"
+// @Failure 500 {object} response.Response{}  "Failed to find all products"
+
 // FindAllProducts-User godoc
 // @summary api for user to show products
 // @security ApiKeyAuth
@@ -230,8 +231,8 @@ func (c *ProductHandler) FindAllVariations(ctx *gin.Context) {
 // @Param page_number query int false "Page Number"
 // @Param count query int false "Count"
 // @Router /products [get]
-// @Success 200 {object} response.Response{} "successfully got all products"
-// @Failure 500 {object} response.Response{}  "faild to get all products"
+// @Success 200 {object} response.Response{} "Successfully found all products"
+// @Failure 500 {object} response.Response{}  "Failed to find all products"
 func (p *ProductHandler) FindAllProducts(ctx *gin.Context) {
 
 	pagination := request.GetPagination(ctx)
@@ -252,15 +253,15 @@ func (p *ProductHandler) FindAllProducts(ctx *gin.Context) {
 
 }
 
-// SaveProducts godoc
+// SaveProduct godoc
 // @summary api for admin to update a product
-// @id SaveProducts
+// @id SaveProduct
 // @tags Admin Products
-// @Param input body req.Product{} true "inputs"
+// @Param input body request.Product{} true "inputs"
 // @Router /admin/products [post]
 // @Success 200 {object} response.Response{} "successfully product added"
 // @Failure 400 {object} response.Response{} "invalid input"
-func (p *ProductHandler) SaveProducts(ctx *gin.Context) {
+func (p *ProductHandler) SaveProduct(ctx *gin.Context) {
 
 	var body request.Product
 
@@ -269,13 +270,21 @@ func (p *ProductHandler) SaveProducts(ctx *gin.Context) {
 		return
 	}
 
-	var product domain.Product
-	copier.Copy(&product, &body)
-
-	err := p.productUseCase.AddProduct(ctx, product)
+	err := p.productUseCase.SaveProduct(ctx, body)
 
 	if err != nil {
-		response.ErrorResponse(ctx, http.StatusInternalServerError, "Failed to add product", err, nil)
+		var statusCode int
+
+		switch true {
+		case errors.Is(err, usecase.ErrInvalidProductItemID):
+			statusCode = http.StatusConflict
+		case errors.Is(err, usecase.ErrInvalidCategoryID):
+			statusCode = http.StatusBadRequest
+		default:
+			statusCode = http.StatusInternalServerError
+		}
+
+		response.ErrorResponse(ctx, statusCode, "Failed to add product", err, nil)
 		return
 	}
 
@@ -286,10 +295,10 @@ func (p *ProductHandler) SaveProducts(ctx *gin.Context) {
 // @summary api for admin to update a product
 // @id UpdateProduct
 // @tags Admin Products
-// @Param input body req.UpdateProduct{} true "inputs"
+// @Param input body request.UpdateProduct{} true "inputs"
 // @Router /admin/products [put]
-// @Success 200 {object} res.Response{} "successfully product updated"
-// @Failure 400 {object} res.Response{} "invalid input"
+// @Success 200 {object} response.Response{} "successfully product updated"
+// @Failure 400 {object} response.Response{} "invalid input"
 func (c *ProductHandler) UpdateProduct(ctx *gin.Context) {
 
 	var body request.UpdateProduct
@@ -308,17 +317,17 @@ func (c *ProductHandler) UpdateProduct(ctx *gin.Context) {
 		return
 	}
 
-	response.SuccessResponse(ctx, http.StatusOK, "Successfully product updated", body)
+	response.SuccessResponse(ctx, http.StatusOK, "Successfully product updated", nil)
 }
 
 // SaveProductItem godoc
 // @summary api for admin to add product-items for a specific product
 // @id SaveProductItem
 // @tags Admin Products
-// @Param input body req.ProductItem{} true "inputs"
+// @Param input body request.ProductItem{} true "inputs"
 // @Router /admin/products/product-items [post]
-// @Success 200 {object} res.Response{} "Successfully product item added"
-// @Failure 400 {object} res.Response{} "invalid input"
+// @Success 200 {object} response.Response{} "Successfully product item added"
+// @Failure 400 {object} response.Response{} "invalid input"
 func (p *ProductHandler) SaveProductItem(ctx *gin.Context) {
 
 	var body request.ProductItem
@@ -328,10 +337,21 @@ func (p *ProductHandler) SaveProductItem(ctx *gin.Context) {
 		return
 	}
 
-	err := p.productUseCase.AddProductItem(ctx, body)
+	err := p.productUseCase.SaveProductItem(ctx, body)
 
 	if err != nil {
-		response.ErrorResponse(ctx, http.StatusInternalServerError, "Failed to add product item", err, body)
+		var statusCode int
+		switch true {
+		case errors.Is(err, usecase.ErrInvalidProductID):
+			statusCode = http.StatusBadRequest
+		case errors.Is(err, usecase.ErrInvalidVariationOptionID):
+			statusCode = http.StatusBadRequest
+		case errors.Is(err, usecase.ErrProductItemAlreadyExist):
+			statusCode = http.StatusConflict
+		default:
+			statusCode = http.StatusInternalServerError
+		}
+		response.ErrorResponse(ctx, statusCode, "Failed to add product item", err, nil)
 		return
 	}
 
@@ -339,13 +359,13 @@ func (p *ProductHandler) SaveProductItem(ctx *gin.Context) {
 }
 
 // @summary api for get all product_items for a product
-// @id FindProductItems
+// @id FindAllProductItems
 // @tags User Products
 // @param product_id path int true "product_id"
 // @Router /products/product-items [get]
-// @Success 200 {object} res.Response{} "successfully got all product_items for given product_id"
-// @Failure 400 {object} res.Response{} "invalid input on params"
-func (p *ProductHandler) FindProductItems(ctx *gin.Context) {
+// @Success 200 {object} response.Response{} "successfully got all product_items for given product_id"
+// @Failure 400 {object} response.Response{} "invalid input on params"
+func (p *ProductHandler) FindAllProductItems(ctx *gin.Context) {
 
 	productID, err := request.GetParamAsUint(ctx, "product_id")
 	if err != nil {
@@ -355,7 +375,12 @@ func (p *ProductHandler) FindProductItems(ctx *gin.Context) {
 	productItems, err := p.productUseCase.FindProductItems(ctx, productID)
 
 	if err != nil {
-		response.ErrorResponse(ctx, http.StatusInternalServerError, "Failed to find product_items", err, nil)
+		statusCode := http.StatusInternalServerError
+		if errors.Is(err, usecase.ErrInvalidProductID) {
+			statusCode = http.StatusBadRequest
+		}
+
+		response.ErrorResponse(ctx, statusCode, "Failed to find product_items", err, nil)
 		return
 	}
 

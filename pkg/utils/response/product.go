@@ -10,7 +10,7 @@ type Product struct {
 	CategoryID    uint      `json:"category_id"`
 	Price         uint      `json:"price"`
 	DiscountPrice uint      `json:"discount_price"`
-	ProductName   string    `json:"product_name"`
+	Name          string    `json:"product_name"`
 	Description   string    `json:"description" `
 	CategoryName  string    `json:"category_name"`
 	Image         string    `json:"image"`
@@ -39,15 +39,21 @@ type VariationOption struct {
 
 // for response a specific products all product items
 type ProductItems struct {
-	ID                uint   `json:"product_item_id"`
-	ProductName       string `json:"product_name"`
-	ProductID         uint   `json:"product_id"`
-	Price             uint   `json:"price"`
-	DiscountPrice     uint   `json:"discount_price"`
-	SKU               string `json:"sku"`
-	QtyInStock        uint   `json:"qty_in_stock"`
+	ID              uint                    `json:"product_item_id"`
+	Name            string                  `json:"product_name"`
+	ProductID       uint                    `json:"product_id"`
+	Price           uint                    `json:"price"`
+	DiscountPrice   uint                    `json:"discount_price"`
+	SKU             string                  `json:"sku"`
+	QtyInStock      uint                    `json:"qty_in_stock"`
+	VariationValues []ProductVariationValue `gorm:"-"`
+}
+
+type ProductVariationValue struct {
+	VariationID       uint   `json:"variation_id"`
+	Name              string `json:"variation_name"`
 	VariationOptionID uint   `json:"variation_option_id"`
-	VariationValue    string `json:"variation_value"`
+	Value             string `json:"variation_value"`
 }
 
 // offer response
@@ -57,7 +63,7 @@ type OfferCategory struct {
 	CategoryName    string `json:"category_name"`
 	DiscountRate    uint   `json:"discount_rate"`
 	OfferID         uint   `json:"offer_id"`
-	OfferName       string `json:"offer_name"`
+	Name            string `json:"offer_name"`
 }
 
 type OfferProduct struct {
@@ -66,5 +72,5 @@ type OfferProduct struct {
 	ProductName    string `json:"product_name"`
 	DiscountRate   uint   `json:"discount_rate"`
 	OfferID        uint   `json:"offer_id"`
-	OfferName      string `json:"offer_name"`
+	Name           string `json:"offer_name"`
 }
