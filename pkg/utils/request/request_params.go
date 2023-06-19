@@ -46,7 +46,7 @@ func GetQueryValueAsUint(ctx *gin.Context, key string) (uint, error) {
 // Get query params as uint from request url
 func GetParamAsUint(ctx *gin.Context, key string) (uint, error) {
 
-	param := ctx.Param("key")
+	param := ctx.Param(key)
 	value, err := strconv.ParseUint(param, 10, 64)
 
 	if err != nil || value == 0 {

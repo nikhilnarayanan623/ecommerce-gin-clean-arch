@@ -9,11 +9,15 @@ import (
 )
 
 type ProductUseCase interface {
-	FindCategory(ctx context.Context) (response.FullCategory, error)
-	SaveCategory(ctx context.Context, category domain.Category) error
+	FindAllCategories(ctx context.Context, pagination request.Pagination) ([]response.Category, error)
+	SaveCategory(ctx context.Context, categoryName string) error
+	SaveSubCategory(ctx context.Context, subCategory request.SubCategory) error
+
 	// variations
-	SaveVariation(ctx context.Context, variation domain.Variation) error
-	SaveVariationOption(ctx context.Context, variationOption domain.VariationOption) error
+	SaveVariation(ctx context.Context, variation request.Variation) error
+	SaveVariationOption(ctx context.Context, variationOption request.VariationOption) error
+
+	FindAllVariationsAndItsValues(ctx context.Context, categoryID uint) ([]response.Variation, error)
 
 	// products
 	FindAllProducts(ctx context.Context, pagination request.Pagination) (products []response.Product, err error)

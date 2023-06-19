@@ -13,7 +13,7 @@ type ProductRepository interface {
 	FindProductByID(ctx context.Context, productID uint) (product domain.Product, err error)
 	FindProduct(ctx context.Context, product domain.Product) (domain.Product, error)
 
-	FindAllProducts(ctx context.Context, pagination request.Pagination) (products []response.Product, err error)
+	FindAllProducts(ctx context.Context, pagination request.Pagination) ([]response.Product, error)
 	SaveProduct(ctx context.Context, product domain.Product) error
 	UpdateProduct(ctx context.Context, product domain.Product) error
 
@@ -24,17 +24,26 @@ type ProductRepository interface {
 	SaveProductItem(ctx context.Context, productItem request.ProductItem) error
 
 	// category
-	FindCategory(ctx context.Context, category domain.Category) (domain.Category, error)
-	FindAllCategories(ctx context.Context) ([]response.Category, error)
-	SaveCategory(ctx context.Context, productCategory domain.Category) error
+	FindCategoryByName(ctx context.Context, categoryName string) (domain.Category, error)
+	FindCategoryByID(ctx context.Context, categoryID uint) (domain.Category, error)
+
+	FindAllCategories(ctx context.Context, pagination request.Pagination) ([]response.Category, error)
+
+	SaveCategory(ctx context.Context, categoryName string) (err error)
+	SaveSubCategory(ctx context.Context, categoryID uint, categoryName string) (err error)
 
 	// variation
-	FindAllVariations(ctx context.Context) ([]response.VariationName, error)
-	SaveVariation(ctx context.Context, variation domain.Variation) error
+	SaveVariation(ctx context.Context, variation request.Variation) error
+	FindVariationByID(ctx context.Context, variationID uint) (domain.Variation, error)
+	FindVariationByNameAndCategoryID(ctx context.Context,
+		variationName string, categoryID uint) (variation domain.Variation, err error)
+	FindAllVariationsByCategoryID(ctx context.Context, categoryID uint) ([]response.Variation, error)
 
 	// variation values
-	SaveVariationOption(ctx context.Context, variationOption domain.VariationOption)  error
-	FindAllVariationValues(ctx context.Context) ([]response.VariationValue, error)
+	SaveVariationOption(ctx context.Context, variationOption request.VariationOption) error
+	FindVariationOptionByValueAndVariationID(ctx context.Context,
+		variationOptionValue string, categoryID uint) (variationOption domain.VariationOption, err error)
+	FindAllVariationOptionsByVariationID(ctx context.Context, variationID uint) ([]response.VariationOption, error)
 
 	// offer
 	FindOffer(ctx context.Context, offer domain.Offer) (domain.Offer, error)
@@ -46,7 +55,7 @@ type ProductRepository interface {
 	UpdateDiscountPrice(ctx context.Context) error
 
 	// offer category
-	FindOfferCategory(ctx context.Context, offerCateogy domain.OfferCategory) (domain.OfferCategory, error)
+	FindOfferCategory(ctx context.Context, offerCategory domain.OfferCategory) (domain.OfferCategory, error)
 	FindOfferCategoryCategoryID(ctx context.Context, categoryID uint) (domain.OfferCategory, error)
 	FindAllOfferCategories(ctx context.Context) ([]response.OfferCategory, error)
 
@@ -54,7 +63,7 @@ type ProductRepository interface {
 	DeleteOfferCategory(ctx context.Context, offerCategory domain.OfferCategory) error
 	UpdateOfferCategory(ctx context.Context, offerCategory domain.OfferCategory) error
 
-	// offer productss
+	// offer products
 	FindOfferProduct(ctx context.Context, offerProduct domain.OfferProduct) (domain.OfferProduct, error)
 	FindAllOfferProducts(ctx context.Context) ([]response.OfferProduct, error)
 	FindOfferProductByProductID(ctx context.Context, productID uint) (domain.OfferProduct, error)

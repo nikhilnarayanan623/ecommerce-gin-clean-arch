@@ -22,124 +22,130 @@ func NewProductRepository(db *gorm.DB) interfaces.ProductRepository {
 	return &productDatabase{DB: db}
 }
 
-func (c *productDatabase) FindCategory(ctx context.Context, category domain.Category) (domain.Category, error) {
+func (c *productDatabase) FindCategoryByName(ctx context.Context, categoryName string) (category domain.Category, err error) {
 
-	if c.DB.Raw("SELECT * FROM categories WHERE id = ? OR category_name=?", category.ID, category.CategoryName).Scan(&category).Error != nil {
-		return category, errors.New("faild to get category")
-	}
-	return category, nil
+	query := `SELECT * FROM categories WHERE name = ?`
+	err = c.DB.Raw(query, categoryName).Scan(&category).Error
+
+	return category, err
 }
 
-// add category
-func (c *productDatabase) SaveCategory(ctx context.Context, category domain.Category) (err error) {
+func (c *productDatabase) FindCategoryByID(ctx context.Context, categoryID uint) (category domain.Category, err error) {
 
-	// check the given category is main or sub
-	if category.CategoryID == 0 { // no catogry id means its main category
-		querry := `INSERT INTO categories (category_name)VALUES($1)`
-		err = c.DB.Exec(querry, category.CategoryName).Error
-	} else {
-		//otherwise add its with main category
-		querry := `INSERT INTO categories (category_id,category_name)VALUES($1,$2)`
-		err = c.DB.Exec(querry, category.CategoryID, category.CategoryName).Error
-	}
+	query := `SELECT * FROM categories WHERE id = ?`
+	err = c.DB.Raw(query, categoryID).Scan(&category).Error
 
-	if err != nil {
-		return errors.New("faild to save category")
-	}
-
-	return nil
+	return category, err
 }
 
-func (c *productDatabase) FindAllCategories(ctx context.Context) ([]response.Category, error) {
-	var categories []response.Category
-	querry := `SELECT s.id,s.category_name,s.category_id,m.category_name AS main_category_name 
-	FROM categories s LEFT JOIN categories m ON s.category_id = m.id`
-	if c.DB.Raw(querry).Scan(&categories).Error != nil {
-		return categories, errors.New("faild to get categories")
-	}
-	return categories, nil
+// Save Category
+func (c *productDatabase) SaveCategory(ctx context.Context, categoryName string) (err error) {
+
+	query := `INSERT INTO categories (name) VALUES ($1)`
+	err = c.DB.Exec(query, categoryName).Error
+
+	return err
 }
 
-func (c *productDatabase) FindAllVariations(ctx context.Context) ([]response.VariationName, error) {
-	var variationName []response.VariationName
-	querry := `SELECT v.id,v.variation_name,v.category_id,c.category_name FROM variations v 
-	LEFT JOIN categories c ON v.category_id=c.id`
-	if c.DB.Raw(querry).Scan(&variationName).Error != nil {
-		return variationName, errors.New("faild to get variations")
-	}
-	return variationName, nil
+// Save Category as sub category
+func (c *productDatabase) SaveSubCategory(ctx context.Context, categoryID uint, categoryName string) (err error) {
+
+	query := `INSERT INTO categories (category_id, name) VALUES ($1, $2)`
+	err = c.DB.Exec(query, categoryID, categoryName).Error
+
+	return err
 }
 
-func (c productDatabase) FindAllVariationValues(ctx context.Context) ([]response.VariationValue, error) {
-	var variaionValues []response.VariationValue
-	querry := `SELECT vo.id,vo.variation_value,vo.variation_id,v.variation_name FROM variation_options vo 
-	LEFT JOIN variations v ON vo.variation_id=v.id`
-	if c.DB.Raw(querry).Scan(&variaionValues).Error != nil {
-		return variaionValues, errors.New("faild to get variation options")
-	}
-	return variaionValues, nil
+// Find all categories
+func (c *productDatabase) FindAllCategories(ctx context.Context,
+	pagination request.Pagination) (categories []response.Category, err error) {
+
+	limit := pagination.Count
+	offset := (pagination.PageNumber - 1) * limit
+
+	query := `SELECT id, name FROM categories LIMIT $1 OFFSET $2`
+	err = c.DB.Raw(query, limit, offset).Scan(&categories).Error
+
+	return categories, err
 }
 
-// add variation
-func (c *productDatabase) SaveVariation(ctx context.Context, variation domain.Variation) error {
+// Find variation by id
+func (c *productDatabase) FindVariationByID(ctx context.Context, variationID uint) (variation domain.Variation, err error) {
 
-	//firs variation already exist or not
-	c.DB.Raw("SELECT * FROM variations WHERE variation_name=?", variation.VariationName).Scan(&variation)
-	if variation.ID != 0 {
-		return errors.New("variation already exist")
-	}
+	query := `SELECT id, name FROM variations WHERE id = $1`
+	err = c.DB.Raw(query, variationID).Scan(&variation).Error
 
-	// then check the category provided for variaion is valid or not
-	var cat domain.Category
-	c.DB.Raw("SELECT * FROM categories WHERE id=?", variation.CategoryID).Scan(&cat)
-	if cat.ID == 0 {
-		return errors.New("invalid category_id")
-	}
+	return
+}
 
-	// if everything ok then add variation
-	querry := `INSERT INTO variations (category_id,variation_name) VALUES($1,$2) RETURNING id, category_id,variation_name`
-	if c.DB.Raw(querry, variation.CategoryID, variation.VariationName).Scan(&variation).Error != nil {
-		return errors.New("faild to add variation")
-	}
-	return nil
+// Find all variations which related to given category id
+func (c *productDatabase) FindAllVariationsByCategoryID(ctx context.Context,
+	categoryID uint) (variations []response.Variation, err error) {
+
+	query := `SELECT id, name FROM variations WHERE category_id = $1`
+	err = c.DB.Raw(query, categoryID).Scan(&variations).Error
+
+	return
+}
+
+// Find all variation options which related to given variation id
+func (c productDatabase) FindAllVariationOptionsByVariationID(ctx context.Context,
+	variationID uint) (variationOptions []response.VariationOption, err error) {
+
+	query := `SELECT id, value FROM variation_options WHERE variation_id = $1`
+	err = c.DB.Raw(query, variationID).Scan(&variationOptions).Error
+
+	return
+}
+
+// Find variation by category id and variation name
+func (c *productDatabase) FindVariationByNameAndCategoryID(ctx context.Context,
+	variationName string, categoryID uint) (variation domain.Variation, err error) {
+
+	query := `SELECT id, name FROM variations WHERE category_id = $1 AND name = $2`
+	err = c.DB.Raw(query, categoryID, variationName).Scan(&variation).Error
+
+	return
+}
+
+// Find variation option by variation id and variation value
+func (c *productDatabase) FindVariationOptionByValueAndVariationID(ctx context.Context,
+	variationOptionValue string, categoryID uint) (variationOption domain.VariationOption, err error) {
+
+	query := `SELECT id, value FROM variation_options WHERE variation_id = $1 AND value = $2`
+	err = c.DB.Raw(query, categoryID, variationOptionValue).Scan(&variationOption).Error
+
+	return
+}
+
+// Save Variation for category
+func (c *productDatabase) SaveVariation(ctx context.Context, variation request.Variation) error {
+
+	query := `INSERT INTO variations (category_id, name) VALUES($1, $2)`
+	err := c.DB.Exec(query, variation.CategoryID, variation.Name).Error
+
+	return err
 }
 
 // add variation option
-func (c *productDatabase) SaveVariationOption(ctx context.Context, variationOption domain.VariationOption) error {
+func (c *productDatabase) SaveVariationOption(ctx context.Context, variationOption request.VariationOption) error {
 
-	// first check the variationOption already exist or not
-	c.DB.Raw("SELECT * FROM variation_options WHERE variation_value=?", variationOption.VariationValue).Scan(&variationOption)
-	if variationOption.ID != 0 {
-		return  errors.New("given variation value already exist")
-	}
+	query := `INSERT INTO variation_options (variation_id, value) VALUES($1, $2)`
+	err := c.DB.Raw(query, variationOption.VariationID, variationOption.Value).Scan(&variationOption).Error
 
-	// then check the given variation is exist or not
-	var variation domain.Variation
-	c.DB.Raw("SELECT * FROM variations WHERE id=?", variationOption.VariationID).Scan(&variation)
-	if variation.ID == 0 {
-		return errors.New("given variation dosen't exist")
-	}
-
-	//if everything ok then add the variation value
-	querry := `INSERT INTO variation_options (variation_id,variation_value) VALUES($1,$2) RETURNING id, variation_id,variation_value`
-	if c.DB.Raw(querry, variationOption.VariationID, variationOption.VariationValue).Scan(&variationOption).Error != nil {
-		return  errors.New("faild to SaveVariation(ctx context.Context, variation domain.Variation) erroradd variation value")
-	}
-
-	return  nil
+	return err
 }
 
 // find product by id
 func (c *productDatabase) FindProductByID(ctx context.Context, productID uint) (product domain.Product, err error) {
+
 	query := `SELECT * FROM products WHERE id = $1`
 	err = c.DB.Raw(query, productID).Scan(&product).Error
-	if err != nil {
-		return product, fmt.Errorf("faild find product with prduct_id %v", productID)
-	}
-	return product, nil
+
+	return product, err
 }
 
-// find produc by name
+// find product by name
 func (c *productDatabase) FindProduct(ctx context.Context, product domain.Product) (domain.Product, error) {
 
 	if c.DB.Raw("SELECT * FROM products WHERE id = ? OR product_name=?", product.ID, product.ProductName).Scan(&product).Error != nil {
@@ -212,7 +218,6 @@ func (c *productDatabase) SaveProductItem(ctx context.Context, reqProductItem re
 	trx := c.DB.Begin()
 
 	var productItemItemID uint
-	// first check the product item already exist
 
 	querry := ` SELECT DISTINCT pi.id AS product_item_id FROM product_items pi INNER JOIN product_configurations pc ON pi.id = pc.product_item_id 
 	WHERE pi.product_id= $1 AND pc.variation_option_id= $2`
@@ -220,7 +225,7 @@ func (c *productDatabase) SaveProductItem(ctx context.Context, reqProductItem re
 		trx.Rollback()
 		return errors.New("faild to check product_item already exist with this configuration")
 	}
-	fmt.Println(productItemItemID)
+
 	// if product item already exist with this productId
 	if productItemItemID != 0 {
 		trx.Rollback()

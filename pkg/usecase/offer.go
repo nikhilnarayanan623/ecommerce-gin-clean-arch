@@ -71,12 +71,10 @@ func (c *productUseCase) AddOfferCategory(ctx context.Context, offerCategory dom
 		return fmt.Errorf("can't apply to category \noffer already ended on %v ", offer.EndDate)
 	}
 
-	// check the categoy id is valid or not
-	var category = domain.Category{ID: offerCategory.CategoryID}
-	category, err = c.productRepo.FindCategory(ctx, category)
+	category, err := c.productRepo.FindCategoryByID(ctx, offerCategory.CategoryID)
 	if err != nil {
 		return err
-	} else if category.CategoryName == "" {
+	} else if category.Name == "" {
 		return errors.New("invalid category_id")
 	}
 
@@ -137,11 +135,10 @@ func (c *productUseCase) ReplaceOfferCategory(ctx context.Context, offerCategory
 		return errors.New("invalid offer_id")
 	}
 
-	// check the categoy id is valid or not
-	var category = domain.Category{ID: offerCategory.CategoryID}
-	if category, err := c.productRepo.FindCategory(ctx, category); err != nil {
+	category, err := c.productRepo.FindCategoryByID(ctx, offerCategory.CategoryID)
+	if err != nil {
 		return err
-	} else if category.CategoryName == "" {
+	} else if category.Name == "" {
 		return errors.New("invalid category_id")
 	}
 

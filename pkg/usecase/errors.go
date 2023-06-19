@@ -34,4 +34,13 @@ var (
 
 	// admin
 	ErrSameBlockStatus = errors.New("user block status already in given status")
+
+	//category
+	ErrCategoryAlreadyExist = errors.New("category already exist")
+	ErrInvalidCategoryID    = errors.New("invalid category id")
+
+	// variation
+	ErrInvalidVariationID          = errors.New("invalid variation id")
+	ErrVariationAlreadyExist       = errors.New("variation already exist")
+	ErrVariationOptionAlreadyExist = errors.New("variation already exist")
 )
