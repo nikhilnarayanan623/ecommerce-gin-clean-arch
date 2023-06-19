@@ -39,25 +39,28 @@ func AdminRoutes(api *gin.RouterGroup, authHandler handlerInterface.AuthHandler,
 			user.GET("/", adminHandler.FindAllUsers)
 			user.PATCH("/block", adminHandler.BlockUser)
 		}
-		// // category
-		// category := api.Group("/category")
-		// {
-		// 	category.GET("/", productHandler.GetAlllCategories)
-		// 	category.POST("/", productHandler.AddCategory)
+		// category
+		category := api.Group("/category")
+		{
+			category.GET("/", productHandler.FindAllCategories)
+			category.POST("/", productHandler.SaveCategory)
+			category.POST("/sub-category", productHandler.SaveSubCategory)
 
-		// 	category.POST("/variation", productHandler.AddVariation)
-		// 	category.POST("/variation-option", productHandler.AddVariationOption)
-		// }
-		// 	// product
-		// 	product := api.Group("/products")
-		// 	{
-		// 		product.GET("/", productHandler.ListProducts)
-		// 		product.POST("/", productHandler.AddProducts)
-		// 		product.PUT("/", productHandler.UpdateProduct)
+			category.GET("/variations/:category_id", productHandler.FindAllVariations)
 
-		// 		product.GET("/product-item/:product_id", productHandler.GetProductItems)
-		// 		product.POST("/product-item", productHandler.AddProductItem)
-		// 	}
+			category.POST("/variation", productHandler.SaveVariation)
+			category.POST("/variation-option", productHandler.SaveVariationOption)
+		}
+		// product
+		product := api.Group("/products")
+		{
+			product.GET("/", productHandler.FindAllProducts)
+			product.POST("/", productHandler.SaveProduct)
+			product.PUT("/", productHandler.UpdateProduct)
+
+			product.GET("/product-item/:product_id", productHandler.FindAllProductItems)
+			product.POST("/product-item", productHandler.SaveProductItem)
+		}
 		// 	// order
 		order := api.Group("/orders")
 		{
@@ -89,7 +92,7 @@ func AdminRoutes(api *gin.RouterGroup, authHandler handlerInterface.AuthHandler,
 		// 		offer.DELETE("/:offer_id", productHandler.RemoveOffer)
 
 		// 		offer.GET("/category", productHandler.GetOfferCategories) // to get all offers of categories
-		// 		offer.POST("/category", productHandler.AddOfferCategory)  // addd offer for categories
+		// 		offer.POST("/category", productHandler.AddOfferCategory)  // add offer for categories
 		// 		offer.PUT("/category", productHandler.ReplaceOfferCategory)
 		// 		offer.DELETE("/category/:offer_category_id", productHandler.RemoveOfferCategory)
 

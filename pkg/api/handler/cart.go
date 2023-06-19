@@ -108,8 +108,8 @@ func (u cartHandler) RemoveFromCart(ctx *gin.Context) {
 // @Param input body request.UpdateCartItem{} true "Input Field"
 // @Router /carts [put]
 // @Success 200 "Successfully productItem count change on cart"
-// @Failure 400 {object} res.Response{}   "invalid input"
-// @Failure 500  {object} res.Response{}  "Failed to update product item in cart"
+// @Failure 400 {object} response.Response{}   "invalid input"
+// @Failure 500  {object} response.Response{}  "Failed to update product item in cart"
 func (u *cartHandler) UpdateCart(ctx *gin.Context) {
 
 	var body request.UpdateCartItem

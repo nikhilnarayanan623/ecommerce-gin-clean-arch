@@ -61,8 +61,8 @@ func (c *OrderHandler) RazorpayCheckout(ctx *gin.Context) {
 // @Param shop_order_id formData string true "shop_order_id"
 // @Param payment_method_id formData uint true "payment_method_id"
 // @Router /carts/place-order/razorpay-verify [post]
-// @Success 200 {object} res.Response{} "faild to veify payment"
-// @Failure 400 {object} res.Response{}  "successfully payment completed and order approved"
+// @Success 200 {object} response.Response{} "faild to veify payment"
+// @Failure 400 {object} response.Response{}  "successfully payment completed and order approved"
 func (c *OrderHandler) RazorpayVerify(ctx *gin.Context) {
 
 	userID := utils.GetUserIdFromContext(ctx)

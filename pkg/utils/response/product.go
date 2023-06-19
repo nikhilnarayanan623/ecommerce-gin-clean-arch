@@ -7,59 +7,53 @@ import (
 // response for product
 type Product struct {
 	ID            uint      `json:"product_id"`
-	ProductName   string    `json:"product_name"`
-	Description   string    `json:"description" `
 	CategoryID    uint      `json:"category_id"`
-	CategoryName  string    `json:"category_name"`
 	Price         uint      `json:"price"`
 	DiscountPrice uint      `json:"discount_price"`
+	Name          string    `json:"product_name"`
+	Description   string    `json:"description" `
+	CategoryName  string    `json:"category_name"`
 	Image         string    `json:"image"`
-	CreatedAt     time.Time `json:"created_at" gorm:"not null"`
+	CreatedAt     time.Time `json:"created_at"`
 	UpdatedAt     time.Time `json:"updated_at"`
 }
 
-// fo a spedific category representation
+// for a specific category representation
 type Category struct {
-	ID               uint   `json:"cateogy_id"`
-	CategoryName     string `json:"category_name"`
-	CategoryID       uint   `json:"main_category_id"`
-	MainCategoryName string `json:"main_category_name"`
+	ID   uint   `json:"category_id"`
+	Name string `json:"category_name"`
 }
 
-// fo a spedific variation representation
-type VariationName struct {
-	ID            uint   `json:"variation_id"`
-	VariationName string `json:"variation_name"`
-	CategoryID    uint   `json:"category_id"`
-	CategoryName  string `json:"category_name"`
+// for a specific variation representation
+type Variation struct {
+	ID               uint              `json:"variation_id"`
+	Name             string            `json:"variation_name"`
+	VariationOptions []VariationOption `gorm:"-"`
 }
 
-// fo a spedific variation Value representation
-type VariationValue struct {
-	ID             uint   `json:"variation_option_id"`
-	VariationValue string `json:"variation_value"`
-	VariationID    uint   `json:"variation_id"`
-	VariationName  string `json:"variation_name"`
+// for a specific variation Value representation
+type VariationOption struct {
+	ID    uint   `json:"variation_option_id"`
+	Value string `json:"variation_value"`
 }
 
-// fo all category, variation, variation_value
-type FullCategory struct {
-	Category       []Category
-	VariationName  []VariationName
-	VariationValue []VariationValue
-}
-
-// for reponse a specific products all product items
+// for response a specific products all product items
 type ProductItems struct {
-	ID                uint   `json:"product_item_id"`
-	ProductName       string `json:"product_name"`
-	ProductID         uint   `json:"product_id"`
-	Price             uint   `json:"price"`
-	DiscountPrice     uint   `json:"discount_price"`
-	SKU               string `json:"sku"`
-	QtyInStock        uint   `json:"qty_in_stock"`
+	ID              uint                    `json:"product_item_id"`
+	Name            string                  `json:"product_name"`
+	ProductID       uint                    `json:"product_id"`
+	Price           uint                    `json:"price"`
+	DiscountPrice   uint                    `json:"discount_price"`
+	SKU             string                  `json:"sku"`
+	QtyInStock      uint                    `json:"qty_in_stock"`
+	VariationValues []ProductVariationValue `gorm:"-"`
+}
+
+type ProductVariationValue struct {
+	VariationID       uint   `json:"variation_id"`
+	Name              string `json:"variation_name"`
 	VariationOptionID uint   `json:"variation_option_id"`
-	VariationValue    string `json:"variation_value"`
+	Value             string `json:"variation_value"`
 }
 
 // offer response
@@ -69,7 +63,7 @@ type OfferCategory struct {
 	CategoryName    string `json:"category_name"`
 	DiscountRate    uint   `json:"discount_rate"`
 	OfferID         uint   `json:"offer_id"`
-	OfferName       string `json:"offer_name"`
+	Name            string `json:"offer_name"`
 }
 
 type OfferProduct struct {
@@ -78,5 +72,5 @@ type OfferProduct struct {
 	ProductName    string `json:"product_name"`
 	DiscountRate   uint   `json:"discount_rate"`
 	OfferID        uint   `json:"offer_id"`
-	OfferName      string `json:"offer_name"`
+	Name           string `json:"offer_name"`
 }

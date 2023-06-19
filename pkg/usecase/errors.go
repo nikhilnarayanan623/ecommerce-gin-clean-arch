@@ -34,4 +34,22 @@ var (
 
 	// admin
 	ErrSameBlockStatus = errors.New("user block status already in given status")
+
+	//category
+	ErrCategoryAlreadyExist = errors.New("category already exist")
+	ErrInvalidCategoryID    = errors.New("invalid category id")
+
+	// variation
+	ErrInvalidVariationID          = errors.New("invalid variation id")
+	ErrVariationAlreadyExist       = errors.New("variation already exist")
+	ErrVariationOptionAlreadyExist = errors.New("variation already exist")
+
+	ErrInvalidVariationOptionID = errors.New("invalid variation option id")
+
+	// product
+	ErrProductAlreadyExist = errors.New("product already exist with this name")
+	ErrInvalidProductID    = errors.New("invalid product id")
+
+	// product item
+	ErrProductItemAlreadyExist = errors.New("product item already exist with this configuration")
 )

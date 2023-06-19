@@ -16,7 +16,7 @@ func (c *productUseCase) AddOffer(ctx context.Context, offer domain.Offer) error
 	if offer, err := c.productRepo.FindOffer(ctx, offer); err != nil {
 		return err
 	} else if offer.ID != 0 {
-		return fmt.Errorf("offer already exist with this  %s  name", offer.OfferName)
+		return fmt.Errorf("offer already exist with this  %s  name", offer.Name)
 	}
 
 	// validate the offer date
@@ -29,7 +29,7 @@ func (c *productUseCase) AddOffer(ctx context.Context, offer domain.Offer) error
 		return err
 	}
 
-	log.Printf("successfully offer created with offer name %v\n\n", offer.OfferName)
+	log.Printf("successfully offer created with offer name %v\n\n", offer.Name)
 	return nil
 }
 
@@ -38,7 +38,7 @@ func (c *productUseCase) RemoveOffer(ctx context.Context, offerID uint) error {
 	offer := domain.Offer{ID: offerID}
 	if offer, err := c.productRepo.FindOffer(ctx, offer); err != nil {
 		return err
-	} else if offer.OfferName == "" {
+	} else if offer.Name == "" {
 		return errors.New("invalid offer id")
 	}
 
@@ -62,7 +62,7 @@ func (c *productUseCase) AddOfferCategory(ctx context.Context, offerCategory dom
 	offer, err := c.productRepo.FindOffer(ctx, offer)
 	if err != nil {
 		return err
-	} else if offer.OfferName == "" {
+	} else if offer.Name == "" {
 		return errors.New("invalid offer_id")
 	}
 
@@ -71,12 +71,10 @@ func (c *productUseCase) AddOfferCategory(ctx context.Context, offerCategory dom
 		return fmt.Errorf("can't apply to category \noffer already ended on %v ", offer.EndDate)
 	}
 
-	// check the categoy id is valid or not
-	var category = domain.Category{ID: offerCategory.CategoryID}
-	category, err = c.productRepo.FindCategory(ctx, category)
+	category, err := c.productRepo.FindCategoryByID(ctx, offerCategory.CategoryID)
 	if err != nil {
 		return err
-	} else if category.CategoryName == "" {
+	} else if category.Name == "" {
 		return errors.New("invalid category_id")
 	}
 
@@ -133,15 +131,14 @@ func (c *productUseCase) ReplaceOfferCategory(ctx context.Context, offerCategory
 	var offer = domain.Offer{ID: offerCategory.OfferID}
 	if offer, err := c.productRepo.FindOffer(ctx, offer); err != nil {
 		return err
-	} else if offer.OfferName == "" {
+	} else if offer.Name == "" {
 		return errors.New("invalid offer_id")
 	}
 
-	// check the categoy id is valid or not
-	var category = domain.Category{ID: offerCategory.CategoryID}
-	if category, err := c.productRepo.FindCategory(ctx, category); err != nil {
+	category, err := c.productRepo.FindCategoryByID(ctx, offerCategory.CategoryID)
+	if err != nil {
 		return err
-	} else if category.CategoryName == "" {
+	} else if category.Name == "" {
 		return errors.New("invalid category_id")
 	}
 
@@ -168,13 +165,11 @@ func (c *productUseCase) AddOfferProduct(ctx context.Context, offerProduct domai
 	offer, err := c.productRepo.FindOffer(ctx, offer)
 	if err != nil {
 		return err
-	} else if offer.OfferName == "" {
+	} else if offer.Name == "" {
 		return errors.New("invalid offer_id")
 	}
 
-	// check the product id is valid or not
-	var product = domain.Product{ID: offerProduct.ProductID}
-	product, err = c.productRepo.FindProduct(ctx, product)
+	product, err := c.productRepo.FindProductByID(ctx, offerProduct.ProductID)
 	if err != nil {
 		return err
 	} else if product.ID == 0 {
@@ -227,13 +222,12 @@ func (c *productUseCase) ReplaceOfferProducts(ctx context.Context, offerProduct 
 	offer, err := c.productRepo.FindOffer(ctx, offer)
 	if err != nil {
 		return err
-	} else if offer.OfferName == "" {
+	} else if offer.Name == "" {
 		return errors.New("invalid offer_id")
 	}
 
 	// check the product id is valid or not
-	var product = domain.Product{ID: offerProduct.ProductID}
-	product, err = c.productRepo.FindProduct(ctx, product)
+	product, err := c.productRepo.FindProductByID(ctx, offerProduct.ProductID)
 	if err != nil {
 		return err
 	} else if product.ID == 0 {
