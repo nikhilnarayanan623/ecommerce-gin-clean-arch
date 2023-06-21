@@ -20,7 +20,6 @@ type ProductRepository interface {
 	UpdateProduct(ctx context.Context, product domain.Product) error
 
 	// product items
-	IsValidProductItemID(ctx context.Context, productItemID uint) (valid bool, err error)
 	FindProductItemByID(ctx context.Context, productItemID uint) (domain.ProductItem, error)
 	FindAllProductItems(ctx context.Context, productID uint) ([]response.ProductItems, error)
 	IsProductItemAlreadyExist(ctx context.Context, productID, variationOptionID uint) (exist bool, err error)
@@ -45,7 +44,6 @@ type ProductRepository interface {
 
 	// variation values
 	SaveVariationOption(ctx context.Context, variationOption request.VariationOption) error
-	IsValidVariationOptionID(ctx context.Context, variationOptionID uint) (valid bool, err error)
 	FindVariationOptionByValueAndVariationID(ctx context.Context,
 		variationOptionValue string, categoryID uint) (variationOption domain.VariationOption, err error)
 	FindAllVariationOptionsByVariationID(ctx context.Context, variationID uint) ([]response.VariationOption, error)

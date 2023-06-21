@@ -9,7 +9,6 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/api/handler/interfaces"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/domain"
-	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/usecase"
 	usecaseInterface "github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/usecase/interfaces"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/utils"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/utils/request"
@@ -109,11 +108,7 @@ func (a *AdminHandler) BlockUser(ctx *gin.Context) {
 
 	err := a.adminUseCase.BlockOrUnBlockUser(ctx, body)
 	if err != nil {
-		statusCode := http.StatusInternalServerError
-		if err == usecase.ErrInvalidUserID || err == usecase.ErrSameBlockStatus {
-			statusCode = http.StatusBadRequest
-		}
-		response.ErrorResponse(ctx, statusCode, "Failed to change block status of user", err, nil)
+		response.ErrorResponse(ctx, http.StatusInternalServerError, "Failed to change block status of user", err, nil)
 		return
 	}
 
@@ -254,11 +249,7 @@ func (c *AdminHandler) UpdateStock(ctx *gin.Context) {
 	err = c.adminUseCase.UpdateStockBySKU(ctx, body)
 
 	if err != nil {
-		statusCode := http.StatusInternalServerError
-		if err == usecase.ErrInvalidSKU {
-			statusCode = http.StatusBadRequest
-		}
-		response.ErrorResponse(ctx, statusCode, "Failed to update stock", err, nil)
+		response.ErrorResponse(ctx, http.StatusInternalServerError, "Failed to update stock", err, nil)
 		return
 	}
 

@@ -40,9 +40,6 @@ func (c *cartUseCase) SaveProductItemToCart(ctx context.Context, userID, product
 	if err != nil {
 		return utils.PrependMessageToError(err, "failed to find product items")
 	}
-	if productItem.ID == 0 {
-		return ErrInvalidProductItemID
-	}
 
 	// check productItem is out of stock or not
 	if productItem.QtyInStock == 0 {
@@ -81,16 +78,6 @@ func (c *cartUseCase) SaveProductItemToCart(ctx context.Context, userID, product
 
 func (c *cartUseCase) RemoveProductItemFromCartItem(ctx context.Context, userID, productItemId uint) error {
 
-	// validate the product
-	validProductId, err := c.productRepo.IsValidProductItemID(ctx, productItemId)
-
-	if err != nil {
-		return err
-	}
-	if !validProductId {
-		return ErrInvalidProductItemID
-	}
-
 	// Find cart of user
 	cart, err := c.cartRepo.FindCartByUserID(ctx, userID)
 	if err != nil {
@@ -124,8 +111,6 @@ func (c *cartUseCase) UpdateCartItem(ctx context.Context, updateDetails request.
 	productItem, err := c.productRepo.FindProductItemByID(ctx, updateDetails.ProductItemID)
 	if err != nil {
 		return utils.PrependMessageToError(err, "failed to find product items")
-	} else if productItem.ID == 0 {
-		return ErrInvalidProductItemID
 	}
 
 	if updateDetails.Count < 1 {

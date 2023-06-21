@@ -107,15 +107,12 @@ func (p *ProductHandler) SaveSubCategory(ctx *gin.Context) {
 	err := p.productUseCase.SaveSubCategory(ctx, body)
 
 	if err != nil {
-		var statusCode int
-		switch true {
-		case errors.Is(err, usecase.ErrInvalidCategoryID):
-			statusCode = http.StatusBadRequest
-		case errors.Is(err, usecase.ErrCategoryAlreadyExist):
+		
+		statusCode := http.StatusInternalServerError
+		if errors.Is(err, usecase.ErrCategoryAlreadyExist) {
 			statusCode = http.StatusConflict
-		default:
-			statusCode = http.StatusInternalServerError
 		}
+
 		response.ErrorResponse(ctx, statusCode, "Failed to add sub category", err, nil)
 		return
 	}
@@ -196,11 +193,7 @@ func (c *ProductHandler) FindAllVariations(ctx *gin.Context) {
 
 	variations, err := c.productUseCase.FindAllVariationsAndItsValues(ctx, categoryID)
 	if err != nil {
-		statusCode := http.StatusInternalServerError
-		if err == usecase.ErrInvalidCategoryID {
-			statusCode = http.StatusBadRequest
-		}
-		response.ErrorResponse(ctx, statusCode, "Failed to find variations and its values", err, nil)
+		response.ErrorResponse(ctx, http.StatusInternalServerError, "Failed to find variations and its values", err, nil)
 		return
 	}
 
@@ -273,18 +266,8 @@ func (p *ProductHandler) SaveProduct(ctx *gin.Context) {
 	err := p.productUseCase.SaveProduct(ctx, body)
 
 	if err != nil {
-		var statusCode int
 
-		switch true {
-		case errors.Is(err, usecase.ErrInvalidProductItemID):
-			statusCode = http.StatusConflict
-		case errors.Is(err, usecase.ErrInvalidCategoryID):
-			statusCode = http.StatusBadRequest
-		default:
-			statusCode = http.StatusInternalServerError
-		}
-
-		response.ErrorResponse(ctx, statusCode, "Failed to add product", err, nil)
+		response.ErrorResponse(ctx, http.StatusInternalServerError, "Failed to add product", err, nil)
 		return
 	}
 
@@ -340,17 +323,12 @@ func (p *ProductHandler) SaveProductItem(ctx *gin.Context) {
 	err := p.productUseCase.SaveProductItem(ctx, body)
 
 	if err != nil {
-		var statusCode int
-		switch true {
-		case errors.Is(err, usecase.ErrInvalidProductID):
-			statusCode = http.StatusBadRequest
-		case errors.Is(err, usecase.ErrInvalidVariationOptionID):
-			statusCode = http.StatusBadRequest
-		case errors.Is(err, usecase.ErrProductItemAlreadyExist):
+
+		statusCode := http.StatusInternalServerError
+		if errors.Is(err, usecase.ErrProductItemAlreadyExist) {
 			statusCode = http.StatusConflict
-		default:
-			statusCode = http.StatusInternalServerError
 		}
+
 		response.ErrorResponse(ctx, statusCode, "Failed to add product item", err, nil)
 		return
 	}
@@ -375,12 +353,8 @@ func (p *ProductHandler) FindAllProductItems(ctx *gin.Context) {
 	productItems, err := p.productUseCase.FindProductItems(ctx, productID)
 
 	if err != nil {
-		statusCode := http.StatusInternalServerError
-		if errors.Is(err, usecase.ErrInvalidProductID) {
-			statusCode = http.StatusBadRequest
-		}
 
-		response.ErrorResponse(ctx, statusCode, "Failed to find product_items", err, nil)
+		response.ErrorResponse(ctx, http.StatusInternalServerError, "Failed to find product_items", err, nil)
 		return
 	}
 

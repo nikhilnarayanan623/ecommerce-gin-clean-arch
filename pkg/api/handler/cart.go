@@ -89,7 +89,7 @@ func (u cartHandler) RemoveFromCart(ctx *gin.Context) {
 
 		statusCode := http.StatusInternalServerError
 
-		if errors.Is(err, usecase.ErrCartItemNotExit) || errors.Is(err, usecase.ErrInvalidProductItemID) {
+		if errors.Is(err, usecase.ErrCartItemNotExit) {
 			statusCode = http.StatusBadRequest
 		}
 

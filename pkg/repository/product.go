@@ -144,13 +144,6 @@ func (c *productDatabase) SaveVariation(ctx context.Context, variation request.V
 	return err
 }
 
-func (c *productDatabase) IsValidVariationOptionID(ctx context.Context, variationOptionID uint) (valid bool, err error) {
-
-	query := `SELECT EXISTS(SELECT 1) AS valid FROM variation_options WHERE id = $1`
-	err = c.DB.Raw(query, variationOptionID).Scan(&valid).Error
-
-	return
-}
 
 // add variation option
 func (c *productDatabase) SaveVariationOption(ctx context.Context, variationOption request.VariationOption) error {
@@ -228,14 +221,6 @@ func (c *productDatabase) FindAllProducts(ctx context.Context, pagination reques
 	err = c.DB.Raw(query, limit, offset).Scan(&products).Error
 
 	return products, err
-}
-
-func (c *productDatabase) IsValidProductItemID(ctx context.Context, productItemID uint) (valid bool, err error) {
-
-	query := `SELECT EXISTS(SELECT 1 FROM product_items WHERE id = $1) AS valid`
-	err = c.DB.Raw(query, productItemID).Scan(&valid).Error
-
-	return
 }
 
 // to get productItem id
