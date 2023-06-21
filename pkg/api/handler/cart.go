@@ -41,12 +41,9 @@ func (u *cartHandler) AddToCart(ctx *gin.Context) {
 		return
 	}
 
-	body := request.Cart{
-		UserID:        utils.GetUserIdFromContext(ctx),
-		ProductItemID: productItemID,
-	}
+	userID := utils.GetUserIdFromContext(ctx)
 
-	err = u.carUseCase.SaveToCart(ctx, body)
+	err = u.carUseCase.SaveProductItemToCart(ctx, userID, productItemID)
 
 	if err != nil {
 		var statusCode int
@@ -62,7 +59,7 @@ func (u *cartHandler) AddToCart(ctx *gin.Context) {
 		return
 	}
 
-	response.SuccessResponse(ctx, http.StatusCreated, "Successfully product item added to cart", body.ProductItemID)
+	response.SuccessResponse(ctx, http.StatusCreated, "Successfully product item added to cart")
 }
 
 // RemoveFromCart godoc
@@ -72,7 +69,7 @@ func (u *cartHandler) AddToCart(ctx *gin.Context) {
 // @id RemoveFromCart
 // @tags User Cart
 // @Param input body request.Cart{} true "Input Field"
-// @Router /carts [delete]
+// @Router /carts/{product_item_id} [delete]
 // @Success 200 {object} response.Response{} "Successfully product item removed form cart"
 // @Failure 400 {object} response.Response{}  "invalid input"
 // @Failure 500 {object} response.Response{}  "Failed to remove product item from cart"
@@ -84,15 +81,19 @@ func (u cartHandler) RemoveFromCart(ctx *gin.Context) {
 		return
 	}
 
-	body := request.Cart{
-		UserID:        utils.GetUserIdFromContext(ctx),
-		ProductItemID: productItemID,
-	}
+	userID := utils.GetUserIdFromContext(ctx)
 
-	err = u.carUseCase.RemoveCartItem(ctx, body)
+	err = u.carUseCase.RemoveProductItemFromCartItem(ctx, userID, productItemID)
 
 	if err != nil {
-		response.ErrorResponse(ctx, http.StatusInternalServerError, "Failed to remove product item from cart", err, nil)
+
+		statusCode := http.StatusInternalServerError
+
+		if errors.Is(err, usecase.ErrCartItemNotExit) || errors.Is(err, usecase.ErrInvalidProductItemID) {
+			statusCode = http.StatusBadRequest
+		}
+
+		response.ErrorResponse(ctx, statusCode, "Failed to remove product item from cart", err, nil)
 		return
 	}
 

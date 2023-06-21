@@ -230,8 +230,16 @@ func (c *productDatabase) FindAllProducts(ctx context.Context, pagination reques
 	return products, err
 }
 
+func (c *productDatabase) IsValidProductItemID(ctx context.Context, productItemID uint) (valid bool, err error) {
+
+	query := `SELECT EXISTS(SELECT 1 FROM product_items WHERE id = $1) AS valid`
+	err = c.DB.Raw(query, productItemID).Scan(&valid).Error
+
+	return
+}
+
 // to get productItem id
-func (c *productDatabase) FindProductItem(ctx context.Context, productItemID uint) (productItem domain.ProductItem, err error) {
+func (c *productDatabase) FindProductItemByID(ctx context.Context, productItemID uint) (productItem domain.ProductItem, err error) {
 
 	query := `SELECT * FROM product_items WHERE id = $1`
 	err = c.DB.Raw(query, productItemID).Scan(&productItem).Error

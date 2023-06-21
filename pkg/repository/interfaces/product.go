@@ -20,7 +20,8 @@ type ProductRepository interface {
 	UpdateProduct(ctx context.Context, product domain.Product) error
 
 	// product items
-	FindProductItem(ctx context.Context, productItemID uint) (domain.ProductItem, error)
+	IsValidProductItemID(ctx context.Context, productItemID uint) (valid bool, err error)
+	FindProductItemByID(ctx context.Context, productItemID uint) (domain.ProductItem, error)
 	FindAllProductItems(ctx context.Context, productID uint) ([]response.ProductItems, error)
 	IsProductItemAlreadyExist(ctx context.Context, productID, variationOptionID uint) (exist bool, err error)
 	SaveProductConfiguration(ctx context.Context, productItemID, variationOptionID uint) error

@@ -51,7 +51,7 @@ func UserRoutes(api *gin.RouterGroup, authHandler handlerInterface.AuthHandler, 
 			cart.GET("/", cartHandler.FindCart)
 			cart.POST("/:product_item_id", cartHandler.AddToCart)
 			cart.PUT("/", cartHandler.UpdateCart)
-			cart.DELETE("/", cartHandler.RemoveFromCart)
+			cart.DELETE("/:product_item_id", cartHandler.RemoveFromCart)
 
 			// 		cart.PATCH("/apply-coupon", couponHandler.ApplyCouponToCart)
 

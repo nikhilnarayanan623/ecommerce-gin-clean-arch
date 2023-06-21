@@ -17,7 +17,7 @@ func main() {
 
 	server, err := di.InitializeApi(cfg)
 	if err != nil {
-		log.Fatal("Faild to start the server")
+		log.Fatal("Failed to start the server")
 	}
 
 	server.Start()
