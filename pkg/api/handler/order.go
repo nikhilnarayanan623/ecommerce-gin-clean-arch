@@ -167,7 +167,7 @@ func (c *OrderHandler) FindAllOrderItems(ctx *gin.Context) {
 	}
 	pagination := request.GetPagination(ctx)
 
-	orderItems, err := c.orderUseCase.FindOrderItemsByShopOrderID(ctx, shopOrderID, pagination)
+	orderItems, err := c.orderUseCase.FindOrderItems(ctx, shopOrderID, pagination)
 
 	if err != nil {
 		response.ErrorResponse(ctx, http.StatusInternalServerError, "Failed to find order items", err, nil)

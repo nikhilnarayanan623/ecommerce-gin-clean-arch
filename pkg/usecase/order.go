@@ -37,27 +37,28 @@ func NewOrderUseCase(orderRepo interfaces.OrderRepository, cartRepo interfaces.C
 }
 
 // get all order statuses
-func (c *OrderUseCase) FindAllOrderStatuses(ctx context.Context) (orderStatuses []domain.OrderStatus, err error) {
-	orderStatuses, err = c.orderRepo.FindAllOrderStauses(ctx)
+func (c *OrderUseCase) FindAllOrderStatuses(ctx context.Context) ([]domain.OrderStatus, error) {
+
+	orderStatuses, err := c.orderRepo.FindAllOrderStatuses(ctx)
 	if err != nil {
-		return orderStatuses, err
+		return nil, utils.PrependMessageToError(err, "failed to find all order statuses")
 	}
 
 	return orderStatuses, nil
 }
 
 // func to Find all shop order
-func (c *OrderUseCase) FindAllShopOrders(ctx context.Context, pagination request.Pagination) (shopOrders []response.ShopOrder, err error) {
+func (c *OrderUseCase) FindAllShopOrders(ctx context.Context, pagination request.Pagination) ([]response.ShopOrder, error) {
 
-	// first find all shopOrders
-	if shopOrders, err = c.orderRepo.FindAllShopOrders(ctx, pagination); err != nil {
-		return shopOrders, err
+	shopOrders, err := c.orderRepo.FindAllShopOrders(ctx, pagination)
+	if err != nil {
+		return nil, utils.PrependMessageToError(err, "failed to find all shop orders")
 	}
 
 	for i, order := range shopOrders {
 
 		if address, err := c.userRepo.FindAddressByID(ctx, order.AddressID); err != nil {
-			return shopOrders, fmt.Errorf("faild to Find address")
+			return nil, utils.PrependMessageToError(err, "failed to find address for order")
 		} else {
 			shopOrders[i].Address = address
 		}
@@ -66,28 +67,26 @@ func (c *OrderUseCase) FindAllShopOrders(ctx context.Context, pagination request
 	return shopOrders, nil
 }
 
-// Find order items of a spicific order
-func (c *OrderUseCase) FindOrderItemsByShopOrderID(ctx context.Context, shopOrderID uint,
+func (c *OrderUseCase) FindOrderItems(ctx context.Context, shopOrderID uint,
 	pagination request.Pagination) (orderItems []response.OrderItem, err error) {
-	//validate the shopOrderId
-	shopOdrer, err := c.orderRepo.FindShopOrderByShopOrderID(ctx, shopOrderID)
-	if err != nil {
-		return orderItems, err
-	} else if shopOdrer.ID == 0 {
-		return orderItems, errors.New("invalid shopOrder id")
-	}
+
 	orderItems, err = c.orderRepo.FindAllOrdersItemsByShopOrderID(ctx, shopOrderID, pagination)
 	if err != nil {
-		return orderItems, err
+		return nil, utils.PrependMessageToError(err, "failed to find order items using shop order id")
 	}
 
-	log.Printf("\n\n successfully got all order items with shop_order_id %v \n\n", shopOrderID)
 	return orderItems, nil
 }
 
 // Find all orders of user
-func (c *OrderUseCase) FindUserShopOrder(ctx context.Context, userID uint, pagination request.Pagination) ([]response.ShopOrder, error) {
-	return c.orderRepo.FindAllShopOrdersByUserID(ctx, userID, pagination)
+func (c *OrderUseCase) FindUserShopOrder(ctx context.Context, userID uint,
+	pagination request.Pagination) ([]response.ShopOrder, error) {
+
+	shopOrders, err := c.orderRepo.FindAllShopOrdersByUserID(ctx, userID, pagination)
+	if err != nil {
+		return nil, utils.PrependMessageToError(err, "failed to find all shop orders by user id")
+	}
+	return shopOrders, nil
 }
 
 // update order
@@ -95,9 +94,7 @@ func (c *OrderUseCase) UpdateOrderStatus(ctx context.Context, shopOrderID, chang
 
 	shopOrder, err := c.orderRepo.FindShopOrderByShopOrderID(ctx, shopOrderID)
 	if err != nil {
-		return err
-	} else if shopOrder.ID == 0 {
-		return errors.New("invalid shopOrderID")
+		return utils.PrependMessageToError(err, "failed to find shop order")
 	}
 
 	currentOrderStatus, err := c.orderRepo.FindOrderStatusByID(ctx, shopOrder.OrderStatusID)
@@ -108,8 +105,6 @@ func (c *OrderUseCase) UpdateOrderStatus(ctx context.Context, shopOrderID, chang
 	orderStatusChangeTo, err := c.orderRepo.FindOrderStatusByID(ctx, changeStatusID)
 	if err != nil {
 		return err
-	} else if orderStatusChangeTo.Status == "" {
-		return fmt.Errorf("invalid order_status_id %v", orderStatusChangeTo.ID)
 	}
 
 	switch currentOrderStatus.Status { // switch to add more status in future if need add new status on switch and validate
@@ -123,7 +118,7 @@ func (c *OrderUseCase) UpdateOrderStatus(ctx context.Context, shopOrderID, chang
 
 	err = c.orderRepo.UpdateShopOrderOrderStatus(ctx, shopOrder.ID, changeStatusID)
 	if err != nil {
-		return fmt.Errorf("faild to chnage order status %v", err.Error())
+		return fmt.Errorf("failed to change order status %v", err.Error())
 	}
 	return nil
 }
@@ -488,10 +483,6 @@ func (c *OrderUseCase) PlaceOrder(ctx context.Context, userID uint,
 
 func (c *OrderUseCase) ApproveShopOrderAndClearCart(ctx context.Context, userID, shopOrderID, paymentID uint) error {
 
-	if err := c.orderRepo.IsShpoOrderIDIsValid(ctx, shopOrderID); err != nil {
-		return fmt.Errorf("invalid shop_order_id \nerror:%v", err.Error())
-	}
-
 	if orderStatus, err := c.orderRepo.FindOrderStatusByShopOrderID(ctx, shopOrderID); err != nil {
 		return fmt.Errorf("faild to get current order status \nerror:%v", err.Error())
 	} else if orderStatus.Status != "payment pending" {
@@ -536,6 +527,5 @@ func (c *OrderUseCase) ApproveShopOrderAndClearCart(ctx context.Context, userID,
 		}
 		return nil
 	})
-	fmt.Println("herererere test")
 	return err
 }
