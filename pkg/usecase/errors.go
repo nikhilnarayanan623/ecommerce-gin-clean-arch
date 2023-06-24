@@ -9,9 +9,8 @@ var (
 	ErrUserBlocked           = errors.New("user blocked by admin")
 	ErrWrongPassword         = errors.New("password doesn't match")
 	// otp
-	ErrInvalidOtpID = errors.New("invalid otp id")
-	ErrOtpExpired   = errors.New("otp session expired")
-	ErrInvalidOtp   = errors.New("invalid otp")
+	ErrOtpExpired = errors.New("otp session expired")
+	ErrInvalidOtp = errors.New("invalid otp")
 
 	// refresh token
 	ErrInvalidRefreshToken    = errors.New("invalid refresh token")
@@ -23,7 +22,6 @@ var (
 	ErrUserAlreadyExit = errors.New("user already exist")
 
 	// cart
-	ErrInvalidProductItemID  = errors.New("invalid product_item_id")
 	ErrProductItemOutOfStock = errors.New("product is now out of stock")
 	ErrCartItemAlreadyExist  = errors.New("product_item already exist on the cart")
 	ErrCartItemNotExit       = errors.New("product_item not exist on cart")
@@ -37,19 +35,21 @@ var (
 
 	//category
 	ErrCategoryAlreadyExist = errors.New("category already exist")
-	ErrInvalidCategoryID    = errors.New("invalid category id")
 
 	// variation
-	ErrInvalidVariationID          = errors.New("invalid variation id")
 	ErrVariationAlreadyExist       = errors.New("variation already exist")
 	ErrVariationOptionAlreadyExist = errors.New("variation already exist")
 
-	ErrInvalidVariationOptionID = errors.New("invalid variation option id")
-
 	// product
 	ErrProductAlreadyExist = errors.New("product already exist with this name")
-	ErrInvalidProductID    = errors.New("invalid product id")
 
 	// product item
 	ErrProductItemAlreadyExist = errors.New("product item already exist with this configuration")
+
+	// offer
+	ErrOfferNameAlreadyExist = errors.New("offer already exist this name")
+	ErrInvalidOfferEndDate   = errors.New("invalid offer end date")
+	ErrOfferAlreadyEnded     = errors.New("offer already ended")
+
+	ErrOfferAlreadyExistForCategory = errors.New("offer already exist for this category")
 )

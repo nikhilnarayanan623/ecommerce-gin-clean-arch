@@ -52,7 +52,7 @@ func (c *userUserCase) UpdateProfile(ctx context.Context, user domain.User) erro
 	if user.Password != "" {
 		hash, err := bcrypt.GenerateFromPassword([]byte(user.Password), 10)
 		if err != nil {
-			return fmt.Errorf("faild to generate hash password for user")
+			return fmt.Errorf("failed to generate hash password for user")
 		}
 		user.Password = string(hash)
 	}

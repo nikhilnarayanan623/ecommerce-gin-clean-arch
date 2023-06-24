@@ -70,7 +70,7 @@ func (c *cartDatabase) SaveCartItem(ctx context.Context, cartId, productItemId u
 
 func (c *cartDatabase) DeleteCartItem(ctx context.Context, cartItemID uint) error {
 
-	query := `DELETE FROM cart_items WHERE cart_item_id = $1`
+	query := `DELETE FROM cart_items WHERE id = $1`
 	err := c.DB.Exec(query, cartItemID).Error
 
 	return err
@@ -94,9 +94,9 @@ func (c *cartDatabase) UpdateCartItemQty(ctx context.Context, cartItemId, qty ui
 func (c *cartDatabase) FindAllCartItemsByCartID(ctx context.Context, cartID uint) (cartItems []response.CartItem, err error) {
 
 	// get the cartItem of all user with subtotal
-	query := `SELECT ci.product_item_id, p.product_name, ci.qty,pi.price ,
-	 pi.discount_price, CASE WHEN pi.discount_price > 0 THEN pi.discount_price * ci.qty ELSE pi.price * ci.qty END AS sub_total,  
-	 pi.qty_in_stock 
+	query := `SELECT ci.product_item_id, p.name AS product_name, ci.qty,pi.price ,
+	 pi.discount_price, pi.qty_in_stock,
+	 CASE WHEN pi.discount_price > 0 THEN pi.discount_price * ci.qty ELSE pi.price * ci.qty END AS sub_total   
 	 FROM cart_items ci INNER JOIN product_items pi ON ci.product_item_id = pi.id 
 	 INNER JOIN products p ON pi.product_id = p.id AND ci.cart_id=?`
 

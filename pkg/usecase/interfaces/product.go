@@ -28,19 +28,19 @@ type ProductUseCase interface {
 	FindProductItems(ctx context.Context, productID uint) ([]response.ProductItems, error)
 
 	// offer
-	AddOffer(ctx context.Context, offer domain.Offer) error
+	SaveOffer(ctx context.Context, offer domain.Offer) error
 	RemoveOffer(ctx context.Context, offerID uint) error
-	FindAllOffers(ctx context.Context) ([]domain.Offer, error)
+	FindAllOffers(ctx context.Context, pagination request.Pagination) ([]domain.Offer, error)
 
 	// offer category
-	AddOfferCategory(ctx context.Context, offerCategory domain.OfferCategory) error
-	FindAllOffersOfCategories(ctx context.Context) ([]response.OfferCategory, error)
-	RemoveOfferCategory(ctx context.Context, offerCategory domain.OfferCategory) error
-	ReplaceOfferCategory(ctx context.Context, offerCategory domain.OfferCategory) error
+	SaveCategoryOffer(ctx context.Context, offerCategory domain.OfferCategory) error
+	FindAllCategoryOffers(ctx context.Context, pagination request.Pagination) ([]response.OfferCategory, error)
+	RemoveCategoryOffer(ctx context.Context, offerCategory domain.OfferCategory) error
+	ReplaceCategoryOffer(ctx context.Context, offerCategory domain.OfferCategory) error
 
 	// offer product
-	AddOfferProduct(ctx context.Context, offerProduct domain.OfferProduct) error
-	FindAllOffersOfProducts(ctx context.Context) ([]response.OfferProduct, error)
-	RemoveOfferProducts(ctx context.Context, offerProdcts domain.OfferProduct) error
-	ReplaceOfferProducts(ctx context.Context, offerProduct domain.OfferProduct) error
+	SaveProductOffer(ctx context.Context, offerProduct domain.OfferProduct) error
+	FindAllProductOffers(ctx context.Context, pagination request.Pagination) ([]response.OfferProduct, error)
+	RemoveProductOffer(ctx context.Context, offerProducts domain.OfferProduct) error
+	ReplaceProductOffer(ctx context.Context, offerProduct domain.OfferProduct) error
 }

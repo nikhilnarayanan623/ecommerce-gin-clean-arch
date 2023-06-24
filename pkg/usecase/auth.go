@@ -132,10 +132,6 @@ func (c *authUseCase) LoginOtpVerify(ctx context.Context, otpVerifyDetails reque
 		return 0, fmt.Errorf("failed to get otp session \nerror:%v", err.Error())
 	}
 
-	if otpSession.ID == 0 {
-		return 0, ErrInvalidOtpID
-	}
-
 	if time.Since(otpSession.ExpireAt) > 0 {
 		return 0, ErrOtpExpired
 	}

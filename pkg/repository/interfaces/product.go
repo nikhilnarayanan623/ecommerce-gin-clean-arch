@@ -20,7 +20,7 @@ type ProductRepository interface {
 	UpdateProduct(ctx context.Context, product domain.Product) error
 
 	// product items
-	FindProductItem(ctx context.Context, productItemID uint) (domain.ProductItem, error)
+	FindProductItemByID(ctx context.Context, productItemID uint) (domain.ProductItem, error)
 	FindAllProductItems(ctx context.Context, productID uint) ([]response.ProductItems, error)
 	IsProductItemAlreadyExist(ctx context.Context, productID, variationOptionID uint) (exist bool, err error)
 	SaveProductConfiguration(ctx context.Context, productItemID, variationOptionID uint) error
@@ -44,7 +44,6 @@ type ProductRepository interface {
 
 	// variation values
 	SaveVariationOption(ctx context.Context, variationOption request.VariationOption) error
-	IsValidVariationOptionID(ctx context.Context, variationOptionID uint) (valid bool, err error)
 	FindVariationOptionByValueAndVariationID(ctx context.Context,
 		variationOptionValue string, categoryID uint) (variationOption domain.VariationOption, err error)
 	FindAllVariationOptionsByVariationID(ctx context.Context, variationID uint) ([]response.VariationOption, error)
@@ -53,8 +52,9 @@ type ProductRepository interface {
 		productItemID uint) (productVariations []response.ProductVariationValue, err error)
 
 	// offer
-	FindOffer(ctx context.Context, offer domain.Offer) (domain.Offer, error)
-	FindAllOffer(ctx context.Context) ([]domain.Offer, error)
+	FindOfferByID(ctx context.Context, offerID uint) (domain.Offer, error)
+	FindOfferByName(ctx context.Context, offerName string) (domain.Offer, error)
+	FindAllOffers(ctx context.Context, pagination request.Pagination) ([]domain.Offer, error)
 	SaveOffer(ctx context.Context, offer domain.Offer) error
 	DeleteOffer(ctx context.Context, offerID uint) error
 
@@ -64,7 +64,7 @@ type ProductRepository interface {
 	// offer category
 	FindOfferCategory(ctx context.Context, offerCategory domain.OfferCategory) (domain.OfferCategory, error)
 	FindOfferCategoryCategoryID(ctx context.Context, categoryID uint) (domain.OfferCategory, error)
-	FindAllOfferCategories(ctx context.Context) ([]response.OfferCategory, error)
+	FindAllOfferCategories(ctx context.Context, pagination request.Pagination) ([]response.OfferCategory, error)
 
 	SaveOfferCategory(ctx context.Context, offerCategory domain.OfferCategory) error
 	DeleteOfferCategory(ctx context.Context, offerCategory domain.OfferCategory) error
@@ -72,7 +72,7 @@ type ProductRepository interface {
 
 	// offer products
 	FindOfferProduct(ctx context.Context, offerProduct domain.OfferProduct) (domain.OfferProduct, error)
-	FindAllOfferProducts(ctx context.Context) ([]response.OfferProduct, error)
+	FindAllOfferProducts(ctx context.Context, pagination request.Pagination) ([]response.OfferProduct, error)
 	FindOfferProductByProductID(ctx context.Context, productID uint) (domain.OfferProduct, error)
 
 	SaveOfferProduct(ctx context.Context, offerProduct domain.OfferProduct) error

@@ -617,7 +617,7 @@ const docTemplate = `{
                     "Offers"
                 ],
                 "summary": "api for admin to add new offer",
-                "operationId": "AddOffer",
+                "operationId": "SaveOffer",
                 "parameters": [
                     {
                         "description": "input field",
@@ -643,6 +643,36 @@ const docTemplate = `{
                         }
                     }
                 }
+            },
+            "delete": {
+                "tags": [
+                    "Offers"
+                ],
+                "summary": "api for admin to delete offer",
+                "operationId": "SaveOffer",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Offer ID",
+                        "name": "offer_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successfully offer added",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "invalid input",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
             }
         },
         "/admin/offers/": {
@@ -652,6 +682,20 @@ const docTemplate = `{
                 ],
                 "summary": "api for show all offers",
                 "operationId": "FindAllOffers",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Page Number",
+                        "name": "page_number",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Count",
+                        "name": "count",
+                        "in": "query"
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "successfully got all offers",
@@ -674,7 +718,21 @@ const docTemplate = `{
                     "Offers"
                 ],
                 "summary": "api for admin to get all offers of categories",
-                "operationId": "FindAllOfferCategories",
+                "operationId": "FindAllCategoryOffers",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Page Number",
+                        "name": "page_number",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Count",
+                        "name": "count",
+                        "in": "query"
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "successfully got all offer_category",
@@ -695,7 +753,7 @@ const docTemplate = `{
                     "Offers"
                 ],
                 "summary": "api for admin to add offer for category",
-                "operationId": "AddOfferCategory",
+                "operationId": "SaveCategoryOffer",
                 "parameters": [
                     {
                         "description": "input field",
@@ -721,6 +779,36 @@ const docTemplate = `{
                         }
                     }
                 }
+            },
+            "delete": {
+                "tags": [
+                    "Offers"
+                ],
+                "summary": "api for admin to remove offer from a category",
+                "operationId": "RemoveCategoryOffer",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Offer Category ID",
+                        "name": "offer_category_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successfully offer added for category",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "invalid input",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
             }
         },
         "/admin/offers/category/replace": {
@@ -729,7 +817,7 @@ const docTemplate = `{
                     "Offers"
                 ],
                 "summary": "api for admin to add offer for category",
-                "operationId": "ReplaceOfferCategory",
+                "operationId": "ReplaceCategoryOffer",
                 "parameters": [
                     {
                         "description": "input field",
@@ -763,7 +851,21 @@ const docTemplate = `{
                     "Offers"
                 ],
                 "summary": "api for admin to get all offers of products",
-                "operationId": "GetOffersOfProducts",
+                "operationId": "FindAllProductsOffers",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Page Number",
+                        "name": "page_number",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Count",
+                        "name": "count",
+                        "in": "query"
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "successfully got all offers_categories",
@@ -784,7 +886,7 @@ const docTemplate = `{
                     "Offers"
                 ],
                 "summary": "api for admin to replace a new offer on an existing offer for a product",
-                "operationId": "ReplaceOfferProduct",
+                "operationId": "ReplaceProductOffer",
                 "parameters": [
                     {
                         "description": "input field",
@@ -816,7 +918,7 @@ const docTemplate = `{
                     "Offers"
                 ],
                 "summary": "api for admin to add offer for product",
-                "operationId": "AddOfferProduct",
+                "operationId": "SaveProductOffer",
                 "parameters": [
                     {
                         "description": "input field",
@@ -850,7 +952,7 @@ const docTemplate = `{
                     "Offers"
                 ],
                 "summary": "api for admin to remove offer from product",
-                "operationId": "RemoveOfferProduct",
+                "operationId": "RemoveProductOffer",
                 "parameters": [
                     {
                         "type": "integer",
@@ -1561,50 +1663,6 @@ const docTemplate = `{
                         }
                     }
                 }
-            },
-            "delete": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "description": "user can remove a signle productItem full quantity from cart",
-                "tags": [
-                    "User Cart"
-                ],
-                "summary": "api for remove a product from cart",
-                "operationId": "RemoveFromCart",
-                "parameters": [
-                    {
-                        "description": "Input Field",
-                        "name": "input",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/request.Cart"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Successfully product item removed form cart",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    },
-                    "400": {
-                        "description": "invalid input",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    },
-                    "500": {
-                        "description": "Failed to remove product item from cart",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    }
-                }
             }
         },
         "/carts/checkout/payment-select-page": {
@@ -1903,6 +1961,48 @@ const docTemplate = `{
                     },
                     "400": {
                         "description": "Failed to add product item into cart",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "user can remove a signle productItem full quantity from cart",
+                "tags": [
+                    "User Cart"
+                ],
+                "summary": "api for remove a product from cart",
+                "operationId": "RemoveFromCart",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Product Item ID",
+                        "name": "product_item_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successfully product item removed form cart",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "invalid input",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Failed to remove product item from cart",
                         "schema": {
                             "$ref": "#/definitions/response.Response"
                         }
@@ -2392,7 +2492,7 @@ const docTemplate = `{
                     "Wishlist"
                 ],
                 "summary": "api to add a productItem to wish list",
-                "operationId": "AddToWishList",
+                "operationId": "SaveToWishList",
                 "parameters": [
                     {
                         "description": "product_item_id",
@@ -2529,17 +2629,6 @@ const docTemplate = `{
                     "type": "boolean"
                 },
                 "user_id": {
-                    "type": "integer"
-                }
-            }
-        },
-        "request.Cart": {
-            "type": "object",
-            "required": [
-                "product_item_id"
-            ],
-            "properties": {
-                "product_item_id": {
                     "type": "integer"
                 }
             }

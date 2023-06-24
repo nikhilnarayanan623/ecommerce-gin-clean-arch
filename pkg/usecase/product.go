@@ -52,15 +52,6 @@ func (c *productUseCase) SaveCategory(ctx context.Context, categoryName string) 
 // Save Sub category
 func (c *productUseCase) SaveSubCategory(ctx context.Context, subCategory request.SubCategory) error {
 
-	mainCat, err := c.productRepo.FindCategoryByID(ctx, subCategory.CategoryID)
-	if err != nil {
-		return utils.PrependMessageToError(err, "failed to verify category id")
-	}
-
-	if mainCat.ID == 0 {
-		return ErrInvalidCategoryID
-	}
-
 	existSubCat, err := c.productRepo.FindCategoryByName(ctx, subCategory.Name)
 	if err != nil {
 		return utils.PrependMessageToError(err, "failed to check sub category already exist")
@@ -79,14 +70,6 @@ func (c *productUseCase) SaveSubCategory(ctx context.Context, subCategory reques
 
 // to add new variation for a category
 func (c *productUseCase) SaveVariation(ctx context.Context, variation request.Variation) error {
-
-	category, err := c.productRepo.FindCategoryByID(ctx, variation.CategoryID)
-	if err != nil {
-		return utils.PrependMessageToError(err, "failed to verify category id")
-	}
-	if category.ID == 0 {
-		return ErrInvalidCategoryID
-	}
 
 	existVariation, err := c.productRepo.FindVariationByNameAndCategoryID(ctx, variation.Name, variation.CategoryID)
 	if err != nil {
@@ -107,13 +90,6 @@ func (c *productUseCase) SaveVariation(ctx context.Context, variation request.Va
 // to add new variation value for variation
 func (c *productUseCase) SaveVariationOption(ctx context.Context, variationOption request.VariationOption) error {
 
-	variation, err := c.productRepo.FindVariationByID(ctx, variationOption.VariationID)
-	if err != nil {
-		return utils.PrependMessageToError(err, "failed to verify variation id")
-	}
-	if variation.ID == 0 {
-		return ErrInvalidVariationID
-	}
 
 	existVarOpt, err := c.productRepo.FindVariationOptionByValueAndVariationID(ctx, variationOption.Value, variationOption.VariationID)
 	if err != nil {
@@ -132,13 +108,6 @@ func (c *productUseCase) SaveVariationOption(ctx context.Context, variationOptio
 
 func (c *productUseCase) FindAllVariationsAndItsValues(ctx context.Context, categoryID uint) ([]response.Variation, error) {
 
-	category, err := c.productRepo.FindCategoryByID(ctx, categoryID)
-	if err != nil {
-		return nil, utils.PrependMessageToError(err, "failed to verify category id")
-	}
-	if category.ID == 0 {
-		return nil, ErrInvalidCategoryID
-	}
 
 	variations, err := c.productRepo.FindAllVariationsByCategoryID(ctx, categoryID)
 	if err != nil {
@@ -165,14 +134,6 @@ func (c *productUseCase) FindAllProducts(ctx context.Context, pagination request
 // to add new product
 func (c *productUseCase) SaveProduct(ctx context.Context, product request.Product) error {
 
-	category, err := c.productRepo.FindCategoryByID(ctx, product.CategoryID)
-	if err != nil {
-		return utils.PrependMessageToError(err, "failed to verify category id")
-	}
-	if category.ID == 0 {
-		return ErrInvalidCategoryID
-	}
-
 	exist, err := c.productRepo.IsProductNameAlreadyExist(ctx, product.Name)
 	if err != nil {
 		return utils.PrependMessageToError(err, "failed to check product name already exist")
@@ -190,14 +151,6 @@ func (c *productUseCase) SaveProduct(ctx context.Context, product request.Produc
 
 // for add new productItem for a specific product
 func (c *productUseCase) SaveProductItem(ctx context.Context, productItem request.ProductItem) error {
-
-	product, err := c.productRepo.FindProductByID(ctx, productItem.ProductID)
-	if err != nil {
-		return err
-	}
-	if product.ID == 0 {
-		return ErrInvalidProductID
-	}
 
 	// check the given all combination already exist (Color:Red with Size:M)
 	productItemExist, err := c.isAllVariationCombinationExist(productItem.ProductID, productItem.VariationOptionID)
@@ -225,14 +178,6 @@ func (c *productUseCase) SaveProductItem(ctx context.Context, productItem reques
 
 		// save all product configurations based on given variation option id
 		for _, variationOptionID := range productItem.VariationOptionID {
-
-			valid, err := c.productRepo.IsValidVariationOptionID(ctx, variationOptionID)
-			if err != nil {
-				return ErrInvalidVariationID
-			}
-			if !valid {
-				return ErrInvalidVariationOptionID
-			}
 
 			err = trxRepo.SaveProductConfiguration(ctx, productItemID, variationOptionID)
 			if err != nil {
@@ -268,15 +213,6 @@ func (c *productUseCase) isAllVariationCombinationExist(productID uint, variatio
 // for get all productItem for a specific product
 func (c *productUseCase) FindProductItems(ctx context.Context, productID uint) (productItems []response.ProductItems, err error) {
 
-	//validate the productID
-	product, err := c.productRepo.FindProductByID(ctx, productID)
-	if err != nil {
-		return nil, err
-	}
-	if product.Name == "" {
-		return nil, ErrInvalidProductID
-	}
-
 	productItems, err = c.productRepo.FindAllProductItems(ctx, productID)
 	if err != nil {
 		return productItems, err
@@ -304,21 +240,14 @@ func (c *productUseCase) FindProductItems(ctx context.Context, productID uint) (
 }
 
 func (c *productUseCase) UpdateProduct(ctx context.Context, product domain.Product) error {
-	// validate the product_id
-	checkProduct, err := c.productRepo.FindProductByID(ctx, product.ID)
-	if err != nil {
-		return utils.PrependMessageToError(err, "failed to verify product id")
-	}
-	if checkProduct.ID == 0 {
-		return ErrInvalidProductItemID
-	}
 
 	// check the given product_name already exist or not
-	checkProduct, err = c.productRepo.FindProductByName(ctx, product.Name)
+	existProduct, err := c.productRepo.FindProductByName(ctx, product.Name)
 	if err != nil {
 		return err
 	}
-	if checkProduct.ID != 0 && checkProduct.ID != product.ID {
+	// if we found a product with this name but not for this id means another product exist with this name
+	if existProduct.ID != 0 && existProduct.ID != product.ID {
 		return ErrProductAlreadyExist
 	}
 

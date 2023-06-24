@@ -51,7 +51,7 @@ func UserRoutes(api *gin.RouterGroup, authHandler handlerInterface.AuthHandler, 
 			cart.GET("/", cartHandler.FindCart)
 			cart.POST("/:product_item_id", cartHandler.AddToCart)
 			cart.PUT("/", cartHandler.UpdateCart)
-			cart.DELETE("/", cartHandler.RemoveFromCart)
+			cart.DELETE("/:product_item_id", cartHandler.RemoveFromCart)
 
 			// 		cart.PATCH("/apply-coupon", couponHandler.ApplyCouponToCart)
 
@@ -72,13 +72,13 @@ func UserRoutes(api *gin.RouterGroup, authHandler handlerInterface.AuthHandler, 
 			// 		cart.POST("/place-order/stripe/stripe-verify", orderHandler.StripePaymentVeify)
 		}
 
-		// 	//wishlist
-		// 	wishList := api.Group("/wishlist")
-		// 	{
-		// 		wishList.GET("/", userHandler.GetWishListI)
-		// 		wishList.POST("/:id", userHandler.AddToWishList)
-		// 		wishList.DELETE("/:id", userHandler.RemoveFromWishList)
-		// 	}
+		//wishlist
+		wishList := api.Group("/wishlist")
+		{
+			wishList.GET("/", userHandler.FindWishList)
+			wishList.POST("/:product_item_id", userHandler.SaveToWishList)
+			wishList.DELETE("/:product_item_id", userHandler.RemoveFromWishList)
+		}
 
 		// profile
 		account := api.Group("/account")
@@ -106,11 +106,11 @@ func UserRoutes(api *gin.RouterGroup, authHandler handlerInterface.AuthHandler, 
 			orders.POST("/cancel/:shop_order_id", orderHandler.CancelOrder) // cancell an order
 		}
 
-		// 	//coupons
-		// 	coupons := api.Group("/coupons")
-		// 	{
-		// 		coupons.GET("/", couponHandler.GetAllCouponsForUser)
-		// 	}
+		//coupons
+		coupons := api.Group("/coupons")
+		{
+			coupons.GET("/", couponHandler.FindAllCouponsForUser)
+		}
 
 	}
 

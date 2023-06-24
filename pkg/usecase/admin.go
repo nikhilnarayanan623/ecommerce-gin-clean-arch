@@ -27,11 +27,6 @@ func NewAdminUseCase(repo interfaces.AdminRepository, userRepo interfaces.UserRe
 	}
 }
 
-var (
-	ErrInvalidUserID = errors.New("invalid user id")
-	ErrInvalidSKU    = errors.New("invalid sku")
-)
-
 func (c *adminUseCase) SignUp(ctx context.Context, loginDetails domain.Admin) error {
 
 	existAdmin, err := c.adminRepo.FindAdminByEmail(ctx, loginDetails.Email)
@@ -73,8 +68,6 @@ func (c *adminUseCase) BlockOrUnBlockUser(ctx context.Context, blockDetails requ
 	userToBlock, err := c.userRepo.FindUserByUserID(ctx, blockDetails.UserID)
 	if err != nil {
 		return fmt.Errorf("failed to find user \nerror:%w", err)
-	} else if userToBlock.ID == 0 {
-		return ErrInvalidUserID
 	}
 
 	if userToBlock.BlockStatus == blockDetails.Block {
@@ -114,15 +107,7 @@ func (c *adminUseCase) GetAllStockDetails(ctx context.Context, pagination reques
 
 func (c *adminUseCase) UpdateStockBySKU(ctx context.Context, updateDetails request.UpdateStock) error {
 
-	stock, err := c.adminRepo.FindStockBySKU(ctx, updateDetails.SKU)
-	if err != nil {
-		return err
-	}
-	if stock.SKU == "" {
-		return ErrInvalidSKU
-	}
-
-	err = c.adminRepo.UpdateStock(ctx, updateDetails)
+	err := c.adminRepo.UpdateStock(ctx, updateDetails)
 
 	if err != nil {
 		return err

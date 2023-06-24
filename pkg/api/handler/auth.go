@@ -147,8 +147,6 @@ func (c *AuthHandler) UserLoginOtpVerify(ctx *gin.Context) {
 	if err != nil {
 		var statusCode int
 		switch true {
-		case errors.Is(err, usecase.ErrInvalidOtpID):
-			statusCode = http.StatusUnauthorized
 		case errors.Is(err, usecase.ErrOtpExpired):
 			statusCode = http.StatusBadRequest
 		case errors.Is(err, usecase.ErrInvalidOtp):

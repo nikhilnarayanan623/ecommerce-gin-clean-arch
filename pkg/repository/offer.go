@@ -6,20 +6,30 @@ import (
 	"fmt"
 
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/domain"
+	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/utils/request"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/utils/response"
 )
 
-// find offer by id or offer_name
-func (c *productDatabase) FindOffer(ctx context.Context, offer domain.Offer) (domain.Offer, error) {
+// Find offer by id
+func (c *productDatabase) FindOfferByID(ctx context.Context, offerID uint) (offer domain.Offer, err error) {
 
-	query := `SELECT * FROM offers WHERE id = $1 OR name = $1`
-	err := c.DB.Raw(query, offer.ID, offer.Name).Scan(&offer).Error
+	query := `SELECT * FROM offers WHERE id = $1`
+	err = c.DB.Raw(query, offerID).Scan(&offer).Error
+
+	return offer, err
+}
+
+// Find offer by name
+func (c *productDatabase) FindOfferByName(ctx context.Context, offerName string) (offer domain.Offer, err error) {
+
+	query := `SELECT * FROM offers WHERE name = $1`
+	err = c.DB.Raw(query, offer.ID, offer.Name).Scan(&offer).Error
 
 	return offer, err
 }
 
 // findAll offers
-func (c *productDatabase) FindAllOffer(ctx context.Context) ([]domain.Offer, error) {
+func (c *productDatabase) FindAllOffers(ctx context.Context, pagination request.Pagination) ([]domain.Offer, error) {
 	var offers []domain.Offer
 	if c.DB.Raw("SELECT * FROM offers").Scan(&offers).Error != nil {
 		return offers, errors.New("faild to get all offers")
@@ -118,7 +128,7 @@ func (c *productDatabase) FindOfferCategory(ctx context.Context, offerCategory d
 }
 
 // find all offer_category
-func (c *productDatabase) FindAllOfferCategories(ctx context.Context) ([]response.OfferCategory, error) {
+func (c *productDatabase) FindAllOfferCategories(ctx context.Context, pagination request.Pagination) ([]response.OfferCategory, error) {
 	var offerCategories []response.OfferCategory
 	query := `SELECT oc.id AS offer_category_id, oc.category_id,c.category_name,oc.offer_id,o.offer_name, o.discount_rate 
 	FROM offer_categories oc INNER JOIN categories c ON c.id = oc.category_id 
@@ -198,7 +208,7 @@ func (c *productDatabase) FindOfferProductByProductID(ctx context.Context, produ
 }
 
 // find all offer_products
-func (c *productDatabase) FindAllOfferProducts(ctx context.Context) ([]response.OfferProduct, error) {
+func (c *productDatabase) FindAllOfferProducts(ctx context.Context, pagination request.Pagination) ([]response.OfferProduct, error) {
 	var offerProducts []response.OfferProduct
 	query := `SELECT op.id AS offer_product_id, op.product_id,p.product_name,op.offer_id,o.offer_name, o.discount_rate  
 	FROM offer_products op INNER JOIN products p ON p.id = op.product_id 

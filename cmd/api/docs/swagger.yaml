@@ -58,13 +58,6 @@ definitions:
     required:
     - user_id
     type: object
-  request.Cart:
-    properties:
-      product_item_id:
-        type: integer
-    required:
-    - product_item_id
-    type: object
   request.Coupon:
     properties:
       block_status:
@@ -865,8 +858,28 @@ paths:
       tags:
       - Admin Authentication
   /admin/offers:
+    delete:
+      operationId: SaveOffer
+      parameters:
+      - description: Offer ID
+        in: path
+        name: offer_id
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: successfully offer added
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: invalid input
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: api for admin to delete offer
+      tags:
+      - Offers
     post:
-      operationId: AddOffer
+      operationId: SaveOffer
       parameters:
       - description: input field
         in: body
@@ -889,6 +902,15 @@ paths:
   /admin/offers/:
     get:
       operationId: FindAllOffers
+      parameters:
+      - description: Page Number
+        in: query
+        name: page_number
+        type: integer
+      - description: Count
+        in: query
+        name: count
+        type: integer
       responses:
         "200":
           description: successfully got all offers
@@ -902,8 +924,37 @@ paths:
       tags:
       - Offers
   /admin/offers/category:
+    delete:
+      operationId: RemoveCategoryOffer
+      parameters:
+      - description: Offer Category ID
+        in: path
+        name: offer_category_id
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: successfully offer added for category
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: invalid input
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: api for admin to remove offer from a category
+      tags:
+      - Offers
     get:
-      operationId: FindAllOfferCategories
+      operationId: FindAllCategoryOffers
+      parameters:
+      - description: Page Number
+        in: query
+        name: page_number
+        type: integer
+      - description: Count
+        in: query
+        name: count
+        type: integer
       responses:
         "200":
           description: successfully got all offer_category
@@ -917,7 +968,7 @@ paths:
       tags:
       - Offers
     post:
-      operationId: AddOfferCategory
+      operationId: SaveCategoryOffer
       parameters:
       - description: input field
         in: body
@@ -939,7 +990,7 @@ paths:
       - Offers
   /admin/offers/category/replace:
     post:
-      operationId: ReplaceOfferCategory
+      operationId: ReplaceCategoryOffer
       parameters:
       - description: input field
         in: body
@@ -961,7 +1012,16 @@ paths:
       - Offers
   /admin/offers/products:
     get:
-      operationId: GetOffersOfProducts
+      operationId: FindAllProductsOffers
+      parameters:
+      - description: Page Number
+        in: query
+        name: page_number
+        type: integer
+      - description: Count
+        in: query
+        name: count
+        type: integer
       responses:
         "200":
           description: successfully got all offers_categories
@@ -975,7 +1035,7 @@ paths:
       tags:
       - Offers
     post:
-      operationId: AddOfferProduct
+      operationId: SaveProductOffer
       parameters:
       - description: input field
         in: body
@@ -996,7 +1056,7 @@ paths:
       tags:
       - Offers
     put:
-      operationId: ReplaceOfferProduct
+      operationId: ReplaceProductOffer
       parameters:
       - description: input field
         in: body
@@ -1018,7 +1078,7 @@ paths:
       - Offers
   /admin/offers/products/:
     delete:
-      operationId: RemoveOfferProduct
+      operationId: RemoveProductOffer
       parameters:
       - description: offer_product_id
         in: path
@@ -1437,34 +1497,6 @@ paths:
       tags:
       - Admin User
   /carts:
-    delete:
-      description: user can remove a signle productItem full quantity from cart
-      operationId: RemoveFromCart
-      parameters:
-      - description: Input Field
-        in: body
-        name: input
-        required: true
-        schema:
-          $ref: '#/definitions/request.Cart'
-      responses:
-        "200":
-          description: Successfully product item removed form cart
-          schema:
-            $ref: '#/definitions/response.Response'
-        "400":
-          description: invalid input
-          schema:
-            $ref: '#/definitions/response.Response'
-        "500":
-          description: Failed to remove product item from cart
-          schema:
-            $ref: '#/definitions/response.Response'
-      security:
-      - ApiKeyAuth: []
-      summary: api for remove a product from cart
-      tags:
-      - User Cart
     get:
       description: user can see all productItem that stored in cart
       operationId: FindCart
@@ -1510,6 +1542,33 @@ paths:
       tags:
       - User Cart
   /carts/{product_item_id}:
+    delete:
+      description: user can remove a signle productItem full quantity from cart
+      operationId: RemoveFromCart
+      parameters:
+      - description: Product Item ID
+        in: path
+        name: product_item_id
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: Successfully product item removed form cart
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: invalid input
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Failed to remove product item from cart
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: api for remove a product from cart
+      tags:
+      - User Cart
     post:
       description: user can add a stock in product to user cart
       operationId: AddToCart
@@ -2018,7 +2077,7 @@ paths:
       tags:
       - Wishlist
     post:
-      operationId: AddToWishList
+      operationId: SaveToWishList
       parameters:
       - description: product_item_id
         in: body

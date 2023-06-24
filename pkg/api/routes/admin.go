@@ -84,38 +84,38 @@ func AdminRoutes(api *gin.RouterGroup, authHandler handlerInterface.AuthHandler,
 			paymentMethod.PUT("/", paymentHandler.UpdatePaymentMethod)
 		}
 
-		// 	// offer
-		// 	offer := api.Group("/offers")
-		// 	{
-		// 		offer.POST("/", productHandler.AddOffer)     // add a new offer
-		// 		offer.GET("/", productHandler.ShowAllOffers) // get all offers
-		// 		offer.DELETE("/:offer_id", productHandler.RemoveOffer)
+		// offer
+		offer := api.Group("/offers")
+		{
+			offer.POST("/", productHandler.SaveOffer)    // add a new offer
+			offer.GET("/", productHandler.FindAllOffers) // get all offers
+			offer.DELETE("/:offer_id", productHandler.RemoveOffer)
 
-		// 		offer.GET("/category", productHandler.GetOfferCategories) // to get all offers of categories
-		// 		offer.POST("/category", productHandler.AddOfferCategory)  // add offer for categories
-		// 		offer.PUT("/category", productHandler.ReplaceOfferCategory)
-		// 		offer.DELETE("/category/:offer_category_id", productHandler.RemoveOfferCategory)
+			offer.GET("/category", productHandler.FindAllCategoryOffers) // to get all offers of categories
+			offer.POST("/category", productHandler.SaveCategoryOffer)    // add offer for categories
+			offer.PUT("/category", productHandler.ReplaceCategoryOffer)
+			offer.DELETE("/category/:offer_category_id", productHandler.RemoveCategoryOffer)
 
-		// 		offer.GET("/products", productHandler.GetOffersOfProducts) // to get all offers of products
-		// 		offer.POST("/products", productHandler.AddOfferProduct)    // add offer for products
-		// 		offer.PUT("/products", productHandler.ReplaceOfferProduct)
-		// 		offer.DELETE("/products/:offer_product_id", productHandler.RemoveOfferProduct)
-		// 	}
+			offer.GET("/products", productHandler.FindAllProductsOffers) // to get all offers of products
+			offer.POST("/products", productHandler.SaveProductOffer)     // add offer for products
+			offer.PUT("/products", productHandler.ReplaceProductOffer)
+			offer.DELETE("/products/:offer_product_id", productHandler.RemoveProductOffer)
+		}
 
-		// 	// coupons
-		// 	coupons := api.Group("/coupons")
-		// 	{
-		// 		coupons.POST("/", couponHandler.AddCoupon)
-		// 		coupons.GET("/", couponHandler.GetAllCoupons)
-		// 		coupons.PUT("/", couponHandler.UpdateCoupon)
-		// 	}
+		// coupons
+		coupons := api.Group("/coupons")
+		{
+			coupons.POST("/", couponHandler.SaveCoupon)
+			coupons.GET("/", couponHandler.FindAllCoupons)
+			coupons.PUT("/", couponHandler.UpdateCoupon)
+		}
 
-		// 	stock := api.Group("/stocks")
-		// 	{
-		// 		stock.GET("/", adminHandler.FindAllStockDetails)
+		stock := api.Group("/stocks")
+		{
+			stock.GET("/", adminHandler.FindAllStocks)
 
-		// 		stock.PATCH("/", adminHandler.UpdateStock)
-		// 	}
+			stock.PATCH("/", adminHandler.UpdateStock)
+		}
 
 	}
 
