@@ -353,13 +353,11 @@ func (c *OrderUseCase) MakeStripeOrder(ctx context.Context, userID uint,
 
 // generate razorpay order
 func (c *OrderUseCase) MakeRazorpayOrder(ctx context.Context, userID,
-	shopOrderID, paymentMethodID uint) (razorpayOrder response.RazorpayOrder, err error) {
+	shopOrderID uint) (razorpayOrder response.RazorpayOrder, err error) {
 
 	shopOrder, err := c.orderRepo.FindShopOrderByShopOrderID(ctx, shopOrderID)
 	if err != nil {
-		return razorpayOrder, fmt.Errorf("failed to get shop order \nerror:%v", err.Error())
-	} else if shopOrder.ID == 0 {
-		return razorpayOrder, fmt.Errorf("invalid shop_order_id")
+		return razorpayOrder, utils.PrependMessageToError(err, "failed to find shop order")
 	}
 
 	userDetails, err := c.userRepo.FindUserByUserID(ctx, userID)
@@ -388,45 +386,48 @@ func (c *OrderUseCase) MakeRazorpayOrder(ctx context.Context, userID,
 	return razorpayOrder, nil
 }
 
-func (c *OrderUseCase) PlaceOrder(ctx context.Context, userID uint,
-	placeOrder request.PlaceOrder) (shopOrder domain.ShopOrder, err error) {
-	address, err := c.userRepo.FindAddressByID(ctx, placeOrder.AddressID)
-	if err != nil {
-		return shopOrder, err
-	}
+// Place order
+func (c *OrderUseCase) SaveOrder(ctx context.Context, userID uint,
+	orderRequest request.PlaceOrder) (uint, error) {
 
 	// check the cart of user is valid for place order
 	valid, err := c.cartRepo.IsCartValidForOrder(ctx, userID)
 	if err != nil {
-		return shopOrder, err
+		return 0, utils.PrependMessageToError(err, "failed to check cart is valid for order")
 	}
 
 	if !valid {
-		return shopOrder, fmt.Errorf("cart is not valid for order")
+		return 0, ErrCartIsNotValidForOrder
 	}
 
 	cart, err := c.cartRepo.FindCartByUserID(ctx, userID)
 	if err != nil {
-		return shopOrder, err
+		return 0, err
 	}
 
 	if cart.TotalPrice == 0 {
-		return shopOrder, errors.New("there is no products in cart")
+		return 0, ErrEmptyCart
 	}
 
 	pendingOrderStatus, err := c.orderRepo.FindOrderStatusByStatus(ctx, domain.StatusPaymentPending)
 	if err != nil {
-		return shopOrder, err
-	} else if pendingOrderStatus.ID == 0 {
-		return shopOrder, errors.New("order status order pending not found")
+		return 0, utils.PrependMessageToError(err, "failed to find pending order status")
 	}
 
-	shopOrder.UserID = userID
-	shopOrder.AddressID = address.ID
-	shopOrder.OrderTotalPrice = cart.TotalPrice - cart.DiscountAmount
-	shopOrder.Discount = cart.DiscountAmount
-	shopOrder.OrderDate = time.Now()
-	shopOrder.OrderStatusID = pendingOrderStatus.ID
+	payment, err := c.paymentRepo.FindPaymentMethodByType(ctx, orderRequest.PaymentType)
+	if err != nil {
+		return 0, utils.PrependMessageToError(err, "failed to find payment method details")
+	}
+
+	shopOrder := domain.ShopOrder{
+		UserID:          userID,
+		AddressID:       orderRequest.AddressID,
+		OrderTotalPrice: cart.TotalPrice - cart.DiscountAmount,
+		Discount:        cart.DiscountAmount,
+		OrderDate:       time.Now(),
+		OrderStatusID:   pendingOrderStatus.ID,
+		PaymentMethodID: payment.ID,
+	}
 
 	err = c.orderRepo.Transaction(func(trxRepo interfaces.OrderRepository) error {
 
@@ -467,10 +468,14 @@ func (c *OrderUseCase) PlaceOrder(ctx context.Context, userID uint,
 		}
 		return nil
 	})
-	return shopOrder, nil
+	if err != nil {
+		return 0, utils.PrependMessageToError(err, "failed to save order")
+	}
+
+	return shopOrder.ID, nil
 }
 
-func (c *OrderUseCase) ApproveShopOrderAndClearCart(ctx context.Context, userID, shopOrderID, paymentID uint) error {
+func (c *OrderUseCase) ApproveShopOrderAndClearCart(ctx context.Context, userID, shopOrderID uint) error {
 
 	orderStatus, err := c.orderRepo.FindOrderStatusByShopOrderID(ctx, shopOrderID)
 	if err != nil {
@@ -487,10 +492,7 @@ func (c *OrderUseCase) ApproveShopOrderAndClearCart(ctx context.Context, userID,
 
 	err = c.orderRepo.Transaction(func(trxRepo interfaces.OrderRepository) error {
 
-		err = trxRepo.UpdateShopOrderStatusAndPaymentID(ctx, shopOrderID, orderPlacedStatus.ID, paymentID)
-		if err != nil {
-			return fmt.Errorf("failed to approve order error:%v", err.Error())
-		}
+		trxRepo.UpdateShopOrderOrderStatus(ctx, shopOrderID, orderPlacedStatus.ID)
 
 		cart, err := c.cartRepo.FindCartByUserID(ctx, userID)
 		if err != nil {
@@ -499,7 +501,8 @@ func (c *OrderUseCase) ApproveShopOrderAndClearCart(ctx context.Context, userID,
 			return ErrEmptyCart
 		}
 
-		if cart.AppliedCouponID != 0 { // if user applied a coupon on cart
+		// if user applied a coupon on cart then save coupon uses for user
+		if cart.AppliedCouponID != 0 {
 			err = c.couponRepo.SaveCouponUses(ctx, domain.CouponUses{
 				UserID:   userID,
 				CouponID: cart.AppliedCouponID,

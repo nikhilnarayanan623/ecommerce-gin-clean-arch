@@ -23,19 +23,19 @@
               <!-- <option value="cod"><strong>COD  </strong> <p>(localhost:8000/carts/place-order/cod)</p></option> -->
               <option value="razorpay">RazorPay <p>( [ post ] "localhost:8000/carts/place-order/razorpay-checkout" )</p>
               </option>
-              <option value="Stripe">Stripe <p> ( [ post ] "localhost:8000/carts/place-order/stripe-checkout" )</p> </option>
+              <!-- <option value="Stripe">Stripe <p> ( [ post ] "localhost:8000/carts/place-order/stripe-checkout" )</p> </option> -->
             </select>
           </div>
           <div class="form-group">
-            <label for="name">ShopOrder ID:</label>
-            <input type="text" class="form-control" id="name" name="shop_order_id"
-              placeholder="Enter shop_order_id that got when place order">
+            <label for="name">Address ID:</label>
+            <input type="text" class="form-control" id="name" name="address_id"
+              placeholder="Enter Address ID">
           </div>
-          <div class="form-group">
+          <!-- <div class="form-group">
             <label for="name">Payemt Method ID:</label>
             <input type="text" class="form-control" id="payment_method_id" name="payment_method_id"
               placeholder="Enter payement_method_id that got from checkout page">
-          </div>
+          </div> -->
           <!-- <div class="form-group">
                         <label for="name">Coupon Code (Optional):</label>
                         <input type="text" class="form-control" id="name" name="coupon_code" placeholder="Enter coupon_code if you have">
@@ -91,19 +91,19 @@
       data: $('#place-order').serialize(),
       success: (response) => {
 
-        // if respones is cod it means call form cod
-        if (response.Cod) {
-          console.log("cod success");
-          SuccessPayment('COD')
-          // location.href = ''
-        } else if (response.Razorpay) {// response from razor pay
+        // // if respones is cod it means call form cod
+        // if (response.Cod) {
+        //   console.log("cod success");
+        //   SuccessPayment('COD')
+        //   // location.href = ''
+        // } else if (response.Razorpay) {// response from razor pay
           console.log("razorpay");
-          getRazorpay(response.Order)
+          getRazorpay(response)
 
-        } else if (response.Stripe) {
-          console.log("Stripe Call");
-          getStipe(response)
-        }
+        // } else if (response.Stripe) {
+        //   console.log("Stripe Call");
+        //   getStipe(response)
+        // }
         console.log(response)
       },
       error: (err) => { // if error on backend response
@@ -187,7 +187,7 @@
             "payment_id": paymentIntent.id,
             "shop_order_id": response.shop_order_id,
             "client_secret": paymentIntent.client_secret,
-            "payment_method_id":response.payment_method_id,
+            // "payment_method_id":response.payment_method_id,
           },
 
           success: (response) => {
@@ -213,13 +213,13 @@
 
   // razorpay
   const getRazorpay = (order) => {
-    console.log("at get razor pay");
+    console.log("at get razor pay : ",order);
     var userid = order.user_id
     var options = {
       "key": order.razorpay_key, // razorpay test key on set up on order resopnse
       "amount": order.razorpay_amount, // Amount is in currency subunits. Default currency is INR. Hence, 50000 refers to 50000 paise
       "currency": "INR",
-      "name": "Shoefer",
+      "name": "Ecommerce",
       "description": "Test Transaction",
       "image": "https://example.com/your_logo",
       "order_id": order.razorpay_order_id,  // order id get from order response
@@ -283,7 +283,7 @@
 
   // function for razor pay varification on backend
   function verifyPayment(order, userid, response) {
-    console.log(response.razorpay_payment_id, " : ", response.razorpay_order_id, " ", response.razorpay_signature, " ", order.CouponCode);
+    console.log("on razor verify",response);
     $.ajax({
       //call backend api with data data to vefiry
       type: "post",
@@ -293,11 +293,10 @@
         "razorpay_order_id": response.razorpay_order_id,
         "razorpay_signature": response.razorpay_signature,
         "shop_order_id": order.shop_order_id,
-        "coupon_id": order.coupon_id,
 
       },
       success: (response) => {
-        console.log("vaification respone backend", response)
+        console.log("verification response backend", response)
         if (response.data) {
 
           Swal.fire({
@@ -314,9 +313,9 @@
         }
       },
       error: (response) => {
-        console.log("varification error", response)
+        console.log("verification error", response)
         Swal.fire({
-          title: "Sorry, Payment Failed by backen verification" + response.errors,
+          title: "Sorry, Payment Failed by backend verification" + response.errors,
           icon: 'warning',
           dangerMode: true,
         })

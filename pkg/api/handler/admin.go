@@ -231,7 +231,7 @@ func (c *AdminHandler) FindAllStocks(ctx *gin.Context) {
 // @id UpdateStock
 // @tags Admin Stock
 // @Param page_number query int false "Page Number"
-// @Param count query int false "Count Of Order"
+// @Param count query int false "Order"
 // @Router /admin/stocks [patch]
 // @Success 200 {object} response.Response{} "Successfully updated sock"
 // @Failure 400 {object} response.Response{} "Failed to bind input"

@@ -268,6 +268,9 @@ const docTemplate = `{
                         "ApiKeyAuth": []
                     }
                 ],
+                "tags": [
+                    "Admin Category"
+                ],
                 "summary": "api for admin add a new category",
                 "operationId": "SaveCategory",
                 "parameters": [
@@ -303,6 +306,9 @@ const docTemplate = `{
                     {
                         "ApiKeyAuth": []
                     }
+                ],
+                "tags": [
+                    "Admin Category"
                 ],
                 "summary": "api for admin add a new sub category",
                 "operationId": "SaveSubCategory",
@@ -417,7 +423,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/admin/category/variations": {
+        "/admin/category/variation/{category_id}": {
             "get": {
                 "security": [
                     {
@@ -427,17 +433,15 @@ const docTemplate = `{
                 "tags": [
                     "Admin Category"
                 ],
-                "summary": "api for admin to find all variations and its values",
+                "summary": "api for admin to find all variations and its values for a specific category",
                 "operationId": "FindAllVariations",
                 "parameters": [
                     {
-                        "description": "Input field",
-                        "name": "input",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/request.VariationOption"
-                        }
+                        "type": "integer",
+                        "description": "Category ID",
+                        "name": "category_id",
+                        "in": "path",
+                        "required": true
                     }
                 ],
                 "responses": {
@@ -490,7 +494,7 @@ const docTemplate = `{
                         }
                     },
                     "500": {
-                        "description": "faild to get all coupons",
+                        "description": "failed to get all coupons",
                         "schema": {
                             "$ref": "#/definitions/response.Response"
                         }
@@ -544,10 +548,10 @@ const docTemplate = `{
                     "Admin Coupon"
                 ],
                 "summary": "api for admin to add coupon",
-                "operationId": "AddCoupon",
+                "operationId": "SaveCoupon",
                 "parameters": [
                     {
-                        "description": "Input Field",
+                        "description": "Input Fields",
                         "name": "inputs",
                         "in": "body",
                         "required": true,
@@ -946,7 +950,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/admin/offers/products/": {
+        "/admin/offers/products/{offer_product_id}": {
             "delete": {
                 "tags": [
                     "Offers"
@@ -1245,38 +1249,6 @@ const docTemplate = `{
                         }
                     }
                 }
-            },
-            "post": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "tags": [
-                    "Admin Payment"
-                ],
-                "summary": "api for admin to add a new payment method",
-                "operationId": "AddPaymentMethod",
-                "responses": {
-                    "200": {
-                        "description": "successfully payment added",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    },
-                    "400": {
-                        "description": "Failed to bind input",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    },
-                    "500": {
-                        "description": "Failed to add payment method",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    }
-                }
             }
         },
         "/admin/products": {
@@ -1491,7 +1463,7 @@ const docTemplate = `{
                     },
                     {
                         "type": "integer",
-                        "description": "Count Of Order",
+                        "description": "Order",
                         "name": "count",
                         "in": "query"
                     }
@@ -1633,7 +1605,7 @@ const docTemplate = `{
                 "tags": [
                     "User Cart"
                 ],
-                "summary": "api for update productItem count",
+                "summary": "api for update product item count",
                 "operationId": "UpdateCart",
                 "parameters": [
                     {
@@ -1743,66 +1715,19 @@ const docTemplate = `{
                     "User Cart"
                 ],
                 "summary": "api for user to place an order on cart with COD",
-                "operationId": "PlaceOrder",
+                "operationId": "PlaceOrderOnCOD",
                 "parameters": [
                     {
-                        "description": "Input Field",
-                        "name": "inputs",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/request.PlaceOrder"
-                        }
+                        "type": "string",
+                        "description": "Address ID",
+                        "name": "address_id",
+                        "in": "formData",
+                        "required": true
                     }
                 ],
                 "responses": {
                     "200": {
                         "description": "successfully order placed",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    },
-                    "400": {
-                        "description": "invalid input",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    },
-                    "500": {
-                        "description": "failed to save shop order",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    }
-                }
-            }
-        },
-        "/carts/place-order/cod": {
-            "post": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "tags": [
-                    "User Cart"
-                ],
-                "summary": "api for user to place an order on cart with COD",
-                "operationId": "ApproveOrderCOD",
-                "parameters": [
-                    {
-                        "description": "Input Field",
-                        "name": "inputs",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/request.OrderPayment"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "successfully order placed in COD",
                         "schema": {
                             "$ref": "#/definitions/response.Response"
                         }
@@ -1832,20 +1757,13 @@ const docTemplate = `{
                 "tags": [
                     "User Cart"
                 ],
-                "summary": "api for create razorpay payment order for shop order",
+                "summary": "api for create razorpay payment order",
                 "operationId": "RazorpayCheckout",
                 "parameters": [
                     {
-                        "type": "integer",
-                        "description": "Payment Method ID",
-                        "name": "payment_method_id",
-                        "in": "formData",
-                        "required": true
-                    },
-                    {
-                        "type": "integer",
-                        "description": "ShopOrder ID",
-                        "name": "shop_order_id",
+                        "type": "string",
+                        "description": "Address ID",
+                        "name": "address_id",
                         "in": "formData",
                         "required": true
                     }
@@ -1941,8 +1859,8 @@ const docTemplate = `{
                 "tags": [
                     "User Cart"
                 ],
-                "summary": "api for add productItem to user cart",
-                "operationId": "AddToCart",
+                "summary": "api for user to add product item to cart",
+                "operationId": "SaveToCart",
                 "parameters": [
                     {
                         "type": "integer",
@@ -1977,7 +1895,7 @@ const docTemplate = `{
                 "tags": [
                     "User Cart"
                 ],
-                "summary": "api for remove a product from cart",
+                "summary": "api for remove a product item from cart",
                 "operationId": "RemoveFromCart",
                 "parameters": [
                     {
@@ -2109,7 +2027,7 @@ const docTemplate = `{
                 "tags": [
                     "User Authentication"
                 ],
-                "summary": "api for user to login with otp",
+                "summary": "api for user otp login send",
                 "operationId": "UserLoginOtpSend",
                 "parameters": [
                     {
@@ -2155,7 +2073,7 @@ const docTemplate = `{
                 "tags": [
                     "User Authentication"
                 ],
-                "summary": "api for user to verify user login_otp",
+                "summary": "api for user to verify user login otp",
                 "operationId": "UserLoginOtpVerify",
                 "parameters": [
                     {
@@ -2246,31 +2164,9 @@ const docTemplate = `{
                         }
                     }
                 }
-            },
-            "post": {
-                "description": "user can cancel the order if it's not placed",
-                "tags": [
-                    "User Orders"
-                ],
-                "summary": "api for user to cancel the order",
-                "operationId": "CancelOrder",
-                "responses": {
-                    "200": {
-                        "description": "Successfully order cancelled",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    },
-                    "400": {
-                        "description": "invalid input on param",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    }
-                }
             }
         },
-        "/orders/items": {
+        "/orders/items/{shop_order_id}": {
             "get": {
                 "tags": [
                     "User Orders"
@@ -2282,7 +2178,8 @@ const docTemplate = `{
                         "type": "integer",
                         "description": "Shop Order ID",
                         "name": "shop_order_id",
-                        "in": "query"
+                        "in": "path",
+                        "required": true
                     },
                     {
                         "type": "integer",
@@ -2348,6 +2245,39 @@ const docTemplate = `{
                 }
             }
         },
+        "/orders/{shop_order_id}": {
+            "post": {
+                "description": "user can cancel the order if it's not placed",
+                "tags": [
+                    "User Orders"
+                ],
+                "summary": "api for user to cancel the order",
+                "operationId": "CancelOrder",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Shop Order ID",
+                        "name": "shop_order_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successfully order cancelled",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "invalid input on param",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
         "/products": {
             "get": {
                 "security": [
@@ -2390,7 +2320,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/products/product-items": {
+        "/products/product-items/{product_id}": {
             "get": {
                 "tags": [
                     "User Products"
@@ -2567,7 +2497,6 @@ const docTemplate = `{
         "request.Address": {
             "type": "object",
             "required": [
-                "country_id",
                 "house",
                 "land_mark",
                 "name",
@@ -2580,9 +2509,6 @@ const docTemplate = `{
                 },
                 "city": {
                     "type": "string"
-                },
-                "country_id": {
-                    "type": "integer"
                 },
                 "house": {
                     "type": "string"
@@ -2678,7 +2604,6 @@ const docTemplate = `{
             "type": "object",
             "required": [
                 "address_id",
-                "country_id",
                 "house",
                 "land_mark",
                 "name",
@@ -2694,9 +2619,6 @@ const docTemplate = `{
                 },
                 "city": {
                     "type": "string"
-                },
-                "country_id": {
-                    "type": "integer"
                 },
                 "house": {
                     "type": "string"
@@ -2928,32 +2850,6 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "product_id": {
-                    "type": "integer"
-                }
-            }
-        },
-        "request.OrderPayment": {
-            "type": "object",
-            "required": [
-                "payment_method_id",
-                "shop_order_id"
-            ],
-            "properties": {
-                "payment_method_id": {
-                    "type": "integer"
-                },
-                "shop_order_id": {
-                    "type": "integer"
-                }
-            }
-        },
-        "request.PlaceOrder": {
-            "type": "object",
-            "required": [
-                "address_id"
-            ],
-            "properties": {
-                "address_id": {
                     "type": "integer"
                 }
             }

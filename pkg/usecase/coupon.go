@@ -31,7 +31,8 @@ func (c *couponUseCase) AddCoupon(ctx context.Context, coupon domain.Coupon) err
 	checkCoupon, err := c.couponRepo.FindCouponByName(ctx, coupon.CouponName)
 	if err != nil {
 		return err
-	} else if checkCoupon.CouponID != 0 {
+	}
+	if checkCoupon.CouponID != 0 {
 		return fmt.Errorf("there already a coupon exist with coupon_name %v", coupon.CouponName)
 	}
 	// validate the coupn expire date

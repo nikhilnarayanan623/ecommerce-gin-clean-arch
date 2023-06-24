@@ -16,8 +16,6 @@ definitions:
         type: string
       city:
         type: string
-      country_id:
-        type: integer
       house:
         type: string
       is_default:
@@ -35,7 +33,6 @@ definitions:
       pincode:
         type: integer
     required:
-    - country_id
     - house
     - land_mark
     - name
@@ -97,8 +94,6 @@ definitions:
         type: string
       city:
         type: string
-      country_id:
-        type: integer
       house:
         type: string
       is_default:
@@ -117,7 +112,6 @@ definitions:
         type: integer
     required:
     - address_id
-    - country_id
     - house
     - land_mark
     - name
@@ -276,23 +270,6 @@ definitions:
     required:
     - offer_id
     - product_id
-    type: object
-  request.OrderPayment:
-    properties:
-      payment_method_id:
-        type: integer
-      shop_order_id:
-        type: integer
-    required:
-    - payment_method_id
-    - shop_order_id
-    type: object
-  request.PlaceOrder:
-    properties:
-      address_id:
-        type: integer
-    required:
-    - address_id
     type: object
   request.Product:
     properties:
@@ -663,6 +640,8 @@ paths:
       security:
       - ApiKeyAuth: []
       summary: api for admin add a new category
+      tags:
+      - Admin Category
   /admin/category/sub-category:
     post:
       operationId: SaveSubCategory
@@ -689,6 +668,8 @@ paths:
       security:
       - ApiKeyAuth: []
       summary: api for admin add a new sub category
+      tags:
+      - Admin Category
   /admin/category/variation:
     post:
       operationId: SaveVariation
@@ -737,16 +718,15 @@ paths:
       summary: api for admin add a new variation options
       tags:
       - Admin Category
-  /admin/category/variations:
+  /admin/category/variation/{category_id}:
     get:
       operationId: FindAllVariations
       parameters:
-      - description: Input field
-        in: body
-        name: input
+      - description: Category ID
+        in: path
+        name: category_id
         required: true
-        schema:
-          $ref: '#/definitions/request.VariationOption'
+        type: integer
       responses:
         "200":
           description: Successfully found all variations and its values
@@ -758,7 +738,8 @@ paths:
             $ref: '#/definitions/response.Response'
       security:
       - ApiKeyAuth: []
-      summary: api for admin to find all variations and its values
+      summary: api for admin to find all variations and its values for a specific
+        category
       tags:
       - Admin Category
   /admin/coupons:
@@ -779,7 +760,7 @@ paths:
           schema:
             $ref: '#/definitions/response.Response'
         "500":
-          description: faild to get all coupons
+          description: failed to get all coupons
           schema:
             $ref: '#/definitions/response.Response'
       security:
@@ -788,9 +769,9 @@ paths:
       tags:
       - Admin Coupon
     post:
-      operationId: AddCoupon
+      operationId: SaveCoupon
       parameters:
-      - description: Input Field
+      - description: Input Fields
         in: body
         name: inputs
         required: true
@@ -1076,7 +1057,7 @@ paths:
       summary: api for admin to replace a new offer on an existing offer for a product
       tags:
       - Offers
-  /admin/offers/products/:
+  /admin/offers/products/{offer_product_id}:
     delete:
       operationId: RemoveProductOffer
       parameters:
@@ -1250,26 +1231,6 @@ paths:
       summary: api for get all payment methods
       tags:
       - User Payment
-    post:
-      operationId: AddPaymentMethod
-      responses:
-        "200":
-          description: successfully payment added
-          schema:
-            $ref: '#/definitions/response.Response'
-        "400":
-          description: Failed to bind input
-          schema:
-            $ref: '#/definitions/response.Response'
-        "500":
-          description: Failed to add payment method
-          schema:
-            $ref: '#/definitions/response.Response'
-      security:
-      - ApiKeyAuth: []
-      summary: api for admin to add a new payment method
-      tags:
-      - Admin Payment
     put:
       operationId: UpdatePaymentMethod
       responses:
@@ -1426,7 +1387,7 @@ paths:
         in: query
         name: page_number
         type: integer
-      - description: Count Of Order
+      - description: Order
         in: query
         name: count
         type: integer
@@ -1538,7 +1499,7 @@ paths:
             $ref: '#/definitions/response.Response'
       security:
       - ApiKeyAuth: []
-      summary: api for update productItem count
+      summary: api for update product item count
       tags:
       - User Cart
   /carts/{product_item_id}:
@@ -1566,12 +1527,12 @@ paths:
             $ref: '#/definitions/response.Response'
       security:
       - ApiKeyAuth: []
-      summary: api for remove a product from cart
+      summary: api for remove a product item from cart
       tags:
       - User Cart
     post:
       description: user can add a stock in product to user cart
-      operationId: AddToCart
+      operationId: SaveToCart
       parameters:
       - description: Product Item ID
         in: path
@@ -1589,7 +1550,7 @@ paths:
             $ref: '#/definitions/response.Response'
       security:
       - ApiKeyAuth: []
-      summary: api for add productItem to user cart
+      summary: api for user to add product item to cart
       tags:
       - User Cart
   /carts/checkout/payment-select-page:
@@ -1635,45 +1596,16 @@ paths:
       - User Cart
   /carts/place-order/:
     post:
-      operationId: PlaceOrder
+      operationId: PlaceOrderOnCOD
       parameters:
-      - description: Input Field
-        in: body
-        name: inputs
+      - description: Address ID
+        in: formData
+        name: address_id
         required: true
-        schema:
-          $ref: '#/definitions/request.PlaceOrder'
+        type: string
       responses:
         "200":
           description: successfully order placed
-          schema:
-            $ref: '#/definitions/response.Response'
-        "400":
-          description: invalid input
-          schema:
-            $ref: '#/definitions/response.Response'
-        "500":
-          description: failed to save shop order
-          schema:
-            $ref: '#/definitions/response.Response'
-      security:
-      - ApiKeyAuth: []
-      summary: api for user to place an order on cart with COD
-      tags:
-      - User Cart
-  /carts/place-order/cod:
-    post:
-      operationId: ApproveOrderCOD
-      parameters:
-      - description: Input Field
-        in: body
-        name: inputs
-        required: true
-        schema:
-          $ref: '#/definitions/request.OrderPayment'
-      responses:
-        "200":
-          description: successfully order placed in COD
           schema:
             $ref: '#/definitions/response.Response'
         "400":
@@ -1693,16 +1625,11 @@ paths:
     post:
       operationId: RazorpayCheckout
       parameters:
-      - description: Payment Method ID
+      - description: Address ID
         in: formData
-        name: payment_method_id
+        name: address_id
         required: true
-        type: integer
-      - description: ShopOrder ID
-        in: formData
-        name: shop_order_id
-        required: true
-        type: integer
+        type: string
       responses:
         "200":
           description: successfully razorpay payment order created
@@ -1714,7 +1641,7 @@ paths:
             $ref: '#/definitions/response.Response'
       security:
       - ApiKeyAuth: []
-      summary: api for create razorpay payment order for shop order
+      summary: api for create razorpay payment order
       tags:
       - User Cart
   /carts/place-order/razorpay-verify:
@@ -1841,7 +1768,7 @@ paths:
             $ref: '#/definitions/response.Response'
       security:
       - ApiKeyAuth: []
-      summary: api for user to login with otp
+      summary: api for user otp login send
       tags:
       - User Authentication
   /login/otp-verify:
@@ -1870,7 +1797,7 @@ paths:
             $ref: '#/definitions/response.Response'
       security:
       - ApiKeyAuth: []
-      summary: api for user to verify user login_otp
+      summary: api for user to verify user login otp
       tags:
       - User Authentication
   /logout:
@@ -1910,9 +1837,16 @@ paths:
       summary: api for showing User Orders list
       tags:
       - User Orders
+  /orders/{shop_order_id}:
     post:
       description: user can cancel the order if it's not placed
       operationId: CancelOrder
+      parameters:
+      - description: Shop Order ID
+        in: path
+        name: shop_order_id
+        required: true
+        type: integer
       responses:
         "200":
           description: Successfully order cancelled
@@ -1925,13 +1859,14 @@ paths:
       summary: api for user to cancel the order
       tags:
       - User Orders
-  /orders/items:
+  /orders/items/{shop_order_id}:
     get:
       operationId: FindAllOrderItems User
       parameters:
       - description: Shop Order ID
-        in: query
+        in: path
         name: shop_order_id
+        required: true
         type: integer
       - description: Page Number
         in: query
@@ -2002,7 +1937,7 @@ paths:
       summary: api for user to show products
       tags:
       - User Products
-  /products/product-items:
+  /products/product-items/{product_id}:
     get:
       operationId: FindAllProductItems
       parameters:

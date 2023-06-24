@@ -5,36 +5,44 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/domain"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/utils"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/utils/request"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/utils/response"
 )
 
 // RazorpayCheckout godoc
-// @summary api for create razorpay payment order for shop order
+// @summary api for create razorpay payment order
 // @security ApiKeyAuth
 // @tags User Cart
 // @id RazorpayCheckout
-// @Param payment_method_id formData uint true "Payment Method ID"
-// @Param shop_order_id formData uint true "ShopOrder ID"
+// @Param address_id formData string true "Address ID"
 // @Router /carts/place-order/razorpay-checkout [post]
 // @Success 200 {object} response.Response{} "successfully razorpay payment order created"
 // @Failure 400 {object} response.Response{}  "faild to create razorpay payment order"
 func (c *OrderHandler) RazorpayCheckout(ctx *gin.Context) {
 
-	UserID := utils.GetUserIdFromContext(ctx)
-
-	paymentMethodID, err1 := request.GetFormValuesAsUint(ctx, "payment_method_id")
-	shopOrderID, err2 := request.GetFormValuesAsUint(ctx, "shop_order_id")
-
-	err := errors.Join(err1, err2)
-
+	addressID, err := request.GetFormValuesAsUint(ctx, "address_id")
 	if err != nil {
 		response.ErrorResponse(ctx, http.StatusBadRequest, BindFormValueMessage, err, nil)
 		return
 	}
 
-	razorpayOrder, err := c.orderUseCase.MakeRazorpayOrder(ctx, UserID, shopOrderID, paymentMethodID)
+	UserID := utils.GetUserIdFromContext(ctx)
+
+	body := request.PlaceOrder{
+		AddressID:   addressID,
+		PaymentType: domain.RazopayPayment,
+	}
+
+	shopOrderID, err := c.orderUseCase.SaveOrder(ctx, UserID, body)
+
+	if err != nil {
+		response.ErrorResponse(ctx, http.StatusInternalServerError, "Failed to save order", err, nil)
+		return
+	}
+
+	razorpayOrder, err := c.orderUseCase.MakeRazorpayOrder(ctx, UserID, shopOrderID)
 
 	if err != nil {
 		response.ErrorResponse(ctx, http.StatusInternalServerError, "Failed to make razorpay order ", err, nil)
@@ -42,10 +50,11 @@ func (c *OrderHandler) RazorpayCheckout(ctx *gin.Context) {
 	}
 
 	razorPayRes := gin.H{
-		"Razorpay": true,
-		"Order":    razorpayOrder,
+		"razorpay": true,
+		"order":    razorpayOrder,
 	}
-	response.SuccessResponse(ctx, http.StatusCreated, "Successfully razor pay order created", razorPayRes)
+	ctx.JSON(http.StatusOK, razorPayRes)
+	// response.SuccessResponse(ctx, http.StatusCreated, "Successfully razor pay order created", razorPayRes)
 }
 
 // razorpay verification
@@ -72,9 +81,8 @@ func (c *OrderHandler) RazorpayVerify(ctx *gin.Context) {
 	razorpaySignature, err3 := request.GetFormValuesAsString(ctx, "razorpay_order_id")
 
 	shopOrderID, err4 := request.GetFormValuesAsUint(ctx, "shop_order_id")
-	paymentMethodID, err5 := request.GetFormValuesAsUint(ctx, "payment_method_id")
 
-	err := errors.Join(err1, err2, err3, err4, err5)
+	err := errors.Join(err1, err2, err3, err4)
 
 	if err != nil {
 		response.ErrorResponse(ctx, http.StatusBadRequest, BindFormValueMessage, err, nil)
@@ -87,7 +95,7 @@ func (c *OrderHandler) RazorpayVerify(ctx *gin.Context) {
 		return
 	}
 
-	err = c.orderUseCase.ApproveShopOrderAndClearCart(ctx, userID, shopOrderID, paymentMethodID)
+	err = c.orderUseCase.ApproveShopOrderAndClearCart(ctx, userID, shopOrderID)
 	if err != nil {
 		response.ErrorResponse(ctx, http.StatusInternalServerError, "Failed to Approve order", err, nil)
 		return

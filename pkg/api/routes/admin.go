@@ -46,7 +46,7 @@ func AdminRoutes(api *gin.RouterGroup, authHandler handlerInterface.AuthHandler,
 			category.POST("/", productHandler.SaveCategory)
 			category.POST("/sub-category", productHandler.SaveSubCategory)
 
-			category.GET("/variations/:category_id", productHandler.FindAllVariations)
+			category.GET("/variation/:category_id", productHandler.FindAllVariations)
 
 			category.POST("/variation", productHandler.SaveVariation)
 			category.POST("/variation-option", productHandler.SaveVariationOption)
@@ -80,7 +80,7 @@ func AdminRoutes(api *gin.RouterGroup, authHandler handlerInterface.AuthHandler,
 		paymentMethod := api.Group("/payment-method")
 		{
 			paymentMethod.GET("/", paymentHandler.FindAllPaymentMethods)
-			paymentMethod.POST("/", paymentHandler.AddPaymentMethod)
+			// paymentMethod.POST("/", paymentHandler.AddPaymentMethod)
 			paymentMethod.PUT("/", paymentHandler.UpdatePaymentMethod)
 		}
 

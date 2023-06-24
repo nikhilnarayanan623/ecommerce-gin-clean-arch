@@ -8,9 +8,9 @@ import (
 )
 
 type PaymentRepository interface {
-	FindPaymentMethodByID(ctx context.Context, paymenMethodtID uint) (paymentMethods domain.PaymentMethod, err error)
-	FindPaymentMethodByType(ctx context.Context, paymentType string) (paymentMethod domain.PaymentMethod, err error)
+	FindPaymentMethodByID(ctx context.Context, paymentMethodID uint) (paymentMethods domain.PaymentMethod, err error)
+	FindPaymentMethodByType(ctx context.Context, paymentType domain.PaymentType) (paymentMethod domain.PaymentMethod, err error)
 	FindAllPaymentMethods(ctx context.Context) ([]domain.PaymentMethod, error)
-	SavePaymentMethod(ctx context.Context, paymentMethod domain.PaymentMethod) (paymentMethodID uint, err error)
+	// SavePaymentMethod(ctx context.Context, paymentMethod domain.PaymentMethod) (paymentMethodID uint, err error)
 	UpdatePaymentMethod(ctx context.Context, paymentMethod request.PaymentMethodUpdate) error
 }

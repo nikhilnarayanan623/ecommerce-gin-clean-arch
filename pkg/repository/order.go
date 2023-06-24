@@ -166,15 +166,6 @@ func (c *OrderDatabase) UpdateShopOrderOrderStatus(ctx context.Context, shopOrde
 	return err
 }
 
-func (c *OrderDatabase) UpdateShopOrderStatusAndPaymentID(ctx context.Context,
-	shopOrderID, statusID, paymentID uint) error {
-
-	query := `UPDATE shop_orders SET order_status_id = $1 , payment_method_id = $2 WHERE id = $3`
-	err := c.DB.Exec(query, statusID, paymentID, shopOrderID).Error
-
-	return err
-}
-
 func (c *OrderDatabase) FindOrderReturnByReturnID(ctx context.Context, orderReturnID uint) (orderReturn domain.OrderReturn, err error) {
 
 	query := `SELECT *  FROM order_returns WHERE id = $1`

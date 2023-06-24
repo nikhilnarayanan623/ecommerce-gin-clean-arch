@@ -271,7 +271,7 @@ func (c *ProductHandler) SaveProductOffer(ctx *gin.Context) {
 // @id RemoveProductOffer
 // @tags Offers
 // @param offer_product_id path int true "offer_product_id"
-// @Router /admin/offers/products/ [delete]
+// @Router /admin/offers/products/{offer_product_id} [delete]
 // @Success 200 {object} response.Response{} "successfully offer removed from product"
 // @Failure 400 {object} response.Response{} "invalid input on params"
 func (c *ProductHandler) RemoveProductOffer(ctx *gin.Context) {

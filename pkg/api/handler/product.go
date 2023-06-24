@@ -57,6 +57,7 @@ func (p *ProductHandler) FindAllCategories(ctx *gin.Context) {
 // @summary api for admin add a new category
 // @security ApiKeyAuth
 // @id SaveCategory
+// @tags Admin Category
 // @Param input body domain.Category{} true "Input field"
 // @Router /admin/category [post]
 // @Success 200 {object} response.Response{} "Successfully category added"
@@ -91,6 +92,7 @@ func (p *ProductHandler) SaveCategory(ctx *gin.Context) {
 // @summary api for admin add a new sub category
 // @security ApiKeyAuth
 // @id SaveSubCategory
+// @tags Admin Category
 // @Param input body domain.Category{} true "Input field"
 // @Router /admin/category/sub-category [post]
 // @Success 200 {object} response.Response{} "Successfully sub category added"
@@ -179,8 +181,8 @@ func (p *ProductHandler) SaveVariationOption(ctx *gin.Context) {
 // @security ApiKeyAuth
 // @tags Admin Category
 // @id FindAllVariations
-// @Param input body request.VariationOption{} true "Input field"
-// @Router /admin/category/variations [get]
+// @Param category_id path  int true "Category ID"
+// @Router /admin/category/variation/{category_id} [get]
 // @Success 200 {object} response.Response{} "Successfully found all variations and its values"
 // @Failure 400 {object} response.Response{} "invalid input"
 func (c *ProductHandler) FindAllVariations(ctx *gin.Context) {
@@ -340,7 +342,7 @@ func (p *ProductHandler) SaveProductItem(ctx *gin.Context) {
 // @id FindAllProductItems
 // @tags User Products
 // @param product_id path int true "product_id"
-// @Router /products/product-items [get]
+// @Router /products/product-items/{product_id} [get]
 // @Success 200 {object} response.Response{} "successfully got all product_items for given product_id"
 // @Failure 400 {object} response.Response{} "invalid input on params"
 func (p *ProductHandler) FindAllProductItems(ctx *gin.Context) {
