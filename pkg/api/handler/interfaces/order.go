@@ -9,8 +9,8 @@ type OrderHandler interface {
 	RazorpayCheckout(ctx *gin.Context)
 	RazorpayVerify(ctx *gin.Context)
 
-	PlaceOrder(ctx *gin.Context)
-	ApproveOrderCOD(ctx *gin.Context)
+	PlaceOrderOnCOD(ctx *gin.Context)
+	// ApproveOrderCOD(ctx *gin.Context)
 	CancelOrder(ctx *gin.Context)
 	SubmitReturnRequest(ctx *gin.Context)
 

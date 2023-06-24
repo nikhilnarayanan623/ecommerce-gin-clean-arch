@@ -61,7 +61,7 @@ func (c *CouponHandler) SaveCoupon(ctx *gin.Context) {
 // @Param count query int false "Count"
 // @Router /admin/coupons [get]
 // @Success 200 {object} response.Response{} "successfully go all the coupons
-// @Failure 500 {object} response.Response{}  "faild to get all coupons"
+// @Failure 500 {object} response.Response{}  "failed to get all coupons"
 func (c *CouponHandler) FindAllCoupons(ctx *gin.Context) {
 
 	pagination := request.GetPagination(ctx)
@@ -77,7 +77,7 @@ func (c *CouponHandler) FindAllCoupons(ctx *gin.Context) {
 		return
 	}
 
-	response.SuccessResponse(ctx, http.StatusOK, "Successfully found coupons")
+	response.SuccessResponse(ctx, http.StatusOK, "Successfully found coupons", coupons)
 }
 
 // GetAllCoupons godoc

@@ -114,7 +114,7 @@ func (c *cartDatabase) IsCartValidForOrder(ctx context.Context, userID uint) (va
 		INNER JOIN carts c ON ci.cart_id = c.id 
 		WHERE c.user_id = $1 AND pi.qty_in_stock <= 0) AS valid FROM carts`
 
-	err = c.DB.Raw(query).Scan(&outOfStockExist).Error
+	err = c.DB.Raw(query, userID).Scan(&outOfStockExist).Error
 
 	// if error or a product is found a product is out
 	if err != nil || outOfStockExist {

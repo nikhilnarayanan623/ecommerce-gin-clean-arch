@@ -4,9 +4,7 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/jinzhu/copier"
 	handlerInterface "github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/api/handler/interfaces"
-	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/domain"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/usecase/interfaces"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/utils/request"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/utils/response"
@@ -41,36 +39,36 @@ func (c *paymentHandler) CartOrderPaymentSelectPage(ctx *gin.Context) {
 	ctx.HTML(200, "paymentForm.html", Payments)
 }
 
-// AddPaymentMethod godoc
-// @summary api for admin to add a new payment method
-// @security ApiKeyAuth
-// @tags Admin Payment
-// @id AddPaymentMethod
-// @Router /admin/payment-method [post]
-// @Success 200 {object} response.Response{} "successfully payment added"
-// @Success 400 {object} response.Response{} "Failed to bind input"
-// @Failure 500 {object} response.Response{}  "Failed to add payment method"
-func (c *paymentHandler) AddPaymentMethod(ctx *gin.Context) {
+// // AddPaymentMethod godoc
+// // @summary api for admin to add a new payment method
+// // @security ApiKeyAuth
+// // @tags Admin Payment
+// // @id AddPaymentMethod
+// // @Router /admin/payment-method [post]
+// // @Success 200 {object} response.Response{} "successfully payment added"
+// // @Success 400 {object} response.Response{} "Failed to bind input"
+// // @Failure 500 {object} response.Response{}  "Failed to add payment method"
+// func (c *paymentHandler) AddPaymentMethod(ctx *gin.Context) {
 
-	var body request.PaymentMethod
+// 	var body request.PaymentMethod
 
-	if err := ctx.ShouldBindJSON(&body); err != nil {
-		response.ErrorResponse(ctx, http.StatusBadRequest, BindJsonFailMessage, err, nil)
-		return
-	}
+// 	if err := ctx.ShouldBindJSON(&body); err != nil {
+// 		response.ErrorResponse(ctx, http.StatusBadRequest, BindJsonFailMessage, err, nil)
+// 		return
+// 	}
 
-	var paymentMethod domain.PaymentMethod
-	copier.Copy(&paymentMethod, &body)
+// 	var paymentMethod domain.PaymentMethod
+// 	copier.Copy(&paymentMethod, &body)
 
-	err := c.paymentUseCase.SavePaymentMethod(ctx, paymentMethod)
+// 	err := c.paymentUseCase.SavePaymentMethod(ctx, paymentMethod)
 
-	if err != nil {
-		response.ErrorResponse(ctx, http.StatusInternalServerError, "Failed to add payment_method", err, nil)
-		return
-	}
+// 	if err != nil {
+// 		response.ErrorResponse(ctx, http.StatusInternalServerError, "Failed to add payment_method", err, nil)
+// 		return
+// 	}
 
-	response.SuccessResponse(ctx, http.StatusOK, "Successfully added payment method", nil)
-}
+// 	response.SuccessResponse(ctx, http.StatusOK, "Successfully added payment method", nil)
+// }
 
 // UpdatePaymentMethod godoc
 // @summary api for admin to update payment details

@@ -73,7 +73,7 @@ func (c *AuthHandler) UserLogin(ctx *gin.Context) {
 }
 
 // UserLoginOtpSend godoc
-// @summary api for user to login with otp
+// @summary api for user otp login send
 // @description user can enter email/user_name/phone will send an otp to user registered phone_number
 // @security ApiKeyAuth
 // @id UserLoginOtpSend
@@ -124,7 +124,7 @@ func (u *AuthHandler) UserLoginOtpSend(ctx *gin.Context) {
 }
 
 // UserLoginOtpVerify godoc
-// @summary api for user to verify user login_otp
+// @summary api for user to verify user login otp
 // @description enter your otp that send to your registered number
 // @security ApiKeyAuth
 // @id UserLoginOtpVerify

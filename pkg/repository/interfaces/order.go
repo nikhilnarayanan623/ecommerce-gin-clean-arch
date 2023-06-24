@@ -13,7 +13,6 @@ type OrderRepository interface {
 
 	SaveOrderLine(ctx context.Context, orderLine domain.OrderLine) error
 
-	UpdateShopOrderStatusAndPaymentID(ctx context.Context, shopOrderID, statusID, paymentID uint) error
 	UpdateShopOrderOrderStatus(ctx context.Context, shopOrderID, changeStatusID uint) error
 
 	// shop order order

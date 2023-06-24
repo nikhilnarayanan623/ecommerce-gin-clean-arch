@@ -1,6 +1,10 @@
 package request
 
-import "time"
+import (
+	"time"
+
+	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/domain"
+)
 
 type UpdateOrder struct {
 	ShopOrderID   uint `json:"shop_order_id" binding:"required"`
@@ -21,7 +25,8 @@ type UpdateOrderReturn struct {
 }
 
 type PlaceOrder struct {
-	AddressID uint `json:"address_id" binding:"required"`
+	AddressID   uint `json:"address_id" binding:"required"`
+	PaymentType domain.PaymentType
 }
 
 type OrderPayment struct {

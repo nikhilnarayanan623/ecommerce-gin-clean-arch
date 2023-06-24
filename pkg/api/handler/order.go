@@ -5,6 +5,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	interfaces "github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/api/handler/interfaces"
+	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/domain"
 	usecase "github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/usecase/interfaces"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/utils"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/utils/request"
@@ -46,67 +47,80 @@ func (c *OrderHandler) FindAllOrderStatuses(ctx *gin.Context) {
 	response.SuccessResponse(ctx, 200, "Successfully found all order statuses", orderStatuses)
 }
 
-// PlaceOrder godoc
+// PlaceOrderOnCOD godoc
 // @summary api for user to place an order on cart with COD
 // @security ApiKeyAuth
 // @tags User Cart
-// @id PlaceOrder
-// @Param        inputs   body     request.PlaceOrder{}   true  "Input Field"
+// @id PlaceOrderOnCOD
+// @Param address_id formData string true "Address ID"
 // @Router /carts/place-order/ [post]
 // @Success 200 {object} response.Response{} "successfully order placed"
 // @Failure 400 {object} response.Response{}  "invalid input"
 // @Failure 500 {object} response.Response{}  "failed to save shop order"
-func (c *OrderHandler) PlaceOrder(ctx *gin.Context) {
+func (c *OrderHandler) PlaceOrderOnCOD(ctx *gin.Context) {
 
-	var body request.PlaceOrder
-	if err := ctx.ShouldBindJSON(&body); err != nil {
-		response.ErrorResponse(ctx, http.StatusBadRequest, BindJsonFailMessage, err, nil)
+	addressID, err := request.GetFormValuesAsUint(ctx, "address_id")
+	if err != nil {
+		response.ErrorResponse(ctx, http.StatusBadRequest, BindFormValueMessage, err, nil)
 		return
+	}
+
+	body := request.PlaceOrder{
+		AddressID:   addressID,
+		PaymentType: domain.CODPayment,
 	}
 
 	userID := utils.GetUserIdFromContext(ctx)
 
-	shopOrder, err := c.orderUseCase.PlaceOrder(ctx, userID, body)
+	shopOrderID, err := c.orderUseCase.SaveOrder(ctx, userID, body)
 
 	if err != nil {
 		response.ErrorResponse(ctx, http.StatusInternalServerError, "Failed to save order", err, nil)
 		return
 	}
 
-	response.SuccessResponse(ctx, http.StatusOK, "Successfully order placed for payment pending", shopOrder)
-}
-
-// ApproveOrderCOD godoc
-// @summary api for user to place an order on cart with COD
-// @security ApiKeyAuth
-// @tags User Cart
-// @id ApproveOrderCOD
-// @Param       inputs   body     request.OrderPayment{}   true  "Input Field"
-// @Router /carts/place-order/cod [post]
-// @Success 200 {object} response.Response{} "successfully order placed in COD"
-// @Failure 400 {object} response.Response{}  "invalid input"
-// @Failure 500 {object} response.Response{}  "failed to save shop order"
-func (c *OrderHandler) ApproveOrderCOD(ctx *gin.Context) {
-
-	var body request.OrderPayment
-
-	if err := ctx.ShouldBindJSON(&body); err != nil {
-		response.ErrorResponse(ctx, http.StatusBadRequest, BindJsonFailMessage, err, nil)
-		return
-	}
-
-	userID := utils.GetUserIdFromContext(ctx)
-
 	// approve the order and clear the user cart
-	err := c.orderUseCase.ApproveShopOrderAndClearCart(ctx, userID, body.ShopOrderID, body.PaymentMethodID)
+	err = c.orderUseCase.ApproveShopOrderAndClearCart(ctx, userID, shopOrderID)
 
 	if err != nil {
 		response.ErrorResponse(ctx, http.StatusInternalServerError, "Failed to approve order and clear cart", err, nil)
 		return
 	}
 
-	response.SuccessResponse(ctx, http.StatusOK, "Successfully order placed for COD", nil)
+	response.SuccessResponse(ctx, http.StatusOK, "Successfully order placed for cod")
 }
+
+// // ApproveOrderCOD godoc
+// // @summary api for user to place an order on cart with COD
+// // @security ApiKeyAuth
+// // @tags User Cart
+// // @id ApproveOrderCOD
+// // @Param       inputs   body     request.OrderPayment{}   true  "Input Field"
+// // @Router /carts/place-order/cod [post]
+// // @Success 200 {object} response.Response{} "successfully order placed in COD"
+// // @Failure 400 {object} response.Response{}  "invalid input"
+// // @Failure 500 {object} response.Response{}  "failed to save shop order"
+// func (c *OrderHandler) ApproveOrderCOD(ctx *gin.Context) {
+
+// 	var body request.OrderPayment
+
+// 	if err := ctx.ShouldBindJSON(&body); err != nil {
+// 		response.ErrorResponse(ctx, http.StatusBadRequest, BindJsonFailMessage, err, nil)
+// 		return
+// 	}
+
+// 	userID := utils.GetUserIdFromContext(ctx)
+
+// 	// approve the order and clear the user cart
+// 	err := c.orderUseCase.ApproveShopOrderAndClearCart(ctx, userID, body.ShopOrderID, body.PaymentMethodID)
+
+// 	if err != nil {
+// 		response.ErrorResponse(ctx, http.StatusInternalServerError, "Failed to approve order and clear cart", err, nil)
+// 		return
+// 	}
+
+// 	response.SuccessResponse(ctx, http.StatusOK, "Successfully order placed for COD", nil)
+// }
 
 // GetUserOrder godoc
 // @summary api for showing User Orders list
@@ -142,10 +156,10 @@ func (c *OrderHandler) FindUserOrder(ctx *gin.Context) {
 // @summary api for admin to se order items of an order
 // @id FindAllOrderItems Admin
 // @tags User Orders
-// @Param shop_order_id query int false "Shop Order ID"
+// @Param shop_order_id path int true "Shop Order ID"
 // @Param page_number query int false "Page Number"
 // @Param count query int false "Count Of Order"
-// @Router /admin/orders/items [get]
+// @Router /admin/orders/items/{shop_order_id}  [get]
 // @Success 200 {object} response.Response{} "Successfully found order items"
 // @Failure 500 {object} response.Response{} "Failed to find order items"
 
@@ -153,10 +167,10 @@ func (c *OrderHandler) FindUserOrder(ctx *gin.Context) {
 // @summary api for show order items of a specific order
 // @id FindAllOrderItems User
 // @tags User Orders
-// @Param shop_order_id query int false "Shop Order ID"
+// @Param shop_order_id path int true "Shop Order ID"
 // @Param page_number query int false "Page Number"
 // @Param count query int false "Count"
-// @Router /orders/items [get]
+// @Router /orders/items/{shop_order_id} [get]
 // @Success 200 {object} response.Response{} "Successfully found order items"
 // @Failure 500 {object} response.Response{} "Failed to find order items"
 func (c *OrderHandler) FindAllOrderItems(ctx *gin.Context) {
@@ -214,8 +228,8 @@ func (c *OrderHandler) UpdateOrderStatus(ctx *gin.Context) {
 // @description user can cancel the order if it's not placed
 // @id CancelOrder
 // @tags User Orders
-// @Params shop_order_id path int true "shop_order_id"
-// @Router /orders [post]
+// @Param shop_order_id path int true "Shop Order ID"
+// @Router /orders/{shop_order_id} [post]
 // @Success 200 {object} response.Response{} "Successfully order cancelled"
 // @Failure 400 {object} response.Response{} "invalid input on param"
 func (c *OrderHandler) CancelOrder(ctx *gin.Context) {

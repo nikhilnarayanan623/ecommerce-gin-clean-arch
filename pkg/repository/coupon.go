@@ -28,11 +28,7 @@ func (c *couponDatabase) CheckCouponDetailsAlreadyExist(ctx context.Context, cou
 
 	err = c.DB.Raw(query, coupon.CouponName, coupon.CouponID).Scan(&couponID).Error
 
-	if err != nil {
-		return couponID, fmt.Errorf("faild to check coupon details already exist with coupon_id %v", coupon.CouponID)
-	}
-
-	return couponID, nil
+	return couponID, err
 }
 
 // find all coupon
@@ -54,7 +50,7 @@ func (c *couponDatabase) FindCouponByCouponCode(ctx context.Context, couponCode 
 
 	err = c.DB.Raw(query, couponCode).Scan(&coupon).Error
 	if err != nil {
-		return coupon, fmt.Errorf("faild to find coupon with coupon_code %v", couponCode)
+		return coupon, fmt.Errorf("failed to find coupon with coupon_code %v", couponCode)
 	}
 
 	return coupon, nil
@@ -66,7 +62,7 @@ func (c *couponDatabase) FindCouponByName(ctx context.Context, couponName string
 	err = c.DB.Raw(query, couponName).Scan(&coupon).Error
 
 	if err != nil {
-		return coupon, fmt.Errorf("faild to find coupon with coupon_name %v", couponName)
+		return coupon, fmt.Errorf("failed to find coupon with coupon_name %v", couponName)
 	}
 
 	return coupon, nil

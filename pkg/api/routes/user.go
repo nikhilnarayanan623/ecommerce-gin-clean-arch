@@ -49,7 +49,7 @@ func UserRoutes(api *gin.RouterGroup, authHandler handlerInterface.AuthHandler, 
 		cart := api.Group("/carts")
 		{
 			cart.GET("/", cartHandler.FindCart)
-			cart.POST("/:product_item_id", cartHandler.AddToCart)
+			cart.POST("/:product_item_id", cartHandler.SaveToCart)
 			cart.PUT("/", cartHandler.UpdateCart)
 			cart.DELETE("/:product_item_id", cartHandler.RemoveFromCart)
 
@@ -58,8 +58,8 @@ func UserRoutes(api *gin.RouterGroup, authHandler handlerInterface.AuthHandler, 
 			// 		cart.GET("/payment-methods", orderHandler.GetAllPaymentMethods)
 			cart.GET("/checkout/payment-select-page", paymentHandler.CartOrderPaymentSelectPage)
 
-			cart.POST("/place-order", orderHandler.PlaceOrder)
-			cart.POST("/place-order/cod", orderHandler.ApproveOrderCOD)
+			cart.POST("/place-order", orderHandler.PlaceOrderOnCOD)
+			// cart.POST("/place-order/cod", orderHandler.ApproveOrderCOD)
 
 			// 		//cart.GET("/checkout", userHandler.CheckOutCart, orderHandler.GetAllPaymentMethods)
 

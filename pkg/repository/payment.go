@@ -19,17 +19,18 @@ func NewPaymentRepository(db *gorm.DB) interfaces.PaymentRepository {
 	}
 }
 
-func (c *paymentDatabase) FindPaymentMethodByID(ctx context.Context, paymenMethodtID uint) (paymentMethods domain.PaymentMethod, err error) {
+func (c *paymentDatabase) FindPaymentMethodByID(ctx context.Context, paymentMethodID uint) (paymentMethods domain.PaymentMethod, err error) {
 
 	query := `SELECT * FROM payment_methods WHERE id = $1`
 
-	err = c.db.Raw(query, paymenMethodtID).Scan(&paymentMethods).Error
+	err = c.db.Raw(query, paymentMethodID).Scan(&paymentMethods).Error
 
 	return paymentMethods, err
 }
 
 // find payment_method by payment_type
-func (c *paymentDatabase) FindPaymentMethodByType(ctx context.Context, paymentType string) (paymentMethod domain.PaymentMethod, err error) {
+func (c *paymentDatabase) FindPaymentMethodByType(ctx context.Context,
+	paymentType domain.PaymentType) (paymentMethod domain.PaymentMethod, err error) {
 
 	query := `SELECT * FROM payment_methods WHERE payment_type = $1`
 	err = c.db.Raw(query, paymentType).Scan(&paymentMethod).Error

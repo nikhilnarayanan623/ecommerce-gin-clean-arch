@@ -20,7 +20,6 @@ func NewUserRepository(DB *gorm.DB) interfaces.UserRepository {
 	return &userDatabase{DB: DB}
 }
 
-
 func (c *userDatabase) FindUserByUserID(ctx context.Context, userID uint) (user domain.User, err error) {
 
 	query := `SELECT * FROM users WHERE id = $1`
@@ -166,8 +165,8 @@ func (c *userDatabase) FindCountryByID(ctx context.Context, countryID uint) (dom
 
 // save address
 func (c *userDatabase) SaveAddress(ctx context.Context, address domain.Address) (addressID uint, err error) {
-
-	query := `INSERT INTO addresses (name,phone_number,house,area,land_mark,city,pincode,country_id,created_at) 
+	address.CountryID = 1
+	query := `INSERT INTO addresses (name, phone_number, house,area, land_mark, city, pincode, country_id, created_at) 
 	VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING id`
 
 	createdAt := time.Now()
@@ -184,6 +183,7 @@ func (c *userDatabase) SaveAddress(ctx context.Context, address domain.Address) 
 // update address
 func (c *userDatabase) UpdateAddress(ctx context.Context, address domain.Address) error {
 
+	address.CountryID = 1
 	query := `UPDATE addresses SET name=$1, phone_number=$2, house=$3, area=$4, land_mark=$5, 
 	city=$6, pincode=$7,country_id=$8, updated_at = $9 WHERE id=$10`
 
@@ -225,7 +225,6 @@ func (c *userDatabase) SaveUserAddress(ctx context.Context, userAddress domain.U
 }
 
 func (c *userDatabase) UpdateUserAddress(ctx context.Context, userAddress domain.UserAddress) error {
-
 	// if it need to set default the change the old default
 	if userAddress.IsDefault {
 

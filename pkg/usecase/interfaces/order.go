@@ -11,11 +11,11 @@ import (
 type OrderUseCase interface {
 
 	//
-	PlaceOrder(ctx context.Context, userID uint, placeOrder request.PlaceOrder) (shopOrder domain.ShopOrder, err error)
-	ApproveShopOrderAndClearCart(ctx context.Context, userID, shopOrderID, paymentID uint) error
+	SaveOrder(ctx context.Context, userID uint, placeOrder request.PlaceOrder) (shopOrderID uint, err error)
+	ApproveShopOrderAndClearCart(ctx context.Context, userID, shopOrderID uint) error
 
 	// razorpay
-	MakeRazorpayOrder(ctx context.Context, userID, shopOrderID, paymentMethodID uint) (razorpayOrder response.RazorpayOrder, err error)
+	MakeRazorpayOrder(ctx context.Context, userID, shopOrderID uint) (razorpayOrder response.RazorpayOrder, err error)
 	// stipe
 	MakeStripeOrder(ctx context.Context, userID uint, userOrder response.UserOrder) (stipeOrder response.StripeOrder, err error)
 

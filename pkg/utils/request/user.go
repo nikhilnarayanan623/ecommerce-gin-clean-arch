@@ -20,7 +20,7 @@ type Address struct {
 	LandMark    string `json:"land_mark" binding:"required"`
 	City        string `json:"city"`
 	Pincode     uint   `json:"pincode" binding:"required"`
-	CountryID   uint   `json:"country_id" binding:"required"`
+	// CountryID   uint   `json:"country_id" binding:"required"`
 
 	IsDefault *bool `json:"is_default"`
 }
@@ -33,7 +33,7 @@ type EditAddress struct {
 	LandMark    string `json:"land_mark" binding:"required"`
 	City        string `json:"city"`
 	Pincode     uint   `json:"pincode" binding:"required"`
-	CountryID   uint   `json:"country_id" binding:"required"`
+	// CountryID   uint   `json:"country_id" binding:"required"`
 
 	IsDefault *bool `json:"is_default"`
 }

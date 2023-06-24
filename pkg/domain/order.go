@@ -7,7 +7,11 @@ import (
 // for defining ENUM stasues
 type OrderStatusType string
 
+// payment types
+type PaymentType string
+
 const (
+	// order status
 	StatusPaymentPending  OrderStatusType = "payment pending"
 	StatusOrderPlaced     OrderStatusType = "order placed"
 	StatusOrderCancelled  OrderStatusType = "order cancelled"
@@ -16,13 +20,17 @@ const (
 	StatusReturnApproved  OrderStatusType = "return approved"
 	StatusReturnCancelled OrderStatusType = "return cancelled"
 	StatusOrderReturned   OrderStatusType = "order returned"
+
+	// payment type
+	RazopayPayment PaymentType = "razor pay"
+	CODPayment     PaymentType = "cod"
 )
 
 type PaymentMethod struct {
-	ID            uint   `json:"id" gorm:"primaryKey;not null"`
-	PaymentType   string `json:"payment_type" gorm:"unique;not null"`
-	BlockStatus   bool   `json:"block_status" gorm:"not null;default:false"`
-	MaximumAmount uint   `json:"maximum_amount" gorm:"not null"`
+	ID            uint        `json:"id" gorm:"primaryKey;not null"`
+	PaymentType   PaymentType `json:"payment_type" gorm:"unique;not null"`
+	BlockStatus   bool        `json:"block_status" gorm:"not null;default:false"`
+	MaximumAmount uint        `json:"maximum_amount" gorm:"not null"`
 }
 
 type OrderStatus struct {

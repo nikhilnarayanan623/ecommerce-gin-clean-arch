@@ -71,18 +71,18 @@ func (c *userUserCase) UpdateProfile(ctx context.Context, user domain.User) erro
 func (c *userUserCase) SaveAddress(ctx context.Context, userID uint, address domain.Address, isDefault bool) error {
 
 	if exist, err := c.userRepo.IsAddressAlreadyExistForUser(ctx, address, userID); err != nil {
-		return fmt.Errorf("faild to check address already exist \nerror:%v", err.Error())
+		return fmt.Errorf("failed to check address already exist \nerror:%v", err.Error())
 	} else if exist {
 		return fmt.Errorf("given address already exist for user")
 	}
 
-	//this address not exist then create it
-	country, err := c.userRepo.FindCountryByID(ctx, address.CountryID)
-	if err != nil {
-		return err
-	} else if country.ID == 0 {
-		return errors.New("invalid country id")
-	}
+	// //this address not exist then create it
+	// country, err := c.userRepo.FindCountryByID(ctx, address.CountryID)
+	// if err != nil {
+	// 	return err
+	// } else if country.ID == 0 {
+	// 	return errors.New("invalid country id")
+	// }
 
 	// save the address on database
 	addressID, err := c.userRepo.SaveAddress(ctx, address)
@@ -113,12 +113,6 @@ func (c *userUserCase) UpdateAddress(ctx context.Context, addressBody request.Ed
 		return err
 	} else if !exist {
 		return errors.New("invalid address id")
-	}
-
-	if country, err := c.userRepo.FindCountryByID(ctx, addressBody.CountryID); err != nil {
-		return err
-	} else if country.ID == 0 {
-		return errors.New("invalid country id")
 	}
 
 	var address domain.Address

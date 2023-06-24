@@ -23,17 +23,17 @@ func NewCartHandler(cartUseCase usecaseInterface.CartUseCase) interfaces.CartHan
 	}
 }
 
-// AddToCart godoc
-// @summary api for add productItem to user cart
+// SaveToCart godoc
+// @summary api for user to add product item to cart
 // @description user can add a stock in product to user cart
 // @security ApiKeyAuth
-// @id AddToCart
+// @id SaveToCart
 // @tags User Cart
 // @Param product_item_id path  int true "Product Item ID"
 // @Router /carts/{product_item_id} [post]
 // @Success 200 {object} response.Response{} "Successfully product item added to cart"
 // @Failure 400 {object} response.Response{} "Failed to add product item into cart"
-func (u *cartHandler) AddToCart(ctx *gin.Context) {
+func (u *cartHandler) SaveToCart(ctx *gin.Context) {
 
 	productItemID, err := request.GetParamAsUint(ctx, "product_item_id")
 	if err != nil {
@@ -63,7 +63,7 @@ func (u *cartHandler) AddToCart(ctx *gin.Context) {
 }
 
 // RemoveFromCart godoc
-// @summary api for remove a product from cart
+// @summary api for remove a product item from cart
 // @description user can remove a signle productItem full quantity from cart
 // @security ApiKeyAuth
 // @id RemoveFromCart
@@ -101,7 +101,7 @@ func (u cartHandler) RemoveFromCart(ctx *gin.Context) {
 }
 
 // UpdateCart godoc
-// @summary api for update productItem count
+// @summary api for update product item count
 // @description user can increment or decrement count of a productItem in cart (min=1)
 // @security ApiKeyAuth
 // @id UpdateCart
