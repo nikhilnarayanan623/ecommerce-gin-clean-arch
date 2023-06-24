@@ -107,9 +107,10 @@ func (c *OrderUseCase) UpdateOrderStatus(ctx context.Context, shopOrderID, chang
 		return err
 	}
 
-	switch currentOrderStatus.Status { // switch to add more status in future if need add new status on switch and validate
-	case "order placed":
-		if orderStatusChangeTo.Status != "order delivered" {
+	switch currentOrderStatus.Status {
+
+	case domain.StatusOrderPlaced: // if order status is placed then change status should be order delivered
+		if orderStatusChangeTo.Status != domain.StatusOrderDelivered {
 			return fmt.Errorf("order status is 'order placed' \nchange status should be 'order delivered'")
 		}
 	default:
@@ -128,8 +129,6 @@ func (c *OrderUseCase) CancelOrder(ctx context.Context, shopOrderID uint) error 
 	shopOrder, err := c.orderRepo.FindShopOrderByShopOrderID(ctx, shopOrderID)
 	if err != nil {
 		return err
-	} else if shopOrder.ID == 0 {
-		return errors.New("invalid shopOrderID")
 	}
 
 	currentOrderStatus, err := c.orderRepo.FindOrderStatusByID(ctx, shopOrder.OrderStatusID)
@@ -137,23 +136,21 @@ func (c *OrderUseCase) CancelOrder(ctx context.Context, shopOrderID uint) error 
 		return err
 	}
 
-	if currentOrderStatus.Status != "order placed" {
-		return fmt.Errorf("order is ' %s ' \ncan't cancell the order", currentOrderStatus.Status)
+	if currentOrderStatus.Status != domain.StatusOrderPlaced {
+		return fmt.Errorf("order is ' %s ' \ncan't cancel the order", currentOrderStatus.Status)
 	}
 
-	// if its not then find the cacell orderStatusID
-	cancellOrderStatus, err := c.orderRepo.FindOrderStatusByStatus(ctx, "order cancelled")
+	// if its not then find the cacel orderStatusID
+	cancelOrderStatus, err := c.orderRepo.FindOrderStatusByStatus(ctx, domain.StatusOrderDelivered)
 	if err != nil {
 		return err
-	} else if cancellOrderStatus.ID == 0 {
-		return errors.New("order cancell option is not avaialbe on database")
 	}
 
-	err = c.orderRepo.UpdateShopOrderOrderStatus(ctx, shopOrder.ID, cancellOrderStatus.ID)
+	err = c.orderRepo.UpdateShopOrderOrderStatus(ctx, shopOrder.ID, cancelOrderStatus.ID)
 	if err != nil {
-		return fmt.Errorf("faild to cancel the order %v", err.Error())
+		return fmt.Errorf("failed to cancel the order %v", err.Error())
 	}
-	log.Printf("successfullu order cancelled for shop order id %v", shopOrder.ID)
+	log.Printf("successfully order cancelled for shop order id %v", shopOrder.ID)
 	return nil
 }
 
@@ -182,8 +179,6 @@ func (c *OrderUseCase) SubmitReturnRequest(ctx context.Context, returnDetails re
 	shopOrder, err := c.orderRepo.FindShopOrderByShopOrderID(ctx, returnDetails.ShopOrderID)
 	if err != nil {
 		return err
-	} else if shopOrder.ID == 0 {
-		return errors.New("invalid shop_order_id")
 	}
 
 	currentOrderStatus, err := c.orderRepo.FindOrderStatusByID(ctx, shopOrder.OrderStatusID)
@@ -191,7 +186,7 @@ func (c *OrderUseCase) SubmitReturnRequest(ctx context.Context, returnDetails re
 		return err
 	}
 
-	if currentOrderStatus.Status != "order delivered" {
+	if currentOrderStatus.Status != domain.StatusOrderDelivered {
 		return fmt.Errorf("order is ' %s '\ncan't a make return request for this order", currentOrderStatus.Status)
 	}
 
@@ -206,27 +201,25 @@ func (c *OrderUseCase) SubmitReturnRequest(ctx context.Context, returnDetails re
 
 		err := trxRepo.SaveOrderReturn(ctx, orderReturn)
 		if err != nil {
-			return fmt.Errorf("faild to submit order return \nerror:%v", err.Error())
+			return fmt.Errorf("failed to submit order return \nerror:%v", err.Error())
 		}
 
-		statusToChange, err := trxRepo.FindOrderStatusByStatus(ctx, "return requested")
+		statusToChange, err := trxRepo.FindOrderStatusByStatus(ctx, domain.StatusReturnRequested)
 		if err != nil {
-			return fmt.Errorf("faild to find return request status \nerror:%v", err.Error())
-		} else if statusToChange.ID == 0 {
-			return fmt.Errorf("'return requested' status not found")
+			return fmt.Errorf("failed to find return request status \nerror:%v", err.Error())
 		}
 
 		err = trxRepo.UpdateShopOrderOrderStatus(ctx, shopOrder.ID, statusToChange.ID)
 		if err != nil {
-			return fmt.Errorf("faild to update order status \n error:%v", err.Error())
+			return fmt.Errorf("failed to update order status \n error:%v", err.Error())
 		}
 		return nil
 	})
 
 	if err != nil {
-		return fmt.Errorf("faild to save order return \nerror:%v", err.Error())
+		return fmt.Errorf("failed to save order return \nerror:%v", err.Error())
 	}
-	log.Println("successfully order rerturn request submited")
+	log.Println("successfully order return request submitted")
 	return nil
 }
 
@@ -234,14 +227,12 @@ func (c *OrderUseCase) UpdateReturnDetails(ctx context.Context, updateDetails re
 
 	orderReturn, err := c.orderRepo.FindOrderReturnByReturnID(ctx, updateDetails.OrderReturnID)
 	if err != nil {
-		return fmt.Errorf("faild to Find order \nerror:%v", err.Error())
-	} else if orderReturn.ShopOrderID == 0 {
-		return errors.New("invalid order_return_id")
+		return fmt.Errorf("failed to Find order \nerror:%v", err.Error())
 	}
 
 	shopOrder, err := c.orderRepo.FindShopOrderByShopOrderID(ctx, orderReturn.ShopOrderID)
 	if err != nil {
-		return fmt.Errorf("faild to Find order details \nerror:%v", err.Error())
+		return fmt.Errorf("failed to Find order details \nerror:%v", err.Error())
 	}
 
 	currentOrderStatus, err := c.orderRepo.FindOrderStatusByID(ctx, shopOrder.OrderStatusID)
@@ -252,27 +243,26 @@ func (c *OrderUseCase) UpdateReturnDetails(ctx context.Context, updateDetails re
 	returnStatusChangeTo, err := c.orderRepo.FindOrderStatusByID(ctx, updateDetails.OrderStatusID)
 	if err != nil {
 		return err
-	} else if returnStatusChangeTo.Status == "" {
-		return errors.New("invalid order_status_id")
 	}
 
 	switch currentOrderStatus.Status {
-	case "return requested":
-		if returnStatusChangeTo.Status == "return approved" {
+
+	case domain.StatusReturnRequested:
+		if returnStatusChangeTo.Status == domain.StatusReturnApproved {
 			if time.Since(updateDetails.ReturnDate) > 0 {
 				return fmt.Errorf("given return date is invalid \nto update 'return approved' return date should be greater than cuurent time")
 			}
 			orderReturn.ApprovalDate = time.Now()
 			orderReturn.IsApproved = true
 			orderReturn.ReturnDate = updateDetails.ReturnDate
-		} else if returnStatusChangeTo.Status == "return cancelled" {
+		} else if returnStatusChangeTo.Status == domain.StatusReturnCancelled {
 			// nothing extra update on order return may be in future when adding new statuses
 		} else {
 			return errors.New("order staus is return requested \nchange status must be return approved or return cancelled")
 		}
 
-	case "return approved":
-		if returnStatusChangeTo.Status != "order returned" {
+	case domain.StatusReturnApproved:
+		if returnStatusChangeTo.Status != domain.StatusOrderReturned {
 			return errors.New(" change status must be order returned")
 		} else if time.Since(updateDetails.ReturnDate) <= 0 {
 			return fmt.Errorf("given return date is invalid \nto update 'order returned' return should be lessthan current time")
@@ -289,29 +279,30 @@ func (c *OrderUseCase) UpdateReturnDetails(ctx context.Context, updateDetails re
 
 		err := trxRepo.UpdateOrderReturn(ctx, orderReturn)
 		if err != nil {
-			return fmt.Errorf("faild to update orders return \nerror:%v", err.Error())
+			return fmt.Errorf("failed to update orders return \nerror:%v", err.Error())
 		}
 
 		err = c.orderRepo.UpdateShopOrderOrderStatus(ctx, shopOrder.ID, returnStatusChangeTo.ID)
 		if err != nil {
-			return fmt.Errorf("faild to update order status \nerror:%v", err.Error())
+			return fmt.Errorf("failed to update order status \nerror:%v", err.Error())
 		}
 
-		if returnStatusChangeTo.Status == "order returned" {
+		// if order changing to order return then return the order amount to use wallet
+		if returnStatusChangeTo.Status == domain.StatusOrderReturned {
 			wallet, err := trxRepo.FindWalletByUserID(ctx, shopOrder.UserID)
 			if err != nil {
-				return fmt.Errorf("faild to get user wallet for refund amount \nerror:%v", err.Error())
+				return fmt.Errorf("failed to get user wallet for refund amount \nerror:%v", err.Error())
 			} else if wallet.ID == 0 {
 				wallet.ID, err = c.orderRepo.SaveWallet(ctx, shopOrder.UserID)
 				if err != nil {
-					return fmt.Errorf("faild to create a wallet for user")
+					return fmt.Errorf("failed to create a wallet for user")
 				}
 			}
 
 			newWalletTotal := wallet.TotalAmount + shopOrder.OrderTotalPrice
 			err = c.orderRepo.UpdateWallet(ctx, wallet.ID, newWalletTotal)
 			if err != nil {
-				return fmt.Errorf("faild to update return amount to user wallet \nerror:%v", err.Error())
+				return fmt.Errorf("failed to update return amount to user wallet \nerror:%v", err.Error())
 			}
 
 			err = c.orderRepo.SaveWalletTransaction(ctx, domain.Transaction{
@@ -322,7 +313,7 @@ func (c *OrderUseCase) UpdateReturnDetails(ctx context.Context, updateDetails re
 			})
 
 			if err != nil {
-				return fmt.Errorf("faild to save wallet transaction \nerror:%v", err.Error())
+				return fmt.Errorf("failed to save wallet transaction \nerror:%v", err.Error())
 			}
 		}
 		return nil
@@ -330,7 +321,7 @@ func (c *OrderUseCase) UpdateReturnDetails(ctx context.Context, updateDetails re
 	})
 
 	if err != nil {
-		return fmt.Errorf("faild to update order return \nerror:%v", err.Error())
+		return fmt.Errorf("failed to update order return \nerror:%v", err.Error())
 	}
 
 	log.Printf("successfully updated order return request for shop_order_id %v", shopOrder.ID)
@@ -366,7 +357,7 @@ func (c *OrderUseCase) MakeRazorpayOrder(ctx context.Context, userID,
 
 	shopOrder, err := c.orderRepo.FindShopOrderByShopOrderID(ctx, shopOrderID)
 	if err != nil {
-		return razorpayOrder, fmt.Errorf("faild to get shop order \nerror:%v", err.Error())
+		return razorpayOrder, fmt.Errorf("failed to get shop order \nerror:%v", err.Error())
 	} else if shopOrder.ID == 0 {
 		return razorpayOrder, fmt.Errorf("invalid shop_order_id")
 	}
@@ -378,7 +369,7 @@ func (c *OrderUseCase) MakeRazorpayOrder(ctx context.Context, userID,
 
 	//razorpay amount is caluculate on pisa for india so make the actual price into paisa
 	razorPayAmount := shopOrder.OrderTotalPrice * 100
-	razopayOrderId, err := utils.GenerateRazorpayOrder(razorPayAmount, "test reciept")
+	razopayOrderId, err := utils.GenerateRazorpayOrder(razorPayAmount, "test receipt")
 	if err != nil {
 		return razorpayOrder, err
 	}
@@ -402,8 +393,6 @@ func (c *OrderUseCase) PlaceOrder(ctx context.Context, userID uint,
 	address, err := c.userRepo.FindAddressByID(ctx, placeOrder.AddressID)
 	if err != nil {
 		return shopOrder, err
-	} else if address.ID == 0 {
-		return shopOrder, fmt.Errorf("invalid addess id")
 	}
 
 	// check the cart of user is valid for place order
@@ -425,7 +414,7 @@ func (c *OrderUseCase) PlaceOrder(ctx context.Context, userID uint,
 		return shopOrder, errors.New("there is no products in cart")
 	}
 
-	pendingOrderStatus, err := c.orderRepo.FindOrderStatusByStatus(ctx, "payment pending")
+	pendingOrderStatus, err := c.orderRepo.FindOrderStatusByStatus(ctx, domain.StatusPaymentPending)
 	if err != nil {
 		return shopOrder, err
 	} else if pendingOrderStatus.ID == 0 {
@@ -443,17 +432,17 @@ func (c *OrderUseCase) PlaceOrder(ctx context.Context, userID uint,
 
 		shopOrder.ID, err = trxRepo.SaveShopOrder(ctx, shopOrder)
 		if err != nil {
-			return fmt.Errorf("faild to save order \nerror:%v", err.Error())
+			return fmt.Errorf("failed to save order \nerror:%v", err.Error())
 		}
 
 		cart, err := c.cartRepo.FindCartByUserID(ctx, shopOrder.UserID)
 		if err != nil {
-			return fmt.Errorf("faild to get user cart \nerror:%v", err.Error())
+			return fmt.Errorf("failed to get user cart \nerror:%v", err.Error())
 		}
 
 		cartItems, err := c.cartRepo.FindAllCartItemsByCartID(ctx, cart.ID)
 		if err != nil {
-			return fmt.Errorf("faild to find all cart items \nerror:%v", err.Error())
+			return fmt.Errorf("failed to find all cart items \nerror:%v", err.Error())
 		}
 
 		var OrderPrice uint
@@ -473,7 +462,7 @@ func (c *OrderUseCase) PlaceOrder(ctx context.Context, userID uint,
 				Price:         OrderPrice,
 			}
 			if err := trxRepo.SaveOrderLine(ctx, orderLine); err != nil {
-				return fmt.Errorf("faild to save order line \nerror:%v", err.Error())
+				return fmt.Errorf("failed to save order line \nerror:%v", err.Error())
 			}
 		}
 		return nil
@@ -483,31 +472,31 @@ func (c *OrderUseCase) PlaceOrder(ctx context.Context, userID uint,
 
 func (c *OrderUseCase) ApproveShopOrderAndClearCart(ctx context.Context, userID, shopOrderID, paymentID uint) error {
 
-	if orderStatus, err := c.orderRepo.FindOrderStatusByShopOrderID(ctx, shopOrderID); err != nil {
-		return fmt.Errorf("faild to get current order status \nerror:%v", err.Error())
-	} else if orderStatus.Status != "payment pending" {
+	orderStatus, err := c.orderRepo.FindOrderStatusByShopOrderID(ctx, shopOrderID)
+	if err != nil {
+		return fmt.Errorf("failed to get current order status \nerror:%v", err.Error())
+	}
+	if orderStatus.Status != domain.StatusPaymentPending {
 		return fmt.Errorf("order status not payment pending can't approve the order ")
 	}
 
-	orderPlacedStatus, err := c.orderRepo.FindOrderStatusByStatus(ctx, "order placed")
+	orderPlacedStatus, err := c.orderRepo.FindOrderStatusByStatus(ctx, domain.StatusOrderPlaced)
 	if err != nil {
 		return err
-	} else if orderPlacedStatus.ID == 0 {
-		return errors.New("order status order placed not found")
 	}
 
 	err = c.orderRepo.Transaction(func(trxRepo interfaces.OrderRepository) error {
 
 		err = trxRepo.UpdateShopOrderStatusAndPaymentID(ctx, shopOrderID, orderPlacedStatus.ID, paymentID)
 		if err != nil {
-			return fmt.Errorf("faild to approve order error:%v", err.Error())
+			return fmt.Errorf("failed to approve order error:%v", err.Error())
 		}
 
 		cart, err := c.cartRepo.FindCartByUserID(ctx, userID)
 		if err != nil {
-			return fmt.Errorf("faild to get user cart \nerror:%v", err.Error())
+			return fmt.Errorf("failed to get user cart \nerror:%v", err.Error())
 		} else if cart.ID == 0 {
-			return fmt.Errorf("user have no cart")
+			return ErrEmptyCart
 		}
 
 		if cart.AppliedCouponID != 0 { // if user applied a coupon on cart
@@ -517,13 +506,13 @@ func (c *OrderUseCase) ApproveShopOrderAndClearCart(ctx context.Context, userID,
 			})
 
 			if err != nil {
-				return fmt.Errorf("faild to update coupon is applied for user \nerror:%v", err.Error())
+				return fmt.Errorf("failed to update coupon is applied for user \nerror:%v", err.Error())
 			}
 		}
 
 		err = c.cartRepo.DeleteAllCartItemsByCartID(ctx, cart.ID)
 		if err != nil {
-			return fmt.Errorf("faild to approve order \nerror:%v", err.Error())
+			return fmt.Errorf("failed to approve order \nerror:%v", err.Error())
 		}
 		return nil
 	})

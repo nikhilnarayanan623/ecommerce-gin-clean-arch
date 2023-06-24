@@ -248,17 +248,17 @@ func (u *UserHandler) UpdateAddress(ctx *gin.Context) {
 
 //todo ** wishList **
 
-// AddToWishList godoc
+// SaveToWishList godoc
 // @summary api to add a productItem to wish list
 // @descriptions user can add productItem to wish list
 // @security ApiKeyAuth
-// @id AddToWishList
+// @id SaveToWishList
 // @tags Wishlist
 // @Param product_item_id body int true "product_item_id"
 // @Router /wishlist [post]
 // @Success 200 {object} response.Response{} "successfully added product item to wishlist"
 // @Failure 400 {object} response.Response{} "invalid input"
-func (u *UserHandler) AddToWishList(ctx *gin.Context) {
+func (u *UserHandler) SaveToWishList(ctx *gin.Context) {
 
 	productItemID, err := request.GetParamAsUint(ctx, "product_item_id")
 

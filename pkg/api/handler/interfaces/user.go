@@ -10,4 +10,7 @@ type UserHandler interface {
 	SaveAddress(ctx *gin.Context)
 	FindAllAddresses(ctx *gin.Context)
 	UpdateAddress(ctx *gin.Context)
+	SaveToWishList(ctx *gin.Context)
+	RemoveFromWishList(ctx *gin.Context)
+	FindWishList(ctx *gin.Context)
 }

@@ -4,6 +4,20 @@ import (
 	"time"
 )
 
+// for defining ENUM stasues
+type OrderStatusType string
+
+const (
+	StatusPaymentPending  OrderStatusType = "payment pending"
+	StatusOrderPlaced     OrderStatusType = "order placed"
+	StatusOrderCancelled  OrderStatusType = "order cancelled"
+	StatusOrderDelivered  OrderStatusType = "order delivered"
+	StatusReturnRequested OrderStatusType = "return requested"
+	StatusReturnApproved  OrderStatusType = "return approved"
+	StatusReturnCancelled OrderStatusType = "return cancelled"
+	StatusOrderReturned   OrderStatusType = "order returned"
+)
+
 type PaymentMethod struct {
 	ID            uint   `json:"id" gorm:"primaryKey;not null"`
 	PaymentType   string `json:"payment_type" gorm:"unique;not null"`
@@ -12,8 +26,8 @@ type PaymentMethod struct {
 }
 
 type OrderStatus struct {
-	ID     uint   `json:"id" gorm:"primaryKey;not null"`
-	Status string `json:"status" gorm:"unique;not null"`
+	ID     uint            `json:"id" gorm:"primaryKey;not null"`
+	Status OrderStatusType `json:"status" gorm:"unique;not null"`
 }
 type ShopOrder struct {
 	ID              uint          `json:"shop_order_id" gorm:"primaryKey;not null"`

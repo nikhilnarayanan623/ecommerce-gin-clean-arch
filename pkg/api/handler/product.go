@@ -107,7 +107,7 @@ func (p *ProductHandler) SaveSubCategory(ctx *gin.Context) {
 	err := p.productUseCase.SaveSubCategory(ctx, body)
 
 	if err != nil {
-		
+
 		statusCode := http.StatusInternalServerError
 		if errors.Is(err, usecase.ErrCategoryAlreadyExist) {
 			statusCode = http.StatusConflict
@@ -175,7 +175,7 @@ func (p *ProductHandler) SaveVariationOption(ctx *gin.Context) {
 }
 
 // FindAllVariations godoc
-// @summary api for admin to find all variations and its values
+// @summary api for admin to find all variations and its values for a specific category
 // @security ApiKeyAuth
 // @tags Admin Category
 // @id FindAllVariations

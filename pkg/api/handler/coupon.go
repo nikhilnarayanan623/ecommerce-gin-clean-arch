@@ -21,16 +21,16 @@ func NewCouponHandler(couponUseCase usecase.CouponUseCase) interfaces.CouponHand
 	return &CouponHandler{couponUseCase: couponUseCase}
 }
 
-// AddCoupon godoc
+// SaveCoupon godoc
 // @summary api for admin to add coupon
 // @security ApiKeyAuth
 // @tags Admin Coupon
-// @id AddCoupon
-// @Param        inputs   body     request.Coupon{}   true  "Input Field"
+// @id SaveCoupon
+// @Param        inputs   body     request.Coupon{}   true  "Input Fields"
 // @Router /admin/coupons [post]
 // @Success 200 {object} response.Response{} "successfully coupon added"
 // @Failure 400 {object} response.Response{}  "invalid input"
-func (c *CouponHandler) AddCoupon(ctx *gin.Context) {
+func (c *CouponHandler) SaveCoupon(ctx *gin.Context) {
 
 	var body request.Coupon
 
@@ -141,7 +141,7 @@ func (c *CouponHandler) UpdateCoupon(ctx *gin.Context) {
 	response.SuccessResponse(ctx, http.StatusOK, "Successfully updated the coupon", coupon)
 }
 
-// ApplyUserCoupon godoc
+// ApplyCouponToCart godoc
 // @summary api user to apply on cart on checkout time
 // @security ApiKeyAuth
 // @tags User Cart

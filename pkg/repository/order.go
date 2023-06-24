@@ -142,7 +142,8 @@ func (c *OrderDatabase) FindOrderStatusByID(ctx context.Context, orderStatusID u
 	return orderStatus, err
 }
 
-func (c *OrderDatabase) FindOrderStatusByStatus(ctx context.Context, status string) (domain.OrderStatus, error) {
+func (c *OrderDatabase) FindOrderStatusByStatus(ctx context.Context,
+	status domain.OrderStatusType) (domain.OrderStatus, error) {
 
 	var orderStatus domain.OrderStatus
 	err := c.DB.Raw("SELECT * FROM order_statuses WHERE status = $1", status).Scan(&orderStatus).Error
@@ -165,7 +166,9 @@ func (c *OrderDatabase) UpdateShopOrderOrderStatus(ctx context.Context, shopOrde
 	return err
 }
 
-func (c *OrderDatabase) UpdateShopOrderStatusAndPaymentID(ctx context.Context, shopOrderID, statusID, paymentID uint) error {
+func (c *OrderDatabase) UpdateShopOrderStatusAndPaymentID(ctx context.Context,
+	shopOrderID, statusID, paymentID uint) error {
+
 	query := `UPDATE shop_orders SET order_status_id = $1 , payment_method_id = $2 WHERE id = $3`
 	err := c.DB.Exec(query, statusID, paymentID, shopOrderID).Error
 

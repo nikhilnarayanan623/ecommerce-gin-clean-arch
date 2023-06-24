@@ -29,7 +29,7 @@ type OrderRepository interface {
 	// order status
 	FindOrderStatusByShopOrderID(ctx context.Context, shopOrderID uint) (domain.OrderStatus, error)
 	FindOrderStatusByID(ctx context.Context, orderStatusID uint) (domain.OrderStatus, error)
-	FindOrderStatusByStatus(ctx context.Context, orderStatus string) (domain.OrderStatus, error)
+	FindOrderStatusByStatus(ctx context.Context, orderStatus domain.OrderStatusType) (domain.OrderStatus, error)
 	FindAllOrderStatuses(ctx context.Context) ([]domain.OrderStatus, error)
 
 	//order return
@@ -43,7 +43,7 @@ type OrderRepository interface {
 	// wallet
 	FindWalletByUserID(ctx context.Context, userID uint) (wallet domain.Wallet, err error)
 	SaveWallet(ctx context.Context, userID uint) (walletID uint, err error)
-	UpdateWallet(ctx context.Context, walletID, upateTotalAmount uint) error
+	UpdateWallet(ctx context.Context, walletID, updateTotalAmount uint) error
 	SaveWalletTransaction(ctx context.Context, walletTrx domain.Transaction) error
 
 	FindWalletTransactions(ctx context.Context, walletID uint,

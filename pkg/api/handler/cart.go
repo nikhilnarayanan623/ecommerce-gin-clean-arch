@@ -68,7 +68,7 @@ func (u *cartHandler) AddToCart(ctx *gin.Context) {
 // @security ApiKeyAuth
 // @id RemoveFromCart
 // @tags User Cart
-// @Param input body request.Cart{} true "Input Field"
+// @Param product_item_id path  int true "Product Item ID"
 // @Router /carts/{product_item_id} [delete]
 // @Success 200 {object} response.Response{} "Successfully product item removed form cart"
 // @Failure 400 {object} response.Response{}  "invalid input"

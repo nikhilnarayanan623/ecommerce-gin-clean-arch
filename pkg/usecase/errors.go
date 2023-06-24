@@ -9,8 +9,8 @@ var (
 	ErrUserBlocked           = errors.New("user blocked by admin")
 	ErrWrongPassword         = errors.New("password doesn't match")
 	// otp
-	ErrOtpExpired   = errors.New("otp session expired")
-	ErrInvalidOtp   = errors.New("invalid otp")
+	ErrOtpExpired = errors.New("otp session expired")
+	ErrInvalidOtp = errors.New("invalid otp")
 
 	// refresh token
 	ErrInvalidRefreshToken    = errors.New("invalid refresh token")
@@ -40,12 +40,16 @@ var (
 	ErrVariationAlreadyExist       = errors.New("variation already exist")
 	ErrVariationOptionAlreadyExist = errors.New("variation already exist")
 
-
 	// product
 	ErrProductAlreadyExist = errors.New("product already exist with this name")
 
 	// product item
 	ErrProductItemAlreadyExist = errors.New("product item already exist with this configuration")
+
+	// offer
+	ErrOfferNameAlreadyExist = errors.New("offer already exist this name")
+	ErrInvalidOfferEndDate   = errors.New("invalid offer end date")
+	ErrOfferAlreadyEnded     = errors.New("offer already ended")
+
+	ErrOfferAlreadyExistForCategory = errors.New("offer already exist for this category")
 )
-
-
