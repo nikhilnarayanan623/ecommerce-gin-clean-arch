@@ -271,7 +271,7 @@ const docTemplate = `{
                 "tags": [
                     "Admin Category"
                 ],
-                "summary": "api for admin add a new category",
+                "summary": "api for adminstring add a new category",
                 "operationId": "SaveCategory",
                 "parameters": [
                     {
@@ -1252,6 +1252,46 @@ const docTemplate = `{
             }
         },
         "/admin/products": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "tags": [
+                    "Admin Products"
+                ],
+                "summary": "api for admin to show products",
+                "operationId": "FindAllProductsAdmin",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Page Number",
+                        "name": "page_number",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Count",
+                        "name": "count",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successfully found all products",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Failed to find all products",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            },
             "put": {
                 "tags": [
                     "Admin Products"
@@ -1344,6 +1384,38 @@ const docTemplate = `{
                     },
                     "400": {
                         "description": "invalid input",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/admin/products/product-items/{product_id}": {
+            "get": {
+                "tags": [
+                    "User Products"
+                ],
+                "summary": "api for admin get all product_items for a product",
+                "operationId": "FindAllProductItemsAdmin",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "product_id",
+                        "name": "product_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successfully got all product_items for given product_id",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "invalid input on params",
                         "schema": {
                             "$ref": "#/definitions/response.Response"
                         }
@@ -2289,7 +2361,7 @@ const docTemplate = `{
                     "User Products"
                 ],
                 "summary": "api for user to show products",
-                "operationId": "FindAllProducts-User",
+                "operationId": "FindAllProductsAdmin",
                 "parameters": [
                     {
                         "type": "integer",
@@ -2325,7 +2397,7 @@ const docTemplate = `{
                 "tags": [
                     "User Products"
                 ],
-                "summary": "api for get all product_items for a product",
+                "summary": "api for user get all product_items for a product",
                 "operationId": "FindAllProductItems",
                 "parameters": [
                     {
