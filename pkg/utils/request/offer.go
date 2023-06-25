@@ -19,3 +19,13 @@ type OfferProduct struct {
 	OfferID   uint `json:"offer_id" binding:"required"`
 	ProductID uint `json:"product_id" binding:"required"`
 }
+
+type UpdateCategoryOffer struct {
+	CategoryOfferID uint `json:"category_offer_id" binding:"required"`
+	OfferID         uint `json:"offer_id" binding:"required"`
+}
+
+type UpdateProductOffer struct {
+	ProductOfferID uint `json:"product_offer_id" binding:"required"`
+	OfferID        uint `json:"offer_id" binding:"required"`
+}

@@ -58,11 +58,17 @@ type ProductRepository interface {
 	SaveOffer(ctx context.Context, offer request.Offer) error
 	DeleteOffer(ctx context.Context, offerID uint) error
 
-	// offer discount price update
+	// to calculate the discount price and update
 	UpdateProductsDiscountByCategoryOfferID(ctx context.Context, categoryOfferID uint) error
 	UpdateProductItemsDiscountByCategoryOfferID(ctx context.Context, categoryOfferID uint) error
 	UpdateProductsDiscountByProductOfferID(ctx context.Context, productOfferID uint) error
 	UpdateProductItemsDiscountByProductOfferID(ctx context.Context, productOfferID uint) error
+
+	// to remove the discount product price
+	RemoveProductsDiscountByCategoryOfferID(ctx context.Context, categoryOfferID uint) error
+	RemoveProductItemsDiscountByCategoryOfferID(ctx context.Context, categoryOfferID uint) error
+	RemoveProductsDiscountByProductOfferID(ctx context.Context, productOfferID uint) error
+	RemoveProductItemsDiscountByProductOfferID(ctx context.Context, productOfferID uint) error
 
 	// offer category
 	FindOfferCategory(ctx context.Context, offerCategory domain.OfferCategory) (domain.OfferCategory, error)
@@ -79,8 +85,8 @@ type ProductRepository interface {
 	FindOfferProductByProductID(ctx context.Context, productID uint) (domain.OfferProduct, error)
 
 	SaveOfferProduct(ctx context.Context, offerProduct domain.OfferProduct) (productOfferId uint, err error)
-	DeleteOfferProduct(ctx context.Context, offerProduct domain.OfferProduct) error
-	UpdateOfferProduct(ctx context.Context, productOffer domain.OfferProduct) error
+	DeleteOfferProduct(ctx context.Context, productOfferID uint) error
+	UpdateOfferProduct(ctx context.Context, productOfferID, offerID uint) error
 
 	//new refracted
 	DeleteAllProductOffersByOfferID(ctx context.Context, offerID uint) error
