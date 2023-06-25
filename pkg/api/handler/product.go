@@ -359,7 +359,7 @@ func (p *ProductHandler) FindAllProductItemsAdmin() func(ctx *gin.Context) {
 	return p.findAllProductItems()
 }
 
-// @summary api for user to find all product items for a specific product
+// @summary api for user to find all product items for a specific produc
 // @id FindAllProductItems
 // @tags User Products
 // @param product_id path int true "product_id"
