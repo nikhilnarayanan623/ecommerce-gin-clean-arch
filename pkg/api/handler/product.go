@@ -25,7 +25,7 @@ func NewProductHandler(productUsecase usecaseInterface.ProductUseCase) interface
 }
 
 // FindAllCategories godoc
-// @summary api for admin get all categories
+// @summary api for admin find all categories
 // @security ApiKeyAuth
 // @tags Admin Category
 // @id FindAllCategories
@@ -54,7 +54,7 @@ func (p *ProductHandler) FindAllCategories(ctx *gin.Context) {
 }
 
 // SaveCategory godoc
-// @summary api for adminstring add a new category
+// @summary api for admin to add a new category
 // @security ApiKeyAuth
 // @id SaveCategory
 // @tags Admin Category
@@ -208,7 +208,7 @@ func (c *ProductHandler) FindAllVariations(ctx *gin.Context) {
 }
 
 // FindAllProductsAdmin godoc
-// @summary api for admin to show products
+// @summary api for admin to find all products
 // @security ApiKeyAuth
 // @tags Admin Products
 // @id FindAllProductsAdmin
@@ -222,7 +222,7 @@ func (p *ProductHandler) FindAllProductsAdmin() func(ctx *gin.Context) {
 }
 
 // FindAllProductsAdmin godoc
-// @summary api for user to show products
+// @summary api for user to find all products
 // @security ApiKeyAuth
 // @tags User Products
 // @id FindAllProductsAdmin
@@ -259,7 +259,7 @@ func (p *ProductHandler) findAllProducts() func(ctx *gin.Context) {
 }
 
 // SaveProduct godoc
-// @summary api for admin to update a product
+// @summary api for admin to add a new product
 // @id SaveProduct
 // @tags Admin Products
 // @Param input body request.Product{} true "inputs"
@@ -316,7 +316,7 @@ func (c *ProductHandler) UpdateProduct(ctx *gin.Context) {
 }
 
 // SaveProductItem godoc
-// @summary api for admin to add product-items for a specific product
+// @summary api for admin to add product item for a specific product
 // @id SaveProductItem
 // @tags Admin Products
 // @Param input body request.ProductItem{} true "inputs"
@@ -348,7 +348,7 @@ func (p *ProductHandler) SaveProductItem(ctx *gin.Context) {
 	response.SuccessResponse(ctx, http.StatusCreated, "Successfully product item added", nil)
 }
 
-// @summary api for admin get all product_items for a product
+// @summary api for admin to find all product items for a specific product
 // @id FindAllProductItemsAdmin
 // @tags User Products
 // @param product_id path int true "product_id"
@@ -359,7 +359,7 @@ func (p *ProductHandler) FindAllProductItemsAdmin() func(ctx *gin.Context) {
 	return p.findAllProductItems()
 }
 
-// @summary api for user get all product_items for a product
+// @summary api for user to find all product items for a specific produc
 // @id FindAllProductItems
 // @tags User Products
 // @param product_id path int true "product_id"
