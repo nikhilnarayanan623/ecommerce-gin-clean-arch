@@ -25,7 +25,8 @@ func NewProductHandler(productUsecase usecaseInterface.ProductUseCase) interface
 }
 
 // FindAllCategories godoc
-// @Summary Get all categories and their subcategories (Admin)
+// @Summary Get all categories (Admin)
+// @Description API for admin to get all categories and their subcategories
 // @Security ApiKeyAuth
 // @Tags Admin Category
 // @ID FindAllCategories
@@ -57,6 +58,7 @@ func (p *ProductHandler) FindAllCategories(ctx *gin.Context) {
 
 // SaveCategory godoc
 // @Summary Add a new category (Admin)
+// @Description
 // @Security ApiKeyAuth
 // @Tags Admin Category
 // @ID SaveCategory
@@ -95,6 +97,7 @@ func (p *ProductHandler) SaveCategory(ctx *gin.Context) {
 
 // SaveSubCategory godoc
 // @Summary Add a new subcategory (Admin)
+// @Description API for admin to add a new sub category for a existing category
 // @Security ApiKeyAuth
 // @Tags Admin Category
 // @ID SaveSubCategory
@@ -131,7 +134,8 @@ func (p *ProductHandler) SaveSubCategory(ctx *gin.Context) {
 }
 
 // SaveVariation godoc
-// @Summary Add new variations for a category (Admin)
+// @Summary Add new variations (Admin)
+// @Description API for admin to add new variations for a category
 // @Security ApiKeyAuth
 // @Tags Admin Category
 // @ID SaveVariation
@@ -173,7 +177,8 @@ func (p *ProductHandler) SaveVariation(ctx *gin.Context) {
 }
 
 // SaveVariationOption godoc
-// @Summary Add new variation options for a variation (Admin)
+// @Summary Add new variation options (Admin)
+// @Description API for admin to add variation options for a variation
 // @Security ApiKeyAuth
 // @Tags Admin Category
 // @ID SaveVariationOption
@@ -214,7 +219,8 @@ func (p *ProductHandler) SaveVariationOption(ctx *gin.Context) {
 }
 
 // FindAllVariations godoc
-// @Summary Get all variations and its values for a category (Admin)
+// @Summary Get all variations (Admin)
+// @Description API for admin to get all variation and its values of a category
 // @Security ApiKeyAuth
 // @Tags Admin Category
 // @ID FindAllVariations
@@ -247,38 +253,76 @@ func (c *ProductHandler) FindAllVariations(ctx *gin.Context) {
 	response.SuccessResponse(ctx, http.StatusOK, "Successfully retrieved all variations and its values", variations)
 }
 
+// SaveProduct godoc
+// @Summary Add a new product (Admin)
+// @Description API for admin to add a new product
+// @ID SaveProduct
+// @Tags Admin Products
+// @Accept json
+// @Produce json
+// @Param input body request.Product{} true "Product input"
+// @Success 200 {object} response.Response{} "successfully product added"
+// @Router /admin/products [post]
+// @Failure 400 {object} response.Response{} "invalid input"
+// @Failure 409 {object} response.Response{} "Product name already exist"
+func (p *ProductHandler) SaveProduct(ctx *gin.Context) {
+
+	var body request.Product
+
+	if err := ctx.ShouldBindJSON(&body); err != nil {
+		response.ErrorResponse(ctx, http.StatusBadRequest, BindJsonFailMessage, err, nil)
+		return
+	}
+
+	err := p.productUseCase.SaveProduct(ctx, body)
+
+	if err != nil {
+		statusCode := http.StatusInternalServerError
+		if errors.Is(err, usecase.ErrProductAlreadyExist) {
+			statusCode = http.StatusConflict
+		}
+		response.ErrorResponse(ctx, statusCode, "Failed to add product", err, nil)
+		return
+	}
+
+	response.SuccessResponse(ctx, http.StatusCreated, "Successfully product added")
+}
+
 // FindAllProductsAdmin godoc
-// @summary api for admin to find all products
-// @security ApiKeyAuth
-// @tags Admin Products
-// @id FindAllProductsAdmin
+// @Summary Get all products (Admin)
+// @Description API for admin to get all products
+// @ID FindAllProductsAdmin
+// @Tags Admin Products
+// @Security ApiKeyAuth
 // @Param page_number query int false "Page Number"
 // @Param count query int false "Count"
 // @Router /admin/products [get]
 // @Success 200 {object} response.Response{} "Successfully found all products"
-// @Failure 500 {object} response.Response{}  "Failed to find all products"
+// @Failure 500 {object} response.Response{} "Failed to find all products"
 func (p *ProductHandler) FindAllProductsAdmin() func(ctx *gin.Context) {
 	return p.findAllProducts()
 }
 
 // FindAllProductsUser godoc
-// @summary api for user to find all products
-// @security ApiKeyAuth
-// @tags User Products
-// @id FindAllProductsUser
+// @Summary Get all products (User)
+// @Description API for user to get all products
+// @ID FindAllProductsUser
+// @Tags User Products
+// @Security ApiKeyAuth
 // @Param page_number query int false "Page Number"
 // @Param count query int false "Count"
 // @Router /products [get]
 // @Success 200 {object} response.Response{} "Successfully found all products"
-// @Failure 500 {object} response.Response{}  "Failed to find all products"
+// @Failure 500 {object} response.Response{} "Failed to find all products"
 func (p *ProductHandler) FindAllProductsUser() func(ctx *gin.Context) {
 	return p.findAllProducts()
 }
 
-// this is the common functionality of find product for admin and user
+// find products is common for user and admin so this function is to get the common find all products func for them
 func (p *ProductHandler) findAllProducts() func(ctx *gin.Context) {
 
 	return func(ctx *gin.Context) {
+
 		pagination := request.GetPagination(ctx)
 
 		products, err := p.productUseCase.FindAllProducts(ctx, pagination)
@@ -298,42 +342,19 @@ func (p *ProductHandler) findAllProducts() func(ctx *gin.Context) {
 
 }
 
-// SaveProduct godoc
-// @summary api for admin to add a new product
-// @id SaveProduct
-// @tags Admin Products
-// @Param input body request.Product{} true "inputs"
-// @Router /admin/products [post]
-// @Success 200 {object} response.Response{} "successfully product added"
-// @Failure 400 {object} response.Response{} "invalid input"
-func (p *ProductHandler) SaveProduct(ctx *gin.Context) {
-
-	var body request.Product
-
-	if err := ctx.ShouldBindJSON(&body); err != nil {
-		response.ErrorResponse(ctx, http.StatusBadRequest, BindJsonFailMessage, err, nil)
-		return
-	}
-
-	err := p.productUseCase.SaveProduct(ctx, body)
-
-	if err != nil {
-
-		response.ErrorResponse(ctx, http.StatusInternalServerError, "Failed to add product", err, nil)
-		return
-	}
-
-	response.SuccessResponse(ctx, http.StatusCreated, "Successfully product added")
-}
-
 // UpdateProduct godoc
-// @summary api for admin to update a product
-// @id UpdateProduct
-// @tags Admin Products
-// @Param input body request.UpdateProduct{} true "inputs"
+// @Summary Update a product (Admin)
+// @Description API for admin to update a product
+// @ID UpdateProduct
+// @Tags Admin Products
+// @Accept json
+// @Produce json
+// @Param input body request.UpdateProduct{} true "Product update input"
 // @Router /admin/products [put]
 // @Success 200 {object} response.Response{} "successfully product updated"
 // @Failure 400 {object} response.Response{} "invalid input"
+// @Failure 409 {object} response.Response{} "Failed to update product"
+// @Failure 500 {object} response.Response{} "Product name already exist for another product"
 func (c *ProductHandler) UpdateProduct(ctx *gin.Context) {
 
 	var body request.UpdateProduct
@@ -348,7 +369,11 @@ func (c *ProductHandler) UpdateProduct(ctx *gin.Context) {
 
 	err := c.productUseCase.UpdateProduct(ctx, product)
 	if err != nil {
-		response.ErrorResponse(ctx, http.StatusInternalServerError, "Failed to update product", err, nil)
+		statusCode := http.StatusInternalServerError
+		if errors.Is(err, usecase.ErrProductAlreadyExist) {
+			statusCode = http.StatusConflict
+		}
+		response.ErrorResponse(ctx, statusCode, "Failed to update product", err, nil)
 		return
 	}
 
@@ -356,14 +381,24 @@ func (c *ProductHandler) UpdateProduct(ctx *gin.Context) {
 }
 
 // SaveProductItem godoc
-// @summary api for admin to add product item for a specific product
-// @id SaveProductItem
-// @tags Admin Products
-// @Param input body request.ProductItem{} true "inputs"
-// @Router /admin/products/product-item [post]
+// @Summary Add a product item (Admin)
+// @Description API for admin to add a product item for a specific product
+// @ID SaveProductItem
+// @Tags Admin Products
+// @Accept json
+// @Produce json
+// @Param product_id path int true "Product ID"
+// @Param input body request.ProductItem{} true "Product item input"
+// @Router /admin/products/{product_id}/items [post]
 // @Success 200 {object} response.Response{} "Successfully product item added"
 // @Failure 400 {object} response.Response{} "invalid input"
+// @Failure 409 {object} response.Response{} "Product have already this configured product items exist"
 func (p *ProductHandler) SaveProductItem(ctx *gin.Context) {
+
+	productID, err := request.GetParamAsUint(ctx, "product_id")
+	if err != nil {
+		response.ErrorResponse(ctx, http.StatusBadRequest, BindParamFailMessage, err, nil)
+	}
 
 	var body request.ProductItem
 
@@ -372,7 +407,7 @@ func (p *ProductHandler) SaveProductItem(ctx *gin.Context) {
 		return
 	}
 
-	err := p.productUseCase.SaveProductItem(ctx, body)
+	err = p.productUseCase.SaveProductItem(ctx, productID, body)
 
 	if err != nil {
 
@@ -388,24 +423,34 @@ func (p *ProductHandler) SaveProductItem(ctx *gin.Context) {
 	response.SuccessResponse(ctx, http.StatusCreated, "Successfully product item added", nil)
 }
 
-// @summary api for admin to find all product items for a specific product
-// @id FindAllProductItemsAdmin
-// @tags Admin Products
-// @param product_id path int true "product_id"
-// @Router /admin/products/product-items/{product_id} [get]
-// @Success 200 {object} response.Response{} "successfully got all product_items for given product_id"
-// @Failure 400 {object} response.Response{} "invalid input on params"
+// FindAllProductItemsAdmin godoc
+// @Summary Get all product items (Admin)
+// @Description API for admin to find all product items for a specific product
+// @ID FindAllProductItemsAdmin
+// @Tags Admin Products
+// @Accept json
+// @Produce json
+// @Param product_id path int true "Product ID"
+// @Router /admin/products/{product_id}/items [get]
+// @Success 200 {object} response.Response{} "Successfully get all product items"
+// @Failure 400 {object} response.Response{} "Invalid input"
+// @Failure 400 {object} response.Response{} "Failed to get all product items"
 func (p *ProductHandler) FindAllProductItemsAdmin() func(ctx *gin.Context) {
 	return p.findAllProductItems()
 }
 
-// @summary api for user to find all product items for a specific produc
-// @id FindAllProductItemsUser
-// @tags User Products
-// @param product_id path int true "product_id"
-// @Router /products/product-items/{product_id} [get]
-// @Success 200 {object} response.Response{} "successfully got all product_items for given product_id"
-// @Failure 400 {object} response.Response{} "invalid input on params"
+// FindAllProductItemsUser godoc
+// @Summary Get all product items (User)
+// @Description API for user to find all product items for a specific product
+// @ID FindAllProductItemsUser
+// @Tags User Products
+// @Accept json
+// @Produce json
+// @Param product_id path int true "Product ID"
+// @Router /products/{product_id}/items [get]
+// @Success 200 {object} response.Response{} "Successfully get all product items"
+// @Failure 400 {object} response.Response{} "Invalid input"
+// @Failure 400 {object} response.Response{} "Failed to get all product items"
 func (p *ProductHandler) FindAllProductItemsUser() func(ctx *gin.Context) {
 	return p.findAllProductItems()
 }
@@ -423,8 +468,7 @@ func (p *ProductHandler) findAllProductItems() func(ctx *gin.Context) {
 		productItems, err := p.productUseCase.FindProductItems(ctx, productID)
 
 		if err != nil {
-
-			response.ErrorResponse(ctx, http.StatusInternalServerError, "Failed to find product_items", err, nil)
+			response.ErrorResponse(ctx, http.StatusInternalServerError, "Failed to get all product items", err, nil)
 			return
 		}
 
@@ -434,6 +478,6 @@ func (p *ProductHandler) findAllProductItems() func(ctx *gin.Context) {
 			return
 		}
 
-		response.SuccessResponse(ctx, http.StatusOK, "Successfully found all product items ", productItems)
+		response.SuccessResponse(ctx, http.StatusOK, "Successfully get all product items ", productItems)
 	}
 }

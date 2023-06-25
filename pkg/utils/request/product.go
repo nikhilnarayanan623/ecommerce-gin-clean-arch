@@ -19,12 +19,11 @@ type UpdateProduct struct {
 
 // for a new productItem
 type ProductItem struct {
-	ProductID         uint     `json:"product_id" binding:"required"`
-	Price             uint     `json:"price" binding:"required,min=1"`
-	VariationOptionID []uint   `json:"variation_option_id" binding:"required"`
-	QtyInStock        uint     `json:"qty_in_stock" binding:"required,min=1"`
-	SKU               string   `json:"-"`
-	Images            []string `json:"images" binding:"required,dive,min=1"`
+	Price              uint     `json:"price" binding:"required,min=1"`
+	VariationOptionIDs []uint   `json:"variation_option_ids" binding:"required,gte=1"`
+	QtyInStock         uint     `json:"qty_in_stock" binding:"required,min=1"`
+	SKU                string   `json:"-"`
+	Images             []string `json:"images" binding:"required,gte=1"`
 }
 
 type Variation struct {

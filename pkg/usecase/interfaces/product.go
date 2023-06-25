@@ -24,7 +24,7 @@ type ProductUseCase interface {
 	SaveProduct(ctx context.Context, product request.Product) error
 	UpdateProduct(ctx context.Context, product domain.Product) error
 
-	SaveProductItem(ctx context.Context, productItem request.ProductItem) error
+	SaveProductItem(ctx context.Context, productID uint, productItem request.ProductItem) error
 	FindProductItems(ctx context.Context, productID uint) ([]response.ProductItems, error)
 
 	// offer

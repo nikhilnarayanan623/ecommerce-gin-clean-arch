@@ -65,10 +65,10 @@ func AdminRoutes(api *gin.RouterGroup, authHandler handlerInterface.AuthHandler,
 			product.POST("/", productHandler.SaveProduct)
 			product.PUT("/", productHandler.UpdateProduct)
 
-			productItems := product.Group("/items")
+			productItem := product.Group("/:product_id/items")
 			{
-				productItems.POST("/", productHandler.SaveProductItem)
-				productItems.GET("/:product_id", productHandler.FindAllProductItemsAdmin())
+				productItem.GET("/", productHandler.FindAllProductItemsAdmin())
+				productItem.POST("/", productHandler.SaveProductItem)
 			}
 		}
 		// 	// order

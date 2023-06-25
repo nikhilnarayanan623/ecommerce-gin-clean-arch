@@ -299,21 +299,18 @@ definitions:
       price:
         minimum: 1
         type: integer
-      product_id:
-        type: integer
       qty_in_stock:
         minimum: 1
         type: integer
-      variation_option_id:
+      variation_option_ids:
         items:
           type: integer
         type: array
     required:
     - images
     - price
-    - product_id
     - qty_in_stock
-    - variation_option_id
+    - variation_option_ids
     type: object
   request.Return:
     properties:
@@ -617,6 +614,7 @@ paths:
     get:
       consumes:
       - application/json
+      description: API for admin to get all categories and their subcategories
       operationId: FindAllCategories
       parameters:
       - description: Page number
@@ -640,7 +638,7 @@ paths:
             $ref: '#/definitions/response.Response'
       security:
       - ApiKeyAuth: []
-      summary: Get all categories and their subcategories (Admin)
+      summary: Get all categories (Admin)
       tags:
       - Admin Category
     post:
@@ -678,6 +676,7 @@ paths:
     get:
       consumes:
       - application/json
+      description: API for admin to get all variation and its values of a category
       operationId: FindAllVariations
       parameters:
       - description: Category ID
@@ -702,12 +701,13 @@ paths:
             $ref: '#/definitions/response.Response'
       security:
       - ApiKeyAuth: []
-      summary: Get all variations and its values for a category (Admin)
+      summary: Get all variations (Admin)
       tags:
       - Admin Category
     post:
       consumes:
       - application/json
+      description: API for admin to add new variations for a category
       operationId: SaveVariation
       parameters:
       - description: Category ID
@@ -738,13 +738,14 @@ paths:
             $ref: '#/definitions/response.Response'
       security:
       - ApiKeyAuth: []
-      summary: Add new variations for a category (Admin)
+      summary: Add new variations (Admin)
       tags:
       - Admin Category
   /admin/categories/{category_id}/variations/{variation_id}/options:
     post:
       consumes:
       - application/json
+      description: API for admin to add variation options for a variation
       operationId: SaveVariationOption
       parameters:
       - description: Category ID
@@ -780,13 +781,14 @@ paths:
             $ref: '#/definitions/response.Response'
       security:
       - ApiKeyAuth: []
-      summary: Add new variation options for a variation (Admin)
+      summary: Add new variation options (Admin)
       tags:
       - Admin Category
   /admin/categories/sub-categories:
     post:
       consumes:
       - application/json
+      description: API for admin to add a new sub category for a existing category
       operationId: SaveSubCategory
       parameters:
       - description: Subcategory details
@@ -1334,6 +1336,7 @@ paths:
       - Admin Payment
   /admin/products:
     get:
+      description: API for admin to get all products
       operationId: FindAllProductsAdmin
       parameters:
       - description: Page Number
@@ -1355,18 +1358,23 @@ paths:
             $ref: '#/definitions/response.Response'
       security:
       - ApiKeyAuth: []
-      summary: api for admin to find all products
+      summary: Get all products (Admin)
       tags:
       - Admin Products
     post:
+      consumes:
+      - application/json
+      description: API for admin to add a new product
       operationId: SaveProduct
       parameters:
-      - description: inputs
+      - description: Product input
         in: body
         name: input
         required: true
         schema:
           $ref: '#/definitions/request.Product'
+      produces:
+      - application/json
       responses:
         "200":
           description: successfully product added
@@ -1376,18 +1384,27 @@ paths:
           description: invalid input
           schema:
             $ref: '#/definitions/response.Response'
-      summary: api for admin to add a new product
+        "409":
+          description: Product name already exist
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: Add a new product (Admin)
       tags:
       - Admin Products
     put:
+      consumes:
+      - application/json
+      description: API for admin to update a product
       operationId: UpdateProduct
       parameters:
-      - description: inputs
+      - description: Product update input
         in: body
         name: input
         required: true
         schema:
           $ref: '#/definitions/request.UpdateProduct'
+      produces:
+      - application/json
       responses:
         "200":
           description: successfully product updated
@@ -1397,19 +1414,62 @@ paths:
           description: invalid input
           schema:
             $ref: '#/definitions/response.Response'
-      summary: api for admin to update a product
+        "409":
+          description: Failed to update product
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Product name already exist for another product
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: Update a product (Admin)
       tags:
       - Admin Products
-  /admin/products/product-item:
+  /admin/products/{product_id}/items:
+    get:
+      consumes:
+      - application/json
+      description: API for admin to find all product items for a specific product
+      operationId: FindAllProductItemsAdmin
+      parameters:
+      - description: Product ID
+        in: path
+        name: product_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully get all product items
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Failed to get all product items
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: Get all product items (Admin)
+      tags:
+      - Admin Products
     post:
+      consumes:
+      - application/json
+      description: API for admin to add a product item for a specific product
       operationId: SaveProductItem
       parameters:
-      - description: inputs
+      - description: Product ID
+        in: path
+        name: product_id
+        required: true
+        type: integer
+      - description: Product item input
         in: body
         name: input
         required: true
         schema:
           $ref: '#/definitions/request.ProductItem'
+      produces:
+      - application/json
       responses:
         "200":
           description: Successfully product item added
@@ -1419,28 +1479,11 @@ paths:
           description: invalid input
           schema:
             $ref: '#/definitions/response.Response'
-      summary: api for admin to add product item for a specific product
-      tags:
-      - Admin Products
-  /admin/products/product-items/{product_id}:
-    get:
-      operationId: FindAllProductItemsAdmin
-      parameters:
-      - description: product_id
-        in: path
-        name: product_id
-        required: true
-        type: integer
-      responses:
-        "200":
-          description: successfully got all product_items for given product_id
+        "409":
+          description: Product have already this configured product items exist
           schema:
             $ref: '#/definitions/response.Response'
-        "400":
-          description: invalid input on params
-          schema:
-            $ref: '#/definitions/response.Response'
-      summary: api for admin to find all product items for a specific product
+      summary: Add a product item (Admin)
       tags:
       - Admin Products
   /admin/sales:
@@ -2040,6 +2083,7 @@ paths:
       - User Orders
   /products:
     get:
+      description: API for user to get all products
       operationId: FindAllProductsUser
       parameters:
       - description: Page Number
@@ -2061,28 +2105,33 @@ paths:
             $ref: '#/definitions/response.Response'
       security:
       - ApiKeyAuth: []
-      summary: api for user to find all products
+      summary: Get all products (User)
       tags:
       - User Products
-  /products/product-items/{product_id}:
+  /products/{product_id}/items:
     get:
+      consumes:
+      - application/json
+      description: API for user to find all product items for a specific product
       operationId: FindAllProductItemsUser
       parameters:
-      - description: product_id
+      - description: Product ID
         in: path
         name: product_id
         required: true
         type: integer
+      produces:
+      - application/json
       responses:
         "200":
-          description: successfully got all product_items for given product_id
+          description: Successfully get all product items
           schema:
             $ref: '#/definitions/response.Response'
         "400":
-          description: invalid input on params
+          description: Failed to get all product items
           schema:
             $ref: '#/definitions/response.Response'
-      summary: api for user to find all product items for a specific produc
+      summary: Get all product items (User)
       tags:
       - User Products
   /signup:
