@@ -29,11 +29,11 @@ type ProductHandler interface {
 	FindAllCategoryOffers(ctx *gin.Context)
 	SaveCategoryOffer(ctx *gin.Context)
 	RemoveCategoryOffer(ctx *gin.Context)
-	ReplaceCategoryOffer(ctx *gin.Context)
+	ChangeCategoryOffer(ctx *gin.Context)
 
 	// product offer
 	FindAllProductsOffers(ctx *gin.Context)
 	SaveProductOffer(ctx *gin.Context)
 	RemoveProductOffer(ctx *gin.Context)
-	ReplaceProductOffer(ctx *gin.Context)
+	ChangeProductOffer(ctx *gin.Context)
 }

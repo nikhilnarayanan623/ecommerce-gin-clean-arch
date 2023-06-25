@@ -13,7 +13,7 @@ import (
 )
 
 // SaveOffer godoc
-// @summary api for admin to add new offer
+// @summary api for admin to add a new offer
 // @id SaveOffer
 // @tags Admin Offers
 // @Param input body request.Offer{} true "input field"
@@ -50,7 +50,7 @@ func (p *ProductHandler) SaveOffer(ctx *gin.Context) {
 }
 
 // FindAllOffers godoc
-// @summary api for show all offers
+// @summary api for find all offers
 // @id FindAllOffers
 // @tags Admin Offers
 // @Param page_number query int false "Page Number"
@@ -79,7 +79,7 @@ func (c *ProductHandler) FindAllOffers(ctx *gin.Context) {
 }
 
 // RemoveOffer godoc
-// @summary api for admin to delete offer
+// @summary api for admin to remove offer
 // @id RemoveOffer
 // @tags Admin Offers
 // @Param offer_id path  int true "Offer ID"
@@ -105,7 +105,7 @@ func (c *ProductHandler) RemoveOffer(ctx *gin.Context) {
 
 }
 
-// @summary api for admin to add offer for category
+// @summary api for admin to add a new category offer
 // @id SaveCategoryOffer
 // @tags Admin Offers
 // @Param input body request.OfferCategory{} true "input field"
@@ -140,7 +140,7 @@ func (c *ProductHandler) SaveCategoryOffer(ctx *gin.Context) {
 }
 
 // FindAllCategoryOffers godoc
-// @summary api for admin to get all offers of categories
+// @summary api for admin to find all category offers
 // @id FindAllCategoryOffers
 // @tags Admin Offers
 // @Param page_number query int false "Page Number"
@@ -168,7 +168,7 @@ func (c *ProductHandler) FindAllCategoryOffers(ctx *gin.Context) {
 }
 
 // RemoveCategoryOffer godoc
-// @summary api for admin to remove offer from a category
+// @summary api for admin to remove a category offer
 // @id RemoveCategoryOffer
 // @tags Admin Offers
 // @Param offer_category_id path  int true "Offer Category ID"
@@ -193,39 +193,36 @@ func (c *ProductHandler) RemoveCategoryOffer(ctx *gin.Context) {
 	response.SuccessResponse(ctx, http.StatusOK, "Successfully offer removed from category")
 }
 
-// ReplaceCategoryOffer godoc
-// @summary api for admin to replace offer of a category to another
-// @id ReplaceCategoryOffer
+// ChangeCategoryOffer godoc
+// @summary api for admin to change product category to another existing offer
+// @id ChangeCategoryOffer
 // @tags Admin Offers
-// @Param input body request.OfferCategory{} true "input field"
-// @Router /admin/offers/category/replace [post]
+// @Param input body request.UpdateCategoryOffer{} true "input field"
+// @Router /admin/offers/category [patch]
 // @Success 200 {object} response.Response{} "successfully offer replaced for category"
 // @Failure 400 {object} response.Response{} "invalid input"
-func (c *ProductHandler) ReplaceCategoryOffer(ctx *gin.Context) {
+func (c *ProductHandler) ChangeCategoryOffer(ctx *gin.Context) {
 
-	var body request.OfferCategory
+	var body request.UpdateCategoryOffer
 
 	if err := ctx.ShouldBindJSON(&body); err != nil {
 		response.ErrorResponse(ctx, http.StatusBadRequest, BindJsonFailMessage, err, nil)
 		return
 	}
 
-	var offerCategory domain.OfferCategory
-	copier.Copy(&offerCategory, &body)
-
-	err := c.productUseCase.ReplaceCategoryOffer(ctx, offerCategory)
+	err := c.productUseCase.ChangeCategoryOffer(ctx, body.CategoryOfferID, body.OfferID)
 	if err != nil {
-		response.ErrorResponse(ctx, http.StatusBadRequest, "Failed to replace offer for given category", err, nil)
+		response.ErrorResponse(ctx, http.StatusBadRequest, "Failed to change offer for given category offer", err, nil)
 		return
 	}
 
-	response.SuccessResponse(ctx, 200, "Successfully offer replaced for given category")
+	response.SuccessResponse(ctx, 200, "Successfully offer changed for given category offer")
 }
 
 // FindAllProductsOffers godoc
-// @summary api for admin to get all offers of products
+// @summary api for admin to find all product offers
 // @id FindAllProductsOffers
-// @tags Offers
+// @tags Admin Offers
 // @Param page_number query int false "Page Number"
 // @Param count query int false "Count"
 // @Router /admin/offers/products [get]
@@ -250,9 +247,9 @@ func (c *ProductHandler) FindAllProductsOffers(ctx *gin.Context) {
 }
 
 // SaveProductOffer godoc
-// @summary api for admin to add offer for product
+// @summary api for admin to add offer for a product
 // @id SaveProductOffer
-// @tags Offers
+// @tags Admin Offers
 // @Param input body request.OfferProduct{} true "input field"
 // @Router /admin/offers/products [post]
 // @Success 200 {object} response.Response{} "successfully offer added for product"
@@ -279,12 +276,12 @@ func (c *ProductHandler) SaveProductOffer(ctx *gin.Context) {
 }
 
 // RemoveProductOffer godoc
-// @summary api for admin to remove offer from product
+// @summary api for admin to remove offer product offer
 // @id RemoveProductOffer
-// @tags Offers
+// @tags Admin Offers
 // @param offer_product_id path int true "offer_product_id"
 // @Router /admin/offers/products/{offer_product_id} [delete]
-// @Success 200 {object} response.Response{} "successfully offer removed from product"
+// @Success 200 {object} response.Response{} "Successfully offer removed from product"
 // @Failure 400 {object} response.Response{} "invalid input on params"
 func (c *ProductHandler) RemoveProductOffer(ctx *gin.Context) {
 
@@ -294,7 +291,7 @@ func (c *ProductHandler) RemoveProductOffer(ctx *gin.Context) {
 		return
 	}
 
-	err = c.productUseCase.RemoveProductOffer(ctx, domain.OfferProduct{ID: offerProductID})
+	err = c.productUseCase.RemoveProductOffer(ctx, offerProductID)
 
 	if err != nil {
 		response.ErrorResponse(ctx, http.StatusBadRequest, "Failed to remove offer form product", err, nil)
@@ -304,32 +301,29 @@ func (c *ProductHandler) RemoveProductOffer(ctx *gin.Context) {
 	response.SuccessResponse(ctx, 200, "Successfully offer removed from product")
 }
 
-// ReplaceProductOffer godoc
-// @summary api for admin to replace a new offer on an existing offer for a product
-// @id ReplaceProductOffer
-// @tags Offers
-// @Param input body request.OfferProduct{} true "input field"
-// @Router /admin/offers/products [put]
-// @Success 200 {object} response.Response{} "successfully offer replaced for product"
+// ChangeProductOffer godoc
+// @summary api for admin to change product offer to another existing offer
+// @id ChangeProductOffer
+// @tags Admin Offers
+// @Param input body request.UpdateProductOffer{} true "input field"
+// @Router /admin/offers/products [patch]
+// @Success 200 {object} response.Response{} "Successfully offer changed for  given product offer"
 // @Failure 400 {object} response.Response{} "invalid input"
-func (c *ProductHandler) ReplaceProductOffer(ctx *gin.Context) {
+func (c *ProductHandler) ChangeProductOffer(ctx *gin.Context) {
 
-	var body request.OfferProduct
+	var body request.UpdateProductOffer
 
 	if err := ctx.ShouldBindJSON(&body); err != nil {
 		response.ErrorResponse(ctx, http.StatusBadRequest, BindJsonFailMessage, err, nil)
 		return
 	}
 
-	var offerProduct domain.OfferProduct
-	copier.Copy(&offerProduct, &body)
-
-	err := c.productUseCase.ReplaceProductOffer(ctx, offerProduct)
+	err := c.productUseCase.ChangeProductOffer(ctx, body.ProductOfferID, body.OfferID)
 
 	if err != nil {
-		response.ErrorResponse(ctx, http.StatusBadRequest, "Failed to replace offer for given product", err, nil)
+		response.ErrorResponse(ctx, http.StatusBadRequest, "Failed to change offer for given product offer", err, nil)
 		return
 	}
 
-	response.SuccessResponse(ctx, http.StatusOK, "Successfully offer replaced for  given product")
+	response.SuccessResponse(ctx, http.StatusOK, "Successfully offer changed for  given product offer")
 }

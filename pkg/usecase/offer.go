@@ -2,7 +2,6 @@ package usecase
 
 import (
 	"context"
-	"errors"
 	"time"
 
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/domain"
@@ -158,20 +157,21 @@ func (c *productUseCase) RemoveCategoryOffer(ctx context.Context, categoryOfferI
 
 	err := c.productRepo.Transactions(ctx, func(repo interfaces.ProductRepository) error {
 
-		err := c.productRepo.DeleteCategoryOffer(ctx, categoryOfferID)
+		// re-calculate products after removed offer by category offer wise
+		err := repo.RemoveProductsDiscountByCategoryOfferID(ctx, categoryOfferID)
+		if err != nil {
+			return utils.PrependMessageToError(err, "failed to remove products discount by category offer")
+		}
+		// re-calculate product items after removed offer by category offer wise
+		err = repo.RemoveProductItemsDiscountByCategoryOfferID(ctx, categoryOfferID)
+		if err != nil {
+			return utils.PrependMessageToError(err, "failed to remove product items discount by category offer")
+		}
+		// last remove the offer
+		err = c.productRepo.DeleteCategoryOffer(ctx, categoryOfferID)
 		if err != nil {
 			return utils.PrependMessageToError(err, "failed to remove category offer")
 		}
-		// re-calculate products after removed offer by category offer wise
-		// err = repo.ReCalculateAllProductsDiscountByCategoryOffer(ctx)
-		// if err != nil {
-		// 	return utils.PrependMessageToError(err, "failed to re calculate products discount by category offer")
-		// }
-		// // re-calculate product items after removed offer by category offer wise
-		// err = repo.ReCalculateAllProductItemsDiscountByCategoryOffer(ctx)
-		// if err != nil {
-		// 	return utils.PrependMessageToError(err, "failed to re calculate product items discount by category offer")
-		// }
 		return nil
 	})
 
@@ -182,23 +182,34 @@ func (c *productUseCase) RemoveCategoryOffer(ctx context.Context, categoryOfferI
 	return nil
 }
 
-func (c *productUseCase) ReplaceCategoryOffer(ctx context.Context, offerCategory domain.OfferCategory) error {
+func (c *productUseCase) ChangeCategoryOffer(ctx context.Context, categoryOfferID, offerID uint) error {
 
-	// if offer exist then update it
-	err := c.productRepo.UpdateCategoryOffer(ctx, offerCategory.CategoryID, offerCategory.OfferID)
+	err := c.productRepo.Transactions(ctx, func(repo interfaces.ProductRepository) error {
+		err := c.productRepo.UpdateCategoryOffer(ctx, categoryOfferID, offerID)
+		if err != nil {
+			return utils.PrependMessageToError(err, "failed to update category offer")
+		}
+		// calculate products after removed offer by category offer wise
+		err = repo.UpdateProductsDiscountByCategoryOfferID(ctx, categoryOfferID)
+		if err != nil {
+			return utils.PrependMessageToError(err, "failed to re calculate products discount by category offer")
+		}
+		// calculate product items after removed offer by category offer wise
+		err = repo.UpdateProductItemsDiscountByCategoryOfferID(ctx, categoryOfferID)
+		if err != nil {
+			return utils.PrependMessageToError(err, "failed to re calculate product items discount by category offer")
+		}
+		return nil
+	})
+
 	if err != nil {
-		return utils.PrependMessageToError(err, "failed to update category offer")
+		return err
 	}
 
-	// err = c.productRepo.ReCalculateAllDiscountPrice(ctx)
-	// if err != nil {
-	// 	utils.PrependMessageToError(err, "failed to update discount price after replace category offer")
-	// }
 	return nil
 }
 
 // offer on products
-
 func (c *productUseCase) SaveProductOffer(ctx context.Context, offerProduct domain.OfferProduct) error {
 
 	// check the any offer is already exist for the given product
@@ -211,16 +222,17 @@ func (c *productUseCase) SaveProductOffer(ctx context.Context, offerProduct doma
 	}
 
 	err = c.productRepo.Transactions(ctx, func(repo interfaces.ProductRepository) error {
+		// save product offer
 		productOfferID, err := repo.SaveOfferProduct(ctx, offerProduct)
 		if err != nil {
 			return utils.PrependMessageToError(err, "failed save product offer")
 		}
-
+		// update the discount price of products
 		err = repo.UpdateProductsDiscountByProductOfferID(ctx, productOfferID)
 		if err != nil {
 			return utils.PrependMessageToError(err, "failed to calculate product discount price for offer")
 		}
-
+		// update the discount price of products
 		err = repo.UpdateProductItemsDiscountByProductOfferID(ctx, productOfferID)
 		if err != nil {
 			return utils.PrependMessageToError(err, "failed to calculate product items discount price for offer")
@@ -236,35 +248,64 @@ func (c *productUseCase) SaveProductOffer(ctx context.Context, offerProduct doma
 
 // get all offers for products
 func (c *productUseCase) FindAllProductOffers(ctx context.Context, pagination request.Pagination) ([]response.OfferProduct, error) {
-	return c.productRepo.FindAllOfferProducts(ctx, pagination)
+	productOffers, err := c.productRepo.FindAllOfferProducts(ctx, pagination)
+	if err != nil {
+		return nil, utils.PrependMessageToError(err, "failed to find product offers")
+	}
+	return productOffers, nil
 }
 
 // remove offer form products
-func (c *productUseCase) RemoveProductOffer(ctx context.Context, offerProducts domain.OfferProduct) error {
+func (c *productUseCase) RemoveProductOffer(ctx context.Context, productOfferID uint) error {
 
-	offerProducts, err := c.productRepo.FindOfferProduct(ctx, offerProducts)
+	err := c.productRepo.Transactions(ctx, func(repo interfaces.ProductRepository) error {
+
+		err := repo.RemoveProductsDiscountByProductOfferID(ctx, productOfferID)
+		if err != nil {
+			return utils.PrependMessageToError(err, "failed to remove discount price of offer product")
+		}
+		err = repo.RemoveProductItemsDiscountByProductOfferID(ctx, productOfferID)
+		if err != nil {
+			return utils.PrependMessageToError(err, "failed to remove discount price of offer product items")
+		}
+
+		err = repo.DeleteOfferProduct(ctx, productOfferID)
+		if err != nil {
+			return utils.PrependMessageToError(err, "failed to remove product offer")
+		}
+		return nil
+	})
+
 	if err != nil {
 		return err
-	} else if offerProducts.OfferID == 0 {
-		return errors.New("invalid offer_product_id")
 	}
 
-	if err := c.productRepo.DeleteOfferProduct(ctx, offerProducts); err != nil {
-		return err
-	}
-
-	// update the discount price
-	return nil //c.productRepo.ReCalculateAllDiscountPrice(ctx)
+	return nil
 }
 
-// replace offer products
-func (c *productUseCase) ReplaceProductOffer(ctx context.Context, offerProduct domain.OfferProduct) error {
+func (c *productUseCase) ChangeProductOffer(ctx context.Context, productOfferID, offerID uint) error {
 
-	err := c.productRepo.UpdateOfferProduct(ctx, offerProduct)
+	err := c.productRepo.Transactions(ctx, func(repo interfaces.ProductRepository) error {
+		err := c.productRepo.UpdateOfferProduct(ctx, productOfferID, offerID)
+		if err != nil {
+			return utils.PrependMessageToError(err, "failed to update product offer")
+		}
+		// calculate products after removed offer by category offer wise
+		err = repo.UpdateProductsDiscountByProductOfferID(ctx, productOfferID)
+		if err != nil {
+			return utils.PrependMessageToError(err, "failed to re calculate products discount by product offer")
+		}
+		// calculate product items after removed offer by category offer wise
+		err = repo.UpdateProductItemsDiscountByProductOfferID(ctx, productOfferID)
+		if err != nil {
+			return utils.PrependMessageToError(err, "failed to re calculate product items discount by product offer")
+		}
+		return nil
+	})
+
 	if err != nil {
-		return utils.PrependMessageToError(err, "failed to replace offer product")
+		return err
 	}
 
-	// update the discount price
-	return nil //c.productRepo.ReCalculateAllDiscountPrice(ctx)
+	return nil
 }

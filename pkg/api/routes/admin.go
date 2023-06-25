@@ -93,12 +93,12 @@ func AdminRoutes(api *gin.RouterGroup, authHandler handlerInterface.AuthHandler,
 
 			offer.GET("/category", productHandler.FindAllCategoryOffers) // to get all offers of categories
 			offer.POST("/category", productHandler.SaveCategoryOffer)    // add offer for categories
-			offer.PUT("/category", productHandler.ReplaceCategoryOffer)
+			offer.PATCH("/category", productHandler.ChangeCategoryOffer)
 			offer.DELETE("/category/:offer_category_id", productHandler.RemoveCategoryOffer)
 
 			offer.GET("/products", productHandler.FindAllProductsOffers) // to get all offers of products
 			offer.POST("/products", productHandler.SaveProductOffer)     // add offer for products
-			offer.PUT("/products", productHandler.ReplaceProductOffer)
+			offer.PATCH("/products", productHandler.ChangeProductOffer)
 			offer.DELETE("/products/:offer_product_id", productHandler.RemoveProductOffer)
 		}
 
