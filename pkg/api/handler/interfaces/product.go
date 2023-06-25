@@ -10,12 +10,15 @@ type ProductHandler interface {
 	SaveVariationOption(ctx *gin.Context)
 	FindAllVariations(ctx *gin.Context)
 
-	FindAllProducts(ctx *gin.Context)
+	FindAllProductsAdmin() func(ctx *gin.Context)
+	FindAllProductsUser() func(ctx *gin.Context)
+
 	SaveProduct(ctx *gin.Context)
 	UpdateProduct(ctx *gin.Context)
 
 	SaveProductItem(ctx *gin.Context)
-	FindAllProductItems(ctx *gin.Context)
+	FindAllProductItemsAdmin() func(ctx *gin.Context)
+	FindAllProductItemsUser() func(ctx *gin.Context)
 
 	// offer
 	SaveOffer(ctx *gin.Context)

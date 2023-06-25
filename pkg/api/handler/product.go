@@ -54,7 +54,7 @@ func (p *ProductHandler) FindAllCategories(ctx *gin.Context) {
 }
 
 // SaveCategory godoc
-// @summary api for admin add a new category
+// @summary api for adminstring add a new category
 // @security ApiKeyAuth
 // @id SaveCategory
 // @tags Admin Category
@@ -207,44 +207,54 @@ func (c *ProductHandler) FindAllVariations(ctx *gin.Context) {
 	response.SuccessResponse(ctx, http.StatusOK, "Successfully found all variations and its values", variations)
 }
 
-// FindAllProducts-Admin godoc
+// FindAllProductsAdmin godoc
 // @summary api for admin to show products
 // @security ApiKeyAuth
 // @tags Admin Products
-// @id FindAllProducts-Admin
+// @id FindAllProductsAdmin
 // @Param page_number query int false "Page Number"
 // @Param count query int false "Count"
 // @Router /admin/products [get]
 // @Success 200 {object} response.Response{} "Successfully found all products"
 // @Failure 500 {object} response.Response{}  "Failed to find all products"
+func (p *ProductHandler) FindAllProductsAdmin() func(ctx *gin.Context) {
+	return p.findAllProducts()
+}
 
-// FindAllProducts-User godoc
+// FindAllProductsAdmin godoc
 // @summary api for user to show products
 // @security ApiKeyAuth
 // @tags User Products
-// @id FindAllProducts-User
+// @id FindAllProductsAdmin
 // @Param page_number query int false "Page Number"
 // @Param count query int false "Count"
 // @Router /products [get]
 // @Success 200 {object} response.Response{} "Successfully found all products"
 // @Failure 500 {object} response.Response{}  "Failed to find all products"
-func (p *ProductHandler) FindAllProducts(ctx *gin.Context) {
+func (p *ProductHandler) FindAllProductsUser() func(ctx *gin.Context) {
+	return p.findAllProducts()
+}
 
-	pagination := request.GetPagination(ctx)
+// this is the common functionality of find product for admin and user
+func (p *ProductHandler) findAllProducts() func(ctx *gin.Context) {
 
-	products, err := p.productUseCase.FindAllProducts(ctx, pagination)
+	return func(ctx *gin.Context) {
+		pagination := request.GetPagination(ctx)
 
-	if err != nil {
-		response.ErrorResponse(ctx, http.StatusInternalServerError, "Failed to find all products", err, nil)
-		return
+		products, err := p.productUseCase.FindAllProducts(ctx, pagination)
+
+		if err != nil {
+			response.ErrorResponse(ctx, http.StatusInternalServerError, "Failed to find all products", err, nil)
+			return
+		}
+
+		if len(products) == 0 {
+			response.SuccessResponse(ctx, http.StatusOK, "No products found", nil)
+			return
+		}
+
+		response.SuccessResponse(ctx, http.StatusOK, "Successfully found all products", products)
 	}
-
-	if len(products) == 0 {
-		response.SuccessResponse(ctx, http.StatusOK, "No products found", nil)
-		return
-	}
-
-	response.SuccessResponse(ctx, http.StatusOK, "Successfully found all products", products)
 
 }
 
@@ -338,33 +348,52 @@ func (p *ProductHandler) SaveProductItem(ctx *gin.Context) {
 	response.SuccessResponse(ctx, http.StatusCreated, "Successfully product item added", nil)
 }
 
-// @summary api for get all product_items for a product
+// @summary api for admin get all product_items for a product
+// @id FindAllProductItemsAdmin
+// @tags User Products
+// @param product_id path int true "product_id"
+// @Router /admin/products/product-items/{product_id} [get]
+// @Success 200 {object} response.Response{} "successfully got all product_items for given product_id"
+// @Failure 400 {object} response.Response{} "invalid input on params"
+func (p *ProductHandler) FindAllProductItemsAdmin() func(ctx *gin.Context) {
+	return p.findAllProductItems()
+}
+
+// @summary api for user get all product_items for a product
 // @id FindAllProductItems
 // @tags User Products
 // @param product_id path int true "product_id"
 // @Router /products/product-items/{product_id} [get]
 // @Success 200 {object} response.Response{} "successfully got all product_items for given product_id"
 // @Failure 400 {object} response.Response{} "invalid input on params"
-func (p *ProductHandler) FindAllProductItems(ctx *gin.Context) {
+func (p *ProductHandler) FindAllProductItemsUser() func(ctx *gin.Context) {
+	return p.findAllProductItems()
+}
 
-	productID, err := request.GetParamAsUint(ctx, "product_id")
-	if err != nil {
-		response.ErrorResponse(ctx, http.StatusBadRequest, BindParamFailMessage, err, nil)
+// same functionality of finding all product items for admin and user
+func (p *ProductHandler) findAllProductItems() func(ctx *gin.Context) {
+
+	return func(ctx *gin.Context) {
+
+		productID, err := request.GetParamAsUint(ctx, "product_id")
+		if err != nil {
+			response.ErrorResponse(ctx, http.StatusBadRequest, BindParamFailMessage, err, nil)
+		}
+
+		productItems, err := p.productUseCase.FindProductItems(ctx, productID)
+
+		if err != nil {
+
+			response.ErrorResponse(ctx, http.StatusInternalServerError, "Failed to find product_items", err, nil)
+			return
+		}
+
+		// check the product have productItem exist or not
+		if len(productItems) == 0 {
+			response.SuccessResponse(ctx, http.StatusOK, "No product items found")
+			return
+		}
+
+		response.SuccessResponse(ctx, http.StatusOK, "Successfully found all product items ", productItems)
 	}
-
-	productItems, err := p.productUseCase.FindProductItems(ctx, productID)
-
-	if err != nil {
-
-		response.ErrorResponse(ctx, http.StatusInternalServerError, "Failed to find product_items", err, nil)
-		return
-	}
-
-	// check the product have productItem exist or not
-	if len(productItems) == 0 {
-		response.SuccessResponse(ctx, http.StatusOK, "No product items found")
-		return
-	}
-
-	response.SuccessResponse(ctx, http.StatusOK, "Successfully found all product items ", productItems)
 }
