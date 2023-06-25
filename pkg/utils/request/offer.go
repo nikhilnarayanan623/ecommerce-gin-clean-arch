@@ -4,7 +4,7 @@ import "time"
 
 // offer
 type Offer struct {
-	OfferName    string    `json:"offer_name" binding:"required"`
+	Name         string    `json:"offer_name" binding:"required"`
 	Description  string    `json:"description" binding:"required,min=6,max=50"`
 	DiscountRate uint      `json:"discount_rate" binding:"required,numeric,min=1,max=100"`
 	StartDate    time.Time `json:"start_date" binding:"required"`

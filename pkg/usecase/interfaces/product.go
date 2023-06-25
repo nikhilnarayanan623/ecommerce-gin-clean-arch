@@ -28,14 +28,14 @@ type ProductUseCase interface {
 	FindProductItems(ctx context.Context, productID uint) ([]response.ProductItems, error)
 
 	// offer
-	SaveOffer(ctx context.Context, offer domain.Offer) error
+	SaveOffer(ctx context.Context, offer request.Offer) error
 	RemoveOffer(ctx context.Context, offerID uint) error
 	FindAllOffers(ctx context.Context, pagination request.Pagination) ([]domain.Offer, error)
 
 	// offer category
-	SaveCategoryOffer(ctx context.Context, offerCategory domain.OfferCategory) error
+	SaveCategoryOffer(ctx context.Context, offerCategory request.OfferCategory) error
 	FindAllCategoryOffers(ctx context.Context, pagination request.Pagination) ([]response.OfferCategory, error)
-	RemoveCategoryOffer(ctx context.Context, offerCategory domain.OfferCategory) error
+	RemoveCategoryOffer(ctx context.Context, categoryOfferID uint) error
 	ReplaceCategoryOffer(ctx context.Context, offerCategory domain.OfferCategory) error
 
 	// offer product

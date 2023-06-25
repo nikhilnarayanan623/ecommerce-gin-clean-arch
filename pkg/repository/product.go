@@ -144,7 +144,6 @@ func (c *productDatabase) SaveVariation(ctx context.Context, variation request.V
 	return err
 }
 
-
 // add variation option
 func (c *productDatabase) SaveVariationOption(ctx context.Context, variationOption request.VariationOption) error {
 
