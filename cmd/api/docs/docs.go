@@ -231,7 +231,7 @@ const docTemplate = `{
                 "tags": [
                     "Admin Category"
                 ],
-                "summary": "api for admin get all categories",
+                "summary": "api for admin find all categories",
                 "operationId": "FindAllCategories",
                 "parameters": [
                     {
@@ -271,7 +271,7 @@ const docTemplate = `{
                 "tags": [
                     "Admin Category"
                 ],
-                "summary": "api for adminstring add a new category",
+                "summary": "api for admin to add a new category",
                 "operationId": "SaveCategory",
                 "parameters": [
                     {
@@ -616,73 +616,9 @@ const docTemplate = `{
             }
         },
         "/admin/offers": {
-            "post": {
-                "tags": [
-                    "Offers"
-                ],
-                "summary": "api for admin to add new offer",
-                "operationId": "SaveOffer",
-                "parameters": [
-                    {
-                        "description": "input field",
-                        "name": "input",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/request.Offer"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "successfully offer added",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    },
-                    "400": {
-                        "description": "invalid input",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    }
-                }
-            },
-            "delete": {
-                "tags": [
-                    "Offers"
-                ],
-                "summary": "api for admin to delete offer",
-                "operationId": "SaveOffer",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Offer ID",
-                        "name": "offer_id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "successfully offer added",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    },
-                    "400": {
-                        "description": "invalid input",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    }
-                }
-            }
-        },
-        "/admin/offers/": {
             "get": {
                 "tags": [
-                    "Offers"
+                    "Admin Offers"
                 ],
                 "summary": "api for show all offers",
                 "operationId": "FindAllOffers",
@@ -702,13 +638,51 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "successfully got all offers",
+                        "description": "Successfully found all offers",
                         "schema": {
                             "$ref": "#/definitions/response.Response"
                         }
                     },
                     "500": {
-                        "description": "faild to get offers",
+                        "description": "Failed to find all offers",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "Admin Offers"
+                ],
+                "summary": "api for admin to add new offer",
+                "operationId": "SaveOffer",
+                "parameters": [
+                    {
+                        "description": "input field",
+                        "name": "input",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.Offer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successfully offer added",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid inputs",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "409": {
+                        "description": "Offer already exist",
                         "schema": {
                             "$ref": "#/definitions/response.Response"
                         }
@@ -719,7 +693,7 @@ const docTemplate = `{
         "/admin/offers/category": {
             "get": {
                 "tags": [
-                    "Offers"
+                    "Admin Offers"
                 ],
                 "summary": "api for admin to get all offers of categories",
                 "operationId": "FindAllCategoryOffers",
@@ -754,7 +728,7 @@ const docTemplate = `{
             },
             "post": {
                 "tags": [
-                    "Offers"
+                    "Admin Offers"
                 ],
                 "summary": "api for admin to add offer for category",
                 "operationId": "SaveCategoryOffer",
@@ -783,44 +757,14 @@ const docTemplate = `{
                         }
                     }
                 }
-            },
-            "delete": {
-                "tags": [
-                    "Offers"
-                ],
-                "summary": "api for admin to remove offer from a category",
-                "operationId": "RemoveCategoryOffer",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Offer Category ID",
-                        "name": "offer_category_id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "successfully offer added for category",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    },
-                    "400": {
-                        "description": "invalid input",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    }
-                }
             }
         },
         "/admin/offers/category/replace": {
             "post": {
                 "tags": [
-                    "Offers"
+                    "Admin Offers"
                 ],
-                "summary": "api for admin to add offer for category",
+                "summary": "api for admin to replace offer of a category to another",
                 "operationId": "ReplaceCategoryOffer",
                 "parameters": [
                     {
@@ -836,6 +780,38 @@ const docTemplate = `{
                 "responses": {
                     "200": {
                         "description": "successfully offer replaced for category",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "invalid input",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/admin/offers/category/{offer_category_id}": {
+            "delete": {
+                "tags": [
+                    "Admin Offers"
+                ],
+                "summary": "api for admin to remove offer from a category",
+                "operationId": "RemoveCategoryOffer",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Offer Category ID",
+                        "name": "offer_category_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successfully offer added for category",
                         "schema": {
                             "$ref": "#/definitions/response.Response"
                         }
@@ -975,6 +951,38 @@ const docTemplate = `{
                     },
                     "400": {
                         "description": "invalid input on params",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/admin/offers/{offer_id}": {
+            "delete": {
+                "tags": [
+                    "Admin Offers"
+                ],
+                "summary": "api for admin to delete offer",
+                "operationId": "RemoveOffer",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Offer ID",
+                        "name": "offer_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successfully offer added",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "invalid input",
                         "schema": {
                             "$ref": "#/definitions/response.Response"
                         }
@@ -1261,7 +1269,7 @@ const docTemplate = `{
                 "tags": [
                     "Admin Products"
                 ],
-                "summary": "api for admin to show products",
+                "summary": "api for admin to find all products",
                 "operationId": "FindAllProductsAdmin",
                 "parameters": [
                     {
@@ -1328,7 +1336,7 @@ const docTemplate = `{
                 "tags": [
                     "Admin Products"
                 ],
-                "summary": "api for admin to update a product",
+                "summary": "api for admin to add a new product",
                 "operationId": "SaveProduct",
                 "parameters": [
                     {
@@ -1362,7 +1370,7 @@ const docTemplate = `{
                 "tags": [
                     "Admin Products"
                 ],
-                "summary": "api for admin to add product-items for a specific product",
+                "summary": "api for admin to add product item for a specific product",
                 "operationId": "SaveProductItem",
                 "parameters": [
                     {
@@ -1396,7 +1404,7 @@ const docTemplate = `{
                 "tags": [
                     "User Products"
                 ],
-                "summary": "api for admin get all product_items for a product",
+                "summary": "api for admin to find all product items for a specific product",
                 "operationId": "FindAllProductItemsAdmin",
                 "parameters": [
                     {
@@ -2360,8 +2368,8 @@ const docTemplate = `{
                 "tags": [
                     "User Products"
                 ],
-                "summary": "api for user to show products",
-                "operationId": "FindAllProductsAdmin",
+                "summary": "api for user to find all products",
+                "operationId": "FindAllProductsUser",
                 "parameters": [
                     {
                         "type": "integer",
@@ -2397,8 +2405,8 @@ const docTemplate = `{
                 "tags": [
                     "User Products"
                 ],
-                "summary": "api for user get all product_items for a product",
-                "operationId": "FindAllProductItems",
+                "summary": "api for user to find all product items for a specific produc",
+                "operationId": "FindAllProductItemsUser",
                 "parameters": [
                     {
                         "type": "integer",
