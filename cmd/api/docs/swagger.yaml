@@ -639,7 +639,7 @@ paths:
             $ref: '#/definitions/response.Response'
       security:
       - ApiKeyAuth: []
-      summary: api for admin add a new category
+      summary: api for adminstring add a new category
       tags:
       - Admin Category
   /admin/category/sub-category:
@@ -1252,6 +1252,31 @@ paths:
       tags:
       - Admin Payment
   /admin/products:
+    get:
+      operationId: FindAllProductsAdmin
+      parameters:
+      - description: Page Number
+        in: query
+        name: page_number
+        type: integer
+      - description: Count
+        in: query
+        name: count
+        type: integer
+      responses:
+        "200":
+          description: Successfully found all products
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Failed to find all products
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: api for admin to show products
+      tags:
+      - Admin Products
     post:
       operationId: SaveProduct
       parameters:
@@ -1316,6 +1341,27 @@ paths:
       summary: api for admin to add product-items for a specific product
       tags:
       - Admin Products
+  /admin/products/product-items/{product_id}:
+    get:
+      operationId: FindAllProductItemsAdmin
+      parameters:
+      - description: product_id
+        in: path
+        name: product_id
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: successfully got all product_items for given product_id
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: invalid input on params
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: api for admin get all product_items for a product
+      tags:
+      - User Products
   /admin/sales:
     get:
       operationId: FullSalesReport
@@ -1913,7 +1959,7 @@ paths:
       - User Orders
   /products:
     get:
-      operationId: FindAllProducts-User
+      operationId: FindAllProductsAdmin
       parameters:
       - description: Page Number
         in: query
@@ -1955,7 +2001,7 @@ paths:
           description: invalid input on params
           schema:
             $ref: '#/definitions/response.Response'
-      summary: api for get all product_items for a product
+      summary: api for user get all product_items for a product
       tags:
       - User Products
   /signup:
