@@ -161,7 +161,7 @@ func (c *productUseCase) SaveProduct(ctx context.Context, product request.Produc
 		return utils.PrependMessageToError(err, "failed to check product name already exist")
 	}
 	if exist {
-		return ErrProductAlreadyExist
+		return utils.PrependMessageToError(ErrProductAlreadyExist, "product name "+product.Name)
 	}
 
 	err = c.productRepo.SaveProduct(ctx, product)
@@ -172,10 +172,10 @@ func (c *productUseCase) SaveProduct(ctx context.Context, product request.Produc
 }
 
 // for add new productItem for a specific product
-func (c *productUseCase) SaveProductItem(ctx context.Context, productItem request.ProductItem) error {
+func (c *productUseCase) SaveProductItem(ctx context.Context, productID uint, productItem request.ProductItem) error {
 
 	// check the given all combination already exist (Color:Red with Size:M)
-	productItemExist, err := c.isAllVariationCombinationExist(productItem.ProductID, productItem.VariationOptionID)
+	productItemExist, err := c.isAllVariationCombinationExist(productID, productItem.VariationOptionIDs)
 	if err != nil {
 		return err
 	}
@@ -187,7 +187,7 @@ func (c *productUseCase) SaveProductItem(ctx context.Context, productItem reques
 
 		sku := utils.GenerateSKU()
 		newProductItem := domain.ProductItem{
-			ProductID:  productItem.ProductID,
+			ProductID:  productID,
 			QtyInStock: productItem.QtyInStock,
 			Price:      productItem.Price,
 			SKU:        sku,
@@ -199,7 +199,7 @@ func (c *productUseCase) SaveProductItem(ctx context.Context, productItem reques
 		}
 
 		// save all product configurations based on given variation option id
-		for _, variationOptionID := range productItem.VariationOptionID {
+		for _, variationOptionID := range productItem.VariationOptionIDs {
 
 			err = trxRepo.SaveProductConfiguration(ctx, productItemID, variationOptionID)
 			if err != nil {
@@ -270,7 +270,7 @@ func (c *productUseCase) UpdateProduct(ctx context.Context, product domain.Produ
 	}
 	// if we found a product with this name but not for this id means another product exist with this name
 	if existProduct.ID != 0 && existProduct.ID != product.ID {
-		return ErrProductAlreadyExist
+		return utils.PrependMessageToError(ErrProductAlreadyExist, "product name "+product.Name)
 	}
 
 	err = c.productRepo.UpdateProduct(ctx, product)

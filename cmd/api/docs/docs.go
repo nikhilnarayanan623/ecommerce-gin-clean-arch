@@ -228,6 +228,7 @@ const docTemplate = `{
                         "ApiKeyAuth": []
                     }
                 ],
+                "description": "API for admin to get all categories and their subcategories",
                 "consumes": [
                     "application/json"
                 ],
@@ -237,7 +238,7 @@ const docTemplate = `{
                 "tags": [
                     "Admin Category"
                 ],
-                "summary": "Get all categories and their subcategories (Admin)",
+                "summary": "Get all categories (Admin)",
                 "operationId": "FindAllCategories",
                 "parameters": [
                     {
@@ -325,6 +326,7 @@ const docTemplate = `{
                         "ApiKeyAuth": []
                     }
                 ],
+                "description": "API for admin to add a new sub category for a existing category",
                 "consumes": [
                     "application/json"
                 ],
@@ -382,6 +384,7 @@ const docTemplate = `{
                         "ApiKeyAuth": []
                     }
                 ],
+                "description": "API for admin to get all variation and its values of a category",
                 "consumes": [
                     "application/json"
                 ],
@@ -391,7 +394,7 @@ const docTemplate = `{
                 "tags": [
                     "Admin Category"
                 ],
-                "summary": "Get all variations and its values for a category (Admin)",
+                "summary": "Get all variations (Admin)",
                 "operationId": "FindAllVariations",
                 "parameters": [
                     {
@@ -429,6 +432,7 @@ const docTemplate = `{
                         "ApiKeyAuth": []
                     }
                 ],
+                "description": "API for admin to add new variations for a category",
                 "consumes": [
                     "application/json"
                 ],
@@ -438,7 +442,7 @@ const docTemplate = `{
                 "tags": [
                     "Admin Category"
                 ],
-                "summary": "Add new variations for a category (Admin)",
+                "summary": "Add new variations (Admin)",
                 "operationId": "SaveVariation",
                 "parameters": [
                     {
@@ -487,6 +491,7 @@ const docTemplate = `{
                         "ApiKeyAuth": []
                     }
                 ],
+                "description": "API for admin to add variation options for a variation",
                 "consumes": [
                     "application/json"
                 ],
@@ -496,7 +501,7 @@ const docTemplate = `{
                 "tags": [
                     "Admin Category"
                 ],
-                "summary": "Add new variation options for a variation (Admin)",
+                "summary": "Add new variation options (Admin)",
                 "operationId": "SaveVariationOption",
                 "parameters": [
                     {
@@ -1349,10 +1354,11 @@ const docTemplate = `{
                         "ApiKeyAuth": []
                     }
                 ],
+                "description": "API for admin to get all products",
                 "tags": [
                     "Admin Products"
                 ],
-                "summary": "api for admin to find all products",
+                "summary": "Get all products (Admin)",
                 "operationId": "FindAllProductsAdmin",
                 "parameters": [
                     {
@@ -1384,14 +1390,21 @@ const docTemplate = `{
                 }
             },
             "put": {
+                "description": "API for admin to update a product",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
                 "tags": [
                     "Admin Products"
                 ],
-                "summary": "api for admin to update a product",
+                "summary": "Update a product (Admin)",
                 "operationId": "UpdateProduct",
                 "parameters": [
                     {
-                        "description": "inputs",
+                        "description": "Product update input",
                         "name": "input",
                         "in": "body",
                         "required": true,
@@ -1412,18 +1425,37 @@ const docTemplate = `{
                         "schema": {
                             "$ref": "#/definitions/response.Response"
                         }
+                    },
+                    "409": {
+                        "description": "Failed to update product",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Product name already exist for another product",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
                     }
                 }
             },
             "post": {
+                "description": "API for admin to add a new product",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
                 "tags": [
                     "Admin Products"
                 ],
-                "summary": "api for admin to add a new product",
+                "summary": "Add a new product (Admin)",
                 "operationId": "SaveProduct",
                 "parameters": [
                     {
-                        "description": "inputs",
+                        "description": "Product input",
                         "name": "input",
                         "in": "body",
                         "required": true,
@@ -1444,20 +1476,77 @@ const docTemplate = `{
                         "schema": {
                             "$ref": "#/definitions/response.Response"
                         }
+                    },
+                    "409": {
+                        "description": "Product name already exist",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
                     }
                 }
             }
         },
-        "/admin/products/product-item": {
-            "post": {
+        "/admin/products/{product_id}/items": {
+            "get": {
+                "description": "API for admin to find all product items for a specific product",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
                 "tags": [
                     "Admin Products"
                 ],
-                "summary": "api for admin to add product item for a specific product",
+                "summary": "Get all product items (Admin)",
+                "operationId": "FindAllProductItemsAdmin",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Product ID",
+                        "name": "product_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successfully get all product items",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "Failed to get all product items",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "API for admin to add a product item for a specific product",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Admin Products"
+                ],
+                "summary": "Add a product item (Admin)",
                 "operationId": "SaveProductItem",
                 "parameters": [
                     {
-                        "description": "inputs",
+                        "type": "integer",
+                        "description": "Product ID",
+                        "name": "product_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Product item input",
                         "name": "input",
                         "in": "body",
                         "required": true,
@@ -1478,35 +1567,9 @@ const docTemplate = `{
                         "schema": {
                             "$ref": "#/definitions/response.Response"
                         }
-                    }
-                }
-            }
-        },
-        "/admin/products/product-items/{product_id}": {
-            "get": {
-                "tags": [
-                    "Admin Products"
-                ],
-                "summary": "api for admin to find all product items for a specific product",
-                "operationId": "FindAllProductItemsAdmin",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "product_id",
-                        "name": "product_id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "successfully got all product_items for given product_id",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
                     },
-                    "400": {
-                        "description": "invalid input on params",
+                    "409": {
+                        "description": "Product have already this configured product items exist",
                         "schema": {
                             "$ref": "#/definitions/response.Response"
                         }
@@ -2448,10 +2511,11 @@ const docTemplate = `{
                         "ApiKeyAuth": []
                     }
                 ],
+                "description": "API for user to get all products",
                 "tags": [
                     "User Products"
                 ],
-                "summary": "api for user to find all products",
+                "summary": "Get all products (User)",
                 "operationId": "FindAllProductsUser",
                 "parameters": [
                     {
@@ -2483,17 +2547,24 @@ const docTemplate = `{
                 }
             }
         },
-        "/products/product-items/{product_id}": {
+        "/products/{product_id}/items": {
             "get": {
+                "description": "API for user to find all product items for a specific product",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
                 "tags": [
                     "User Products"
                 ],
-                "summary": "api for user to find all product items for a specific produc",
+                "summary": "Get all product items (User)",
                 "operationId": "FindAllProductItemsUser",
                 "parameters": [
                     {
                         "type": "integer",
-                        "description": "product_id",
+                        "description": "Product ID",
                         "name": "product_id",
                         "in": "path",
                         "required": true
@@ -2501,13 +2572,13 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "successfully got all product_items for given product_id",
+                        "description": "Successfully get all product items",
                         "schema": {
                             "$ref": "#/definitions/response.Response"
                         }
                     },
                     "400": {
-                        "description": "invalid input on params",
+                        "description": "Failed to get all product items",
                         "schema": {
                             "$ref": "#/definitions/response.Response"
                         }
@@ -3048,9 +3119,8 @@ const docTemplate = `{
             "required": [
                 "images",
                 "price",
-                "product_id",
                 "qty_in_stock",
-                "variation_option_id"
+                "variation_option_ids"
             ],
             "properties": {
                 "images": {
@@ -3063,14 +3133,11 @@ const docTemplate = `{
                     "type": "integer",
                     "minimum": 1
                 },
-                "product_id": {
-                    "type": "integer"
-                },
                 "qty_in_stock": {
                     "type": "integer",
                     "minimum": 1
                 },
-                "variation_option_id": {
+                "variation_option_ids": {
                     "type": "array",
                     "items": {
                         "type": "integer"
