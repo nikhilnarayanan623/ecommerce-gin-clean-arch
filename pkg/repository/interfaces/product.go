@@ -55,27 +55,40 @@ type ProductRepository interface {
 	FindOfferByID(ctx context.Context, offerID uint) (domain.Offer, error)
 	FindOfferByName(ctx context.Context, offerName string) (domain.Offer, error)
 	FindAllOffers(ctx context.Context, pagination request.Pagination) ([]domain.Offer, error)
-	SaveOffer(ctx context.Context, offer domain.Offer) error
+	SaveOffer(ctx context.Context, offer request.Offer) error
 	DeleteOffer(ctx context.Context, offerID uint) error
 
-	// offer discount price update
-	UpdateDiscountPrice(ctx context.Context) error
+	// to calculate the discount price and update
+	UpdateProductsDiscountByCategoryOfferID(ctx context.Context, categoryOfferID uint) error
+	UpdateProductItemsDiscountByCategoryOfferID(ctx context.Context, categoryOfferID uint) error
+	UpdateProductsDiscountByProductOfferID(ctx context.Context, productOfferID uint) error
+	UpdateProductItemsDiscountByProductOfferID(ctx context.Context, productOfferID uint) error
+
+	// to remove the discount product price
+	RemoveProductsDiscountByCategoryOfferID(ctx context.Context, categoryOfferID uint) error
+	RemoveProductItemsDiscountByCategoryOfferID(ctx context.Context, categoryOfferID uint) error
+	RemoveProductsDiscountByProductOfferID(ctx context.Context, productOfferID uint) error
+	RemoveProductItemsDiscountByProductOfferID(ctx context.Context, productOfferID uint) error
 
 	// offer category
 	FindOfferCategory(ctx context.Context, offerCategory domain.OfferCategory) (domain.OfferCategory, error)
 	FindOfferCategoryCategoryID(ctx context.Context, categoryID uint) (domain.OfferCategory, error)
 	FindAllOfferCategories(ctx context.Context, pagination request.Pagination) ([]response.OfferCategory, error)
 
-	SaveOfferCategory(ctx context.Context, offerCategory domain.OfferCategory) error
-	DeleteOfferCategory(ctx context.Context, offerCategory domain.OfferCategory) error
-	UpdateOfferCategory(ctx context.Context, offerCategory domain.OfferCategory) error
+	SaveCategoryOffer(ctx context.Context, categoryOffer request.OfferCategory) (categoryOfferID uint, err error)
+	DeleteCategoryOffer(ctx context.Context, categoryOfferID uint) error
+	UpdateCategoryOffer(ctx context.Context, categoryOfferID, offerID uint) error
 
 	// offer products
 	FindOfferProduct(ctx context.Context, offerProduct domain.OfferProduct) (domain.OfferProduct, error)
 	FindAllOfferProducts(ctx context.Context, pagination request.Pagination) ([]response.OfferProduct, error)
 	FindOfferProductByProductID(ctx context.Context, productID uint) (domain.OfferProduct, error)
 
-	SaveOfferProduct(ctx context.Context, offerProduct domain.OfferProduct) error
-	DeleteOfferProduct(ctx context.Context, offerProduct domain.OfferProduct) error
-	UpdateOfferProduct(ctx context.Context, productOffer domain.OfferProduct) error
+	SaveOfferProduct(ctx context.Context, offerProduct domain.OfferProduct) (productOfferId uint, err error)
+	DeleteOfferProduct(ctx context.Context, productOfferID uint) error
+	UpdateOfferProduct(ctx context.Context, productOfferID, offerID uint) error
+
+	//new refracted
+	DeleteAllProductOffersByOfferID(ctx context.Context, offerID uint) error
+	DeleteAllCategoryOffersByOfferID(ctx context.Context, offerID uint) error
 }

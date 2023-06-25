@@ -221,11 +221,11 @@ func (p *ProductHandler) FindAllProductsAdmin() func(ctx *gin.Context) {
 	return p.findAllProducts()
 }
 
-// FindAllProductsAdmin godoc
+// FindAllProductsUser godoc
 // @summary api for user to find all products
 // @security ApiKeyAuth
 // @tags User Products
-// @id FindAllProductsAdmin
+// @id FindAllProductsUser
 // @Param page_number query int false "Page Number"
 // @Param count query int false "Count"
 // @Router /products [get]
@@ -359,8 +359,8 @@ func (p *ProductHandler) FindAllProductItemsAdmin() func(ctx *gin.Context) {
 	return p.findAllProductItems()
 }
 
-// @summary api for user to find all product items for a specific product
-// @id FindAllProductItems
+// @summary api for user to find all product items for a specific produc
+// @id FindAllProductItemsUser
 // @tags User Products
 // @param product_id path int true "product_id"
 // @Router /products/product-items/{product_id} [get]

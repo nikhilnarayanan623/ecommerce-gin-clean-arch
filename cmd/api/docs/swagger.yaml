@@ -343,6 +343,16 @@ definitions:
     required:
     - product_item_id
     type: object
+  request.UpdateCategoryOffer:
+    properties:
+      category_offer_id:
+        type: integer
+      offer_id:
+        type: integer
+    required:
+    - category_offer_id
+    - offer_id
+    type: object
   request.UpdateOrder:
     properties:
       order_status_id:
@@ -394,6 +404,16 @@ definitions:
     - price
     - product_id
     - product_name
+    type: object
+  request.UpdateProductOffer:
+    properties:
+      offer_id:
+        type: integer
+      product_offer_id:
+        type: integer
+    required:
+    - offer_id
+    - product_offer_id
     type: object
   request.UserSignUp:
     properties:
@@ -616,7 +636,7 @@ paths:
             $ref: '#/definitions/response.Response'
       security:
       - ApiKeyAuth: []
-      summary: api for admin get all categories
+      summary: api for admin find all categories
       tags:
       - Admin Category
     post:
@@ -639,7 +659,7 @@ paths:
             $ref: '#/definitions/response.Response'
       security:
       - ApiKeyAuth: []
-      summary: api for adminstring add a new category
+      summary: api for admin to add a new category
       tags:
       - Admin Category
   /admin/category/sub-category:
@@ -839,8 +859,57 @@ paths:
       tags:
       - Admin Authentication
   /admin/offers:
-    delete:
+    get:
+      operationId: FindAllOffers
+      parameters:
+      - description: Page Number
+        in: query
+        name: page_number
+        type: integer
+      - description: Count
+        in: query
+        name: count
+        type: integer
+      responses:
+        "200":
+          description: Successfully found all offers
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Failed to find all offers
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: api for find all offers
+      tags:
+      - Admin Offers
+    post:
       operationId: SaveOffer
+      parameters:
+      - description: input field
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/request.Offer'
+      responses:
+        "200":
+          description: Successfully offer added
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Invalid inputs
+          schema:
+            $ref: '#/definitions/response.Response'
+        "409":
+          description: Offer already exist
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: api for admin to add a new offer
+      tags:
+      - Admin Offers
+  /admin/offers/{offer_id}:
+    delete:
+      operationId: RemoveOffer
       parameters:
       - description: Offer ID
         in: path
@@ -856,75 +925,10 @@ paths:
           description: invalid input
           schema:
             $ref: '#/definitions/response.Response'
-      summary: api for admin to delete offer
+      summary: api for admin to remove offer
       tags:
-      - Offers
-    post:
-      operationId: SaveOffer
-      parameters:
-      - description: input field
-        in: body
-        name: input
-        required: true
-        schema:
-          $ref: '#/definitions/request.Offer'
-      responses:
-        "200":
-          description: successfully offer added
-          schema:
-            $ref: '#/definitions/response.Response'
-        "400":
-          description: invalid input
-          schema:
-            $ref: '#/definitions/response.Response'
-      summary: api for admin to add new offer
-      tags:
-      - Offers
-  /admin/offers/:
-    get:
-      operationId: FindAllOffers
-      parameters:
-      - description: Page Number
-        in: query
-        name: page_number
-        type: integer
-      - description: Count
-        in: query
-        name: count
-        type: integer
-      responses:
-        "200":
-          description: successfully got all offers
-          schema:
-            $ref: '#/definitions/response.Response'
-        "500":
-          description: faild to get offers
-          schema:
-            $ref: '#/definitions/response.Response'
-      summary: api for show all offers
-      tags:
-      - Offers
+      - Admin Offers
   /admin/offers/category:
-    delete:
-      operationId: RemoveCategoryOffer
-      parameters:
-      - description: Offer Category ID
-        in: path
-        name: offer_category_id
-        required: true
-        type: integer
-      responses:
-        "200":
-          description: successfully offer added for category
-          schema:
-            $ref: '#/definitions/response.Response'
-        "400":
-          description: invalid input
-          schema:
-            $ref: '#/definitions/response.Response'
-      summary: api for admin to remove offer from a category
-      tags:
-      - Offers
     get:
       operationId: FindAllCategoryOffers
       parameters:
@@ -945,9 +949,30 @@ paths:
           description: failed to get offers_category
           schema:
             $ref: '#/definitions/response.Response'
-      summary: api for admin to get all offers of categories
+      summary: api for admin to find all category offers
       tags:
-      - Offers
+      - Admin Offers
+    patch:
+      operationId: ChangeCategoryOffer
+      parameters:
+      - description: input field
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/request.UpdateCategoryOffer'
+      responses:
+        "200":
+          description: successfully offer replaced for category
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: invalid input
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: api for admin to change product category to another existing offer
+      tags:
+      - Admin Offers
     post:
       operationId: SaveCategoryOffer
       parameters:
@@ -966,31 +991,30 @@ paths:
           description: invalid input
           schema:
             $ref: '#/definitions/response.Response'
-      summary: api for admin to add offer for category
+      summary: api for admin to add a new category offer
       tags:
-      - Offers
-  /admin/offers/category/replace:
-    post:
-      operationId: ReplaceCategoryOffer
+      - Admin Offers
+  /admin/offers/category/{offer_category_id}:
+    delete:
+      operationId: RemoveCategoryOffer
       parameters:
-      - description: input field
-        in: body
-        name: input
+      - description: Offer Category ID
+        in: path
+        name: offer_category_id
         required: true
-        schema:
-          $ref: '#/definitions/request.OfferCategory'
+        type: integer
       responses:
         "200":
-          description: successfully offer replaced for category
+          description: successfully offer added for category
           schema:
             $ref: '#/definitions/response.Response'
         "400":
           description: invalid input
           schema:
             $ref: '#/definitions/response.Response'
-      summary: api for admin to add offer for category
+      summary: api for admin to remove a category offer
       tags:
-      - Offers
+      - Admin Offers
   /admin/offers/products:
     get:
       operationId: FindAllProductsOffers
@@ -1012,9 +1036,30 @@ paths:
           description: failed to get offer_products
           schema:
             $ref: '#/definitions/response.Response'
-      summary: api for admin to get all offers of products
+      summary: api for admin to find all product offers
       tags:
-      - Offers
+      - Admin Offers
+    patch:
+      operationId: ChangeProductOffer
+      parameters:
+      - description: input field
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/request.UpdateProductOffer'
+      responses:
+        "200":
+          description: Successfully offer changed for  given product offer
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: invalid input
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: api for admin to change product offer to another existing offer
+      tags:
+      - Admin Offers
     post:
       operationId: SaveProductOffer
       parameters:
@@ -1033,30 +1078,9 @@ paths:
           description: invalid input
           schema:
             $ref: '#/definitions/response.Response'
-      summary: api for admin to add offer for product
+      summary: api for admin to add offer for a product
       tags:
-      - Offers
-    put:
-      operationId: ReplaceProductOffer
-      parameters:
-      - description: input field
-        in: body
-        name: input
-        required: true
-        schema:
-          $ref: '#/definitions/request.OfferProduct'
-      responses:
-        "200":
-          description: successfully offer replaced for product
-          schema:
-            $ref: '#/definitions/response.Response'
-        "400":
-          description: invalid input
-          schema:
-            $ref: '#/definitions/response.Response'
-      summary: api for admin to replace a new offer on an existing offer for a product
-      tags:
-      - Offers
+      - Admin Offers
   /admin/offers/products/{offer_product_id}:
     delete:
       operationId: RemoveProductOffer
@@ -1068,16 +1092,16 @@ paths:
         type: integer
       responses:
         "200":
-          description: successfully offer removed from product
+          description: Successfully offer removed from product
           schema:
             $ref: '#/definitions/response.Response'
         "400":
           description: invalid input on params
           schema:
             $ref: '#/definitions/response.Response'
-      summary: api for admin to remove offer from product
+      summary: api for admin to remove offer product offer
       tags:
-      - Offers
+      - Admin Offers
   /admin/orders:
     get:
       description: admin can see all orders in application
@@ -1274,7 +1298,7 @@ paths:
             $ref: '#/definitions/response.Response'
       security:
       - ApiKeyAuth: []
-      summary: api for admin to show products
+      summary: api for admin to find all products
       tags:
       - Admin Products
     post:
@@ -1295,7 +1319,7 @@ paths:
           description: invalid input
           schema:
             $ref: '#/definitions/response.Response'
-      summary: api for admin to update a product
+      summary: api for admin to add a new product
       tags:
       - Admin Products
     put:
@@ -1338,7 +1362,7 @@ paths:
           description: invalid input
           schema:
             $ref: '#/definitions/response.Response'
-      summary: api for admin to add product-items for a specific product
+      summary: api for admin to add product item for a specific product
       tags:
       - Admin Products
   /admin/products/product-items/{product_id}:
@@ -1359,7 +1383,7 @@ paths:
           description: invalid input on params
           schema:
             $ref: '#/definitions/response.Response'
-      summary: api for admin get all product_items for a product
+      summary: api for admin to find all product items for a specific product
       tags:
       - User Products
   /admin/sales:
@@ -1959,7 +1983,7 @@ paths:
       - User Orders
   /products:
     get:
-      operationId: FindAllProductsAdmin
+      operationId: FindAllProductsUser
       parameters:
       - description: Page Number
         in: query
@@ -1980,12 +2004,12 @@ paths:
             $ref: '#/definitions/response.Response'
       security:
       - ApiKeyAuth: []
-      summary: api for user to show products
+      summary: api for user to find all products
       tags:
       - User Products
   /products/product-items/{product_id}:
     get:
-      operationId: FindAllProductItems
+      operationId: FindAllProductItemsUser
       parameters:
       - description: product_id
         in: path
@@ -2001,7 +2025,7 @@ paths:
           description: invalid input on params
           schema:
             $ref: '#/definitions/response.Response'
-      summary: api for user get all product_items for a product
+      summary: api for user to find all product items for a specific produc
       tags:
       - User Products
   /signup:

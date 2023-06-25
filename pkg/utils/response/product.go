@@ -63,7 +63,7 @@ type OfferCategory struct {
 	CategoryName    string `json:"category_name"`
 	DiscountRate    uint   `json:"discount_rate"`
 	OfferID         uint   `json:"offer_id"`
-	Name            string `json:"offer_name"`
+	OfferName       string `json:"offer_name"`
 }
 
 type OfferProduct struct {
@@ -72,5 +72,5 @@ type OfferProduct struct {
 	ProductName    string `json:"product_name"`
 	DiscountRate   uint   `json:"discount_rate"`
 	OfferID        uint   `json:"offer_id"`
-	Name           string `json:"offer_name"`
+	OfferName      string `json:"offer_name"`
 }

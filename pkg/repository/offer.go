@@ -2,8 +2,6 @@ package repository
 
 import (
 	"context"
-	"errors"
-	"fmt"
 
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/domain"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/utils/request"
@@ -29,16 +27,21 @@ func (c *productDatabase) FindOfferByName(ctx context.Context, offerName string)
 }
 
 // findAll offers
-func (c *productDatabase) FindAllOffers(ctx context.Context, pagination request.Pagination) ([]domain.Offer, error) {
-	var offers []domain.Offer
-	if c.DB.Raw("SELECT * FROM offers").Scan(&offers).Error != nil {
-		return offers, errors.New("faild to get all offers")
-	}
-	return offers, nil
+func (c *productDatabase) FindAllOffers(ctx context.Context,
+	pagination request.Pagination) (offers []domain.Offer, err error) {
+
+	limit := pagination.Count
+	offset := (pagination.PageNumber - 1) * limit
+
+	query := `SELECT id, name, description, discount_rate, start_date, end_date 
+	 FROM offers LIMIT $1 OFFSET $2`
+	err = c.DB.Raw(query, limit, offset).Scan(&offers).Error
+
+	return offers, err
 }
 
 // save a new offer
-func (c *productDatabase) SaveOffer(ctx context.Context, offer domain.Offer) error {
+func (c *productDatabase) SaveOffer(ctx context.Context, offer request.Offer) error {
 
 	query := `INSERT INTO offers (name, description, discount_rate, start_date, end_date) 
 	VALUES ($1, $2, $3, $4, $5)`
@@ -50,62 +53,40 @@ func (c *productDatabase) SaveOffer(ctx context.Context, offer domain.Offer) err
 // update an existing offer
 func (c *productDatabase) UpdateOffer(ctx context.Context, offer domain.Offer) error {
 
-	query := `UPDATE offers SET offer_name=$1,description=$2,discount_rate=$3,start_date=$4,end_date=$5 WHERE id=$6`
-	err := c.DB.Exec(query, offer.Name, offer.Description, offer.DiscountRate, offer.StartDate, offer.EndDate, offer.ID).Error
+	query := `UPDATE offers SET offer_name = $1, description = $2, 
+	discount_rate = $3, start_date = $4, end_date = $5 
+	WHERE id = $6`
+	err := c.DB.Exec(query, offer.Name, offer.Description,
+		offer.DiscountRate, offer.StartDate, offer.EndDate, offer.ID).Error
+
+	return err
+}
+
+// Delete all product offers related to given offer id
+func (c *productDatabase) DeleteAllProductOffersByOfferID(ctx context.Context, offerID uint) error {
+
+	query := `DELETE FROM offer_products WHERE offer_id = $1`
+	err := c.DB.Exec(query, offerID).Error
+
+	return err
+}
+
+// Delete all category offers related to given offer id
+func (c *productDatabase) DeleteAllCategoryOffersByOfferID(ctx context.Context, offerID uint) error {
+
+	query := `DELETE FROM offer_categories WHERE offer_id = $1`
+	err := c.DB.Exec(query, offerID).Error
 
 	return err
 }
 
 // delete an offer
 func (c *productDatabase) DeleteOffer(ctx context.Context, offerID uint) error {
-	trx := c.DB.Begin()
-	// first update all discount price to 0 for //?products
-	//which are related by offer_products and offer_category
-	query := `UPDATE products p SET discount_price = 0  
-	FROM offer_categories oc INNER JOIN offers o ON o.id = oc.offer_id 
-	WHERE oc.category_id = p.category_id AND o.id = $1`
 
-	if err := trx.Exec(query, offerID).Error; err != nil {
-		trx.Rollback()
-		return err
-	}
+	query := `DELETE FROM offers WHERE id = $1`
+	err := c.DB.Exec(query, offerID).Error
 
-	// then update all discount price to 0 for //? product_items
-	// which are related by product_offer and category_offer
-	query = `UPDATE product_items AS pi SET discount_price = 0 
-	FROM offer_categories oc INNER JOIN offers o ON o.id = oc.offer_id 
-	INNER JOIN products p ON p.category_id = oc.category_id 
-	WHERE p.id = pi.product_id AND o.id = $1`
-	if err := trx.Exec(query, offerID).Error; err != nil {
-		trx.Rollback()
-		return err
-	}
-
-	// then remove all offer_products for the offer
-	query = `DELETE FROM offer_products WHERE offer_id = $1`
-	if err := trx.Exec(query, offerID).Error; err != nil {
-		trx.Rollback()
-		return err
-	}
-	// remove all the offer_categories fot the offer
-	query = `DELETE FROM offer_categories WHERE offer_id = $1`
-	if err := trx.Exec(query, offerID).Error; err != nil {
-		trx.Rollback()
-		return err
-	}
-
-	// at last remove the offer from offer table
-	query = `DELETE FROM offers WHERE id = $1`
-	if err := trx.Exec(query, offerID).Error; err != nil {
-		trx.Rollback()
-		return err
-	}
-	// commit the transaction
-	if err := trx.Commit().Error; err != nil {
-		trx.Rollback()
-		return err
-	}
-	return nil
+	return err
 }
 
 // find offer_category by category_id (for mainly checking this category have an offer existing or not)
@@ -132,7 +113,8 @@ func (c *productDatabase) FindOfferCategory(ctx context.Context,
 func (c *productDatabase) FindAllOfferCategories(ctx context.Context, pagination request.Pagination) ([]response.OfferCategory, error) {
 
 	var offerCategories []response.OfferCategory
-	query := `SELECT oc.id AS offer_category_id, oc.category_id,c.category_name,oc.offer_id,o.offer_name, o.discount_rate 
+	query := `SELECT oc.id AS offer_category_id, oc.category_id,c.name AS category_name, 
+	oc.offer_id, o.name AS offer_name, o.discount_rate 
 	FROM offer_categories oc INNER JOIN categories c ON c.id = oc.category_id 
 	INNER JOIN offers o ON oc.offer_id = o.id`
 
@@ -142,49 +124,29 @@ func (c *productDatabase) FindAllOfferCategories(ctx context.Context, pagination
 }
 
 // save a new offer for category
-func (c *productDatabase) SaveOfferCategory(ctx context.Context, offerCategory domain.OfferCategory) error {
-	// first create the offer for category
-	query := `INSERT INTO offer_categories (offer_id,category_id) VALUES ($1,$2)`
-	err := c.DB.Exec(query, offerCategory.OfferID, offerCategory.CategoryID).Error
+func (c *productDatabase) SaveCategoryOffer(ctx context.Context,
+	categoryOffer request.OfferCategory) (categoryOfferID uint, err error) {
+
+	query := `INSERT INTO offer_categories (offer_id,category_id) VALUES ($1, $2) RETURNING id`
+	err = c.DB.Raw(query, categoryOffer.OfferID, categoryOffer.CategoryID).Scan(&categoryOfferID).Error
+
+	return
+}
+
+// remove offer_category
+func (c *productDatabase) DeleteCategoryOffer(ctx context.Context, categoryOfferID uint) error {
+
+	query := `DELETE FROM offer_categories WHERE id = $1 `
+	err := c.DB.Exec(query, categoryOfferID).Error
 
 	return err
 }
 
-// remove offer_category
-func (c *productDatabase) DeleteOfferCategory(ctx context.Context, offerCategory domain.OfferCategory) error {
-
-	// first remove all discount price related offer_category
-	query := `UPDATE products SET discount_price = 0 
-	WHERE category_id = $1`
-	err := c.DB.Exec(query, offerCategory.CategoryID).Error
-	if err != nil {
-		return err
-	}
-
-	// then remove all discount price related to offer_category
-	query = `UPDATE product_items pi SET discount_price = 0 
-	FROM products p WHERE p.category_id = $1 AND pi.product_id = p.id`
-	err = c.DB.Exec(query, offerCategory.CategoryID).Error
-
-	if err != nil {
-		return err
-	}
-
-	// then delete offer_category
-	query = `DELETE FROM offer_categories WHERE id = $1 OR offer_id = $2 AND category_id = $3 `
-	err = c.DB.Exec(query, offerCategory.ID, offerCategory.OfferID, offerCategory.CategoryID).Error
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
 // update offer_category
-func (c *productDatabase) UpdateOfferCategory(ctx context.Context, offerCategory domain.OfferCategory) error {
+func (c *productDatabase) UpdateCategoryOffer(ctx context.Context, categoryOfferID, offerID uint) error {
 
-	query := `UPDATE offer_categories SET offer_id = $1 WHERE category_id = $2`
-	err := c.DB.Exec(query, offerCategory.OfferID, offerCategory.CategoryID).Error
+	query := `UPDATE offer_categories SET offer_id = $1 WHERE id = $2`
+	err := c.DB.Exec(query, offerID, categoryOfferID).Error
 
 	return err
 }
@@ -221,90 +183,129 @@ func (c *productDatabase) FindAllOfferProducts(ctx context.Context, pagination r
 }
 
 // save a offer for product
-func (c *productDatabase) SaveOfferProduct(ctx context.Context, offerProduct domain.OfferProduct) error {
+func (c *productDatabase) SaveOfferProduct(ctx context.Context,
+	offerProduct domain.OfferProduct) (productOfferId uint, err error) {
 
-	query := `INSERT INTO offer_products (offer_id, product_id) VALUES ($1,$2)`
-	err := c.DB.Exec(query, offerProduct.OfferID, offerProduct.ProductID).Error
+	query := `INSERT INTO offer_products (offer_id, product_id) VALUES ($1,$2)  RETURNING id`
+	err = c.DB.Raw(query, offerProduct.OfferID, offerProduct.ProductID).Scan(&productOfferId).Error
 
-	return err
+	return
 }
 
 // delete offer_products
-func (c *productDatabase) DeleteOfferProduct(ctx context.Context, offerProduct domain.OfferProduct) error {
+func (c *productDatabase) DeleteOfferProduct(ctx context.Context, productOfferID uint) error {
 
-	// first remove discount_price of product which related to this offer_product
-	query := `UPDATE products SET discount_price = 0 WHERE id = $1`
-	err := c.DB.Exec(query, offerProduct.ProductID).Error
-	if err != nil {
-		return err
-	}
-
-	// then remove discount price from product_items
-	query = `UPDATE product_items SET discount_price = 0 WHERE product_id = $1`
-	err = c.DB.Exec(query, offerProduct.ProductID).Error
-	if err != nil {
-		return err
-	}
-
-	// then delete the offer_produt
-	query = `DELETE FROM offer_products WHERE id = $1 OR offer_id = $2 AND product_id = $3`
-	err = c.DB.Exec(query, offerProduct.ID, offerProduct.OfferID, offerProduct.ProductID).Error
+	query := `DELETE FROM offer_products WHERE id = $1`
+	err := c.DB.Exec(query, productOfferID).Error
 
 	return err
 }
 
 // update offer_products
-func (c *productDatabase) UpdateOfferProduct(ctx context.Context, offerProduct domain.OfferProduct) error {
+func (c *productDatabase) UpdateOfferProduct(ctx context.Context, productOfferID, offerID uint) error {
 
-	query := `UPDATE offer_products SET offer_id = $1 WHERE product_id = $1`
-	err := c.DB.Exec(query, offerProduct.OfferID, offerProduct.ProductID).Error
+	query := `UPDATE offer_products SET offer_id = $1 WHERE id = $1`
+	err := c.DB.Exec(query, offerID, productOfferID).Error
 
 	return err
 }
 
-// update all discount price first category wise then product_wise
-func (c *productDatabase) UpdateDiscountPrice(ctx context.Context) error {
-	fmt.Println("\\updating product discount price//")
-	trx := c.DB.Begin()
+// Update product discount price by check given category offer id
+func (c *productDatabase) UpdateProductsDiscountByCategoryOfferID(ctx context.Context, categoryOfferID uint) error {
 
-	// update the all products discount price
-	query := `UPDATE products SET discount_price = (price * (100 - o.discount_rate))/100 
-	FROM offer_categories oc INNER JOIN offers o ON o.id = oc.offer_id 
-	WHERE oc.category_id = products.category_id`
+	query := `UPDATE products p SET discount_price = (price * (100 - o.discount_rate))/100 
+	FROM offer_categories oc 
+	INNER JOIN offers o ON o.id = oc.offer_id 
+	WHERE p.category_id = oc.category_id AND oc.id = $1`
+	err := c.DB.Exec(query, categoryOfferID).Error
 
-	if err := trx.Exec(query).Error; err != nil {
-		trx.Rollback()
-		return err
-	}
+	return err
+}
 
-	// update all product_items discount price
-	query = `UPDATE product_items AS pi SET discount_price = (pi.price * (100 - o.discount_rate))/100 
-	FROM offer_categories oc INNER JOIN offers o ON o.id = oc.offer_id 
-	INNER JOIN products p ON p.category_id = oc.category_id 
-	WHERE p.id = pi.product_id`
-	if err := trx.Exec(query).Error; err != nil {
-		return err
-	}
+// Remove product discount price by check given category offer id
+func (c *productDatabase) RemoveProductsDiscountByCategoryOfferID(ctx context.Context, categoryOfferID uint) error {
 
-	query = `UPDATE products p SET discount_price = (p.price * (100 - o.discount_rate))/100 
-	FROM offers o INNER JOIN offer_products op ON o.id = op.offer_id 
-	WHERE p.id = op.product_id`
-	if err := trx.Exec(query).Error; err != nil {
-		trx.Rollback()
-		return err
-	}
+	query := `UPDATE products p SET discount_price = 0 
+	FROM offer_categories oc 
+	INNER JOIN offers o ON o.id = oc.offer_id 
+	WHERE p.category_id = oc.category_id AND oc.id = $1`
+	err := c.DB.Exec(query, categoryOfferID).Error
 
-	// then update product_items discont price
-	query = `UPDATE product_items pi SET discount_price = (pi.price * (100 - o.discount_rate))/100 
-	FROM offers o INNER JOIN offer_products op ON o.id = op.offer_id  
-	WHERE pi.product_id = op.product_id`
-	if err := trx.Exec(query).Error; err != nil {
-		trx.Rollback()
-		return err
-	}
+	return err
+}
 
-	if err := trx.Commit().Error; err != nil {
-		return err
-	}
-	return nil
+// Update product items discount price by check given category offer id
+func (c *productDatabase) UpdateProductItemsDiscountByCategoryOfferID(ctx context.Context,
+	categoryOfferID uint) error {
+
+	query := `UPDATE product_items AS pi SET discount_price = (pi.price * (100 - o.discount_rate))/100 
+	FROM offer_categories oc 
+	INNER JOIN products p ON p.category_id = oc.category_id
+	INNER JOIN offers o ON o.id = oc.offer_id 
+	WHERE oc.id = $1`
+	err := c.DB.Exec(query, categoryOfferID).Error
+
+	return err
+}
+
+// Remove product items discount price by check given category offer id
+func (c *productDatabase) RemoveProductItemsDiscountByCategoryOfferID(ctx context.Context,
+	categoryOfferID uint) error {
+
+	query := `UPDATE product_items AS pi SET discount_price = 0 
+	FROM offer_categories oc 
+	INNER JOIN products p ON p.category_id = oc.category_id
+	INNER JOIN offers o ON o.id = oc.offer_id 
+	WHERE oc.id = $1`
+	err := c.DB.Exec(query, categoryOfferID).Error
+
+	return err
+}
+
+// Recalculate all product discount price by check given product offer id
+func (c *productDatabase) UpdateProductsDiscountByProductOfferID(ctx context.Context, productOfferID uint) error {
+
+	query := `UPDATE products p SET discount_price = (p.price * (100 - o.discount_rate))/100 
+	FROM offer_products op
+	INNER JOIN  offers o ON op.offer_id = o.id 
+	WHERE p.id = op.product_id AND op.id = $1`
+	err := c.DB.Exec(query).Error
+
+	return err
+}
+
+// Recalculate all product discount price by check given product offer id
+func (c *productDatabase) RemoveProductsDiscountByProductOfferID(ctx context.Context, productOfferID uint) error {
+
+	query := `UPDATE products p SET discount_price = (p.price * (100 - o.discount_rate))/100 
+	FROM offer_products op
+	INNER JOIN  offers o ON op.offer_id = o.id 
+	WHERE p.id = op.product_id AND op.id = $1`
+	err := c.DB.Exec(query).Error
+
+	return err
+}
+
+// Remove  product items discount price by given product offer id
+func (c *productDatabase) UpdateProductItemsDiscountByProductOfferID(ctx context.Context, productOfferID uint) error {
+
+	query := `UPDATE product_items pi SET discount_price = 0 
+	FROM offer_products op
+	INNER JOIN offers o ON o.id = op.offer_id  
+	WHERE pi.product_id = op.product_id AND op.id = $1`
+	err := c.DB.Exec(query).Error
+
+	return err
+}
+
+// Recalculate all product items discount price by given product offer id
+func (c *productDatabase) RemoveProductItemsDiscountByProductOfferID(ctx context.Context, productOfferID uint) error {
+
+	query := `UPDATE product_items pi SET discount_price = 0 
+	FROM offer_products op
+	INNER JOIN offers o ON o.id = op.offer_id  
+	WHERE pi.product_id = op.product_id AND op.id = $1`
+	err := c.DB.Exec(query).Error
+
+	return err
 }

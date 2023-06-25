@@ -51,7 +51,8 @@ var (
 	ErrInvalidOfferEndDate   = errors.New("invalid offer end date")
 	ErrOfferAlreadyEnded     = errors.New("offer already ended")
 
-	ErrOfferAlreadyExistForCategory = errors.New("offer already exist for this category")
+	ErrCategoryOfferAlreadyExist = errors.New("an offer already exist for this category")
+	ErrProductOfferAlreadyExist  = errors.New("an offer already exist for this product")
 
 	// order
 	ErrCartIsNotValidForOrder = errors.New("cart is not valid for order out of stock is in cart")
