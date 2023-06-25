@@ -320,7 +320,7 @@ func (c *ProductHandler) UpdateProduct(ctx *gin.Context) {
 // @id SaveProductItem
 // @tags Admin Products
 // @Param input body request.ProductItem{} true "inputs"
-// @Router /admin/products/product-items [post]
+// @Router /admin/products/product-item [post]
 // @Success 200 {object} response.Response{} "Successfully product item added"
 // @Failure 400 {object} response.Response{} "invalid input"
 func (p *ProductHandler) SaveProductItem(ctx *gin.Context) {
