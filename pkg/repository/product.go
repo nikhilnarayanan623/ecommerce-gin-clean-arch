@@ -73,17 +73,28 @@ func (c *productDatabase) SaveSubCategory(ctx context.Context, categoryID uint, 
 	return err
 }
 
-// Find all categories
-func (c *productDatabase) FindAllCategories(ctx context.Context,
+// Find all main category(its not have a category_id)
+func (c *productDatabase) FindAllMainCategories(ctx context.Context,
 	pagination request.Pagination) (categories []response.Category, err error) {
 
 	limit := pagination.Count
 	offset := (pagination.PageNumber - 1) * limit
 
-	query := `SELECT id, name FROM categories LIMIT $1 OFFSET $2`
+	query := `SELECT id, name FROM categories WHERE category_id IS NULL 
+	LIMIT $1 OFFSET $2`
 	err = c.DB.Raw(query, limit, offset).Scan(&categories).Error
 
 	return categories, err
+}
+
+// Find all sub categories of a category
+func (c *productDatabase) FindAllSubCategories(ctx context.Context,
+	categoryID uint) (subCategories []response.SubCategory, err error) {
+
+	query := `SELECT id, name FROM categories WHERE category_id = $1`
+	err = c.DB.Raw(query, categoryID).Scan(&subCategories).Error
+
+	return
 }
 
 // Find variation by id
@@ -127,28 +138,28 @@ func (c *productDatabase) FindVariationByNameAndCategoryID(ctx context.Context,
 
 // Find variation option by variation id and variation value
 func (c *productDatabase) FindVariationOptionByValueAndVariationID(ctx context.Context,
-	variationOptionValue string, categoryID uint) (variationOption domain.VariationOption, err error) {
+	variationID uint, variationValue string) (variationOption domain.VariationOption, err error) {
 
 	query := `SELECT id, value FROM variation_options WHERE variation_id = $1 AND value = $2`
-	err = c.DB.Raw(query, categoryID, variationOptionValue).Scan(&variationOption).Error
+	err = c.DB.Raw(query, variationID, variationValue).Scan(&variationOption).Error
 
 	return
 }
 
 // Save Variation for category
-func (c *productDatabase) SaveVariation(ctx context.Context, variation request.Variation) error {
+func (c *productDatabase) SaveVariation(ctx context.Context, categoryID uint, variationName string) error {
 
 	query := `INSERT INTO variations (category_id, name) VALUES($1, $2)`
-	err := c.DB.Exec(query, variation.CategoryID, variation.Name).Error
+	err := c.DB.Exec(query, categoryID, variationName).Error
 
 	return err
 }
 
 // add variation option
-func (c *productDatabase) SaveVariationOption(ctx context.Context, variationOption request.VariationOption) error {
+func (c *productDatabase) SaveVariationOption(ctx context.Context, variationID uint, variationValue string) error {
 
 	query := `INSERT INTO variation_options (variation_id, value) VALUES($1, $2)`
-	err := c.DB.Raw(query, variationOption.VariationID, variationOption.Value).Scan(&variationOption).Error
+	err := c.DB.Exec(query, variationID, variationValue).Error
 
 	return err
 }

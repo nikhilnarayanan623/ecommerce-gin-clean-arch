@@ -22,9 +22,18 @@ func NewProductUseCase(productRepo interfaces.ProductRepository) service.Product
 
 func (c *productUseCase) FindAllCategories(ctx context.Context, pagination request.Pagination) ([]response.Category, error) {
 
-	categories, err := c.productRepo.FindAllCategories(ctx, pagination)
+	categories, err := c.productRepo.FindAllMainCategories(ctx, pagination)
 	if err != nil {
-		return nil, utils.PrependMessageToError(err, "failed find all categories")
+		return nil, utils.PrependMessageToError(err, "failed find all main categories")
+	}
+
+	for i, category := range categories {
+
+		subCategory, err := c.productRepo.FindAllSubCategories(ctx, category.ID)
+		if err != nil {
+			return nil, utils.PrependMessageToError(err, "failed to find sub categories")
+		}
+		categories[i].SubCategory = subCategory
 	}
 
 	return categories, nil
@@ -69,45 +78,58 @@ func (c *productUseCase) SaveSubCategory(ctx context.Context, subCategory reques
 }
 
 // to add new variation for a category
-func (c *productUseCase) SaveVariation(ctx context.Context, variation request.Variation) error {
+func (c *productUseCase) SaveVariation(ctx context.Context, categoryID uint, variationNames []string) error {
 
-	existVariation, err := c.productRepo.FindVariationByNameAndCategoryID(ctx, variation.Name, variation.CategoryID)
-	if err != nil {
-		return utils.PrependMessageToError(err, "failed to check variation already exist")
-	}
+	err := c.productRepo.Transactions(ctx, func(repo interfaces.ProductRepository) error {
 
-	if existVariation.ID != 0 {
-		return ErrVariationAlreadyExist
-	}
+		for _, variationName := range variationNames {
 
-	err = c.productRepo.SaveVariation(ctx, variation)
-	if err != nil {
-		return utils.PrependMessageToError(err, "failed to save variation")
-	}
-	return nil
+			existVariation, err := c.productRepo.FindVariationByNameAndCategoryID(ctx, variationName, categoryID)
+			if err != nil {
+				return utils.PrependMessageToError(err, "failed to check variation already exist")
+			}
+
+			if existVariation.ID != 0 {
+				return utils.PrependMessageToError(ErrVariationAlreadyExist, "variation name "+variationName)
+			}
+
+			err = c.productRepo.SaveVariation(ctx, categoryID, variationName)
+			if err != nil {
+				return utils.PrependMessageToError(err, "failed to save variation")
+			}
+		}
+		return nil
+	})
+
+	return err
 }
 
 // to add new variation value for variation
-func (c *productUseCase) SaveVariationOption(ctx context.Context, variationOption request.VariationOption) error {
+func (c *productUseCase) SaveVariationOption(ctx context.Context, variationID uint, variationOptionValues []string) error {
 
+	err := c.productRepo.Transactions(ctx, func(repo interfaces.ProductRepository) error {
+		for _, variationValue := range variationOptionValues {
 
-	existVarOpt, err := c.productRepo.FindVariationOptionByValueAndVariationID(ctx, variationOption.Value, variationOption.VariationID)
-	if err != nil {
-		return utils.PrependMessageToError(err, "failed to check variation already exist")
-	}
-	if existVarOpt.ID != 0 {
-		return ErrVariationOptionAlreadyExist
-	}
+			existVarOpt, err := c.productRepo.FindVariationOptionByValueAndVariationID(ctx, variationID, variationValue)
+			if err != nil {
+				return utils.PrependMessageToError(err, "failed to check variation already exist")
+			}
+			if existVarOpt.ID != 0 {
+				return utils.PrependMessageToError(ErrVariationOptionAlreadyExist, "variation option value "+variationValue)
+			}
 
-	err = c.productRepo.SaveVariationOption(ctx, variationOption)
-	if err != nil {
-		return utils.PrependMessageToError(err, "failed to save variation option")
-	}
-	return nil
+			err = c.productRepo.SaveVariationOption(ctx, variationID, variationValue)
+			if err != nil {
+				return utils.PrependMessageToError(err, "failed to save variation option")
+			}
+		}
+		return nil
+	})
+
+	return err
 }
 
 func (c *productUseCase) FindAllVariationsAndItsValues(ctx context.Context, categoryID uint) ([]response.Variation, error) {
-
 
 	variations, err := c.productRepo.FindAllVariationsByCategoryID(ctx, categoryID)
 	if err != nil {

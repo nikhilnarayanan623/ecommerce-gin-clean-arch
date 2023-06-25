@@ -2,39 +2,37 @@ package request
 
 // for a new product
 type Product struct {
-	Name        string `json:"product_name" gorm:"not null" binding:"required,min=3,max=50"`
-	Description string `json:"description" gorm:"not null" binding:"required,min=10,max=100"`
+	Name        string `json:"product_name" binding:"required,min=3,max=50"`
+	Description string `json:"description" binding:"required,min=10,max=100"`
 	CategoryID  uint   `json:"category_id" binding:"required"`
-	Price       uint   `json:"price" gorm:"not null" binding:"required,numeric"`
-	Image       string `json:"image" gorm:"not null" binding:"required"`
+	Price       uint   `json:"price" binding:"required,numeric"`
+	Image       string `json:"image" binding:"required"`
 }
 type UpdateProduct struct {
 	ID          uint   `json:"product_id" binding:"required"`
-	Name        string `json:"product_name" gorm:"not null" binding:"required,min=3,max=50"`
-	Description string `json:"description" gorm:"not null" binding:"required,min=10,max=100"`
+	Name        string `json:"product_name" binding:"required,min=3,max=50"`
+	Description string `json:"description" binding:"required,min=10,max=100"`
 	CategoryID  uint   `json:"category_id" binding:"required"`
-	Price       uint   `json:"price" gorm:"not null" binding:"required,numeric"`
-	Image       string `json:"image" gorm:"not null" binding:"required"`
+	Price       uint   `json:"price" binding:"required,numeric"`
+	Image       string `json:"image" binding:"required"`
 }
 
 // for a new productItem
 type ProductItem struct {
-	ProductID         uint   `json:"product_id" binding:"required"`
-	Price             uint   `json:"price" binding:"required,min=1"`
-	VariationOptionID []uint `json:"variation_option_id" binding:"required"`
-	QtyInStock        uint   `json:"qty_in_stock" binding:"required,min=1"`
-	SKU               string
-	Images            []string `json:"images" binding:"required"`
+	ProductID         uint     `json:"product_id" binding:"required"`
+	Price             uint     `json:"price" binding:"required,min=1"`
+	VariationOptionID []uint   `json:"variation_option_id" binding:"required"`
+	QtyInStock        uint     `json:"qty_in_stock" binding:"required,min=1"`
+	SKU               string   `json:"-"`
+	Images            []string `json:"images" binding:"required,dive,min=1"`
 }
 
 type Variation struct {
-	CategoryID uint   `json:"category_id"  binding:"required,numeric"`
-	Name       string `json:"variation_name" binding:"required"`
+	Names []string `json:"variation_names" binding:"required,dive,min=1"`
 }
 
 type VariationOption struct {
-	VariationID uint   `json:"variation_id" gorm:"not null" binding:"required,numeric"` // a specific field of variation like color/size
-	Value       string `json:"variation_value" gorm:"not null" binding:"required"`      // the variations value like blue/XL
+	Values []string `json:"variation_value" binding:"required,dive,min=1"`
 }
 
 type Category struct {

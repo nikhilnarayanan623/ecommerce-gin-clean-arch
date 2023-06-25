@@ -221,22 +221,28 @@ const docTemplate = `{
                 }
             }
         },
-        "/admin/category": {
+        "/admin/categories": {
             "get": {
                 "security": [
                     {
                         "ApiKeyAuth": []
                     }
                 ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
                 "tags": [
                     "Admin Category"
                 ],
-                "summary": "api for admin find all categories",
+                "summary": "Get all categories and their subcategories (Admin)",
                 "operationId": "FindAllCategories",
                 "parameters": [
                     {
                         "type": "integer",
-                        "description": "Page Number",
+                        "description": "Page number",
                         "name": "page_number",
                         "in": "query"
                     },
@@ -249,13 +255,13 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "Successfully found all categories",
+                        "description": "Successfully retrieved all categories",
                         "schema": {
                             "$ref": "#/definitions/response.Response"
                         }
                     },
                     "500": {
-                        "description": "Failed to find all categories",
+                        "description": "Failed to retrieve categories",
                         "schema": {
                             "$ref": "#/definitions/response.Response"
                         }
@@ -268,31 +274,43 @@ const docTemplate = `{
                         "ApiKeyAuth": []
                     }
                 ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
                 "tags": [
                     "Admin Category"
                 ],
-                "summary": "api for admin to add a new category",
+                "summary": "Add a new category (Admin)",
                 "operationId": "SaveCategory",
                 "parameters": [
                     {
-                        "description": "Input field",
+                        "description": "Category details",
                         "name": "input",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/domain.Category"
+                            "$ref": "#/definitions/request.Category"
                         }
                     }
                 ],
                 "responses": {
-                    "200": {
-                        "description": "Successfully category added",
+                    "201": {
+                        "description": "Successfully added category",
                         "schema": {
                             "$ref": "#/definitions/response.Response"
                         }
                     },
                     "400": {
-                        "description": "invalid input",
+                        "description": "Invalid input",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "409": {
+                        "description": "Failed to save category",
                         "schema": {
                             "$ref": "#/definitions/response.Response"
                         }
@@ -300,44 +318,56 @@ const docTemplate = `{
                 }
             }
         },
-        "/admin/category/sub-category": {
+        "/admin/categories/sub-categories": {
             "post": {
                 "security": [
                     {
                         "ApiKeyAuth": []
                     }
                 ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
                 "tags": [
                     "Admin Category"
                 ],
-                "summary": "api for admin add a new sub category",
+                "summary": "Add a new subcategory (Admin)",
                 "operationId": "SaveSubCategory",
                 "parameters": [
                     {
-                        "description": "Input field",
+                        "description": "Subcategory details",
                         "name": "input",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/domain.Category"
+                            "$ref": "#/definitions/request.SubCategory"
                         }
                     }
                 ],
                 "responses": {
-                    "200": {
-                        "description": "Successfully sub category added",
+                    "201": {
+                        "description": "Successfully added subcategory",
                         "schema": {
                             "$ref": "#/definitions/response.Response"
                         }
                     },
                     "400": {
-                        "description": "invalid input",
+                        "description": "Invalid input",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "409": {
+                        "description": "Sub category already exist",
                         "schema": {
                             "$ref": "#/definitions/response.Response"
                         }
                     },
                     "500": {
-                        "description": "Failed to add sub category",
+                        "description": "Failed to add subcategory",
                         "schema": {
                             "$ref": "#/definitions/response.Response"
                         }
@@ -345,95 +375,23 @@ const docTemplate = `{
                 }
             }
         },
-        "/admin/category/variation": {
-            "post": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "tags": [
-                    "Admin Category"
-                ],
-                "summary": "api for admin add a new variation",
-                "operationId": "SaveVariation",
-                "parameters": [
-                    {
-                        "description": "Input field",
-                        "name": "input",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/request.Variation"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "successfully variation added",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    },
-                    "400": {
-                        "description": "invalid input",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    }
-                }
-            }
-        },
-        "/admin/category/variation-option": {
-            "post": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "tags": [
-                    "Admin Category"
-                ],
-                "summary": "api for admin add a new variation options",
-                "operationId": "SaveVariationOption",
-                "parameters": [
-                    {
-                        "description": "Input field",
-                        "name": "input",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/request.VariationOption"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "successfully added variation option",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    },
-                    "400": {
-                        "description": "invalid input",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    }
-                }
-            }
-        },
-        "/admin/category/variation/{category_id}": {
+        "/admin/categories/{category_id}/variations": {
             "get": {
                 "security": [
                     {
                         "ApiKeyAuth": []
                     }
                 ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
                 "tags": [
                     "Admin Category"
                 ],
-                "summary": "api for admin to find all variations and its values for a specific category",
+                "summary": "Get all variations and its values for a category (Admin)",
                 "operationId": "FindAllVariations",
                 "parameters": [
                     {
@@ -446,13 +404,140 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "Successfully found all variations and its values",
+                        "description": "Successfully retrieved all variations and its values",
                         "schema": {
                             "$ref": "#/definitions/response.Response"
                         }
                     },
                     "400": {
-                        "description": "invalid input",
+                        "description": "Invalid input",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Failed to find variations and its values",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Admin Category"
+                ],
+                "summary": "Add new variations for a category (Admin)",
+                "operationId": "SaveVariation",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Category ID",
+                        "name": "category_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Variation details",
+                        "name": "input",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.Variation"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Successfully added variations",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid input",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Failed to add variation",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/admin/categories/{category_id}/variations/{variation_id}/options": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Admin Category"
+                ],
+                "summary": "Add new variation options for a variation (Admin)",
+                "operationId": "SaveVariationOption",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Category ID",
+                        "name": "category_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Variation ID",
+                        "name": "variation_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Variation option details",
+                        "name": "input",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.VariationOption"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Successfully added variation options",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid input",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Failed to add variation options",
                         "schema": {
                             "$ref": "#/definitions/response.Response"
                         }
@@ -1363,7 +1448,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/admin/products/product-items": {
+        "/admin/products/product-item": {
             "post": {
                 "tags": [
                     "Admin Products"
@@ -1400,7 +1485,7 @@ const docTemplate = `{
         "/admin/products/product-items/{product_id}": {
             "get": {
                 "tags": [
-                    "User Products"
+                    "Admin Products"
                 ],
                 "summary": "api for admin to find all product items for a specific product",
                 "operationId": "FindAllProductItemsAdmin",
@@ -2556,22 +2641,6 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "domain.Category": {
-            "type": "object",
-            "required": [
-                "category_name"
-            ],
-            "properties": {
-                "category_id": {
-                    "type": "integer"
-                },
-                "category_name": {
-                    "type": "string",
-                    "maxLength": 30,
-                    "minLength": 1
-                }
-            }
-        },
         "request.Address": {
             "type": "object",
             "required": [
@@ -2634,6 +2703,17 @@ const docTemplate = `{
                 },
                 "user_id": {
                     "type": "integer"
+                }
+            }
+        },
+        "request.Category": {
+            "type": "object",
+            "required": [
+                "category_name"
+            ],
+            "properties": {
+                "category_name": {
+                    "type": "string"
                 }
             }
         },
@@ -2990,9 +3070,6 @@ const docTemplate = `{
                     "type": "integer",
                     "minimum": 1
                 },
-                "sku": {
-                    "type": "string"
-                },
                 "variation_option_id": {
                     "type": "array",
                     "items": {
@@ -3015,6 +3092,21 @@ const docTemplate = `{
                 },
                 "shop_order_id": {
                     "type": "integer"
+                }
+            }
+        },
+        "request.SubCategory": {
+            "type": "object",
+            "required": [
+                "category_id",
+                "category_name"
+            ],
+            "properties": {
+                "category_id": {
+                    "type": "integer"
+                },
+                "category_name": {
+                    "type": "string"
                 }
             }
         },
@@ -3186,32 +3278,28 @@ const docTemplate = `{
         "request.Variation": {
             "type": "object",
             "required": [
-                "category_id",
-                "variation_name"
+                "variation_names"
             ],
             "properties": {
-                "category_id": {
-                    "type": "integer"
-                },
-                "variation_name": {
-                    "type": "string"
+                "variation_names": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
                 }
             }
         },
         "request.VariationOption": {
             "type": "object",
             "required": [
-                "variation_id",
                 "variation_value"
             ],
             "properties": {
-                "variation_id": {
-                    "description": "a specific field of variation like color/size",
-                    "type": "integer"
-                },
                 "variation_value": {
-                    "description": "the variations value like blue/XL",
-                    "type": "string"
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
                 }
             }
         },

@@ -1,15 +1,4 @@
 definitions:
-  domain.Category:
-    properties:
-      category_id:
-        type: integer
-      category_name:
-        maxLength: 30
-        minLength: 1
-        type: string
-    required:
-    - category_name
-    type: object
   request.Address:
     properties:
       area:
@@ -54,6 +43,13 @@ definitions:
         type: integer
     required:
     - user_id
+    type: object
+  request.Category:
+    properties:
+      category_name:
+        type: string
+    required:
+    - category_name
     type: object
   request.Coupon:
     properties:
@@ -308,8 +304,6 @@ definitions:
       qty_in_stock:
         minimum: 1
         type: integer
-      sku:
-        type: string
       variation_option_id:
         items:
           type: integer
@@ -332,6 +326,16 @@ definitions:
     required:
     - return_reason
     - shop_order_id
+    type: object
+  request.SubCategory:
+    properties:
+      category_id:
+        type: integer
+      category_name:
+        type: string
+    required:
+    - category_id
+    - category_name
     type: object
   request.UpdateCartItem:
     properties:
@@ -453,24 +457,20 @@ definitions:
     type: object
   request.Variation:
     properties:
-      category_id:
-        type: integer
-      variation_name:
-        type: string
+      variation_names:
+        items:
+          type: string
+        type: array
     required:
-    - category_id
-    - variation_name
+    - variation_names
     type: object
   request.VariationOption:
     properties:
-      variation_id:
-        description: a specific field of variation like color/size
-        type: integer
       variation_value:
-        description: the variations value like blue/XL
-        type: string
+        items:
+          type: string
+        type: array
     required:
-    - variation_id
     - variation_value
     type: object
   response.Response:
@@ -613,11 +613,13 @@ paths:
       summary: api admin home
       tags:
       - Admin Home
-  /admin/category:
+  /admin/categories:
     get:
+      consumes:
+      - application/json
       operationId: FindAllCategories
       parameters:
-      - description: Page Number
+      - description: Page number
         in: query
         name: page_number
         type: integer
@@ -625,121 +627,57 @@ paths:
         in: query
         name: count
         type: integer
+      produces:
+      - application/json
       responses:
         "200":
-          description: Successfully found all categories
+          description: Successfully retrieved all categories
           schema:
             $ref: '#/definitions/response.Response'
         "500":
-          description: Failed to find all categories
+          description: Failed to retrieve categories
           schema:
             $ref: '#/definitions/response.Response'
       security:
       - ApiKeyAuth: []
-      summary: api for admin find all categories
+      summary: Get all categories and their subcategories (Admin)
       tags:
       - Admin Category
     post:
+      consumes:
+      - application/json
       operationId: SaveCategory
       parameters:
-      - description: Input field
+      - description: Category details
         in: body
         name: input
         required: true
         schema:
-          $ref: '#/definitions/domain.Category'
+          $ref: '#/definitions/request.Category'
+      produces:
+      - application/json
       responses:
-        "200":
-          description: Successfully category added
+        "201":
+          description: Successfully added category
           schema:
             $ref: '#/definitions/response.Response'
         "400":
-          description: invalid input
+          description: Invalid input
+          schema:
+            $ref: '#/definitions/response.Response'
+        "409":
+          description: Failed to save category
           schema:
             $ref: '#/definitions/response.Response'
       security:
       - ApiKeyAuth: []
-      summary: api for admin to add a new category
+      summary: Add a new category (Admin)
       tags:
       - Admin Category
-  /admin/category/sub-category:
-    post:
-      operationId: SaveSubCategory
-      parameters:
-      - description: Input field
-        in: body
-        name: input
-        required: true
-        schema:
-          $ref: '#/definitions/domain.Category'
-      responses:
-        "200":
-          description: Successfully sub category added
-          schema:
-            $ref: '#/definitions/response.Response'
-        "400":
-          description: invalid input
-          schema:
-            $ref: '#/definitions/response.Response'
-        "500":
-          description: Failed to add sub category
-          schema:
-            $ref: '#/definitions/response.Response'
-      security:
-      - ApiKeyAuth: []
-      summary: api for admin add a new sub category
-      tags:
-      - Admin Category
-  /admin/category/variation:
-    post:
-      operationId: SaveVariation
-      parameters:
-      - description: Input field
-        in: body
-        name: input
-        required: true
-        schema:
-          $ref: '#/definitions/request.Variation'
-      responses:
-        "200":
-          description: successfully variation added
-          schema:
-            $ref: '#/definitions/response.Response'
-        "400":
-          description: invalid input
-          schema:
-            $ref: '#/definitions/response.Response'
-      security:
-      - ApiKeyAuth: []
-      summary: api for admin add a new variation
-      tags:
-      - Admin Category
-  /admin/category/variation-option:
-    post:
-      operationId: SaveVariationOption
-      parameters:
-      - description: Input field
-        in: body
-        name: input
-        required: true
-        schema:
-          $ref: '#/definitions/request.VariationOption'
-      responses:
-        "200":
-          description: successfully added variation option
-          schema:
-            $ref: '#/definitions/response.Response'
-        "400":
-          description: invalid input
-          schema:
-            $ref: '#/definitions/response.Response'
-      security:
-      - ApiKeyAuth: []
-      summary: api for admin add a new variation options
-      tags:
-      - Admin Category
-  /admin/category/variation/{category_id}:
+  /admin/categories/{category_id}/variations:
     get:
+      consumes:
+      - application/json
       operationId: FindAllVariations
       parameters:
       - description: Category ID
@@ -747,19 +685,138 @@ paths:
         name: category_id
         required: true
         type: integer
+      produces:
+      - application/json
       responses:
         "200":
-          description: Successfully found all variations and its values
+          description: Successfully retrieved all variations and its values
           schema:
             $ref: '#/definitions/response.Response'
         "400":
-          description: invalid input
+          description: Invalid input
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Failed to find variations and its values
           schema:
             $ref: '#/definitions/response.Response'
       security:
       - ApiKeyAuth: []
-      summary: api for admin to find all variations and its values for a specific
-        category
+      summary: Get all variations and its values for a category (Admin)
+      tags:
+      - Admin Category
+    post:
+      consumes:
+      - application/json
+      operationId: SaveVariation
+      parameters:
+      - description: Category ID
+        in: path
+        name: category_id
+        required: true
+        type: integer
+      - description: Variation details
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/request.Variation'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Successfully added variations
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Invalid input
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Failed to add variation
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: Add new variations for a category (Admin)
+      tags:
+      - Admin Category
+  /admin/categories/{category_id}/variations/{variation_id}/options:
+    post:
+      consumes:
+      - application/json
+      operationId: SaveVariationOption
+      parameters:
+      - description: Category ID
+        in: path
+        name: category_id
+        required: true
+        type: integer
+      - description: Variation ID
+        in: path
+        name: variation_id
+        required: true
+        type: integer
+      - description: Variation option details
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/request.VariationOption'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Successfully added variation options
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Invalid input
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Failed to add variation options
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: Add new variation options for a variation (Admin)
+      tags:
+      - Admin Category
+  /admin/categories/sub-categories:
+    post:
+      consumes:
+      - application/json
+      operationId: SaveSubCategory
+      parameters:
+      - description: Subcategory details
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/request.SubCategory'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Successfully added subcategory
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Invalid input
+          schema:
+            $ref: '#/definitions/response.Response'
+        "409":
+          description: Sub category already exist
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Failed to add subcategory
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: Add a new subcategory (Admin)
       tags:
       - Admin Category
   /admin/coupons:
@@ -1343,7 +1400,7 @@ paths:
       summary: api for admin to update a product
       tags:
       - Admin Products
-  /admin/products/product-items:
+  /admin/products/product-item:
     post:
       operationId: SaveProductItem
       parameters:
@@ -1385,7 +1442,7 @@ paths:
             $ref: '#/definitions/response.Response'
       summary: api for admin to find all product items for a specific product
       tags:
-      - User Products
+      - Admin Products
   /admin/sales:
     get:
       operationId: FullSalesReport
