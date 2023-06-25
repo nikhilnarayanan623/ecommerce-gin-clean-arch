@@ -30,22 +30,22 @@ type ProductRepository interface {
 	FindCategoryByName(ctx context.Context, categoryName string) (domain.Category, error)
 	FindCategoryByID(ctx context.Context, categoryID uint) (domain.Category, error)
 
-	FindAllCategories(ctx context.Context, pagination request.Pagination) ([]response.Category, error)
-
+	FindAllMainCategories(ctx context.Context, pagination request.Pagination) (categories []response.Category, err error)
 	SaveCategory(ctx context.Context, categoryName string) (err error)
+
+	FindAllSubCategories(ctx context.Context, categoryID uint) (subCategories []response.SubCategory, err error)
 	SaveSubCategory(ctx context.Context, categoryID uint, categoryName string) (err error)
 
 	// variation
-	SaveVariation(ctx context.Context, variation request.Variation) error
+	SaveVariation(ctx context.Context, categoryID uint, variationName string) error
 	FindVariationByID(ctx context.Context, variationID uint) (domain.Variation, error)
 	FindVariationByNameAndCategoryID(ctx context.Context,
 		variationName string, categoryID uint) (variation domain.Variation, err error)
 	FindAllVariationsByCategoryID(ctx context.Context, categoryID uint) ([]response.Variation, error)
 
 	// variation values
-	SaveVariationOption(ctx context.Context, variationOption request.VariationOption) error
-	FindVariationOptionByValueAndVariationID(ctx context.Context,
-		variationOptionValue string, categoryID uint) (variationOption domain.VariationOption, err error)
+	SaveVariationOption(ctx context.Context, variationID uint, variationValue string) error
+	FindVariationOptionByValueAndVariationID(ctx context.Context, variationID uint, variationValue string) (domain.VariationOption, error)
 	FindAllVariationOptionsByVariationID(ctx context.Context, variationID uint) ([]response.VariationOption, error)
 
 	FindAllVariationValuesOfProductItem(ctx context.Context,

@@ -14,8 +14,8 @@ type ProductUseCase interface {
 	SaveSubCategory(ctx context.Context, subCategory request.SubCategory) error
 
 	// variations
-	SaveVariation(ctx context.Context, variation request.Variation) error
-	SaveVariationOption(ctx context.Context, variationOption request.VariationOption) error
+	SaveVariation(ctx context.Context, categoryID uint, variationNames []string) error
+	SaveVariationOption(ctx context.Context, variationID uint, variationOptionValues []string) error
 
 	FindAllVariationsAndItsValues(ctx context.Context, categoryID uint) ([]response.Variation, error)
 

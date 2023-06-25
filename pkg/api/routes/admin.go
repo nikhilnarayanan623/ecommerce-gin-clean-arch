@@ -40,16 +40,23 @@ func AdminRoutes(api *gin.RouterGroup, authHandler handlerInterface.AuthHandler,
 			user.PATCH("/block", adminHandler.BlockUser)
 		}
 		// category
-		category := api.Group("/category")
+		category := api.Group("/categories")
 		{
 			category.GET("/", productHandler.FindAllCategories)
 			category.POST("/", productHandler.SaveCategory)
-			category.POST("/sub-category", productHandler.SaveSubCategory)
+			category.POST("/sub-categories", productHandler.SaveSubCategory)
 
-			category.GET("/variation/:category_id", productHandler.FindAllVariations)
+			variation := category.Group("/:category_id/variations")
+			{
+				variation.POST("/", productHandler.SaveVariation)
+				variation.GET("/", productHandler.FindAllVariations)
 
-			category.POST("/variation", productHandler.SaveVariation)
-			category.POST("/variation-option", productHandler.SaveVariationOption)
+				variationOption := variation.Group("/:variation_id/options")
+				{
+					variationOption.POST("/", productHandler.SaveVariationOption)
+				}
+			}
+
 		}
 		// product
 		product := api.Group("/products")
@@ -58,14 +65,17 @@ func AdminRoutes(api *gin.RouterGroup, authHandler handlerInterface.AuthHandler,
 			product.POST("/", productHandler.SaveProduct)
 			product.PUT("/", productHandler.UpdateProduct)
 
-			product.GET("/product-item/:product_id", productHandler.FindAllProductItemsAdmin())
-			product.POST("/product-item", productHandler.SaveProductItem)
+			productItems := product.Group("/items")
+			{
+				productItems.POST("/", productHandler.SaveProductItem)
+				productItems.GET("/:product_id", productHandler.FindAllProductItemsAdmin())
+			}
 		}
 		// 	// order
 		order := api.Group("/orders")
 		{
 			order.GET("/", orderHandler.FindAllShopOrders)
-			order.GET("items", orderHandler.FindAllOrderItems)
+			order.GET("/items", orderHandler.FindAllOrderItems)
 			order.PUT("/", orderHandler.UpdateOrderStatus)
 
 			order.GET("/statuses", orderHandler.FindAllOrderStatuses)
