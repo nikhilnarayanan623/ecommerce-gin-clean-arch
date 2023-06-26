@@ -50,11 +50,14 @@ type Address struct {
 }
 
 // wish list response
-type WishList struct {
-	ProductItemID uint   `json:"product_item_id"`
-	ProductName   string `json:"product_name"`
-	Price         uint   `json:"price"`
-	Image         string `json:"image"`
-	QtyInStock    uint   `json:"qty_in_stock"`
-	//OutOfStock    bool   `json:"out_of_stock"`
+type WishListItem struct {
+	ID              uint                    `json:"wish_list_id"`
+	ProductItemID   uint                    `json:"product_item_id"`
+	Name            string                  `json:"product_name"`
+	ProductID       uint                    `json:"product_id"`
+	Price           uint                    `json:"price"`
+	DiscountPrice   uint                    `json:"discount_price"`
+	SKU             string                  `json:"sku"`
+	QtyInStock      uint                    `json:"qty_in_stock"`
+	VariationValues []ProductVariationValue `gorm:"-"`
 }

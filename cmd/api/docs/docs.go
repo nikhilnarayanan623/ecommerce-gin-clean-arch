@@ -43,17 +43,18 @@ const docTemplate = `{
                         "ApiKeyAuth": []
                     }
                 ],
+                "description": "API for user to get all user details",
                 "tags": [
-                    "User GetUserProfile"
+                    "User Profile"
                 ],
-                "summary": "api for see use details",
-                "operationId": "FindUserProfile",
+                "summary": "Get User Profile (User)",
+                "operationId": "FindProfile",
                 "responses": {
                     "200": {
-                        "description": "Successfully user account details found"
+                        "description": "Successfully retrieved user details"
                     },
                     "500": {
-                        "description": "faild to show user details",
+                        "description": "Failed to retrieve user details",
                         "schema": {
                             "$ref": "#/definitions/response.Response"
                         }
@@ -66,15 +67,15 @@ const docTemplate = `{
                         "ApiKeyAuth": []
                     }
                 ],
-                "description": "user can edit user details",
+                "description": "API for user to edit user details",
                 "tags": [
-                    "User Account"
+                    "User Profile"
                 ],
-                "summary": "api for edit user details",
-                "operationId": "UpdateUserProfile",
+                "summary": "Edit profile (User)",
+                "operationId": "UpdateProfile",
                 "parameters": [
                     {
-                        "description": "input field",
+                        "description": "User details input",
                         "name": "input",
                         "in": "body",
                         "required": true,
@@ -85,13 +86,19 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "successfully updated user details",
+                        "description": "Successfully profile updated",
                         "schema": {
                             "$ref": "#/definitions/response.Response"
                         }
                     },
                     "400": {
-                        "description": "invalid input",
+                        "description": "Invalid inputs",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Failed to update profile",
                         "schema": {
                             "$ref": "#/definitions/response.Response"
                         }
@@ -106,15 +113,15 @@ const docTemplate = `{
                         "ApiKeyAuth": []
                     }
                 ],
-                "description": "user can show all address",
+                "description": "API for user to get all user addresses",
                 "tags": [
-                    "User Address"
+                    "User Profile"
                 ],
-                "summary": "api for get all address of user",
+                "summary": "Get all addresses (User)",
                 "operationId": "FindAllAddresses",
                 "responses": {
                     "200": {
-                        "description": "successfully got user addresses",
+                        "description": "successfully retrieved all user addresses",
                         "schema": {
                             "$ref": "#/definitions/response.Response"
                         }
@@ -133,15 +140,15 @@ const docTemplate = `{
                         "ApiKeyAuth": []
                     }
                 ],
-                "description": "user can change existing address",
+                "description": "API for user to update user address",
                 "tags": [
-                    "User Address"
+                    "User Profile"
                 ],
-                "summary": "api for edit user address",
+                "summary": "Update address (User)",
                 "operationId": "UpdateAddress",
                 "parameters": [
                     {
-                        "description": "Input Field",
+                        "description": "Address input",
                         "name": "input",
                         "in": "body",
                         "required": true,
@@ -171,15 +178,15 @@ const docTemplate = `{
                         "ApiKeyAuth": []
                     }
                 ],
-                "description": "get a new address from user to store the the database",
+                "description": "API for user to add a new address",
                 "tags": [
-                    "User Address"
+                    "User Profile"
                 ],
-                "summary": "api for adding a new address for user",
-                "operationId": "AddAddress",
+                "summary": "Add a new address (User)",
+                "operationId": "SaveAddress",
                 "parameters": [
                     {
-                        "description": "Input Field",
+                        "description": "Address input",
                         "name": "inputs",
                         "in": "body",
                         "required": true,
@@ -197,6 +204,12 @@ const docTemplate = `{
                     },
                     "400": {
                         "description": "invalid input",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Failed to save address",
                         "schema": {
                             "$ref": "#/definitions/response.Response"
                         }
@@ -1893,7 +1906,7 @@ const docTemplate = `{
                 "tags": [
                     "User Authentication"
                 ],
-                "summary": "load google login page (User)",
+                "summary": "To load google login page (User)",
                 "operationId": "UserGoogleAuthLoginPage",
                 "responses": {
                     "200": {
@@ -2909,19 +2922,21 @@ const docTemplate = `{
                     }
                 ],
                 "tags": [
-                    "Wishlist"
+                    "User Profile"
                 ],
-                "summary": "api get all wish list items of user",
+                "summary": "Get whish list product items (User)",
                 "operationId": "FindWishList",
                 "responses": {
                     "200": {
-                        "description": "Wish list is empty"
+                        "description": "Successfully retrieved all product items in th wish list"
                     },
-                    "400": {
-                        "description": "failed to get user wish list items"
+                    "500": {
+                        "description": "Failed to retrieve product items from the wish list"
                     }
                 }
-            },
+            }
+        },
+        "/wishlist/{product_item_id}": {
             "post": {
                 "security": [
                     {
@@ -2929,30 +2944,40 @@ const docTemplate = `{
                     }
                 ],
                 "tags": [
-                    "Wishlist"
+                    "User Profile"
                 ],
-                "summary": "api to add a productItem to wish list",
+                "summary": "Add to whish list (User)",
                 "operationId": "SaveToWishList",
                 "parameters": [
                     {
-                        "description": "product_item_id",
+                        "type": "integer",
+                        "description": "Product Item ID",
                         "name": "product_item_id",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "type": "integer"
-                        }
+                        "in": "path",
+                        "required": true
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "successfully added product item to wishlist",
+                        "description": "Successfully product items added to whish list",
                         "schema": {
                             "$ref": "#/definitions/response.Response"
                         }
                     },
                     "400": {
                         "description": "invalid input",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "409": {
+                        "description": "Product item already exist on wish list",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Failed to add product item to wishlist",
                         "schema": {
                             "$ref": "#/definitions/response.Response"
                         }
@@ -2966,10 +2991,19 @@ const docTemplate = `{
                     }
                 ],
                 "tags": [
-                    "Wishlist"
+                    "User Profile"
                 ],
-                "summary": "api to remove a productItem from wish list",
+                "summary": "Remove from whish list (User)",
                 "operationId": "RemoveFromWishList",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Product Item ID",
+                        "name": "product_item_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "successfully removed product item from wishlist",

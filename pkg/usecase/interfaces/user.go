@@ -21,6 +21,6 @@ type UserUseCase interface {
 
 	// wishlist
 	SaveToWishList(ctx context.Context, wishList domain.WishList) error
-	RemoveFromWishList(ctx context.Context, wishList domain.WishList) error
-	FindAllWishListItems(ctx context.Context, userID uint) ([]response.WishList, error)
+	RemoveFromWishList(ctx context.Context, userID, productItemID uint) error
+	FindAllWishListItems(ctx context.Context, userID uint) ([]response.WishListItem, error)
 }

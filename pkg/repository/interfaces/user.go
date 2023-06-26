@@ -33,7 +33,7 @@ type UserRepository interface {
 
 	//wishlist
 	FindWishListItem(ctx context.Context, productID, userID uint) (domain.WishList, error)
-	FindAllWishListItemsByUserID(ctx context.Context, userID uint) ([]response.WishList, error)
+	FindAllWishListItemsByUserID(ctx context.Context, userID uint) ([]response.WishListItem, error)
 	SaveWishListItem(ctx context.Context, wishList domain.WishList) error
-	RemoveWishListItem(ctx context.Context, wishList domain.WishList) error
+	RemoveWishListItem(ctx context.Context, userID, productItemID uint) error
 }
