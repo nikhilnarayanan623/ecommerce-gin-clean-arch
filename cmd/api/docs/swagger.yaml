@@ -1936,11 +1936,15 @@ paths:
       - User Authentication
   /carts:
     get:
-      description: user can see all productItem that stored in cart
+      description: API for user to get all cart items
       operationId: FindCart
       responses:
         "200":
-          description: Successfully find user cart items
+          description: Successfully retrieved all cart items
+          schema:
+            $ref: '#/definitions/response.Response'
+        "204":
+          description: Cart is empty
           schema:
             $ref: '#/definitions/response.Response'
         "500":
@@ -1949,12 +1953,11 @@ paths:
             $ref: '#/definitions/response.Response'
       security:
       - ApiKeyAuth: []
-      summary: api for get all cart item of user
+      summary: Get cart Items (User)
       tags:
       - User Cart
     put:
-      description: user can increment or decrement count of a productItem in cart
-        (min=1)
+      description: API for user to update cart item quantity (minimum qty is 1)
       operationId: UpdateCart
       parameters:
       - description: Input Field
@@ -1965,9 +1968,11 @@ paths:
           $ref: '#/definitions/request.UpdateCartItem'
       responses:
         "200":
-          description: Successfully productItem count change on cart
+          description: Successfully to update cart item quantity changed in cart
+          schema:
+            $ref: '#/definitions/response.Response'
         "400":
-          description: invalid input
+          description: Invalid input
           schema:
             $ref: '#/definitions/response.Response'
         "500":
@@ -1976,12 +1981,12 @@ paths:
             $ref: '#/definitions/response.Response'
       security:
       - ApiKeyAuth: []
-      summary: api for update product item count
+      summary: Change Cart Qty (User)
       tags:
       - User Cart
   /carts/{product_item_id}:
     delete:
-      description: user can remove a signle productItem full quantity from cart
+      description: API for user to remove a product item from cart
       operationId: RemoveFromCart
       parameters:
       - description: Product Item ID
@@ -1998,18 +2003,22 @@ paths:
           description: invalid input
           schema:
             $ref: '#/definitions/response.Response'
+        "404":
+          description: Product item not exist in cart
+          schema:
+            $ref: '#/definitions/response.Response'
         "500":
           description: Failed to remove product item from cart
           schema:
             $ref: '#/definitions/response.Response'
       security:
       - ApiKeyAuth: []
-      summary: api for remove a product item from cart
+      summary: Remove product item from cart (User)
       tags:
       - User Cart
     post:
-      description: user can add a stock in product to user cart
-      operationId: SaveToCart
+      description: API for user to add a product item to cart
+      operationId: AddToCart
       parameters:
       - description: Product Item ID
         in: path
@@ -2021,13 +2030,21 @@ paths:
           description: Successfully product item added to cart
           schema:
             $ref: '#/definitions/response.Response'
-        "400":
+        "404":
+          description: Product item in out of stock
+          schema:
+            $ref: '#/definitions/response.Response'
+        "409":
+          description: Product item already exist in cart
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
           description: Failed to add product item into cart
           schema:
             $ref: '#/definitions/response.Response'
       security:
       - ApiKeyAuth: []
-      summary: api for user to add product item to cart
+      summary: Add product item to cart (User)
       tags:
       - User Cart
   /carts/checkout/payment-select-page:
