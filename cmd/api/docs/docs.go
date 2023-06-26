@@ -2266,15 +2266,21 @@ const docTemplate = `{
                         "ApiKeyAuth": []
                     }
                 ],
-                "description": "user can see all productItem that stored in cart",
+                "description": "API for user to get all cart items",
                 "tags": [
                     "User Cart"
                 ],
-                "summary": "api for get all cart item of user",
+                "summary": "Get cart Items (User)",
                 "operationId": "FindCart",
                 "responses": {
                     "200": {
-                        "description": "Successfully find user cart items",
+                        "description": "Successfully retrieved all cart items",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "204": {
+                        "description": "Cart is empty",
                         "schema": {
                             "$ref": "#/definitions/response.Response"
                         }
@@ -2293,11 +2299,11 @@ const docTemplate = `{
                         "ApiKeyAuth": []
                     }
                 ],
-                "description": "user can increment or decrement count of a productItem in cart (min=1)",
+                "description": "API for user to update cart item quantity (minimum qty is 1)",
                 "tags": [
                     "User Cart"
                 ],
-                "summary": "api for update product item count",
+                "summary": "Change Cart Qty (User)",
                 "operationId": "UpdateCart",
                 "parameters": [
                     {
@@ -2312,10 +2318,13 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "Successfully productItem count change on cart"
+                        "description": "Successfully to update cart item quantity changed in cart",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
                     },
                     "400": {
-                        "description": "invalid input",
+                        "description": "Invalid input",
                         "schema": {
                             "$ref": "#/definitions/response.Response"
                         }
@@ -2547,12 +2556,12 @@ const docTemplate = `{
                         "ApiKeyAuth": []
                     }
                 ],
-                "description": "user can add a stock in product to user cart",
+                "description": "API for user to add a product item to cart",
                 "tags": [
                     "User Cart"
                 ],
-                "summary": "api for user to add product item to cart",
-                "operationId": "SaveToCart",
+                "summary": "Add product item to cart (User)",
+                "operationId": "AddToCart",
                 "parameters": [
                     {
                         "type": "integer",
@@ -2569,7 +2578,19 @@ const docTemplate = `{
                             "$ref": "#/definitions/response.Response"
                         }
                     },
-                    "400": {
+                    "404": {
+                        "description": "Product item in out of stock",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "409": {
+                        "description": "Product item already exist in cart",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "500": {
                         "description": "Failed to add product item into cart",
                         "schema": {
                             "$ref": "#/definitions/response.Response"
@@ -2583,11 +2604,11 @@ const docTemplate = `{
                         "ApiKeyAuth": []
                     }
                 ],
-                "description": "user can remove a signle productItem full quantity from cart",
+                "description": "API for user to remove a product item from cart",
                 "tags": [
                     "User Cart"
                 ],
-                "summary": "api for remove a product item from cart",
+                "summary": "Remove product item from cart (User)",
                 "operationId": "RemoveFromCart",
                 "parameters": [
                     {
@@ -2607,6 +2628,12 @@ const docTemplate = `{
                     },
                     "400": {
                         "description": "invalid input",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "404": {
+                        "description": "Product item not exist in cart",
                         "schema": {
                             "$ref": "#/definitions/response.Response"
                         }

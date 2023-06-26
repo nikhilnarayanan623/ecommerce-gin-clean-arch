@@ -57,7 +57,7 @@ func UserRoutes(api *gin.RouterGroup, authHandler handlerInterface.AuthHandler, 
 		cart := api.Group("/carts")
 		{
 			cart.GET("/", cartHandler.FindCart)
-			cart.POST("/:product_item_id", cartHandler.SaveToCart)
+			cart.POST("/:product_item_id", cartHandler.AddToCart)
 			cart.PUT("/", cartHandler.UpdateCart)
 			cart.DELETE("/:product_item_id", cartHandler.RemoveFromCart)
 
