@@ -217,6 +217,60 @@ const docTemplate = `{
                 }
             }
         },
+        "/account/wallet": {
+            "get": {
+                "description": "API for user to get user wallet",
+                "tags": [
+                    "User Profile"
+                ],
+                "summary": "Get user wallet  (User)",
+                "operationId": "FindUserWallet",
+                "responses": {
+                    "200": {
+                        "description": "Successfully retrieve user wallet",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Failed to retrieve user wallet",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/account/wallet/transactions": {
+            "get": {
+                "description": "API for user to get user wallet transaction",
+                "tags": [
+                    "User Profile"
+                ],
+                "summary": "Get user wallet  (User)",
+                "operationId": "FindUserWalletTransactions",
+                "responses": {
+                    "200": {
+                        "description": "Successfully retrieved user wallet transactions",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "204": {
+                        "description": "No wallet transaction for user",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Failed to retrieve user wallet transactions",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
         "/admin": {
             "get": {
                 "tags": [
@@ -1180,51 +1234,13 @@ const docTemplate = `{
                 }
             }
         },
-        "/admin/orders": {
-            "get": {
-                "description": "admin can see all orders in application",
-                "tags": [
-                    "Admin Orders"
-                ],
-                "summary": "api for admin to show all order",
-                "operationId": "FindAllShopOrders",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Page Number",
-                        "name": "page_number",
-                        "in": "query"
-                    },
-                    {
-                        "type": "integer",
-                        "description": "Count Of Order",
-                        "name": "count",
-                        "in": "query"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Successfully found all shop orders",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    },
-                    "500": {
-                        "description": "Failed to find all shop orders",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    }
-                }
-            }
-        },
         "/admin/orders/": {
             "put": {
-                "description": "admin can change User Orders status",
+                "description": "API for admin to change order status",
                 "tags": [
                     "Admin Orders"
                 ],
-                "summary": "api for admin to change the status of order",
+                "summary": "Change order status (Admin)",
                 "operationId": "UpdateOrderStatus",
                 "parameters": [
                     {
@@ -1253,12 +1269,57 @@ const docTemplate = `{
                 }
             }
         },
-        "/admin/orders/returns": {
+        "/admin/orders/all": {
             "get": {
+                "description": "API for admin to get all orders",
                 "tags": [
                     "Admin Orders"
                 ],
-                "summary": "api for admin to see all order returns",
+                "summary": "Get all orders (Admin)",
+                "operationId": "FindAllShopOrders",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Page Number",
+                        "name": "page_number",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Count",
+                        "name": "count",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successfully retrieved all shop orders",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "204": {
+                        "description": "No shop order found",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Failed to find all shop orders",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/admin/orders/returns": {
+            "get": {
+                "description": "API for admin to get all order returns",
+                "tags": [
+                    "Admin Orders"
+                ],
+                "summary": "Get all order returns (Admin)",
                 "operationId": "FindAllOrderReturns",
                 "parameters": [
                     {
@@ -1292,11 +1353,11 @@ const docTemplate = `{
         },
         "/admin/orders/returns/pending": {
             "get": {
-                "description": "admin can see the pending return request and accept it or not",
+                "description": "API for admin to get all pending returns",
                 "tags": [
                     "Admin Orders"
                 ],
-                "summary": "api for admin to show pending return request and update it",
+                "summary": "Get all pending returns (Admin)",
                 "operationId": "FindAllPendingReturns",
                 "parameters": [
                     {
@@ -1328,11 +1389,11 @@ const docTemplate = `{
                 }
             },
             "put": {
-                "description": "admin can approve, cancel etc. updating on User Orders_return",
+                "description": "API for admin to change status of return requested orders",
                 "tags": [
                     "Admin Orders"
                 ],
-                "summary": "api for admin to update the order_return request from user",
+                "summary": "Change return request status (Admin)",
                 "operationId": "UpdateReturnRequest",
                 "parameters": [
                     {
@@ -1368,20 +1429,78 @@ const docTemplate = `{
                         "ApiKeyAuth": []
                     }
                 ],
+                "description": "API for admin to get all available order statuses",
                 "tags": [
                     "Admin Orders"
                 ],
-                "summary": "api for admin to see all order statues for changing order's statuses",
-                "operationId": "GetAllOrderStatuses",
+                "summary": "Get all order statuses (Admin)",
+                "operationId": "FindAllOrderStatuses",
                 "responses": {
                     "200": {
-                        "description": "Successfully found all order statuses",
+                        "description": "Successfully retrieved all order statuses",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "204": {
+                        "description": "No order statuses found",
                         "schema": {
                             "$ref": "#/definitions/response.Response"
                         }
                     },
                     "500": {
-                        "description": "failed to get order statuses",
+                        "description": "Failed to find all order statuses",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/admin/orders/{shop_order_id}/items": {
+            "get": {
+                "description": "API for user to get all order items of a specific order",
+                "tags": [
+                    "Admin Orders"
+                ],
+                "summary": "Get all order items (Admin)",
+                "operationId": "FindAllOrderItemsAdmin",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Shop Order ID",
+                        "name": "shop_order_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Page Number",
+                        "name": "page_number",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Count",
+                        "name": "count",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successfully found order items",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "204": {
+                        "description": "No order items found",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Failed to find order items",
                         "schema": {
                             "$ref": "#/definitions/response.Response"
                         }
@@ -2412,10 +2531,11 @@ const docTemplate = `{
                         "ApiKeyAuth": []
                     }
                 ],
+                "description": "API for user to place order for cash on delivery",
                 "tags": [
-                    "User Cart"
+                    "User Orders"
                 ],
-                "summary": "api for user to place an order on cart with COD",
+                "summary": "Place order  for COD (User)",
                 "operationId": "PlaceOrderOnCOD",
                 "parameters": [
                     {
@@ -2433,14 +2553,26 @@ const docTemplate = `{
                             "$ref": "#/definitions/response.Response"
                         }
                     },
+                    "204": {
+                        "description": "Cart is empty",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
                     "400": {
                         "description": "invalid input",
                         "schema": {
                             "$ref": "#/definitions/response.Response"
                         }
                     },
+                    "409": {
+                        "description": "Can't place order out of stock product on cart",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
                     "500": {
-                        "description": "failed to save shop order",
+                        "description": "Failed to save order",
                         "schema": {
                             "$ref": "#/definitions/response.Response"
                         }
@@ -2711,12 +2843,12 @@ const docTemplate = `{
         },
         "/orders": {
             "get": {
-                "description": "user can see all User Orders history",
+                "description": "API to get order for user user orders",
                 "tags": [
                     "User Orders"
                 ],
-                "summary": "api for showing User Orders list",
-                "operationId": "GetUserOrder",
+                "summary": "Get user orders (User)",
+                "operationId": "FindUserOrder",
                 "parameters": [
                     {
                         "type": "integer",
@@ -2733,57 +2865,19 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "Successfully found all shop orders",
+                        "description": "Successfully retrieved all user orders",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "204": {
+                        "description": "No shop orders for user",
                         "schema": {
                             "$ref": "#/definitions/response.Response"
                         }
                     },
                     "500": {
-                        "description": "Failed to find all user shop orders",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    }
-                }
-            }
-        },
-        "/orders/items/{shop_order_id}": {
-            "get": {
-                "tags": [
-                    "User Orders"
-                ],
-                "summary": "api for show order items of a specific order",
-                "operationId": "FindAllOrderItems User",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Shop Order ID",
-                        "name": "shop_order_id",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "integer",
-                        "description": "Page Number",
-                        "name": "page_number",
-                        "in": "query"
-                    },
-                    {
-                        "type": "integer",
-                        "description": "Count",
-                        "name": "count",
-                        "in": "query"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Successfully found order items",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    },
-                    "500": {
-                        "description": "Failed to find order items",
+                        "description": "Failed to retrieve all user orders",
                         "schema": {
                             "$ref": "#/definitions/response.Response"
                         }
@@ -2793,11 +2887,11 @@ const docTemplate = `{
         },
         "/orders/return": {
             "post": {
-                "description": "user can request return for placed orders",
+                "description": "API for user to request a return for delivered order",
                 "tags": [
                     "User Orders"
                 ],
-                "summary": "api for user to request a return for an order",
+                "summary": "Return request",
                 "operationId": "SubmitReturnRequest",
                 "parameters": [
                     {
@@ -2826,13 +2920,13 @@ const docTemplate = `{
                 }
             }
         },
-        "/orders/{shop_order_id}": {
+        "/orders/{shop_order_id}/cancel": {
             "post": {
-                "description": "user can cancel the order if it's not placed",
+                "description": "Api for user to cancel a order",
                 "tags": [
                     "User Orders"
                 ],
-                "summary": "api for user to cancel the order",
+                "summary": "Cancel order (User)",
                 "operationId": "CancelOrder",
                 "parameters": [
                     {
@@ -2851,7 +2945,58 @@ const docTemplate = `{
                         }
                     },
                     "400": {
-                        "description": "invalid input on param",
+                        "description": "Invalid inputs",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Failed to cancel order",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/orders/{shop_order_id}/items": {
+            "get": {
+                "description": "API for user to get all order items of a specific order",
+                "tags": [
+                    "User Orders"
+                ],
+                "summary": "Get all order items (User)",
+                "operationId": "FindAllOrderItemsUser",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Shop Order ID",
+                        "name": "shop_order_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Page Number",
+                        "name": "page_number",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Count Of Order",
+                        "name": "count",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successfully found order items",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Failed to find order items",
                         "schema": {
                             "$ref": "#/definitions/response.Response"
                         }

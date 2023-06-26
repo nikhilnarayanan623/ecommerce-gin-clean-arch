@@ -616,6 +616,42 @@ paths:
       summary: Update address (User)
       tags:
       - User Profile
+  /account/wallet:
+    get:
+      description: API for user to get user wallet
+      operationId: FindUserWallet
+      responses:
+        "200":
+          description: Successfully retrieve user wallet
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Failed to retrieve user wallet
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: Get user wallet  (User)
+      tags:
+      - User Profile
+  /account/wallet/transactions:
+    get:
+      description: API for user to get user wallet transaction
+      operationId: FindUserWalletTransactions
+      responses:
+        "200":
+          description: Successfully retrieved user wallet transactions
+          schema:
+            $ref: '#/definitions/response.Response'
+        "204":
+          description: No wallet transaction for user
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Failed to retrieve user wallet transactions
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: Get user wallet  (User)
+      tags:
+      - User Profile
   /admin:
     get:
       operationId: AdminHome
@@ -1236,34 +1272,9 @@ paths:
       summary: api for admin to remove offer product offer
       tags:
       - Admin Offers
-  /admin/orders:
-    get:
-      description: admin can see all orders in application
-      operationId: FindAllShopOrders
-      parameters:
-      - description: Page Number
-        in: query
-        name: page_number
-        type: integer
-      - description: Count Of Order
-        in: query
-        name: count
-        type: integer
-      responses:
-        "200":
-          description: Successfully found all shop orders
-          schema:
-            $ref: '#/definitions/response.Response'
-        "500":
-          description: Failed to find all shop orders
-          schema:
-            $ref: '#/definitions/response.Response'
-      summary: api for admin to show all order
-      tags:
-      - Admin Orders
   /admin/orders/:
     put:
-      description: admin can change User Orders status
+      description: API for admin to change order status
       operationId: UpdateOrderStatus
       parameters:
       - description: input field
@@ -1281,11 +1292,75 @@ paths:
           description: invalid input
           schema:
             $ref: '#/definitions/response.Response'
-      summary: api for admin to change the status of order
+      summary: Change order status (Admin)
+      tags:
+      - Admin Orders
+  /admin/orders/{shop_order_id}/items:
+    get:
+      description: API for user to get all order items of a specific order
+      operationId: FindAllOrderItemsAdmin
+      parameters:
+      - description: Shop Order ID
+        in: path
+        name: shop_order_id
+        required: true
+        type: integer
+      - description: Page Number
+        in: query
+        name: page_number
+        type: integer
+      - description: Count
+        in: query
+        name: count
+        type: integer
+      responses:
+        "200":
+          description: Successfully found order items
+          schema:
+            $ref: '#/definitions/response.Response'
+        "204":
+          description: No order items found
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Failed to find order items
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: Get all order items (Admin)
+      tags:
+      - Admin Orders
+  /admin/orders/all:
+    get:
+      description: API for admin to get all orders
+      operationId: FindAllShopOrders
+      parameters:
+      - description: Page Number
+        in: query
+        name: page_number
+        type: integer
+      - description: Count
+        in: query
+        name: count
+        type: integer
+      responses:
+        "200":
+          description: Successfully retrieved all shop orders
+          schema:
+            $ref: '#/definitions/response.Response'
+        "204":
+          description: No shop order found
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Failed to find all shop orders
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: Get all orders (Admin)
       tags:
       - Admin Orders
   /admin/orders/returns:
     get:
+      description: API for admin to get all order returns
       operationId: FindAllOrderReturns
       parameters:
       - description: Page Number
@@ -1305,12 +1380,12 @@ paths:
           description: Failed to find all order returns
           schema:
             $ref: '#/definitions/response.Response'
-      summary: api for admin to see all order returns
+      summary: Get all order returns (Admin)
       tags:
       - Admin Orders
   /admin/orders/returns/pending:
     get:
-      description: admin can see the pending return request and accept it or not
+      description: API for admin to get all pending returns
       operationId: FindAllPendingReturns
       parameters:
       - description: Page Number
@@ -1330,11 +1405,11 @@ paths:
           description: Failed to find all pending order return requests
           schema:
             $ref: '#/definitions/response.Response'
-      summary: api for admin to show pending return request and update it
+      summary: Get all pending returns (Admin)
       tags:
       - Admin Orders
     put:
-      description: admin can approve, cancel etc. updating on User Orders_return
+      description: API for admin to change status of return requested orders
       operationId: UpdateReturnRequest
       parameters:
       - description: Input Fields
@@ -1352,24 +1427,29 @@ paths:
           description: invalid input
           schema:
             $ref: '#/definitions/response.Response'
-      summary: api for admin to update the order_return request from user
+      summary: Change return request status (Admin)
       tags:
       - Admin Orders
   /admin/orders/statuses:
     get:
-      operationId: GetAllOrderStatuses
+      description: API for admin to get all available order statuses
+      operationId: FindAllOrderStatuses
       responses:
         "200":
-          description: Successfully found all order statuses
+          description: Successfully retrieved all order statuses
+          schema:
+            $ref: '#/definitions/response.Response'
+        "204":
+          description: No order statuses found
           schema:
             $ref: '#/definitions/response.Response'
         "500":
-          description: failed to get order statuses
+          description: Failed to find all order statuses
           schema:
             $ref: '#/definitions/response.Response'
       security:
       - ApiKeyAuth: []
-      summary: api for admin to see all order statues for changing order's statuses
+      summary: Get all order statuses (Admin)
       tags:
       - Admin Orders
   /admin/payment-method:
@@ -2090,6 +2170,7 @@ paths:
       - User Cart
   /carts/place-order/:
     post:
+      description: API for user to place order for cash on delivery
       operationId: PlaceOrderOnCOD
       parameters:
       - description: Address ID
@@ -2102,19 +2183,27 @@ paths:
           description: successfully order placed
           schema:
             $ref: '#/definitions/response.Response'
+        "204":
+          description: Cart is empty
+          schema:
+            $ref: '#/definitions/response.Response'
         "400":
           description: invalid input
           schema:
             $ref: '#/definitions/response.Response'
+        "409":
+          description: Can't place order out of stock product on cart
+          schema:
+            $ref: '#/definitions/response.Response'
         "500":
-          description: failed to save shop order
+          description: Failed to save order
           schema:
             $ref: '#/definitions/response.Response'
       security:
       - ApiKeyAuth: []
-      summary: api for user to place an order on cart with COD
+      summary: Place order  for COD (User)
       tags:
-      - User Cart
+      - User Orders
   /carts/place-order/razorpay-checkout:
     post:
       operationId: RazorpayCheckout
@@ -2220,8 +2309,8 @@ paths:
       - User Logout
   /orders:
     get:
-      description: user can see all User Orders history
-      operationId: GetUserOrder
+      description: API to get order for user user orders
+      operationId: FindUserOrder
       parameters:
       - description: Page Number
         in: query
@@ -2233,19 +2322,23 @@ paths:
         type: integer
       responses:
         "200":
-          description: Successfully found all shop orders
+          description: Successfully retrieved all user orders
+          schema:
+            $ref: '#/definitions/response.Response'
+        "204":
+          description: No shop orders for user
           schema:
             $ref: '#/definitions/response.Response'
         "500":
-          description: Failed to find all user shop orders
+          description: Failed to retrieve all user orders
           schema:
             $ref: '#/definitions/response.Response'
-      summary: api for showing User Orders list
+      summary: Get user orders (User)
       tags:
       - User Orders
-  /orders/{shop_order_id}:
+  /orders/{shop_order_id}/cancel:
     post:
-      description: user can cancel the order if it's not placed
+      description: Api for user to cancel a order
       operationId: CancelOrder
       parameters:
       - description: Shop Order ID
@@ -2259,15 +2352,20 @@ paths:
           schema:
             $ref: '#/definitions/response.Response'
         "400":
-          description: invalid input on param
+          description: Invalid inputs
           schema:
             $ref: '#/definitions/response.Response'
-      summary: api for user to cancel the order
+        "500":
+          description: Failed to cancel order
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: Cancel order (User)
       tags:
       - User Orders
-  /orders/items/{shop_order_id}:
+  /orders/{shop_order_id}/items:
     get:
-      operationId: FindAllOrderItems User
+      description: API for user to get all order items of a specific order
+      operationId: FindAllOrderItemsUser
       parameters:
       - description: Shop Order ID
         in: path
@@ -2278,7 +2376,7 @@ paths:
         in: query
         name: page_number
         type: integer
-      - description: Count
+      - description: Count Of Order
         in: query
         name: count
         type: integer
@@ -2291,12 +2389,12 @@ paths:
           description: Failed to find order items
           schema:
             $ref: '#/definitions/response.Response'
-      summary: api for show order items of a specific order
+      summary: Get all order items (User)
       tags:
       - User Orders
   /orders/return:
     post:
-      description: user can request return for placed orders
+      description: API for user to request a return for delivered order
       operationId: SubmitReturnRequest
       parameters:
       - description: Input Fields
@@ -2314,7 +2412,7 @@ paths:
           description: invalid input
           schema:
             $ref: '#/definitions/response.Response'
-      summary: api for user to request a return for an order
+      summary: Return request
       tags:
       - User Orders
   /products:

@@ -109,27 +109,18 @@ func (c *userDatabase) IsAddressIDExist(ctx context.Context, addressID uint) (ex
 
 	return
 }
-func (c *userDatabase) FindAddressByID(ctx context.Context, addressID uint) (response.Address, error) {
-	var address response.Address
-	query := `SELECT * FROM addresses WHERE id=?`
-	if c.DB.Raw(query, addressID).Scan(&address).Error != nil {
-		return address, errors.New("filed to find address")
-	}
+func (c *userDatabase) FindAddressByID(ctx context.Context, addressID uint) (address response.Address, err error) {
 
-	return address, nil
+	query := `SELECT adrs.id, adrs.house, adrs.name, adrs.phone_number, adrs.area, adrs.land_mark, 
+	adrs.city, adrs.pincode, country_id, country_name FROM addresses adrs 
+	INNER JOIN countries c ON c.id = adrs.country_id  
+	INNER JOIN user_addresses uadrs ON uadrs.address_id = adrs.id 
+	WHERE adrs.id = $1 `
+	err = c.DB.Raw(query, addressID).Scan(&address).Error
+
+	return
 }
 
-func (c *userDatabase) FindAddressByUserID(ctx context.Context, address domain.Address, userID uint) (domain.Address, error) {
-
-	// find the address with house,land_mark,pincode,coutry_id
-	query := `SELECT * FROM addresses adrs JOIN user_addresses usr_adrs 
-	ON adrs.id = usr_adrs.address_id AND user_id = ? AND house=? 
-	AND land_mark=? AND pincode=? AND country_id=?`
-	if c.DB.Raw(query, userID, address.House, address.LandMark, address.Pincode, address.CountryID).Scan(&address).Error != nil {
-		return address, errors.New("filed to find the address")
-	}
-	return address, nil
-}
 func (c *userDatabase) IsAddressAlreadyExistForUser(ctx context.Context, address domain.Address, userID uint) (exist bool, err error) {
 	address.CountryID = 1 // hardcoded !!!! should change
 
@@ -143,18 +134,16 @@ func (c *userDatabase) IsAddressAlreadyExistForUser(ctx context.Context, address
 	return
 }
 
-func (c *userDatabase) FindAllAddressByUserID(ctx context.Context, userID uint) ([]response.Address, error) {
+func (c *userDatabase) FindAllAddressByUserID(ctx context.Context, userID uint) (addresses []response.Address, err error) {
 
-	var addresses []response.Address
+	query := `SELECT a.id, a.house,a.name, a.phone_number, a.area, a.land_mark,a.city, 
+	a.pincode, a.country_id, c.country_name, ua.is_default
+	FROM user_addresses ua JOIN addresses a ON ua.address_id=a.id 
+	INNER JOIN countries c ON a.country_id=c.id AND ua.user_id = $1`
 
-	query := `SELECT a.id, a.house,a.name,a.phone_number,a.area,a.land_mark,a.city,a.pincode,a.country_id,c.country_name,ua.is_default
-	 FROM user_addresses ua JOIN addresses a ON ua.address_id=a.id 
-	 INNER JOIN countries c ON a.country_id=c.id AND ua.user_id=?`
-	if c.DB.Raw(query, userID).Scan(&addresses).Error != nil {
-		return addresses, errors.New("filed to get address of user")
-	}
+	err = c.DB.Raw(query, userID).Scan(&addresses).Error
 
-	return addresses, nil
+	return addresses, err
 }
 
 func (c *userDatabase) FindCountryByID(ctx context.Context, countryID uint) (domain.Country, error) {
