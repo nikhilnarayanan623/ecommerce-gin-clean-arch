@@ -8,7 +8,7 @@ import (
 
 func UserRoutes(api *gin.RouterGroup, authHandler handlerInterface.AuthHandler, middleware middleware.Middleware,
 	userHandler handlerInterface.UserHandler, cartHandler handlerInterface.CartHandler,
-	ProductHandler handlerInterface.ProductHandler, paymentHandler handlerInterface.PaymentHandler,
+	productHandler handlerInterface.ProductHandler, paymentHandler handlerInterface.PaymentHandler,
 	orderHandler handlerInterface.OrderHandler, couponHandler handlerInterface.CouponHandler,
 ) {
 
@@ -43,11 +43,14 @@ func UserRoutes(api *gin.RouterGroup, authHandler handlerInterface.AuthHandler, 
 		api.GET("/", userHandler.Home)
 		// api.POST("/logout", userHandler.UserLogout)
 
-		// products
-		products := api.Group("/products")
+		product := api.Group("/products")
 		{
-			products.GET("/", ProductHandler.FindAllProductsUser())                             // show products
-			products.GET("/product-item/:product_id", ProductHandler.FindAllProductItemsUser()) // show product items of a product
+			product.GET("/", productHandler.FindAllProductsUser())
+
+			productItem := product.Group("/:product_id/items")
+			{
+				productItem.GET("/", productHandler.FindAllProductItemsUser())
+			}
 		}
 
 		// 	// cart

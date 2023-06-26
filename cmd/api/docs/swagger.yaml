@@ -504,24 +504,25 @@ paths:
       - Home
   /account:
     get:
-      operationId: FindUserProfile
+      description: API for user to get all user details
+      operationId: FindProfile
       responses:
         "200":
-          description: Successfully user account details found
+          description: Successfully retrieved user details
         "500":
-          description: faild to show user details
+          description: Failed to retrieve user details
           schema:
             $ref: '#/definitions/response.Response'
       security:
       - ApiKeyAuth: []
-      summary: api for see use details
+      summary: Get User Profile (User)
       tags:
-      - User GetUserProfile
+      - User Profile
     put:
-      description: user can edit user details
-      operationId: UpdateUserProfile
+      description: API for user to edit user details
+      operationId: UpdateProfile
       parameters:
-      - description: input field
+      - description: User details input
         in: body
         name: input
         required: true
@@ -529,25 +530,29 @@ paths:
           $ref: '#/definitions/request.EditUser'
       responses:
         "200":
-          description: successfully updated user details
+          description: Successfully profile updated
           schema:
             $ref: '#/definitions/response.Response'
         "400":
-          description: invalid input
+          description: Invalid inputs
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Failed to update profile
           schema:
             $ref: '#/definitions/response.Response'
       security:
       - ApiKeyAuth: []
-      summary: api for edit user details
+      summary: Edit profile (User)
       tags:
-      - User Account
+      - User Profile
   /account/address:
     get:
-      description: user can show all address
+      description: API for user to get all user addresses
       operationId: FindAllAddresses
       responses:
         "200":
-          description: successfully got user addresses
+          description: successfully retrieved all user addresses
           schema:
             $ref: '#/definitions/response.Response'
         "500":
@@ -556,14 +561,14 @@ paths:
             $ref: '#/definitions/response.Response'
       security:
       - ApiKeyAuth: []
-      summary: api for get all address of user
+      summary: Get all addresses (User)
       tags:
-      - User Address
+      - User Profile
     post:
-      description: get a new address from user to store the the database
-      operationId: AddAddress
+      description: API for user to add a new address
+      operationId: SaveAddress
       parameters:
-      - description: Input Field
+      - description: Address input
         in: body
         name: inputs
         required: true
@@ -578,16 +583,20 @@ paths:
           description: invalid input
           schema:
             $ref: '#/definitions/response.Response'
+        "500":
+          description: Failed to save address
+          schema:
+            $ref: '#/definitions/response.Response'
       security:
       - ApiKeyAuth: []
-      summary: api for adding a new address for user
+      summary: Add a new address (User)
       tags:
-      - User Address
+      - User Profile
     put:
-      description: user can change existing address
+      description: API for user to update user address
       operationId: UpdateAddress
       parameters:
-      - description: Input Field
+      - description: Address input
         in: body
         name: input
         required: true
@@ -604,9 +613,9 @@ paths:
             $ref: '#/definitions/response.Response'
       security:
       - ApiKeyAuth: []
-      summary: api for edit user address
+      summary: Update address (User)
       tags:
-      - User Address
+      - User Profile
   /admin:
     get:
       operationId: AdminHome
@@ -1704,7 +1713,7 @@ paths:
             $ref: '#/definitions/response.Response'
       security:
       - ApiKeyAuth: []
-      summary: load google login page (User)
+      summary: To load google login page (User)
       tags:
       - User Authentication
   /auth/google-auth/callback:
@@ -2345,8 +2354,27 @@ paths:
       tags:
       - User Products
   /wishlist:
+    get:
+      operationId: FindWishList
+      responses:
+        "200":
+          description: Successfully retrieved all product items in th wish list
+        "500":
+          description: Failed to retrieve product items from the wish list
+      security:
+      - ApiKeyAuth: []
+      summary: Get whish list product items (User)
+      tags:
+      - User Profile
+  /wishlist/{product_item_id}:
     delete:
       operationId: RemoveFromWishList
+      parameters:
+      - description: Product Item ID
+        in: path
+        name: product_item_id
+        required: true
+        type: integer
       responses:
         "200":
           description: successfully removed product item from wishlist
@@ -2358,42 +2386,37 @@ paths:
             $ref: '#/definitions/response.Response'
       security:
       - ApiKeyAuth: []
-      summary: api to remove a productItem from wish list
+      summary: Remove from whish list (User)
       tags:
-      - Wishlist
-    get:
-      operationId: FindWishList
-      responses:
-        "200":
-          description: Wish list is empty
-        "400":
-          description: failed to get user wish list items
-      security:
-      - ApiKeyAuth: []
-      summary: api get all wish list items of user
-      tags:
-      - Wishlist
+      - User Profile
     post:
       operationId: SaveToWishList
       parameters:
-      - description: product_item_id
-        in: body
+      - description: Product Item ID
+        in: path
         name: product_item_id
         required: true
-        schema:
-          type: integer
+        type: integer
       responses:
         "200":
-          description: successfully added product item to wishlist
+          description: Successfully product items added to whish list
           schema:
             $ref: '#/definitions/response.Response'
         "400":
           description: invalid input
           schema:
             $ref: '#/definitions/response.Response'
+        "409":
+          description: Product item already exist on wish list
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Failed to add product item to wishlist
+          schema:
+            $ref: '#/definitions/response.Response'
       security:
       - ApiKeyAuth: []
-      summary: api to add a productItem to wish list
+      summary: Add to whish list (User)
       tags:
-      - Wishlist
+      - User Profile
 swagger: "2.0"

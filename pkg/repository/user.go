@@ -51,12 +51,13 @@ func (c *userDatabase) FindUserByUserName(ctx context.Context, userName string) 
 	return user, err
 }
 
-func (c *userDatabase) FindUserByUserNameEmailOrPhoneNotID(ctx context.Context, user domain.User) (domain.User, error) {
+func (c *userDatabase) FindUserByUserNameEmailOrPhoneNotID(ctx context.Context,
+	userDetails domain.User) (user domain.User, err error) {
 
 	query := `SELECT * FROM users WHERE (user_name = $1 OR email = $2 OR phone = $3) AND id != $4`
-	err := c.DB.Raw(query, user.UserName, user.Email, user.Phone, user.ID).Scan(&user).Error
+	err = c.DB.Raw(query, userDetails.UserName, userDetails.Email, userDetails.Phone, userDetails.ID).Scan(&user).Error
 
-	return user, err
+	return
 }
 
 func (c *userDatabase) SaveUser(ctx context.Context, user domain.User) (userID uint, err error) {
@@ -129,13 +130,17 @@ func (c *userDatabase) FindAddressByUserID(ctx context.Context, address domain.A
 	}
 	return address, nil
 }
-func (c *userDatabase) IsAddressAlreadyExistForUser(ctx context.Context, address domain.Address, userID uint) (bool, error) {
-	var exist bool
-	query := `SELECT CASE WHEN (SELECT id FROM addresses WHERE name = $1 AND house = $2 AND land_mark = $3 
-        AND pincode = $4 AND country_id = $5)  != 0 THEN 'T' ELSE 'F' END AS exist 
-		FROM user_addresses AS urs WHERE urs.user_id = $6`
-	err := c.DB.Raw(query, address.Name, address.House, address.LandMark, address.Pincode, address.CountryID, userID).Scan(&exist).Error
-	return exist, err
+func (c *userDatabase) IsAddressAlreadyExistForUser(ctx context.Context, address domain.Address, userID uint) (exist bool, err error) {
+	address.CountryID = 1 // hardcoded !!!! should change
+
+	query := `SELECT DISTINCT CASE  WHEN adrs.id != 0 THEN 'T' ELSE 'F' END AS exist 
+	FROM addresses adrs 
+	INNER JOIN user_addresses urs ON adrs.id = urs.address_id 
+	WHERE adrs.name = $1 AND adrs.house = $2 AND adrs.land_mark = $3 
+	AND adrs.pincode = $4 AND adrs.country_id = $5  AND urs.user_id = $6`
+	err = c.DB.Raw(query, address.Name, address.House, address.LandMark, address.Pincode, address.CountryID, userID).Scan(&exist).Error
+
+	return
 }
 
 func (c *userDatabase) FindAllAddressByUserID(ctx context.Context, userID uint) ([]response.Address, error) {
@@ -165,7 +170,7 @@ func (c *userDatabase) FindCountryByID(ctx context.Context, countryID uint) (dom
 
 // save address
 func (c *userDatabase) SaveAddress(ctx context.Context, address domain.Address) (addressID uint, err error) {
-	address.CountryID = 1
+	address.CountryID = 1 // hardcoded !!!! should change
 	query := `INSERT INTO addresses (name, phone_number, house,area, land_mark, city, pincode, country_id, created_at) 
 	VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING id`
 
@@ -183,7 +188,7 @@ func (c *userDatabase) SaveAddress(ctx context.Context, address domain.Address) 
 // update address
 func (c *userDatabase) UpdateAddress(ctx context.Context, address domain.Address) error {
 
-	address.CountryID = 1
+	address.CountryID = 1 // hardcoded !!!! should change
 	query := `UPDATE addresses SET name=$1, phone_number=$2, house=$3, area=$4, land_mark=$5, 
 	city=$6, pincode=$7,country_id=$8, updated_at = $9 WHERE id=$10`
 
@@ -254,15 +259,16 @@ func (c *userDatabase) FindWishListItem(ctx context.Context, productID, userID u
 	return wishList, nil
 }
 
-func (c *userDatabase) FindAllWishListItemsByUserID(ctx context.Context, userID uint) ([]response.WishList, error) {
+func (c *userDatabase) FindAllWishListItemsByUserID(ctx context.Context, userID uint) (productItems []response.WishListItem, err error) {
 
-	var wishLists []response.WishList
+	query := `SELECT p.name, wl.id, pi.id AS product_item_id, pi.product_id, pi.price, pi.discount_price, 
+	pi.qty_in_stock, sku FROM wish_lists wl 
+	INNER JOIN product_items pi ON wl.product_item_id = pi.id 
+	INNER JOIN products p ON pi.product_id = p.id 
+	AND wl.user_id = $1`
+	err = c.DB.Raw(query, userID).Scan(&productItems).Error
 
-	query := `SELECT * FROM product_items pi JOIN products p ON pi.product_id=p.id JOIN wish_lists w ON w.product_item_id=pi.id AND w.user_id=?`
-	if c.DB.Raw(query, userID).Scan(&wishLists).Error != nil {
-		return wishLists, errors.New("filed to get wish_list items")
-	}
-	return wishLists, nil
+	return
 }
 
 func (c *userDatabase) SaveWishListItem(ctx context.Context, wishList domain.WishList) error {
@@ -275,11 +281,10 @@ func (c *userDatabase) SaveWishListItem(ctx context.Context, wishList domain.Wis
 	return nil
 }
 
-func (c *userDatabase) RemoveWishListItem(ctx context.Context, wishList domain.WishList) error {
+func (c *userDatabase) RemoveWishListItem(ctx context.Context, userID, productItemID uint) error {
 
-	query := `DELETE FROM wish_lists WHERE id=?`
-	if c.DB.Raw(query, wishList.ID).Scan(&wishList).Error != nil {
-		return errors.New("filed to delete productItem from database")
-	}
-	return nil
+	query := `DELETE FROM wish_lists WHERE product_item_id = $1 AND user_id = $2`
+	err := c.DB.Exec(query, productItemID, userID).Error
+
+	return err
 }

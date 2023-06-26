@@ -1,12 +1,14 @@
 package handler
 
 import (
+	"errors"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/copier"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/api/handler/interfaces"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/domain"
+	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/usecase"
 	usecaseInterface "github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/usecase/interfaces"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/utils"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/utils/request"
@@ -83,40 +85,42 @@ func (c *UserHandler) CheckOutCart(ctx *gin.Context) {
 	// ctx.JSON(http.StatusOK, responser)
 }
 
-// FindUserProfile godoc
-// @summary api for see use details
-// @security ApiKeyAuth
-// @id FindUserProfile
-// @tags User GetUserProfile
+// FindProfile godoc
+// @Summary Get User Profile (User)
+// @Description API for user to get all user details
+// @Security ApiKeyAuth
+// @Id FindProfile
+// @Tags User Profile
 // @Router /account [get]
-// @Success 200 "Successfully user account details found"
-// @Failure 500 {object} response.Response{} "faild to show user details"
+// @Success 200 "Successfully retrieved user details"
+// @Failure 500 {object} response.Response{} "Failed to retrieve user details"
 func (u *UserHandler) FindProfile(ctx *gin.Context) {
 
 	userID := utils.GetUserIdFromContext(ctx)
 
 	user, err := u.userUseCase.FindProfile(ctx, userID)
 	if err != nil {
-		response.ErrorResponse(ctx, http.StatusInternalServerError, "Failed to find user profile details", err, nil)
+		response.ErrorResponse(ctx, http.StatusInternalServerError, "Failed to retrieve user details", err, nil)
 		return
 	}
 
 	var data response.User
 	copier.Copy(&data, &user)
 
-	response.SuccessResponse(ctx, http.StatusOK, "Successfully found user profile details", data)
+	response.SuccessResponse(ctx, http.StatusOK, "Successfully retrieved user details", data)
 }
 
-// UpdateUserProfile godoc
-// @summary api for edit user details
-// @description user can edit user details
-// @security ApiKeyAuth
-// @id UpdateUserProfile
-// @tags User Account
-// @Param input body request.EditUser{} true "input field"
+// UpdateProfile godoc
+// @Summary Edit profile (User)
+// @Description API for user to edit user details
+// @Security ApiKeyAuth
+// @Id UpdateProfile
+// @Tags User Profile
+// @Param input body request.EditUser{} true "User details input"
 // @Router /account [put]
-// @Success 200 {object} response.Response{} "successfully updated user details"
-// @Failure 400 {object} response.Response{} "invalid input"
+// @Success 200 {object} response.Response{} "Successfully profile updated"
+// @Failure 400 {object} response.Response{} "Invalid inputs"
+// @Failure 500 {object} response.Response{} "Failed to update profile"
 func (u *UserHandler) UpdateProfile(ctx *gin.Context) {
 
 	userID := utils.GetUserIdFromContext(ctx)
@@ -141,16 +145,17 @@ func (u *UserHandler) UpdateProfile(ctx *gin.Context) {
 	response.SuccessResponse(ctx, http.StatusOK, "Successfully profile updated", nil)
 }
 
-// AddAddress godoc
-// @summary api for adding a new address for user
-// @description get a new address from user to store the the database
-// @security ApiKeyAuth
-// @id AddAddress
-// @tags User Address
-// @Param inputs body request.Address{} true "Input Field"
+// SaveAddress godoc
+// @Summary Add a new address (User)
+// @Description API for user to add a new address
+// @Security ApiKeyAuth
+// @Id SaveAddress
+// @Tags User Profile
+// @Param inputs body request.Address{} true "Address input"
 // @Router /account/address [post]
 // @Success 200 {object} response.Response{} "Successfully address added"
 // @Failure 400 {object} response.Response{} "invalid input"
+// @Failure 500 {object} response.Response{} "Failed to save address"
 func (u *UserHandler) SaveAddress(ctx *gin.Context) {
 
 	var body request.Address
@@ -180,13 +185,13 @@ func (u *UserHandler) SaveAddress(ctx *gin.Context) {
 }
 
 // FindAllAddresses godoc
-// @summary api for get all address of user
-// @description user can show all address
-// @security ApiKeyAuth
-// @id FindAllAddresses
-// @tags User Address
+// @Summary Get all addresses (User)
+// @Description API for user to get all user addresses
+// @Security ApiKeyAuth
+// @Id FindAllAddresses
+// @Tags User Profile
 // @Router /account/address [get]
-// @Success 200 {object} response.Response{} "successfully got user addresses"
+// @Success 200 {object} response.Response{} "successfully retrieved all user addresses"
 // @Failure 500 {object} response.Response{} "failed to show user addresses"
 func (u *UserHandler) FindAllAddresses(ctx *gin.Context) {
 
@@ -204,16 +209,16 @@ func (u *UserHandler) FindAllAddresses(ctx *gin.Context) {
 		return
 	}
 
-	response.SuccessResponse(ctx, http.StatusOK, "Successfully found user addresses", addresses)
+	response.SuccessResponse(ctx, http.StatusOK, "Successfully retrieved all user addresses", addresses)
 }
 
 // UpdateAddress godoc
-// @summary api for edit user address
-// @description user can change existing address
-// @security ApiKeyAuth
-// @id UpdateAddress
-// @tags User Address
-// @Param input body request.EditAddress{} true "Input Field"
+// @Summary Update address (User)
+// @Description API for user to update user address
+// @Security ApiKeyAuth
+// @Id UpdateAddress
+// @Tags User Profile
+// @Param input body request.EditAddress{} true "Address input"
 // @Router /account/address [put]
 // @Success 200 {object} response.Response{} "successfully addresses updated"
 // @Failure 400 {object} response.Response{} "can't update the address"
@@ -242,22 +247,18 @@ func (u *UserHandler) UpdateAddress(ctx *gin.Context) {
 
 }
 
-// func (u *UserHandler) DeleteAddress(ctx *gin.Context) {
-
-// }
-
-//todo ** wishList **
-
 // SaveToWishList godoc
-// @summary api to add a productItem to wish list
-// @descriptions user can add productItem to wish list
-// @security ApiKeyAuth
-// @id SaveToWishList
-// @tags Wishlist
-// @Param product_item_id body int true "product_item_id"
-// @Router /wishlist [post]
-// @Success 200 {object} response.Response{} "successfully added product item to wishlist"
+// @Summary Add to whish list (User)
+// @Descriptions API for user to add product item to wish list
+// @Security ApiKeyAuth
+// @Id SaveToWishList
+// @Tags User Profile
+// @Param product_item_id path int true "Product Item ID"
+// @Router /wishlist/{product_item_id} [post]
+// @Success 200 {object} response.Response{} "Successfully product items added to whish list"
 // @Failure 400 {object} response.Response{} "invalid input"
+// @Failure 409 {object} response.Response{} "Product item already exist on wish list"
+// @Failure 500 {object} response.Response{} "Failed to add product item to wishlist"
 func (u *UserHandler) SaveToWishList(ctx *gin.Context) {
 
 	productItemID, err := request.GetParamAsUint(ctx, "product_item_id")
@@ -276,20 +277,24 @@ func (u *UserHandler) SaveToWishList(ctx *gin.Context) {
 
 	err = u.userUseCase.SaveToWishList(ctx, wishList)
 	if err != nil {
-		response.ErrorResponse(ctx, http.StatusInternalServerError, "Failed to add product on wishlist", err, nil)
+		statusCode := http.StatusInternalServerError
+		if errors.Is(err, usecase.ErrExistWishListProductItem) {
+			statusCode = http.StatusConflict
+		}
+		response.ErrorResponse(ctx, statusCode, "Failed to add product item to wishlist", err, nil)
 		return
 	}
-	response.SuccessResponse(ctx, http.StatusCreated, "successfully added product item to wishlist", nil)
+	response.SuccessResponse(ctx, http.StatusCreated, "Successfully product items added to whish list", nil)
 }
 
 // RemoveFromWishList godoc
-// @summary api to remove a productItem from wish list
-// @descriptions user can remove a productItem from wish list
-// @security ApiKeyAuth
-// @id RemoveFromWishList
-// @tags Wishlist
-// @Params product_item_id path int true "product_item_id"
-// @Router /wishlist [delete]
+// @Summary Remove from whish list (User)
+// @Descriptions API for user to remove a product item from whish list
+// @Security ApiKeyAuth
+// @Id RemoveFromWishList
+// @Tags User Profile
+// @Param product_item_id path int true "Product Item ID"
+// @Router /wishlist/{product_item_id} [delete]
 // @Success 200 {object} response.Response{} "successfully removed product item from wishlist"
 // @Failure 400 {object} response.Response{} "invalid input"
 func (u *UserHandler) RemoveFromWishList(ctx *gin.Context) {
@@ -303,13 +308,8 @@ func (u *UserHandler) RemoveFromWishList(ctx *gin.Context) {
 
 	userID := utils.GetUserIdFromContext(ctx)
 
-	var wishList = domain.WishList{
-		ProductItemID: productItemID,
-		UserID:        userID,
-	}
-
 	// remove form wishlist
-	if err := u.userUseCase.RemoveFromWishList(ctx, wishList); err != nil {
+	if err := u.userUseCase.RemoveFromWishList(ctx, userID, productItemID); err != nil {
 		response.ErrorResponse(ctx, http.StatusInternalServerError, "Failed to remove product item from wishlist", err, nil)
 		return
 	}
@@ -318,15 +318,14 @@ func (u *UserHandler) RemoveFromWishList(ctx *gin.Context) {
 }
 
 // FindWishList godoc
-// @summary api get all wish list items of user
-// @descriptions user get all wish list items
-// @security ApiKeyAuth
-// @id FindWishList
-// @tags Wishlist
+// @Summary Get whish list product items (User)
+// @Descriptions API for user to get product items in the wish list
+// @Security ApiKeyAuth
+// @Id FindWishList
+// @Tags User Profile
 // @Router /wishlist [get]
-// @Success 200 "Successfully wish list items got"
-// @Success 200 "Wish list is empty"
-// @Failure 400  "failed to get user wish list items"
+// @Success 200 "Successfully retrieved all product items in th wish list"
+// @Failure 500  "Failed to retrieve product items from the wish list"
 func (u *UserHandler) FindWishList(ctx *gin.Context) {
 
 	userID := utils.GetUserIdFromContext(ctx)
@@ -334,7 +333,7 @@ func (u *UserHandler) FindWishList(ctx *gin.Context) {
 	wishListItems, err := u.userUseCase.FindAllWishListItems(ctx, userID)
 
 	if err != nil {
-		response.ErrorResponse(ctx, http.StatusInternalServerError, "Failed to find wishlist item", err, nil)
+		response.ErrorResponse(ctx, http.StatusInternalServerError, "Failed to retrieve product items from the wish list", err, nil)
 		return
 	}
 
@@ -343,5 +342,5 @@ func (u *UserHandler) FindWishList(ctx *gin.Context) {
 		return
 	}
 
-	response.SuccessResponse(ctx, http.StatusOK, "successfully got wish list item", wishListItems)
+	response.SuccessResponse(ctx, http.StatusOK, "Successfully retrieved all product items in th wish list", wishListItems)
 }

@@ -56,4 +56,7 @@ var (
 
 	// order
 	ErrCartIsNotValidForOrder = errors.New("cart is not valid for order out of stock is in cart")
+
+	// wish list
+	ErrExistWishListProductItem = errors.New("product item already exist on wish list")
 )

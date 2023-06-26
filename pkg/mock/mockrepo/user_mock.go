@@ -67,10 +67,10 @@ func (mr *MockUserRepositoryMockRecorder) FindAllAddressByUserID(ctx, userID int
 }
 
 // FindAllWishListItemsByUserID mocks base method.
-func (m *MockUserRepository) FindAllWishListItemsByUserID(ctx context.Context, userID uint) ([]response.WishList, error) {
+func (m *MockUserRepository) FindAllWishListItemsByUserID(ctx context.Context, userID uint) ([]response.WishListItem, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "FindAllWishListItemsByUserID", ctx, userID)
-	ret0, _ := ret[0].([]response.WishList)
+	ret0, _ := ret[0].([]response.WishListItem)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -217,17 +217,17 @@ func (mr *MockUserRepositoryMockRecorder) IsAddressIDExist(ctx, addressID interf
 }
 
 // RemoveWishListItem mocks base method.
-func (m *MockUserRepository) RemoveWishListItem(ctx context.Context, wishList domain.WishList) error {
+func (m *MockUserRepository) RemoveWishListItem(ctx context.Context, userID, productItemID uint) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "RemoveWishListItem", ctx, wishList)
+	ret := m.ctrl.Call(m, "RemoveWishListItem", ctx, userID, productItemID)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // RemoveWishListItem indicates an expected call of RemoveWishListItem.
-func (mr *MockUserRepositoryMockRecorder) RemoveWishListItem(ctx, wishList interface{}) *gomock.Call {
+func (mr *MockUserRepositoryMockRecorder) RemoveWishListItem(ctx, userID, productItemID interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RemoveWishListItem", reflect.TypeOf((*MockUserRepository)(nil).RemoveWishListItem), ctx, wishList)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RemoveWishListItem", reflect.TypeOf((*MockUserRepository)(nil).RemoveWishListItem), ctx, userID, productItemID)
 }
 
 // SaveAddress mocks base method.

@@ -17,24 +17,28 @@ import (
 )
 
 type userUserCase struct {
-	userRepo interfaces.UserRepository
-	cartRepo interfaces.CartRepository
+	userRepo    interfaces.UserRepository
+	cartRepo    interfaces.CartRepository
+	productRepo interfaces.ProductRepository
 }
 
-func NewUserUseCase(userRepo interfaces.UserRepository, cartRepo interfaces.CartRepository) service.UserUseCase {
+func NewUserUseCase(userRepo interfaces.UserRepository, cartRepo interfaces.CartRepository,
+	productRepo interfaces.ProductRepository) service.UserUseCase {
 	return &userUserCase{
-		userRepo: userRepo,
-		cartRepo: cartRepo,
+		userRepo:    userRepo,
+		cartRepo:    cartRepo,
+		productRepo: productRepo,
 	}
 }
 
 func (c *userUserCase) FindProfile(ctx context.Context, userID uint) (domain.User, error) {
 
-	var user = domain.User{ID: userID}
-	// user, err := c.userRepo.FindUser(ctx, user)
+	user, err := c.userRepo.FindUserByUserID(ctx, userID)
+	if err != nil {
+		return domain.User{}, utils.PrependMessageToError(err, "failed to find user details")
+	}
 
 	return user, nil
-
 }
 
 func (c *userUserCase) UpdateProfile(ctx context.Context, user domain.User) error {
@@ -43,8 +47,10 @@ func (c *userUserCase) UpdateProfile(ctx context.Context, user domain.User) erro
 	checkUser, err := c.userRepo.FindUserByUserNameEmailOrPhoneNotID(ctx, user)
 	if err != nil {
 		return err
-	} else if checkUser.ID != 0 { // if there is an user exist with given details then make it as error
+	}
+	if checkUser.ID != 0 { // if there is an user exist with given details then make it as error
 		err = utils.CompareUserExistingDetails(user, checkUser)
+		fmt.Println(user)
 		return err
 	}
 
@@ -63,16 +69,17 @@ func (c *userUserCase) UpdateProfile(ctx context.Context, user domain.User) erro
 		return err
 	}
 
-	log.Printf("successfully user details updaed for user with user_id %v", user.ID)
 	return nil
 }
 
 // adddress
 func (c *userUserCase) SaveAddress(ctx context.Context, userID uint, address domain.Address, isDefault bool) error {
 
-	if exist, err := c.userRepo.IsAddressAlreadyExistForUser(ctx, address, userID); err != nil {
+	exist, err := c.userRepo.IsAddressAlreadyExistForUser(ctx, address, userID)
+	if err != nil {
 		return fmt.Errorf("failed to check address already exist \nerror:%v", err.Error())
-	} else if exist {
+	}
+	if exist {
 		return fmt.Errorf("given address already exist for user")
 	}
 
@@ -91,19 +98,19 @@ func (c *userUserCase) SaveAddress(ctx context.Context, userID uint, address dom
 	}
 
 	//creating a user address with this given value
-	var userAdress = domain.UserAddress{
+	var userAddress = domain.UserAddress{
 		UserID:    userID,
 		AddressID: addressID,
 		IsDefault: isDefault,
 	}
 
 	// then update the address with user
-	err = c.userRepo.SaveUserAddress(ctx, userAdress)
+	err = c.userRepo.SaveUserAddress(ctx, userAddress)
 
 	if err != nil {
 		return err
 	}
-	log.Printf("successfully user address stored for user with user_id %v", userID)
+
 	return nil
 }
 
@@ -148,61 +155,48 @@ func (c *userUserCase) FindAddresses(ctx context.Context, userID uint) ([]respon
 // to add new productItem to wishlist
 func (c *userUserCase) SaveToWishList(ctx context.Context, wishList domain.WishList) error {
 
-	// first check the producItemID is valid or not
-	//productItem, err := c.userRepo.FindProductItem(ctx, wishList.ProductItemID)
-	var (
-		productItem domain.ProductItem
-		err         error
-	)
-	if err != nil {
-		return err
-	} else if productItem.ID == 0 {
-		return errors.New("invalid product_id")
-	}
-
 	// check the productItem already exist on wishlist for user
 	checkWishList, err := c.userRepo.FindWishListItem(ctx, wishList.ProductItemID, wishList.UserID)
 	if err != nil {
-		return err
-	} else if checkWishList.ID != 0 {
-		return errors.New("productItem already exist on wishlist")
+		return utils.PrependMessageToError(err, "failed to check product item already exist on wish list")
+	}
+	if checkWishList.ID != 0 {
+		return ErrExistWishListProductItem
 	}
 
-	// save productItem wishlist
-	if err := c.userRepo.SaveWishListItem(ctx, wishList); err != nil {
-		return err
+	err = c.userRepo.SaveWishListItem(ctx, wishList)
+	if err != nil {
+		return utils.PrependMessageToError(err, "failed to save product item on wish list")
 	}
 
 	return nil
 }
 
 // remove from wishlist
-func (c *userUserCase) RemoveFromWishList(ctx context.Context, wishList domain.WishList) error {
+func (c *userUserCase) RemoveFromWishList(ctx context.Context, userID, productItemID uint) error {
 
-	// first check the producItemID is valid or not
-	//productItem, err := c.userRepo.FindProductItem(ctx, wishList.ProductItemID)
-	var (
-		productItem domain.ProductItem
-		err         error
-	)
+	err := c.userRepo.RemoveWishListItem(ctx, userID, productItemID)
 	if err != nil {
-		return err
-	} else if productItem.ID == 0 {
-		return errors.New("invalid product_id")
+		return utils.PrependMessageToError(err, "failed to remove product item form wish list")
 	}
 
-	// check the productItem already exist on wishlist for user
-	wishList, err = c.userRepo.FindWishListItem(ctx, wishList.ProductItemID, wishList.UserID)
-	if err != nil {
-		return err
-	} else if wishList.ID == 0 {
-		return errors.New("productItem not exist exist in wishlist")
-	}
-
-	// remove the productItem from user wihsList
-	return c.userRepo.RemoveWishListItem(ctx, wishList)
+	return nil
 }
 
-func (c *userUserCase) FindAllWishListItems(ctx context.Context, userID uint) ([]response.WishList, error) {
-	return c.userRepo.FindAllWishListItemsByUserID(ctx, userID)
+func (c *userUserCase) FindAllWishListItems(ctx context.Context, userID uint) ([]response.WishListItem, error) {
+
+	wishListItems, err := c.userRepo.FindAllWishListItemsByUserID(ctx, userID)
+	if err != nil {
+		return nil, utils.PrependMessageToError(err, "failed to find wish list product items")
+	}
+
+	for i, productItem := range wishListItems {
+		variationValues, err := c.productRepo.FindAllVariationValuesOfProductItem(ctx, productItem.ProductItemID)
+		if err != nil {
+			return nil, utils.PrependMessageToError(err, "failed to find variation values product item")
+		}
+		wishListItems[i].VariationValues = variationValues
+	}
+
+	return wishListItems, nil
 }
