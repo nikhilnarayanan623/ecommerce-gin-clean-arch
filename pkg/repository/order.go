@@ -52,11 +52,11 @@ func (c *OrderDatabase) FindAllShopOrdersByUserID(ctx context.Context, userID ui
 	limit := pagination.Count
 	offset := (pagination.PageNumber - 1) * limit
 
-	query := `SELECT so.user_id, so.id AS shop_order_id, so.order_date, so.order_total_price,so.discount, 
-	so.order_status_id, os.status AS order_status,so.address_id, 
-	CASE WHEN so.payment_method_id != 0 
-	THEN (SELECT payment_type FROM payment_methods WHERE id = so.payment_method_id) ELSE '' END AS payment_type  
-	FROM shop_orders so JOIN order_statuses os ON so.order_status_id = os.id 
+	query := `SELECT so.user_id, so.id AS shop_order_id, so.order_date, so.order_total_price, so.discount, 
+	so.order_status_id, os.status AS order_status,so.address_id, so.payment_method_id, pm.payment_type  
+	FROM shop_orders so 
+	INNER JOIN order_statuses os ON so.order_status_id = os.id 
+	INNER JOIN payment_methods pm ON pm.id = so.payment_method_id 
 	WHERE user_id = $1 
 	ORDER BY order_date DESC LIMIT $2 OFFSET  $3`
 	err = c.DB.Raw(query, userID, limit, offset).Scan(&shopOrders).Error
@@ -65,14 +65,16 @@ func (c *OrderDatabase) FindAllShopOrdersByUserID(ctx context.Context, userID ui
 }
 
 // find all shop orders with user
-func (c *OrderDatabase) FindAllShopOrders(ctx context.Context, pagination request.Pagination) (shopOrders []response.ShopOrder, err error) {
+func (c *OrderDatabase) FindAllShopOrders(ctx context.Context,
+	pagination request.Pagination) (shopOrders []response.ShopOrder, err error) {
 
 	limit := pagination.Count
 	offset := (pagination.PageNumber - 1) * limit
 
-	query := `SELECT so.user_id, so.id AS shop_order_id, so.order_date, so.order_total_price,so.discount, 
-	so.order_status_id, os.status AS order_status,so.address_id,so.payment_method_id, pm.payment_type  
-	FROM shop_orders so JOIN order_statuses os ON so.order_status_id = os.id 
+	query := `SELECT so.user_id, so.id AS shop_order_id, so.order_date, so.order_total_price, so.discount, 
+	so.order_status_id, os.status AS order_status, so.address_id, so.payment_method_id, pm.payment_type  
+	FROM shop_orders so 
+	INNER JOIN order_statuses os ON so.order_status_id = os.id 
 	INNER JOIN payment_methods pm ON so.payment_method_id = pm.id 
 	ORDER BY so.order_date DESC LIMIT $1 OFFSET $2`
 
@@ -92,7 +94,7 @@ func (c *OrderDatabase) FindAllOrdersItemsByShopOrderID(ctx context.Context,
 	(ol.price * ol.qty) AS sub_total FROM  order_lines ol 
 	INNER JOIN shop_orders so ON ol.shop_order_id = so.id 
 	INNER JOIN product_items pi ON ol.product_item_id = pi.id
-	JOIN products p ON pi.product_id = p.id 
+	INNER JOIN products p ON pi.product_id = p.id 
 	INNER JOIN order_statuses os ON so.order_status_id = os.id 
 	AND ol.shop_order_id = $1 
 	ORDER BY ol.qty DESC LIMIT $2 OFFSET $3`
@@ -129,7 +131,8 @@ func (c *OrderDatabase) SaveOrderLine(ctx context.Context, orderLine domain.Orde
 
 //!end
 
-func (c *OrderDatabase) FindOrderStatusByShopOrderID(ctx context.Context, shopOrderID uint) (orderStatus domain.OrderStatus, err error) {
+func (c *OrderDatabase) FindOrderStatusByShopOrderID(ctx context.Context,
+	shopOrderID uint) (orderStatus domain.OrderStatus, err error) {
 
 	query := `SELECT * FROM order_statuses
 	WHERE id = (SELECT order_status_id FROM shop_orders WHERE id = $1)`
@@ -171,14 +174,16 @@ func (c *OrderDatabase) UpdateShopOrderOrderStatus(ctx context.Context, shopOrde
 	return err
 }
 
-func (c *OrderDatabase) FindOrderReturnByReturnID(ctx context.Context, orderReturnID uint) (orderReturn domain.OrderReturn, err error) {
+func (c *OrderDatabase) FindOrderReturnByReturnID(ctx context.Context,
+	orderReturnID uint) (orderReturn domain.OrderReturn, err error) {
 
 	query := `SELECT *  FROM order_returns WHERE id = $1`
 	err = c.DB.Raw(query, orderReturnID).Scan(&orderReturn).Error
 
 	return orderReturn, err
 }
-func (c *OrderDatabase) FindOrderReturnByShopOrderID(ctx context.Context, shopOrderID uint) (orderReturn domain.OrderReturn, err error) {
+func (c *OrderDatabase) FindOrderReturnByShopOrderID(ctx context.Context,
+	shopOrderID uint) (orderReturn domain.OrderReturn, err error) {
 
 	query := `SELECT *  FROM order_returns WHERE shop_order_id = $1`
 	err = c.DB.Raw(query, shopOrderID).Scan(&orderReturn).Error
@@ -193,8 +198,10 @@ func (c *OrderDatabase) FindAllOrderReturns(ctx context.Context,
 	offset := (pagination.PageNumber - 1) * limit
 
 	query := `SELECT ors.id AS order_return_id, ors.shop_order_id, ors.request_date, ors.return_reason, 
-		os.id AS order_status_id, os.status AS order_status,ors.refund_amount, ors.admin_comment, ors.is_approved, ors.approval_date, ors.return_date 
-		FROM order_returns ors INNER JOIN shop_orders so ON ors.shop_order_id =  so.id 
+		os.id AS order_status_id, os.status AS order_status,ors.refund_amount, 
+		ors.admin_comment, ors.is_approved, ors.approval_date, ors.return_date 
+		FROM order_returns ors 
+		INNER JOIN shop_orders so ON ors.shop_order_id =  so.id 
 		INNER JOIN order_statuses os ON so.order_status_id = os.id 
 		ORDER BY ors.request_date LIMIT $1 OFFSET $2`
 	err = c.DB.Raw(query, limit, offset).Scan(&orderReturns).Error
@@ -217,7 +224,8 @@ func (c *OrderDatabase) FindAllPendingOrderReturns(ctx context.Context,
 
 	query := `SELECT ors.id AS order_return_id, ors.shop_order_id, ors.request_date, ors.return_reason, 
 	os.id AS order_status_id, os.status AS order_status,ors.refund_amount  
-	FROM order_returns ors INNER JOIN shop_orders so ON ors.shop_order_id =  so.id 
+	FROM order_returns ors 
+	INNER JOIN shop_orders so ON ors.shop_order_id =  so.id 
 	INNER JOIN order_statuses os ON so.order_status_id = os.id 
 	WHERE so.order_status_id = $1 OR so.order_status_id = $2 
 	ORDER BY ors.request_date DESC LIMIT $3 OFFSET $4`
