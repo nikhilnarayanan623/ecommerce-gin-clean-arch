@@ -221,6 +221,134 @@ const docTemplate = `{
                 }
             }
         },
+        "/admin/auth/login": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "API for admin to login with password",
+                "tags": [
+                    "Admin Authentication"
+                ],
+                "summary": "Login with password (Admin)",
+                "operationId": "AdminLogin",
+                "parameters": [
+                    {
+                        "description": "Login credentials",
+                        "name": "input",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.Login"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successfully logged in",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid input",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "401": {
+                        "description": "Wrong password",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "404": {
+                        "description": "Admin not exist with this details",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Failed to login",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/admin/auth/renew-access-token": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "API for admin to renew access token using refresh token",
+                "tags": [
+                    "Admin Authentication"
+                ],
+                "summary": "Renew Access Token (Admin)",
+                "operationId": "AdminRenewAccessToken",
+                "parameters": [
+                    {
+                        "description": "Refresh token",
+                        "name": "input",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.RefreshToken"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successfully generated access token using refresh token",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid input",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "401": {
+                        "description": "Invalid refresh token",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "403": {
+                        "description": "Refresh token blocked",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "404": {
+                        "description": "No session found for the given refresh token",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "410": {
+                        "description": "Refresh token expired",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Failed generate access token",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
         "/admin/categories": {
             "get": {
                 "security": [
@@ -653,45 +781,6 @@ const docTemplate = `{
                 "responses": {
                     "200": {
                         "description": "successfully coupon added",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    },
-                    "400": {
-                        "description": "invalid input",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    }
-                }
-            }
-        },
-        "/admin/login": {
-            "post": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "tags": [
-                    "Admin Authentication"
-                ],
-                "summary": "api for admin to login",
-                "operationId": "AdminLogin",
-                "parameters": [
-                    {
-                        "description": "Input Fields",
-                        "name": "input",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/request.Login"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Successfully account created for user",
                         "schema": {
                             "$ref": "#/definitions/response.Response"
                         }
@@ -1793,6 +1882,370 @@ const docTemplate = `{
                 }
             }
         },
+        "/auth/google-auth": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "API for user to load google login page",
+                "tags": [
+                    "User Authentication"
+                ],
+                "summary": "load google login page (User)",
+                "operationId": "UserGoogleAuthLoginPage",
+                "responses": {
+                    "200": {
+                        "description": "Successfully google login page loaded",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/auth/google-auth/callback": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "API for google to callback after authentication",
+                "tags": [
+                    "User Authentication"
+                ],
+                "summary": "Google auth callback (User)",
+                "operationId": "UserGoogleAuthCallBack",
+                "responses": {
+                    "200": {
+                        "description": "Successfully logged in with google",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Failed Login with google",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/auth/google-auth/initialize": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "API for user to initialize google auth",
+                "tags": [
+                    "User Authentication"
+                ],
+                "summary": "Initialize google auth (User)",
+                "operationId": "UserGoogleAuthInitialize",
+                "responses": {}
+            }
+        },
+        "/auth/login": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "API for user to login with email | phone | user_name with password",
+                "tags": [
+                    "User Authentication"
+                ],
+                "summary": "Login with password (User)",
+                "operationId": "UserLogin",
+                "parameters": [
+                    {
+                        "description": "Login Details",
+                        "name": "inputs",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.Login"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successfully logged in",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid inputs",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "401": {
+                        "description": "User not exist with given login credentials",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "403": {
+                        "description": "User blocked by admin",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Failed to login",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/auth/login/otp-send": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "API for user to send otp for login enter email | phone | user_name : otp will send to user registered number",
+                "tags": [
+                    "User Authentication"
+                ],
+                "summary": "Login with Otp send (User)",
+                "operationId": "UserLoginOtpSend",
+                "parameters": [
+                    {
+                        "description": "Login credentials",
+                        "name": "inputs",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.OTPLogin"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successfully otp send to user's registered number",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid Otp",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "401": {
+                        "description": "User not exist with given login credentials",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "403": {
+                        "description": "User blocked by admin",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Failed to send otp",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/auth/login/otp-verify": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "API for user to verify otp",
+                "tags": [
+                    "User Authentication"
+                ],
+                "summary": "Login with Otp verify (User)",
+                "operationId": "UserLoginOtpVerify",
+                "parameters": [
+                    {
+                        "description": "Otp Verify Details",
+                        "name": "inputs",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.OTPVerify"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successfully user logged in",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid inputs",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "401": {
+                        "description": "Otp not matched",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "410": {
+                        "description": "Otp Expired",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Failed to verify otp",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/auth/renew-access-token": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "API for user to renew access token using refresh token",
+                "tags": [
+                    "User Authentication"
+                ],
+                "summary": "Renew Access Token (User)",
+                "operationId": "UserRenewAccessToken",
+                "parameters": [
+                    {
+                        "description": "Refresh token",
+                        "name": "input",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.RefreshToken"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successfully generated access token using refresh token",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid input",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "401": {
+                        "description": "Invalid refresh token",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "403": {
+                        "description": "Refresh token blocked",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "404": {
+                        "description": "No session found for the given refresh token",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "410": {
+                        "description": "Refresh token expired",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Failed generate access token",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/auth/signup": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "API for user to register a new account",
+                "tags": [
+                    "User Authentication"
+                ],
+                "summary": "Signup (User)",
+                "operationId": "UserSignUp",
+                "parameters": [
+                    {
+                        "description": "Input Fields",
+                        "name": "input",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.UserSignUp"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successfully Account Created",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid input",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "409": {
+                        "description": "A verified user already exist with given user credentials",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Failed to signup",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
         "/carts": {
             "get": {
                 "security": [
@@ -2196,144 +2649,6 @@ const docTemplate = `{
                 }
             }
         },
-        "/login": {
-            "post": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "description": "Enter user_name | phone | email with password",
-                "tags": [
-                    "User Authentication"
-                ],
-                "summary": "api for user to login",
-                "operationId": "UserLogin",
-                "parameters": [
-                    {
-                        "description": "Input Fields",
-                        "name": "inputs",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/request.Login"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "successfully logged in",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    },
-                    "400": {
-                        "description": "invalid input",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    },
-                    "500": {
-                        "description": "failed to generate JWT",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    }
-                }
-            }
-        },
-        "/login/otp-send": {
-            "post": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "description": "user can enter email/user_name/phone will send an otp to user registered phone_number",
-                "tags": [
-                    "User Authentication"
-                ],
-                "summary": "api for user otp login send",
-                "operationId": "UserLoginOtpSend",
-                "parameters": [
-                    {
-                        "description": "Input Field",
-                        "name": "inputs",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/request.OTPLogin"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Successfully otp send to user's registered number",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    },
-                    "400": {
-                        "description": "Enter input properly",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    },
-                    "500": {
-                        "description": "Failed to send otp",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    }
-                }
-            }
-        },
-        "/login/otp-verify": {
-            "post": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "description": "enter your otp that send to your registered number",
-                "tags": [
-                    "User Authentication"
-                ],
-                "summary": "api for user to verify user login otp",
-                "operationId": "UserLoginOtpVerify",
-                "parameters": [
-                    {
-                        "description": "Input Field",
-                        "name": "inputs",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/request.OTPVerify"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "successfully logged in using otp",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    },
-                    "400": {
-                        "description": "invalid login_otp",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    },
-                    "500": {
-                        "description": "failed to generate JWT",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    }
-                }
-            }
-        },
         "/logout": {
             "post": {
                 "security": [
@@ -2579,45 +2894,6 @@ const docTemplate = `{
                     },
                     "400": {
                         "description": "Failed to get all product items",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    }
-                }
-            }
-        },
-        "/signup": {
-            "post": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "tags": [
-                    "User Authentication"
-                ],
-                "summary": "api for user to signup",
-                "operationId": "UserSignUp",
-                "parameters": [
-                    {
-                        "description": "Input Fields",
-                        "name": "input",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/request.UserSignUp"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Successfully account created for user",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    },
-                    "400": {
-                        "description": "invalid input",
                         "schema": {
                             "$ref": "#/definitions/response.Response"
                         }
@@ -3125,6 +3401,7 @@ const docTemplate = `{
             "properties": {
                 "images": {
                     "type": "array",
+                    "minItems": 1,
                     "items": {
                         "type": "string"
                     }
@@ -3139,9 +3416,19 @@ const docTemplate = `{
                 },
                 "variation_option_ids": {
                     "type": "array",
+                    "minItems": 1,
                     "items": {
                         "type": "integer"
                     }
+                }
+            }
+        },
+        "request.RefreshToken": {
+            "type": "object",
+            "properties": {
+                "refresh_token": {
+                    "type": "string",
+                    "minLength": 10
                 }
             }
         },
