@@ -12,17 +12,21 @@ func AdminRoutes(api *gin.RouterGroup, authHandler handlerInterface.AuthHandler,
 	orderHandler handlerInterface.OrderHandler, couponHandler handlerInterface.CouponHandler,
 
 ) {
-	// login
-	login := api.Group("/login")
+
+	auth := api.Group("/auth")
 	{
-		login.POST("/", authHandler.AdminLogin)
+		login := auth.Group("/login")
+		{
+			login.POST("/", authHandler.AdminLogin)
+		}
+
+		// signup := api.Group("/signup")
+		// {
+		// 	signup.POST("/", adminHandler.AdminSignUp)
+		// }
+
+		auth.POST("/renew-access-token", authHandler.AdminRenewAccessToken())
 	}
-	// signup
-	signup := api.Group("/signup")
-	{
-		signup.POST("/", adminHandler.AdminSignUp)
-	}
-	api.POST("/renew-access-token", authHandler.AdminRenewAccessToken())
 
 	api.Use(middleware.GetAdminAuthMiddleware())
 	{

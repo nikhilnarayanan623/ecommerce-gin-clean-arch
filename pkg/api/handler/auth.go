@@ -26,16 +26,18 @@ func NewAuthHandler(authUsecase usecaseInterface.AuthUseCase) interfaces.AuthHan
 }
 
 // UserLogin godoc
-// @summary api for user to login
-// @description Enter user_name | phone | email with password
-// @security ApiKeyAuth
-// @id UserLogin
-// @tags User Authentication
-// @Param        inputs   body     request.Login{}   true  "Input Fields"
-// @Router /login [post]
-// @Success 200 {object} response.Response{} "successfully logged in"
-// @Failure 400 {object} response.Response{}  "invalid input"
-// @Failure 500 {object} response.Response{}  "failed to generate JWT"
+// @Summary Login with password (User)
+// @Description API for user to login with email | phone | user_name with password
+// @Security ApiKeyAuth
+// @Id UserLogin
+// @Tags User Authentication
+// @Param        inputs   body     request.Login{}   true  "Login Details"
+// @Router /auth/login [post]
+// @Success 200 {object} response.Response{} "Successfully logged in"
+// @Failure 400 {object} response.Response{}  "Invalid inputs"
+// @Failure 403 {object} response.Response{}  "User blocked by admin"
+// @Failure 401 {object} response.Response{}  "User not exist with given login credentials"
+// @Failure 500 {object} response.Response{}  "Failed to login"
 func (c *AuthHandler) UserLogin(ctx *gin.Context) {
 
 	var body request.Login
@@ -57,7 +59,7 @@ func (c *AuthHandler) UserLogin(ctx *gin.Context) {
 		case errors.Is(err, usecase.ErrUserNotExist):
 			statusCode = http.StatusNotFound
 		case errors.Is(err, usecase.ErrUserBlocked):
-			statusCode = http.StatusUnauthorized
+			statusCode = http.StatusForbidden
 		case errors.Is(err, usecase.ErrWrongPassword):
 			statusCode = http.StatusUnauthorized
 		default:
@@ -73,15 +75,17 @@ func (c *AuthHandler) UserLogin(ctx *gin.Context) {
 }
 
 // UserLoginOtpSend godoc
-// @summary api for user otp login send
-// @description user can enter email/user_name/phone will send an otp to user registered phone_number
-// @security ApiKeyAuth
-// @id UserLoginOtpSend
-// @tags User Authentication
-// @Param inputs body request.OTPLogin{} true "Input Field"
-// @Router /login/otp-send [post]
+// @Summary Login with Otp send (User)
+// @Description API for user to send otp for login enter email | phone | user_name : otp will send to user registered number
+// @Security ApiKeyAuth
+// @Id UserLoginOtpSend
+// @Tags User Authentication
+// @Param inputs body request.OTPLogin{} true "Login credentials"
+// @Router /auth/login/otp-send [post]
 // @Success 200 {object} response.Response{}  "Successfully otp send to user's registered number"
-// @Failure 400 {object} response.Response{}  "Enter input properly"
+// @Failure 400 {object} response.Response{}  "Invalid Otp"
+// @Failure 403 {object} response.Response{}  "User blocked by admin"
+// @Failure 401 {object} response.Response{}  "User not exist with given login credentials"
 // @Failure 500 {object} response.Response{}  "Failed to send otp"
 func (u *AuthHandler) UserLoginOtpSend(ctx *gin.Context) {
 
@@ -107,7 +111,7 @@ func (u *AuthHandler) UserLoginOtpSend(ctx *gin.Context) {
 		case errors.Is(err, usecase.ErrEmptyLoginCredentials):
 			statusCode = http.StatusBadRequest
 		case errors.Is(err, usecase.ErrUserNotExist):
-			statusCode = http.StatusNotFound
+			statusCode = http.StatusForbidden
 		case errors.Is(err, usecase.ErrUserBlocked):
 			statusCode = http.StatusUnauthorized
 		default:
@@ -124,16 +128,18 @@ func (u *AuthHandler) UserLoginOtpSend(ctx *gin.Context) {
 }
 
 // UserLoginOtpVerify godoc
-// @summary api for user to verify user login otp
-// @description enter your otp that send to your registered number
+// @summary Login with Otp verify (User)
+// @description API for user to verify otp
 // @security ApiKeyAuth
 // @id UserLoginOtpVerify
 // @tags User Authentication
-// @param inputs body request.OTPVerify{} true "Input Field"
-// @Router /login/otp-verify [post]
-// @Success 200 {object} response.Response{} "successfully logged in using otp"
-// @Failure 400 {object} response.Response{} "invalid login_otp"
-// @Failure 500 {object} response.Response{} "failed to generate JWT"
+// @param inputs body request.OTPVerify{} true "Otp Verify Details"
+// @Router /auth/login/otp-verify [post]
+// @Success 200 {object} response.Response{} "Successfully user logged in"
+// @Failure 400 {object} response.Response{} "Invalid inputs"
+// @Failure 401 {object} response.Response{} "Otp not matched"
+// @Failure 410 {object} response.Response{} "Otp Expired"
+// @Failure 500 {object} response.Response{} "Failed to verify otp
 func (c *AuthHandler) UserLoginOtpVerify(ctx *gin.Context) {
 
 	var body request.OTPVerify
@@ -148,7 +154,7 @@ func (c *AuthHandler) UserLoginOtpVerify(ctx *gin.Context) {
 		var statusCode int
 		switch true {
 		case errors.Is(err, usecase.ErrOtpExpired):
-			statusCode = http.StatusBadRequest
+			statusCode = http.StatusGone
 		case errors.Is(err, usecase.ErrInvalidOtp):
 			statusCode = http.StatusUnauthorized
 		default:
@@ -162,14 +168,17 @@ func (c *AuthHandler) UserLoginOtpVerify(ctx *gin.Context) {
 }
 
 // UserSignUp godoc
-// @summary api for user to signup
-// @security ApiKeyAuth
-// @id UserSignUp
-// @tags User Authentication
+// @Summary Signup (User)
+// @Description API for user to register a new account
+// @Security ApiKeyAuth
+// @Id UserSignUp
+// @Tags User Authentication
 // @Param input body request.UserSignUp{} true "Input Fields"
-// @Router /signup [post]
-// @Success 200 {object} response.Response{} "Successfully account created for user"
-// @Failure 400 {object} response.Response{} "invalid input"
+// @Router /auth/signup [post]
+// @Success 200 {object} response.Response{} "Successfully Account Created"
+// @Failure 400 {object} response.Response{} "Invalid input"
+// @Failure 409 {object} response.Response{} "A verified user already exist with given user credentials"
+// @Failure 500 {object} response.Response{} "Failed to signup"
 func (c *AuthHandler) UserSignUp(ctx *gin.Context) {
 
 	var body request.UserSignUp
@@ -197,19 +206,19 @@ func (c *AuthHandler) UserSignUp(ctx *gin.Context) {
 	response.SuccessResponse(ctx, http.StatusCreated, "Successfully Account Created")
 }
 
-func (c *AuthHandler) UserRenewAccessToken() gin.HandlerFunc {
-	return c.renewAccessToken(token.User)
-}
-
-// UserSignUp godoc
-// @summary api for admin to login
-// @security ApiKeyAuth
-// @id AdminLogin
-// @tags Admin Authentication
-// @Param input body request.Login{} true "Input Fields"
-// @Router /admin/login [post]
-// @Success 200 {object} response.Response{} "Successfully account created for user"
-// @Failure 400 {object} response.Response{} "invalid input"
+// AdminLogin godoc
+// @Summary Login with password (Admin)
+// @Description API for admin to login with password
+// @Security ApiKeyAuth
+// @Id AdminLogin
+// @Tags Admin Authentication
+// @Param input body request.Login{} true "Login credentials"
+// @Router /admin/auth/login [post]
+// @Success 200 {object} response.Response{} "Successfully logged in"
+// @Failure 400 {object} response.Response{} "Invalid input"
+// @Failure 401 {object} response.Response{} "Wrong password"
+// @Failure 404 {object} response.Response{} "Admin not exist with this details"
+// @Failure 500 {object} response.Response{} "Failed to login"
 func (c *AuthHandler) AdminLogin(ctx *gin.Context) {
 
 	var body request.Login
@@ -243,10 +252,8 @@ func (c *AuthHandler) AdminLogin(ctx *gin.Context) {
 	c.setupTokenAndResponse(ctx, token.Admin, adminID)
 }
 
-func (c *AuthHandler) AdminRenewAccessToken() gin.HandlerFunc {
-	return c.renewAccessToken(token.Admin)
-}
-
+// access and refresh token generating for user and admin is same so created
+// a common function for it.(differntiate user by user type )
 func (c *AuthHandler) setupTokenAndResponse(ctx *gin.Context, tokenUser token.UserType, userID uint) {
 
 	tokenParams := usecaseInterface.GenerateTokenParams{
@@ -286,6 +293,45 @@ func (c *AuthHandler) setupTokenAndResponse(ctx *gin.Context, tokenUser token.Us
 	response.SuccessResponse(ctx, http.StatusOK, "Successfully logged in", tokenRes)
 }
 
+// UserRenewAccessToken godoc
+// @Summary Renew Access Token (User)
+// @Description API for user to renew access token using refresh token
+// @Security ApiKeyAuth
+// @Id UserRenewAccessToken
+// @Tags User Authentication
+// @Param input body request.RefreshToken{} true "Refresh token"
+// @Router /auth/renew-access-token [post]
+// @Success 200 {object} response.Response{} "Successfully generated access token using refresh token"
+// @Failure 400 {object} response.Response{} "Invalid input"
+// @Failure 401 {object} response.Response{} "Invalid refresh token"
+// @Failure 404 {object} response.Response{} "No session found for the given refresh token"
+// @Failure 410 {object} response.Response{} "Refresh token expired"
+// @Failure 403 {object} response.Response{} "Refresh token blocked"
+// @Failure 500 {object} response.Response{} "Failed generate access token"
+func (c *AuthHandler) UserRenewAccessToken() gin.HandlerFunc {
+	return c.renewAccessToken(token.User)
+}
+
+// AdminRenewAccessToken godoc
+// @Summary Renew Access Token (Admin)
+// @Description API for admin to renew access token using refresh token
+// @Security ApiKeyAuth
+// @Id AdminRenewAccessToken
+// @Tags Admin Authentication
+// @Param input body request.RefreshToken{} true "Refresh token"
+// @Router /admin/auth/renew-access-token [post]
+// @Success 200 {object} response.Response{} "Successfully generated access token using refresh token"
+// @Failure 400 {object} response.Response{} "Invalid input"
+// @Failure 401 {object} response.Response{} "Invalid refresh token"
+// @Failure 404 {object} response.Response{} "No session found for the given refresh token"
+// @Failure 410 {object} response.Response{} "Refresh token expired"
+// @Failure 403 {object} response.Response{} "Refresh token blocked"
+// @Failure 500 {object} response.Response{} "Failed generate access token"
+func (c *AuthHandler) AdminRenewAccessToken() gin.HandlerFunc {
+	return c.renewAccessToken(token.Admin)
+}
+
+// common functionality of renewing access token for user and admin
 func (c *AuthHandler) renewAccessToken(tokenUser token.UserType) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 
@@ -307,7 +353,7 @@ func (c *AuthHandler) renewAccessToken(tokenUser token.UserType) gin.HandlerFunc
 			case errors.Is(err, usecase.ErrRefreshSessionNotExist):
 				statusCode = http.StatusNotFound
 			case errors.Is(err, usecase.ErrRefreshSessionExpired):
-				statusCode = http.StatusUnauthorized
+				statusCode = http.StatusGone
 			case errors.Is(err, usecase.ErrRefreshSessionBlocked):
 				statusCode = http.StatusForbidden
 			default:
@@ -334,6 +380,6 @@ func (c *AuthHandler) renewAccessToken(tokenUser token.UserType) gin.HandlerFunc
 		accessTokenRes := response.TokenResponse{
 			AccessToken: accessToken,
 		}
-		response.SuccessResponse(ctx, http.StatusOK, "Successfully access token generated using refresh token", accessTokenRes)
+		response.SuccessResponse(ctx, http.StatusOK, "Successfully generated access token using refresh token", accessTokenRes)
 	}
 }

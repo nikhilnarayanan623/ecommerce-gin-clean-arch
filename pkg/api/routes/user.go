@@ -12,24 +12,29 @@ func UserRoutes(api *gin.RouterGroup, authHandler handlerInterface.AuthHandler, 
 	orderHandler handlerInterface.OrderHandler, couponHandler handlerInterface.CouponHandler,
 ) {
 
-	// login
-	login := api.Group("/login")
+	auth := api.Group("/auth")
 	{
-		login.POST("/", authHandler.UserLogin)
-		login.POST("/otp-send", authHandler.UserLoginOtpSend)
-		login.POST("/otp-verify", authHandler.UserLoginOtpVerify)
+		signup := auth.Group("/signup")
+		{
+			signup.POST("/", authHandler.UserSignUp)
+		}
 
-		// login page
-		login.GET("/", authHandler.UserGoogleAuthLoginPage)
-		login.GET("/auth/", authHandler.UserGoogleAuthInitialize)
-		login.GET("/auth/google/callback", authHandler.UserGoogleAuthCallBack)
-	}
-	api.POST("/renew-access-token", authHandler.UserRenewAccessToken())
+		login := auth.Group("/login")
+		{
+			login.POST("/", authHandler.UserLogin)
+			login.POST("/otp-send", authHandler.UserLoginOtpSend)
+			login.POST("/otp-verify", authHandler.UserLoginOtpVerify)
+		}
 
-	//signup
-	signup := api.Group("/signup")
-	{
-		signup.POST("/", authHandler.UserSignUp)
+		goath := auth.Group("/google-auth")
+		{
+			goath.GET("/", authHandler.UserGoogleAuthLoginPage)
+			goath.GET("/initialize", authHandler.UserGoogleAuthInitialize)
+			goath.GET("/callback", authHandler.UserGoogleAuthCallBack)
+		}
+
+		auth.POST("/renew-access-token", authHandler.UserRenewAccessToken())
+
 	}
 
 	api.Use(middleware.GetUserAuthMiddleware())
