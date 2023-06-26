@@ -2457,35 +2457,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/carts/checkout/payment-select-page": {
-            "get": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "tags": [
-                    "User Payment"
-                ],
-                "summary": "api for render the html page of payment select",
-                "operationId": "CartOrderPaymentSelectPage",
-                "responses": {
-                    "200": {
-                        "description": "successfully order placed",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    },
-                    "500": {
-                        "description": "Failed to render payment page",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    }
-                }
-            }
-        },
-        "/carts/coupons": {
+        "/carts/apply-coupon": {
             "patch": {
                 "security": [
                     {
@@ -2517,6 +2489,34 @@ const docTemplate = `{
                     },
                     "400": {
                         "description": "invalid input",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/carts/checkout/payment-select-page": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "tags": [
+                    "User Payment"
+                ],
+                "summary": "api for render the html page of payment select",
+                "operationId": "CartOrderPaymentSelectPage",
+                "responses": {
+                    "200": {
+                        "description": "successfully order placed",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Failed to render payment page",
                         "schema": {
                             "$ref": "#/definitions/response.Response"
                         }
