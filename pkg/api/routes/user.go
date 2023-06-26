@@ -107,11 +107,11 @@ func UserRoutes(api *gin.RouterGroup, authHandler handlerInterface.AuthHandler, 
 		// 	// order
 		orders := api.Group("/orders")
 		{
-			orders.GET("/", orderHandler.FindUserOrder)          // get all order list for user
-			orders.GET("/items", orderHandler.FindAllOrderItems) //get order items for specific order
+			orders.GET("/", orderHandler.FindUserOrder)                               // get all order list for user
+			orders.GET("/:shop_order_id/items", orderHandler.FindAllOrderItemsUser()) //get order items for specific order
 
 			orders.POST("/return", orderHandler.SubmitReturnRequest)
-			orders.POST("/cancel/:shop_order_id", orderHandler.CancelOrder) // cancell an order
+			orders.POST("/:shop_order_id/cancel", orderHandler.CancelOrder) // cancell an order
 		}
 
 		//coupons

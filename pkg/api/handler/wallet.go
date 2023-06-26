@@ -9,6 +9,14 @@ import (
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/utils/response"
 )
 
+// FindUserWallet godoc
+// @summary Get user wallet  (User)
+// @description API for user to get user wallet
+// @id FindUserWallet
+// @tags User Profile
+// @Router /account/wallet [get]
+// @Success 200 {object} response.Response{} "Successfully retrieve user wallet"
+// @Failure 500 {object} response.Response{} "Failed to retrieve user wallet"
 func (c *OrderHandler) FindUserWallet(ctx *gin.Context) {
 
 	userID := utils.GetUserIdFromContext(ctx)
@@ -16,13 +24,22 @@ func (c *OrderHandler) FindUserWallet(ctx *gin.Context) {
 	wallet, err := c.orderUseCase.FindUserWallet(ctx, userID)
 
 	if err != nil {
-		response.ErrorResponse(ctx, http.StatusInternalServerError, "Failed to find user wallet", err, nil)
+		response.ErrorResponse(ctx, http.StatusInternalServerError, "Failed to retrieve user wallet", err, nil)
 		return
 	}
 
-	response.SuccessResponse(ctx, http.StatusOK, "Successfully found user wallet", wallet)
+	response.SuccessResponse(ctx, http.StatusOK, "Successfully retrieve user wallet", wallet)
 }
 
+// FindUserWalletTransactions godoc
+// @summary Get user wallet  (User)
+// @description API for user to get user wallet transaction
+// @id FindUserWalletTransactions
+// @tags User Profile
+// @Router /account/wallet/transactions [get]
+// @Success 200 {object} response.Response{} "Successfully retrieved user wallet transactions"
+// @Success 204 {object} response.Response{} "No wallet transaction for user"
+// @Failure 500 {object} response.Response{} "Failed to retrieve user wallet transactions"
 func (c *OrderHandler) FindUserWalletTransactions(ctx *gin.Context) {
 
 	userID := utils.GetUserIdFromContext(ctx)
@@ -31,14 +48,14 @@ func (c *OrderHandler) FindUserWalletTransactions(ctx *gin.Context) {
 	transactions, err := c.orderUseCase.FindUserWalletTransactions(ctx, userID, pagination)
 
 	if err != nil {
-		response.ErrorResponse(ctx, http.StatusInternalServerError, "Failed to find user wallet transactions", err, nil)
+		response.ErrorResponse(ctx, http.StatusInternalServerError, "Failed to retrieve user wallet transactions", err, nil)
 		return
 	}
 
 	if len(transactions) == 0 {
-		response.SuccessResponse(ctx, http.StatusOK, "No user wallet transaction found", nil)
+		response.SuccessResponse(ctx, http.StatusNoContent, "No user wallet transaction found", nil)
 		return
 	}
 
-	response.SuccessResponse(ctx, http.StatusOK, "Successfully found user wallet transactions", transactions)
+	response.SuccessResponse(ctx, http.StatusOK, "Successfully retrieved user wallet transactions", transactions)
 }

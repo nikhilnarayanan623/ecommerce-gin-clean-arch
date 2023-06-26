@@ -55,7 +55,7 @@ type WishList struct {
 	ProductItemID uint `json:"product_item_id" gorm:"not null"`
 	ProductItem   ProductItem
 }
-	
+
 type Cart struct {
 	ID              uint `json:"id" gorm:"primaryKey;not null"`
 	UserID          uint `json:"user_id" gorm:"not null"`
@@ -79,15 +79,15 @@ type CartItem struct {
 type Wallet struct {
 	ID          uint `json:"wallet_id" gorm:"primaryKey;not null"`
 	UserID      uint `json:"user_id" gorm:"not null"`
-	User        User
+	User        User `json:"-"`
 	TotalAmount uint `json:"total_amount" gorm:"not null"`
 }
 
 type TransactionType string
 
 const (
-	Debit  TransactionType = "debit"
-	Credit TransactionType = "credit"
+	Debit  TransactionType = "DEBIT"
+	Credit TransactionType = "CREDIT"
 )
 
 type Transaction struct {

@@ -82,14 +82,19 @@ func (c *OrderDatabase) FindAllShopOrders(ctx context.Context, pagination reques
 }
 
 // get order items of a specific order
-func (c *OrderDatabase) FindAllOrdersItemsByShopOrderID(ctx context.Context, shopOrderID uint, pagination request.Pagination) (orderItems []response.OrderItem, err error) {
+func (c *OrderDatabase) FindAllOrdersItemsByShopOrderID(ctx context.Context,
+	shopOrderID uint, pagination request.Pagination) (orderItems []response.OrderItem, err error) {
 
 	limit := pagination.Count
 	offset := (pagination.PageNumber - 1) * limit
 
-	query := `SELECT ol.product_item_id,p.product_name,p.image,ol.price, so.order_date, os.status,ol.qty, (ol.price * ol.qty) AS sub_total FROM  order_lines ol 
-	JOIN shop_orders so ON ol.shop_order_id = so.id JOIN product_items pi ON ol.product_item_id = pi.id
-	JOIN products p ON pi.product_id = p.id JOIN order_statuses os ON so.order_status_id = os.id AND ol.shop_order_id= $1 
+	query := `SELECT ol.product_item_id, p.name AS product_name, p.image, ol.price, so.order_date, os.status,ol.qty, 
+	(ol.price * ol.qty) AS sub_total FROM  order_lines ol 
+	INNER JOIN shop_orders so ON ol.shop_order_id = so.id 
+	INNER JOIN product_items pi ON ol.product_item_id = pi.id
+	JOIN products p ON pi.product_id = p.id 
+	INNER JOIN order_statuses os ON so.order_status_id = os.id 
+	AND ol.shop_order_id = $1 
 	ORDER BY ol.qty DESC LIMIT $2 OFFSET $3`
 
 	err = c.DB.Raw(query, shopOrderID, limit, offset).Scan(&orderItems).Error

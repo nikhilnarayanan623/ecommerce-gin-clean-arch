@@ -78,11 +78,14 @@ func AdminRoutes(api *gin.RouterGroup, authHandler handlerInterface.AuthHandler,
 		// 	// order
 		order := api.Group("/orders")
 		{
-			order.GET("/", orderHandler.FindAllShopOrders)
-			order.GET("/items", orderHandler.FindAllOrderItems)
+			order.GET("/all", orderHandler.FindAllShopOrders)
+			order.GET("/:shop_order_id/items", orderHandler.FindAllOrderItemsAdmin())
 			order.PUT("/", orderHandler.UpdateOrderStatus)
 
-			order.GET("/statuses", orderHandler.FindAllOrderStatuses)
+			status := order.Group("/statuses")
+			{
+				status.GET("/", orderHandler.FindAllOrderStatuses)
+			}
 
 			//return requests
 			order.GET("/returns", orderHandler.FindAllOrderReturns)

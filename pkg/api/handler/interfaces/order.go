@@ -13,12 +13,12 @@ type OrderHandler interface {
 	// ApproveOrderCOD(ctx *gin.Context)
 	CancelOrder(ctx *gin.Context)
 	SubmitReturnRequest(ctx *gin.Context)
-
+	FindAllOrderItemsUser() func(ctx *gin.Context)
 	FindUserOrder(ctx *gin.Context)
-	FindAllOrderItems(ctx *gin.Context)
 
 	//admin side
 	FindAllShopOrders(ctx *gin.Context)
+	FindAllOrderItemsAdmin() func(ctx *gin.Context)
 	UpdateOrderStatus(ctx *gin.Context)
 	FindAllOrderReturns(ctx *gin.Context)
 	FindAllPendingReturns(ctx *gin.Context)
