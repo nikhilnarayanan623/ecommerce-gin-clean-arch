@@ -107,13 +107,13 @@ func (c *OrderDatabase) FindAllOrdersItemsByShopOrderID(ctx context.Context,
 func (c *OrderDatabase) SaveShopOrder(ctx context.Context, shopOrder domain.ShopOrder) (shopOrderID uint, err error) {
 
 	// save the shop_order
-	query := `INSERT INTO shop_orders (user_id,address_id, order_total_price, discount, 
-	order_status_id,order_date) 
-	VALUES ($1, $2, $3, $4, $5, $6) RETURNING id`
+	query := `INSERT INTO shop_orders (user_id, address_id, order_total_price, discount, 
+	order_status_id, payment_method_id,order_date) 
+	VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING id`
 
 	orderDate := time.Now()
 	err = c.DB.Raw(query, shopOrder.UserID, shopOrder.AddressID, shopOrder.OrderTotalPrice, shopOrder.Discount,
-		shopOrder.OrderStatusID, orderDate).Scan(&shopOrderID).Error
+		shopOrder.OrderStatusID, shopOrder.PaymentMethodID, orderDate).Scan(&shopOrderID).Error
 
 	return shopOrderID, err
 }
