@@ -142,12 +142,13 @@ func (c *CouponHandler) UpdateCoupon(ctx *gin.Context) {
 }
 
 // ApplyCouponToCart godoc
-// @summary api user to apply on cart on checkout time
-// @security ApiKeyAuth
-// @tags User Cart
-// @id ApplyCouponToCart
+// @Summary Apply coupon
+// @Description API for user to apply a coupon on cart
+// @Security ApiKeyAuth
+// @Tags User Cart
+// @Id ApplyCouponToCart
 // @Param        inputs   body     request.ApplyCoupon{}   true  "Input Field"
-// @Router /carts/coupons [patch]
+// @Router /carts/apply-coupon [patch]
 // @Success 200 {object} response.Response{} "Successfully coupon applied to user cart"
 // @Failure 400 {object} response.Response{}  "invalid input"
 func (c *CouponHandler) ApplyCouponToCart(ctx *gin.Context) {
