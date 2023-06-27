@@ -35,6 +35,8 @@ func UserRoutes(api *gin.RouterGroup, authHandler handlerInterface.AuthHandler, 
 
 		auth.POST("/renew-access-token", authHandler.UserRenewAccessToken())
 
+		// api.POST("/logout")
+
 	}
 
 	api.Use(middleware.GetUserAuthMiddleware())
@@ -104,6 +106,11 @@ func UserRoutes(api *gin.RouterGroup, authHandler handlerInterface.AuthHandler, 
 			account.GET("/wallet/transactions", orderHandler.FindUserWalletTransactions)
 		}
 
+		paymentMethod := api.Group("/payment-methods")
+		{
+			paymentMethod.GET("/", paymentHandler.FindAllPaymentMethodsUser())
+		}
+
 		// 	// order
 		orders := api.Group("/orders")
 		{
@@ -111,7 +118,7 @@ func UserRoutes(api *gin.RouterGroup, authHandler handlerInterface.AuthHandler, 
 			orders.GET("/:shop_order_id/items", orderHandler.FindAllOrderItemsUser()) //get order items for specific order
 
 			orders.POST("/return", orderHandler.SubmitReturnRequest)
-			orders.POST("/:shop_order_id/cancel", orderHandler.CancelOrder) // cancell an order
+			orders.POST("/:shop_order_id/cancel", orderHandler.CancelOrder) // cancel an order
 		}
 
 		//coupons

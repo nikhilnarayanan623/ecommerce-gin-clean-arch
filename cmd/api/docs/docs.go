@@ -1509,42 +1509,17 @@ const docTemplate = `{
             }
         },
         "/admin/payment-method": {
-            "get": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "tags": [
-                    "User Payment"
-                ],
-                "summary": "api for get all payment methods",
-                "operationId": "FindAllPaymentMethods",
-                "responses": {
-                    "200": {
-                        "description": "Failed to find payment methods",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    },
-                    "500": {
-                        "description": "Successfully found all payment methods",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    }
-                }
-            },
             "put": {
                 "security": [
                     {
                         "ApiKeyAuth": []
                     }
                 ],
+                "description": "API for admin to change maximum price or block or unblock the payment method",
                 "tags": [
                     "Admin Payment"
                 ],
-                "summary": "api for admin to update payment details",
+                "summary": "Update payment method (Admin)",
                 "operationId": "UpdatePaymentMethod",
                 "responses": {
                     "200": {
@@ -1554,13 +1529,42 @@ const docTemplate = `{
                         }
                     },
                     "400": {
-                        "description": "Failed to bind input",
+                        "description": "Invalid inputs",
                         "schema": {
                             "$ref": "#/definitions/response.Response"
                         }
                     },
                     "500": {
                         "description": "Failed to update payment method",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/admin/payment-methods": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "API for admin to get all payment methods",
+                "tags": [
+                    "Admin Payment"
+                ],
+                "summary": "Get payment methods",
+                "operationId": "FindAllPaymentMethodsAdmin",
+                "responses": {
+                    "200": {
+                        "description": "Failed to retrieve payment methods",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Successfully retrieved all payment methods",
                         "schema": {
                             "$ref": "#/definitions/response.Response"
                         }
@@ -2464,10 +2468,11 @@ const docTemplate = `{
                         "ApiKeyAuth": []
                     }
                 ],
+                "description": "API for user to apply a coupon on cart",
                 "tags": [
                     "User Cart"
                 ],
-                "summary": "api user to apply on cart on checkout time",
+                "summary": "Apply coupon",
                 "operationId": "ApplyCouponToCart",
                 "parameters": [
                     {
@@ -2503,14 +2508,15 @@ const docTemplate = `{
                         "ApiKeyAuth": []
                     }
                 ],
+                "description": "API for user to render payment select page",
                 "tags": [
                     "User Payment"
                 ],
-                "summary": "api for render the html page of payment select",
+                "summary": "Render Payment Page (User)",
                 "operationId": "CartOrderPaymentSelectPage",
                 "responses": {
                     "200": {
-                        "description": "successfully order placed",
+                        "description": "Successfully rendered payment page",
                         "schema": {
                             "$ref": "#/definitions/response.Response"
                         }
@@ -2997,6 +3003,35 @@ const docTemplate = `{
                     },
                     "500": {
                         "description": "Failed to find order items",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/payment-methods": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "API for user to get all payment methods",
+                "tags": [
+                    "User Payment"
+                ],
+                "summary": "Get payment methods",
+                "operationId": "FindAllPaymentMethodsUser",
+                "responses": {
+                    "200": {
+                        "description": "Failed to retrieve payment methods",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Successfully retrieved all payment methods",
                         "schema": {
                             "$ref": "#/definitions/response.Response"
                         }

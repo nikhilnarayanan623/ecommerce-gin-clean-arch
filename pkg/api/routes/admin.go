@@ -94,9 +94,9 @@ func AdminRoutes(api *gin.RouterGroup, authHandler handlerInterface.AuthHandler,
 		}
 
 		// payment_method
-		paymentMethod := api.Group("/payment-method")
+		paymentMethod := api.Group("/payment-methods")
 		{
-			paymentMethod.GET("/", paymentHandler.FindAllPaymentMethods)
+			paymentMethod.GET("/", paymentHandler.FindAllPaymentMethodsAdmin())
 			// paymentMethod.POST("/", paymentHandler.AddPaymentMethod)
 			paymentMethod.PUT("/", paymentHandler.UpdatePaymentMethod)
 		}

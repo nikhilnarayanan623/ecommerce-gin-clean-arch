@@ -21,12 +21,13 @@ func NewPaymentHandler(paymentUseCase interfaces.PaymentUseCase) handlerInterfac
 }
 
 // CartOrderPaymentSelectPage godoc
-// @summary api for render the html page of payment select
-// @security ApiKeyAuth
-// @tags User Payment
-// @id CartOrderPaymentSelectPage
+// @Summary Render Payment Page (User)
+// @Description API for user to render payment select page
+// @Security ApiKeyAuth
+// @Id CartOrderPaymentSelectPage
+// @Tags User Payment
 // @Router /carts/checkout/payment-select-page [get]
-// @Success 200 {object} response.Response{} "successfully order placed"
+// @Success 200 {object} response.Response{} "Successfully rendered payment page"
 // @Failure 500 {object} response.Response{}   "Failed to render payment page"
 func (c *paymentHandler) CartOrderPaymentSelectPage(ctx *gin.Context) {
 
@@ -71,13 +72,14 @@ func (c *paymentHandler) CartOrderPaymentSelectPage(ctx *gin.Context) {
 // }
 
 // UpdatePaymentMethod godoc
-// @summary api for admin to update payment details
+// @Summary Update payment method (Admin)
+// @Description API for admin to change maximum price or block or unblock the payment method
 // @security ApiKeyAuth
 // @tags Admin Payment
 // @id UpdatePaymentMethod
 // @Router /admin/payment-method  [put]
 // @Success 200 {object} response.Response{} "Successfully payment method updated"
-// @Success 400 {object} response.Response{} "Failed to bind input"
+// @Success 400 {object} response.Response{} "Invalid inputs"
 // @Failure 500 {object} response.Response{}  "Failed to update payment method"
 func (c *paymentHandler) UpdatePaymentMethod(ctx *gin.Context) {
 
@@ -98,26 +100,47 @@ func (c *paymentHandler) UpdatePaymentMethod(ctx *gin.Context) {
 	response.SuccessResponse(ctx, http.StatusOK, "Successfully payment method updated", nil)
 }
 
-// FindAllPaymentMethods godoc
-// @summary api for get all payment methods
+// FindAllPaymentMethodsAdmin godoc
+// @summary Get payment methods (Admin)
+// @Description API for admin to get all payment methods
+// @security ApiKeyAuth
+// @tags Admin Payment
+// @id FindAllPaymentMethodsAdmin
+// @Router /admin/payment-methods [get]
+// @Success 200 {object} response.Response{} "Failed to retrieve payment methods"
+// @Failure 500 {object} response.Response{}   "Successfully retrieved all payment methods"
+func (c *paymentHandler) FindAllPaymentMethodsAdmin() func(ctx *gin.Context) {
+	return c.findAllPaymentMethods()
+}
+
+// FindAllPaymentMethodsUser godoc
+// @summary Get payment methods (User)
+// @Description API for user to get all payment methods
 // @security ApiKeyAuth
 // @tags User Payment
-// @id FindAllPaymentMethods
-// @Router /admin/payment-method [get]
-// @Success 200 {object} response.Response{} "Failed to find payment methods"
-// @Failure 500 {object} response.Response{}   "Successfully found all payment methods"
-func (c *paymentHandler) FindAllPaymentMethods(ctx *gin.Context) {
+// @id FindAllPaymentMethodsUser
+// @Router /payment-methods [get]
+// @Success 200 {object} response.Response{} "Failed to retrieve payment methods"
+// @Failure 500 {object} response.Response{}   "Successfully retrieved all payment methods"
+func (c *paymentHandler) FindAllPaymentMethodsUser() func(ctx *gin.Context) {
+	return c.findAllPaymentMethods()
+}
 
-	paymentMethods, err := c.paymentUseCase.FindAllPaymentMethods(ctx)
-	if err != nil {
-		response.ErrorResponse(ctx, http.StatusInternalServerError, "Failed to find payment methods", err, nil)
-		return
+func (c *paymentHandler) findAllPaymentMethods() func(ctx *gin.Context) {
+
+	return func(ctx *gin.Context) {
+
+		paymentMethods, err := c.paymentUseCase.FindAllPaymentMethods(ctx)
+		if err != nil {
+			response.ErrorResponse(ctx, http.StatusInternalServerError, "Failed to retrieve payment methods", err, nil)
+			return
+		}
+
+		if paymentMethods == nil {
+			response.SuccessResponse(ctx, http.StatusOK, "No payment methods found")
+			return
+		}
+
+		response.SuccessResponse(ctx, http.StatusOK, "Successfully retrieved all payment methods", paymentMethods)
 	}
-
-	if paymentMethods == nil {
-		response.SuccessResponse(ctx, http.StatusOK, "No payment methods found")
-		return
-	}
-
-	response.SuccessResponse(ctx, http.StatusOK, "Successfully found all payment methods", paymentMethods)
 }
