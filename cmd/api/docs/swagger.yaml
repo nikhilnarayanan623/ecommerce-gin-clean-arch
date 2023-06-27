@@ -1453,23 +1453,9 @@ paths:
       tags:
       - Admin Orders
   /admin/payment-method:
-    get:
-      operationId: FindAllPaymentMethods
-      responses:
-        "200":
-          description: Failed to find payment methods
-          schema:
-            $ref: '#/definitions/response.Response'
-        "500":
-          description: Successfully found all payment methods
-          schema:
-            $ref: '#/definitions/response.Response'
-      security:
-      - ApiKeyAuth: []
-      summary: api for get all payment methods
-      tags:
-      - User Payment
     put:
+      description: API for admin to change maximum price or block or unblock the payment
+        method
       operationId: UpdatePaymentMethod
       responses:
         "200":
@@ -1477,7 +1463,7 @@ paths:
           schema:
             $ref: '#/definitions/response.Response'
         "400":
-          description: Failed to bind input
+          description: Invalid inputs
           schema:
             $ref: '#/definitions/response.Response'
         "500":
@@ -1486,7 +1472,25 @@ paths:
             $ref: '#/definitions/response.Response'
       security:
       - ApiKeyAuth: []
-      summary: api for admin to update payment details
+      summary: Update payment method (Admin)
+      tags:
+      - Admin Payment
+  /admin/payment-methods:
+    get:
+      description: API for admin to get all payment methods
+      operationId: FindAllPaymentMethodsAdmin
+      responses:
+        "200":
+          description: Failed to retrieve payment methods
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Successfully retrieved all payment methods
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: Get payment methods
       tags:
       - Admin Payment
   /admin/products:
@@ -2129,6 +2133,7 @@ paths:
       - User Cart
   /carts/apply-coupon:
     patch:
+      description: API for user to apply a coupon on cart
       operationId: ApplyCouponToCart
       parameters:
       - description: Input Field
@@ -2148,15 +2153,16 @@ paths:
             $ref: '#/definitions/response.Response'
       security:
       - ApiKeyAuth: []
-      summary: api user to apply on cart on checkout time
+      summary: Apply coupon
       tags:
       - User Cart
   /carts/checkout/payment-select-page:
     get:
+      description: API for user to render payment select page
       operationId: CartOrderPaymentSelectPage
       responses:
         "200":
-          description: successfully order placed
+          description: Successfully rendered payment page
           schema:
             $ref: '#/definitions/response.Response'
         "500":
@@ -2165,7 +2171,7 @@ paths:
             $ref: '#/definitions/response.Response'
       security:
       - ApiKeyAuth: []
-      summary: api for render the html page of payment select
+      summary: Render Payment Page (User)
       tags:
       - User Payment
   /carts/place-order/:
@@ -2415,6 +2421,24 @@ paths:
       summary: Return request
       tags:
       - User Orders
+  /payment-methods:
+    get:
+      description: API for user to get all payment methods
+      operationId: FindAllPaymentMethodsUser
+      responses:
+        "200":
+          description: Failed to retrieve payment methods
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Successfully retrieved all payment methods
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: Get payment methods
+      tags:
+      - User Payment
   /products:
     get:
       description: API for user to get all products

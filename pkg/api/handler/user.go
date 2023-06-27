@@ -38,20 +38,20 @@ func (u *UserHandler) Home(ctx *gin.Context) {
 	response.SuccessResponse(ctx, http.StatusOK, "welcome to home page", nil)
 }
 
-// Logout godoc
-// @summary api for user to logout
-// @description user can logout
-// @security ApiKeyAuth
-// @id UserLogout
-// @tags User Logout
-// @Router /logout [post]
-// @Success 200 "successfully logged out"
-func (u *UserHandler) UserLogout(ctx *gin.Context) {
+// // Logout godoc
+// // @summary api for user to logout
+// // @description user can logout
+// // @security ApiKeyAuth
+// // @id UserLogout
+// // @tags User Logout
+// // @Router /logout [post]
+// // @Success 200 "successfully logged out"
+// func (u *UserHandler) UserLogout(ctx *gin.Context) {
 
-	ctx.SetCookie("user-auth", "", -1, "", "", false, true)
+// 	ctx.SetCookie("user-auth", "", -1, "", "", false, true)
 
-	response.SuccessResponse(ctx, http.StatusOK, "Successfully logged out", nil)
-}
+// 	response.SuccessResponse(ctx, http.StatusOK, "Successfully logged out", nil)
+// }
 
 // // CheckOutCart godoc
 // // @summary api for cart checkout
