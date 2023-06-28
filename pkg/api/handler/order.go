@@ -6,7 +6,6 @@ import (
 
 	"github.com/gin-gonic/gin"
 	interfaces "github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/api/handler/interfaces"
-	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/domain"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/usecase"
 	usecaseInterface "github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/usecase/interfaces"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/utils"
@@ -51,20 +50,20 @@ func (c *OrderHandler) FindAllOrderStatuses(ctx *gin.Context) {
 	response.SuccessResponse(ctx, 200, "Successfully retrieved all order statuses", orderStatuses)
 }
 
-// PlaceOrderOnCOD godoc
-// @summary Place order  for COD (User)
-// @Description API for user to place order for cash on delivery
-// @security ApiKeyAuth
-// @tags User Orders
-// @id PlaceOrderOnCOD
+// SaveOrder godoc
+// @Summary Save Order (User)
+// @Description API for user save an order
+// @Security ApiKeyAuth
+// @Tags User Orders
+// @Id SaveOrder
 // @Param address_id formData string true "Address ID"
-// @Router /carts/place-order/ [post]
+// @Router /carts/place-order [post]
 // @Success 200 {object} response.Response{} "successfully order placed"
 // @Success 204 {object} response.Response{} "Cart is empty"
 // @Failure 400 {object} response.Response{}  "invalid input"
 // @Failure 409 {object} response.Response{}  "Can't place order out of stock product on cart"
 // @Failure 500 {object} response.Response{}  "Failed to save order"
-func (c *OrderHandler) PlaceOrderOnCOD(ctx *gin.Context) {
+func (c *OrderHandler) SaveOrder(ctx *gin.Context) {
 
 	addressID, err := request.GetFormValuesAsUint(ctx, "address_id")
 	if err != nil {
@@ -72,14 +71,9 @@ func (c *OrderHandler) PlaceOrderOnCOD(ctx *gin.Context) {
 		return
 	}
 
-	body := request.PlaceOrder{
-		AddressID:   addressID,
-		PaymentType: domain.CODPayment,
-	}
-
 	userID := utils.GetUserIdFromContext(ctx)
 
-	shopOrderID, err := c.orderUseCase.SaveOrder(ctx, userID, body)
+	shopOrderID, err := c.orderUseCase.SaveOrder(ctx, userID, addressID)
 
 	if err != nil {
 		var statusCode int
@@ -96,15 +90,10 @@ func (c *OrderHandler) PlaceOrderOnCOD(ctx *gin.Context) {
 		return
 	}
 
-	// approve the order and clear the user cart
-	err = c.orderUseCase.ApproveShopOrderAndClearCart(ctx, userID, shopOrderID)
-
-	if err != nil {
-		response.ErrorResponse(ctx, http.StatusInternalServerError, "Failed to approve order and clear cart", err, nil)
-		return
+	data := gin.H{
+		"shop_order_id": shopOrderID,
 	}
-
-	response.SuccessResponse(ctx, http.StatusOK, "Successfully order placed for cod")
+	response.SuccessResponse(ctx, http.StatusOK, "Successfully order saved", data)
 }
 
 // FindUserOrder godoc

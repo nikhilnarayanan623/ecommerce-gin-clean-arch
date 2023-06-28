@@ -110,12 +110,12 @@ func (c *OrderDatabase) SaveShopOrder(ctx context.Context, shopOrder domain.Shop
 
 	// save the shop_order
 	query := `INSERT INTO shop_orders (user_id, address_id, order_total_price, discount, 
-	order_status_id, payment_method_id,order_date) 
-	VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING id`
+	order_status_id, order_date) 
+	VALUES ($1, $2, $3, $4, $5, $6) RETURNING id`
 
 	orderDate := time.Now()
 	err = c.DB.Raw(query, shopOrder.UserID, shopOrder.AddressID, shopOrder.OrderTotalPrice, shopOrder.Discount,
-		shopOrder.OrderStatusID, shopOrder.PaymentMethodID, orderDate).Scan(&shopOrderID).Error
+		shopOrder.OrderStatusID, orderDate).Scan(&shopOrderID).Error
 
 	return shopOrderID, err
 }
@@ -170,6 +170,15 @@ func (c *OrderDatabase) UpdateShopOrderOrderStatus(ctx context.Context, shopOrde
 
 	query := `UPDATE shop_orders SET order_status_id = $1 WHERE id = $2`
 	err := c.DB.Exec(query, changeStatusID, shopOrderID).Error
+
+	return err
+}
+
+func (c *OrderDatabase) UpdateShopOrderStatusAndSavePaymentMethod(ctx context.Context,
+	shopOrderID, orderStatusID, paymentID uint) error {
+
+	query := `UPDATE shop_orders SET order_status_id = $1, payment_method_id = $2 WHERE id = $3`
+	err := c.DB.Exec(query, orderStatusID, paymentID, shopOrderID).Error
 
 	return err
 }

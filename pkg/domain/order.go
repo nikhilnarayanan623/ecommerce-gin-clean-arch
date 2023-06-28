@@ -24,6 +24,7 @@ const (
 	// payment type
 	RazopayPayment PaymentType = "razor pay"
 	CODPayment     PaymentType = "cod"
+	StripePayment  PaymentType = "stripe"
 )
 
 type PaymentMethod struct {

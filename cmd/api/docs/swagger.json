@@ -1542,7 +1542,7 @@
                 "tags": [
                     "Admin Payment"
                 ],
-                "summary": "Get payment methods",
+                "summary": "Get payment methods (Admin)",
                 "operationId": "FindAllPaymentMethodsAdmin",
                 "responses": {
                     "200": {
@@ -2518,19 +2518,19 @@
                 }
             }
         },
-        "/carts/place-order/": {
+        "/carts/place-order": {
             "post": {
                 "security": [
                     {
                         "ApiKeyAuth": []
                     }
                 ],
-                "description": "API for user to place order for cash on delivery",
+                "description": "API for user save an order",
                 "tags": [
                     "User Orders"
                 ],
-                "summary": "Place order  for COD (User)",
-                "operationId": "PlaceOrderOnCOD",
+                "summary": "Save Order (User)",
+                "operationId": "SaveOrder",
                 "parameters": [
                     {
                         "type": "string",
@@ -2574,6 +2574,44 @@
                 }
             }
         },
+        "/carts/place-order/cod": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "API for user to place order for cash on delivery",
+                "tags": [
+                    "User Payment"
+                ],
+                "summary": "Place order  for COD (User)",
+                "operationId": "PaymentCOD",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Shop Order ID",
+                        "name": "shop_order_id",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successfully order placed for COD",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Failed place order for COD",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
         "/carts/place-order/razorpay-checkout": {
             "post": {
                 "security": [
@@ -2581,16 +2619,17 @@
                         "ApiKeyAuth": []
                     }
                 ],
+                "description": "API for user to create stripe payment",
                 "tags": [
-                    "User Cart"
+                    "User Payment"
                 ],
-                "summary": "api for create razorpay payment order",
+                "summary": "Razorpay checkout (User)",
                 "operationId": "RazorpayCheckout",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "Address ID",
-                        "name": "address_id",
+                        "description": "Shop Order ID",
+                        "name": "shop_order_id",
                         "in": "formData",
                         "required": true
                     }
@@ -2602,8 +2641,8 @@
                             "$ref": "#/definitions/response.Response"
                         }
                     },
-                    "400": {
-                        "description": "faild to create razorpay payment order",
+                    "500": {
+                        "description": "Failed to make razorpay order",
                         "schema": {
                             "$ref": "#/definitions/response.Response"
                         }
@@ -2618,56 +2657,145 @@
                         "ApiKeyAuth": []
                     }
                 ],
+                "description": "API for razorpay to callback backend for payment verification",
                 "tags": [
-                    "User Cart"
+                    "User Payment"
                 ],
-                "summary": "api user for verify razorpay payment",
+                "summary": "Razorpay verify (User)",
                 "operationId": "RazorpayVerify",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "razorpay_order_id",
+                        "description": "Razorpay payment id",
                         "name": "razorpay_order_id",
                         "in": "formData",
                         "required": true
                     },
                     {
                         "type": "string",
-                        "description": "razorpay_payment_id",
+                        "description": "Razorpay payment id",
                         "name": "razorpay_payment_id",
                         "in": "formData",
                         "required": true
                     },
                     {
                         "type": "string",
-                        "description": "razorpay_signature",
+                        "description": "Razorpay signature",
                         "name": "razorpay_signature",
                         "in": "formData"
                     },
                     {
                         "type": "string",
-                        "description": "shop_order_id",
+                        "description": "Shop Order ID",
                         "name": "shop_order_id",
-                        "in": "formData",
-                        "required": true
-                    },
-                    {
-                        "type": "integer",
-                        "description": "payment_method_id",
-                        "name": "payment_method_id",
                         "in": "formData",
                         "required": true
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "faild to veify payment",
+                        "description": "Successfully razorpay payment verified",
                         "schema": {
                             "$ref": "#/definitions/response.Response"
                         }
                     },
-                    "400": {
-                        "description": "successfully payment completed and order approved",
+                    "402": {
+                        "description": "Payment not approved",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Failed to Approve order",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/carts/place-order/stripe-checkout": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "API for user to create stripe payment",
+                "tags": [
+                    "User Payment"
+                ],
+                "summary": "Stripe checkout (User)",
+                "operationId": "StripPaymentCheckout",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Shop Order ID",
+                        "name": "shop_order_id",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successfully stripe payment order created",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Failed to create stripe order",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/carts/place-order/stripe-verify": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "API for user to callback backend after stripe payment for verification",
+                "tags": [
+                    "User Payment"
+                ],
+                "summary": "Stripe verify (User)",
+                "operationId": "StripePaymentVeify",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Stripe payment ID",
+                        "name": "stripe_payment_id",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Shop Order ID",
+                        "name": "shop_order_id",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successfully stripe payment verified",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "402": {
+                        "description": "Payment not approved",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Failed to Approve order",
                         "schema": {
                             "$ref": "#/definitions/response.Response"
                         }
@@ -2811,26 +2939,6 @@
                         "schema": {
                             "$ref": "#/definitions/response.Response"
                         }
-                    }
-                }
-            }
-        },
-        "/logout": {
-            "post": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "description": "user can logout",
-                "tags": [
-                    "User Logout"
-                ],
-                "summary": "api for user to logout",
-                "operationId": "UserLogout",
-                "responses": {
-                    "200": {
-                        "description": "successfully logged out"
                     }
                 }
             }
@@ -3009,7 +3117,7 @@
                 "tags": [
                     "User Payment"
                 ],
-                "summary": "Get payment methods",
+                "summary": "Get payment methods (User)",
                 "operationId": "FindAllPaymentMethodsUser",
                 "responses": {
                     "200": {

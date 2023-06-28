@@ -20,26 +20,15 @@
           <div class="form-group">
             <label for="payment-method">Select Payment Method:</label>
             <select class="form-control" id="payment_select">
-              <!-- <option value="cod"><strong>COD  </strong> <p>(localhost:8000/carts/place-order/cod)</p></option> -->
-              <option value="razorpay">RazorPay <p>( [ post ] "localhost:8000/carts/place-order/razorpay-checkout" )</p>
-              </option>
-              <!-- <option value="Stripe">Stripe <p> ( [ post ] "localhost:8000/carts/place-order/stripe-checkout" )</p> </option> -->
+              <!-- <option value="cod"><strong>COD  </strong></option> -->
+              <option value="razorpay">RazorPay</option>
+              <option value="stripe">Stripe</option>
             </select>
           </div>
           <div class="form-group">
-            <label for="name">Address ID:</label>
-            <input type="text" class="form-control" id="name" name="address_id"
-              placeholder="Enter Address ID">
+            <label for="name">Shop Order ID:</label>
+            <input type="text" class="form-control" id="name" name="shop_order_id" placeholder="Enter Shop Order ID">
           </div>
-          <!-- <div class="form-group">
-            <label for="name">Payemt Method ID:</label>
-            <input type="text" class="form-control" id="payment_method_id" name="payment_method_id"
-              placeholder="Enter payement_method_id that got from checkout page">
-          </div> -->
-          <!-- <div class="form-group">
-                        <label for="name">Coupon Code (Optional):</label>
-                        <input type="text" class="form-control" id="name" name="coupon_code" placeholder="Enter coupon_code if you have">
-                    </div> -->
           <button type="submit" class="btn btn-primary">Submit</button>
 
         </form>
@@ -70,57 +59,177 @@
   $('#place-order').submit((e) => {
     e.preventDefault()
     const paymentMethod = document.getElementById('payment_select').value
+
     console.log(paymentMethod, "payment method")
+    let paymentName = ''
     let paymentApi = ''
 
-    if (paymentMethod == 'cod') {
-      paymentApi = '/carts/place-order/cod'
-    } else if (paymentMethod == 'razorpay') {
-      paymentApi = '/carts/place-order/razorpay-checkout'
-    } else if (paymentMethod == "Stripe") {
-      paymentApi = '/carts/place-order/stripe-checkout'
-    } else {
-      console.log("invalid payment call");
-      FailureRes("invalid payment type", "select a payment type")
+    switch (paymentMethod) {
+      // case 'cod':
+      //   paymentApi = '/carts/place-order/cod'
+      //   break;
+      case 'razorpay':
+        paymentApi = '/carts/place-order/razorpay-checkout'
+        paymentName = 'RazorPay'
+        break;
+      case "stripe":
+        paymentApi = '/carts/place-order/stripe-checkout'
+        paymentName = 'Stripe'
+        break;
+      default:
+        console.log("selected invalid payment type");
+        FailureRes("invalid payment type", "select a payment type")
+        break;
     }
 
-
+    // call appropriate api based on the select payment
     $.ajax({
       url: paymentApi,
       type: 'post',
       data: $('#place-order').serialize(),
       success: (response) => {
+        console.log("response : ", response);
 
-        // // if respones is cod it means call form cod
-        // if (response.Cod) {
-        //   console.log("cod success");
-        //   SuccessPayment('COD')
-        //   // location.href = ''
-        // } else if (response.Razorpay) {// response from razor pay
-          console.log("razorpay");
-          getRazorpay(response)
-
-        // } else if (response.Stripe) {
-        //   console.log("Stripe Call");
-        //   getStipe(response)
-        // }
-        console.log(response)
+        // !! 204 there is no product in cart
+        if (response === undefined) {
+          console.log("user cart is empty")
+          FailureRes(paymentName, "User cart is empty")
+          return
+        }
+        switch (response.payment_type) {
+          case 'razor pay':
+            StartRazorpay(response.payment_order)
+            break;
+          case 'stripe':
+            StartStripe(response.payment_order)
+            break;
+          default:
+            FailureRes(paymentName, "Invalid payment type response from api")
+            break;
+        }
       },
       error: (err) => { // if error on backend response
-        console.log(err)
-        FailureRes("", err.responseJSON.errors)
-        console.log("error", err);
+        // console.log(err)
+        DisplayServerError(paymentName, err)
       }
 
     })
   })
 
+
+  // razorpay
+  const StartRazorpay = (order) => {
+    console.log("at get razor pay : ", order);
+    var userid = order.user_id
+    var options = {
+      "key": order.razorpay_key, // razorpay test key on set up on order resopnse
+      "amount": order.razorpay_amount, // Amount is in currency subunits. Default currency is INR. Hence, 50000 refers to 50000 paise
+      "currency": "INR",
+      "name": "Ecommerce",
+      "description": "Test Transaction",
+      "image": "https://example.com/your_logo",
+      "order_id": order.razorpay_order_id,  // order id get from order response
+      "handler": function (response) {
+        RazorpayVerify(order, userid, response);
+      },
+      "prefill": {
+
+        "email": order.email,
+        "contact": order.phone
+      },
+      "notes": {
+        "address": "Razorpay Corporate Office"
+      },
+      "theme": {
+        "color": "#3399cc"
+      }
+    };
+
+    var rzp1 = new Razorpay(options);
+    rzp1.on('payment.failed', function (response) {
+      alert(response.error.code);
+      alert(response.error.description);
+      alert(response.error.source);
+      alert(response.error.step);
+      alert(response.error.reason);
+      alert(response.error.metadata.order_id);
+      alert(response.error.metadata.payment_id);
+    });
+    // swal for payment amount show and confirmation
+    Swal.fire({
+      title: "Razorpay Payment",
+      html:
+        '<div style="font-size: 30px;"><strong>Amount to pay:</strong> ' + order.amount_to_pay + '</div>' +
+        '<div style="margin-top: 10px;">Please confirm your payment by clicking on the "Confirm" button below:</div>',
+      icon: "success",
+      showCancelButton: true,
+      confirmButtonText: "Confirm",
+      cancelButtonText: "Cancel",
+      dangerMode: true,
+      customClass: {
+        container: 'my-swal'
+      }
+    })
+      .then((willConfirm) => {
+        if (willConfirm.isConfirmed) {
+          // Open the Razorpay payment window
+          rzp1.open();
+        } else {
+          // Payment cancelled
+          Swal.fire({
+            title: "Payment Cancelled",
+            icon: "error",
+            text: "Your payment has been cancelled. Please try again later.",
+          });
+        }
+      });
+
+
+  }
+
+  // function for razor pay varification on backend
+  function RazorpayVerify(order, userid, response) {
+    console.log("on razor verify", response);
+    $.ajax({
+      //call backend api with data data to vefiry
+      type: "post",
+      url: '/carts/place-order/razorpay-verify',
+      data: {
+        "razorpay_payment_id": response.razorpay_payment_id,
+        "razorpay_order_id": response.razorpay_order_id,
+        "razorpay_signature": response.razorpay_signature,
+
+        "shop_order_id": order.shop_order_id,
+
+      },
+      success: (response) => {
+        console.log("verification response backend", response)
+        if (response.data) {
+
+          Swal.fire({
+            title: "Successfully Payment Verified",
+            icon: 'success',
+          })
+          //location.href = '/'
+        } else {
+          Swal.fire({
+            title: "Sorry, Payment Failed on data",
+            icon: 'warning',
+            dangerMode: true,
+          })
+        }
+      },
+      error: (err) => {
+        DisplayServerError('Razorpay', err)
+      }
+    })
+  }
+
+
   // stripe
-  const getStipe = (response) => {
+  const StartStripe = (response) => {
 
-    // set up the stipe
-    console.log(response);
-
+    const shopOrderID = response.shop_order_id
     const publishableKey = response.publishable_key
     const stripe = Stripe(publishableKey);
     const clientSecret = response.client_secret
@@ -181,13 +290,12 @@
         console.log(paymentIntent, "success payment intent");
 
         $.ajax({ // for backend call
-          url: '/carts/place-order/stripe/stripe-verify',
+          url: '/carts/place-order/stripe-verify',
           type: 'post',
           data: {
-            "payment_id": paymentIntent.id,
-            "shop_order_id": response.shop_order_id,
+            "stripe_payment_id": paymentIntent.id,
             "client_secret": paymentIntent.client_secret,
-            // "payment_method_id":response.payment_method_id,
+            "shop_order_id": shopOrderID,
           },
 
           success: (response) => {
@@ -199,9 +307,7 @@
             SuccessRes("Stripe")
           },
           error: (err) => {
-            console.log(err)
-            FailureRes("", err.responseJSON.errors)
-            console.log("error", err);
+            DisplayServerError('Stripe', err)
           }
         })
 
@@ -211,116 +317,13 @@
     })
   }
 
-  // razorpay
-  const getRazorpay = (order) => {
-    console.log("at get razor pay : ",order);
-    var userid = order.user_id
-    var options = {
-      "key": order.razorpay_key, // razorpay test key on set up on order resopnse
-      "amount": order.razorpay_amount, // Amount is in currency subunits. Default currency is INR. Hence, 50000 refers to 50000 paise
-      "currency": "INR",
-      "name": "Ecommerce",
-      "description": "Test Transaction",
-      "image": "https://example.com/your_logo",
-      "order_id": order.razorpay_order_id,  // order id get from order response
-      "handler": function (response) {
-        verifyPayment(order, userid, response);
-      },
-      "prefill": {
 
-        "email": order.email,
-        "contact": order.phone
-      },
-      "notes": {
-        "address": "Razorpay Corporate Office"
-      },
-      "theme": {
-        "color": "#3399cc"
-      }
-    };
-
-    var rzp1 = new Razorpay(options);
-    rzp1.on('payment.failed', function (response) {
-      alert(response.error.code);
-      alert(response.error.description);
-      alert(response.error.source);
-      alert(response.error.step);
-      alert(response.error.reason);
-      alert(response.error.metadata.order_id);
-      alert(response.error.metadata.payment_id);
-    });
-    // swal for payment amount show and confirmation
-    Swal.fire({
-      title: "Razorpay Payment",
-      html:
-        '<div style="font-size: 30px;"><strong>Amount to pay:</strong> ' + order.amount_to_pay + '</div>' +
-        '<div style="margin-top: 10px;">Please confirm your payment by clicking on the "Confirm" button below:</div>',
-      icon: "success",
-      showCancelButton: true,
-      confirmButtonText: "Confirm",
-      cancelButtonText: "Cancel",
-      dangerMode: true,
-      customClass: {
-        container: 'my-swal'
-      }
-    })
-      .then((willConfirm) => {
-        if (willConfirm.isConfirmed) {
-          // Open the Razorpay payment window
-          rzp1.open();
-        } else {
-          // Payment cancelled
-          Swal.fire({
-            title: "Payment Cancelled",
-            icon: "error",
-            text: "Your payment has been cancelled. Please try again later.",
-          });
-        }
-      });
-
-
-  }
-
-  // function for razor pay varification on backend
-  function verifyPayment(order, userid, response) {
-    console.log("on razor verify",response);
-    $.ajax({
-      //call backend api with data data to vefiry
-      type: "post",
-      url: '/carts/place-order/razorpay-verify',
-      data: {
-        "razorpay_payment_id": response.razorpay_payment_id,
-        "razorpay_order_id": response.razorpay_order_id,
-        "razorpay_signature": response.razorpay_signature,
-        "shop_order_id": order.shop_order_id,
-
-      },
-      success: (response) => {
-        console.log("verification response backend", response)
-        if (response.data) {
-
-          Swal.fire({
-            title: "Successfully Payment Verified",
-            icon: 'success',
-          })
-          //location.href = '/'
-        } else {
-          Swal.fire({
-            title: "Sorry, Payment Failed on data",
-            icon: 'warning',
-            dangerMode: true,
-          })
-        }
-      },
-      error: (response) => {
-        console.log("verification error", response)
-        Swal.fire({
-          title: "Sorry, Payment Failed by backend verification" + response.errors,
-          icon: 'warning',
-          dangerMode: true,
-        })
-      }
-    })
+  const DisplayServerError = (paymentName, err) => {
+    let errors = err.responseJSON.error
+    let message = err.responseJSON.message
+    console.log("error: ", errors)
+    console.log("message: ", message)
+    FailureRes(paymentName, errors)
   }
 
   const SuccessRes = (paymentName) => {
@@ -332,7 +335,7 @@
 
   const FailureRes = (paymentName, error) => {
     Swal.fire({
-      title: "Sorry, Faild to place order on " + paymentName,
+      title: "Sorry, Failed to place order on " + paymentName,
       html:
         '<div style="font-size: 15px;"><strong>Faild to Place order</strong> </div>' +
         '<div style="margin-top:15px;font-size: 25px"> Error: ' + error + '</div>',

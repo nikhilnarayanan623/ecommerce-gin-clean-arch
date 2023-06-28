@@ -5,11 +5,8 @@ import "github.com/gin-gonic/gin"
 type OrderHandler interface {
 	FindAllOrderStatuses(ctx *gin.Context)
 
-	//user side
-	RazorpayCheckout(ctx *gin.Context)
-	RazorpayVerify(ctx *gin.Context)
+	SaveOrder(ctx *gin.Context)
 
-	PlaceOrderOnCOD(ctx *gin.Context)
 	// ApproveOrderCOD(ctx *gin.Context)
 	CancelOrder(ctx *gin.Context)
 	SubmitReturnRequest(ctx *gin.Context)

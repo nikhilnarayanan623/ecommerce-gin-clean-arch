@@ -1490,7 +1490,7 @@ paths:
             $ref: '#/definitions/response.Response'
       security:
       - ApiKeyAuth: []
-      summary: Get payment methods
+      summary: Get payment methods (Admin)
       tags:
       - Admin Payment
   /admin/products:
@@ -2174,10 +2174,10 @@ paths:
       summary: Render Payment Page (User)
       tags:
       - User Payment
-  /carts/place-order/:
+  /carts/place-order:
     post:
-      description: API for user to place order for cash on delivery
-      operationId: PlaceOrderOnCOD
+      description: API for user save an order
+      operationId: SaveOrder
       parameters:
       - description: Address ID
         in: formData
@@ -2207,16 +2207,41 @@ paths:
             $ref: '#/definitions/response.Response'
       security:
       - ApiKeyAuth: []
-      summary: Place order  for COD (User)
+      summary: Save Order (User)
       tags:
       - User Orders
+  /carts/place-order/cod:
+    post:
+      description: API for user to place order for cash on delivery
+      operationId: PaymentCOD
+      parameters:
+      - description: Shop Order ID
+        in: formData
+        name: shop_order_id
+        required: true
+        type: string
+      responses:
+        "200":
+          description: successfully order placed for COD
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Failed place order for COD
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: Place order  for COD (User)
+      tags:
+      - User Payment
   /carts/place-order/razorpay-checkout:
     post:
+      description: API for user to create stripe payment
       operationId: RazorpayCheckout
       parameters:
-      - description: Address ID
+      - description: Shop Order ID
         in: formData
-        name: address_id
+        name: shop_order_id
         required: true
         type: string
       responses:
@@ -2224,57 +2249,114 @@ paths:
           description: successfully razorpay payment order created
           schema:
             $ref: '#/definitions/response.Response'
-        "400":
-          description: faild to create razorpay payment order
+        "500":
+          description: Failed to make razorpay order
           schema:
             $ref: '#/definitions/response.Response'
       security:
       - ApiKeyAuth: []
-      summary: api for create razorpay payment order
+      summary: Razorpay checkout (User)
       tags:
-      - User Cart
+      - User Payment
   /carts/place-order/razorpay-verify:
     post:
+      description: API for razorpay to callback backend for payment verification
       operationId: RazorpayVerify
       parameters:
-      - description: razorpay_order_id
+      - description: Razorpay payment id
         in: formData
         name: razorpay_order_id
         required: true
         type: string
-      - description: razorpay_payment_id
+      - description: Razorpay payment id
         in: formData
         name: razorpay_payment_id
         required: true
         type: string
-      - description: razorpay_signature
+      - description: Razorpay signature
         in: formData
         name: razorpay_signature
         type: string
-      - description: shop_order_id
+      - description: Shop Order ID
         in: formData
         name: shop_order_id
         required: true
         type: string
-      - description: payment_method_id
-        in: formData
-        name: payment_method_id
-        required: true
-        type: integer
       responses:
         "200":
-          description: faild to veify payment
+          description: Successfully razorpay payment verified
           schema:
             $ref: '#/definitions/response.Response'
-        "400":
-          description: successfully payment completed and order approved
+        "402":
+          description: Payment not approved
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Failed to Approve order
           schema:
             $ref: '#/definitions/response.Response'
       security:
       - ApiKeyAuth: []
-      summary: api user for verify razorpay payment
+      summary: Razorpay verify (User)
       tags:
-      - User Cart
+      - User Payment
+  /carts/place-order/stripe-checkout:
+    post:
+      description: API for user to create stripe payment
+      operationId: StripPaymentCheckout
+      parameters:
+      - description: Shop Order ID
+        in: formData
+        name: shop_order_id
+        required: true
+        type: string
+      responses:
+        "200":
+          description: successfully stripe payment order created
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Failed to create stripe order
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: Stripe checkout (User)
+      tags:
+      - User Payment
+  /carts/place-order/stripe-verify:
+    post:
+      description: API for user to callback backend after stripe payment for verification
+      operationId: StripePaymentVeify
+      parameters:
+      - description: Stripe payment ID
+        in: formData
+        name: stripe_payment_id
+        required: true
+        type: string
+      - description: Shop Order ID
+        in: formData
+        name: shop_order_id
+        required: true
+        type: string
+      responses:
+        "200":
+          description: Successfully stripe payment verified
+          schema:
+            $ref: '#/definitions/response.Response'
+        "402":
+          description: Payment not approved
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Failed to Approve order
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: Stripe verify (User)
+      tags:
+      - User Payment
   /coupons:
     get:
       operationId: GetAllCouponsForUser
@@ -2301,18 +2383,6 @@ paths:
       summary: api for user to see all coupons
       tags:
       - User Coupon
-  /logout:
-    post:
-      description: user can logout
-      operationId: UserLogout
-      responses:
-        "200":
-          description: successfully logged out
-      security:
-      - ApiKeyAuth: []
-      summary: api for user to logout
-      tags:
-      - User Logout
   /orders:
     get:
       description: API to get order for user user orders
@@ -2436,7 +2506,7 @@ paths:
             $ref: '#/definitions/response.Response'
       security:
       - ApiKeyAuth: []
-      summary: Get payment methods
+      summary: Get payment methods (User)
       tags:
       - User Payment
   /products:

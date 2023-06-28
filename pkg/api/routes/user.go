@@ -68,18 +68,18 @@ func UserRoutes(api *gin.RouterGroup, authHandler handlerInterface.AuthHandler, 
 			// 		cart.GET("/payment-methods", orderHandler.GetAllPaymentMethods)
 			cart.GET("/checkout/payment-select-page", paymentHandler.CartOrderPaymentSelectPage)
 
-			cart.POST("/place-order", orderHandler.PlaceOrderOnCOD)
-			// cart.POST("/place-order/cod", orderHandler.ApproveOrderCOD)
+			cart.POST("/place-order", orderHandler.SaveOrder)
 
 			// 		//cart.GET("/checkout", userHandler.CheckOutCart, orderHandler.GetAllPaymentMethods)
+			cart.POST("/place-order/cod", paymentHandler.PaymentCOD)
 
 			// 		// make razorpay order and verify
-			cart.POST("/place-order/razorpay-checkout", orderHandler.RazorpayCheckout)
-			cart.POST("/place-order/razorpay-verify", orderHandler.RazorpayVerify)
+			cart.POST("/place-order/razorpay-checkout", paymentHandler.RazorpayCheckout)
+			cart.POST("/place-order/razorpay-verify", paymentHandler.RazorpayVerify)
 
 			// 		// stripe
-			// 		cart.POST("/place-order/stripe-checkout", orderHandler.StripPaymentCheckout)
-			// 		cart.POST("/place-order/stripe/stripe-verify", orderHandler.StripePaymentVeify)
+			cart.POST("/place-order/stripe-checkout", paymentHandler.StripPaymentCheckout)
+			cart.POST("/place-order/stripe-verify", paymentHandler.StripePaymentVeify)
 		}
 
 		//wishlist
