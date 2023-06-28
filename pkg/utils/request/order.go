@@ -2,8 +2,6 @@ package request
 
 import (
 	"time"
-
-	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/domain"
 )
 
 type UpdateOrder struct {
@@ -24,20 +22,15 @@ type UpdateOrderReturn struct {
 	AdminComment  string    `json:"admin_comment" binding:"required,min=6,max=150"`
 }
 
-type PlaceOrder struct {
-	AddressID   uint `json:"address_id" binding:"required"`
-	PaymentType domain.PaymentType
-}
-
 type OrderPayment struct {
 	ShopOrderID     uint `json:"shop_order_id" binding:"required" `
 	PaymentMethodID uint `json:"payment_method_id"  binding:"required"`
 }
 
-type RazorpayVeification struct {
-	RazorpayPaymentID string `json:"razorpay_payment_id"`
-	RazorpayOrderID   string `json:"razorpay_order_id"`
-	RazorpaySignature string `json:"razorpay_signature"`
-	UserID            uint   `json:"user_id"`
-	ShopOrderID       uint   `json:"shop_order_id"`
-}
+// type RazorpayVeification struct {
+// 	RazorpayPaymentID string `json:"razorpay_payment_id"`
+// 	RazorpayOrderID   string `json:"razorpay_order_id"`
+// 	RazorpaySignature string `json:"razorpay_signature"`
+// 	UserID            uint   `json:"user_id"`
+// 	ShopOrderID       uint   `json:"shop_order_id"`
+// }

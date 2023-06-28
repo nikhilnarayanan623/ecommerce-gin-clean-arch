@@ -1,11 +1,7 @@
 package utils
 
 import (
-	"crypto/hmac"
-	"crypto/sha256"
-	"crypto/subtle"
 	"encoding/hex"
-	"errors"
 	"fmt"
 	"math/rand"
 	"strconv"
@@ -13,10 +9,6 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/config"
-	"github.com/razorpay/razorpay-go"
-	"github.com/stripe/stripe-go/v72"
-	"github.com/stripe/stripe-go/v72/paymentintent"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -74,65 +66,6 @@ func GenerateCouponCode(couponCodeLength int) string {
 	return string(couponCode)
 }
 
-// function for generate razorpay order
-func GenerateRazorpayOrder(razorPayAmount uint, recieptIdOptional string) (razorpayOrderID interface{}, err error) {
-	// get razor pay key and secret
-	razorpayKey := config.GetConfig().RazorPayKey
-	razorpaySecret := config.GetConfig().RazorPaySecret
-
-	//create a razorpay client
-	client := razorpay.NewClient(razorpayKey, razorpaySecret)
-
-	data := map[string]interface{}{
-		"amount":   razorPayAmount,
-		"currency": "INR",
-		"receipt":  recieptIdOptional,
-	}
-	// create an order on razor pay
-	razorpayRes, err := client.Order.Create(data, nil)
-	if err != nil {
-		return razorpayOrderID, fmt.Errorf("fadil to create razorpay order for amount %v", razorPayAmount)
-	}
-
-	razorpayOrderID = razorpayRes["id"]
-
-	return razorpayOrderID, nil
-}
-
-func VerifyRazorpayPayment(razorpayOrderID, razorpayPaymentID, razorpaySignature string) error {
-
-	razorpayKey := config.GetConfig().RazorPayKey
-	razorPaySecret := config.GetConfig().RazorPaySecret
-
-	data := razorpayOrderID + "|" + razorpayPaymentID
-	h := hmac.New(sha256.New, []byte(razorPaySecret))
-	_, err := h.Write([]byte(data))
-	if err != nil {
-		return errors.New("failed to verify signature")
-	}
-
-	sha := hex.EncodeToString(h.Sum(nil))
-	if subtle.ConstantTimeCompare([]byte(sha), []byte(razorpaySignature)) != 1 {
-		return errors.New("razorpay signature not match")
-	}
-
-	client := razorpay.NewClient(razorpayKey, razorPaySecret)
-
-	// fetch payment and verify
-	payment, err := client.Payment.Fetch(razorpayPaymentID, nil, nil)
-
-	if err != nil {
-		return err
-	}
-
-	// check payment status
-	if payment["status"] != "captured" {
-		return fmt.Errorf("failed to verify payment \n razorpay payment with payment_id %v", razorpayPaymentID)
-	}
-
-	return nil
-}
-
 func StringToTime(timeString string) (timeValue time.Time, err error) {
 
 	// parse the string time to time
@@ -142,53 +75,6 @@ func StringToTime(timeString string) (timeValue time.Time, err error) {
 		return timeValue, fmt.Errorf("faild to parse given time %v to time variable \nivalid input", timeString)
 	}
 	return timeValue, err
-}
-
-func GenerateStipeClientSecret(amountToPay uint, recieptEmail string) (clientSecret string, err error) {
-	// set up the stip secret key
-	stripe.Key = config.GetConfig().StripSecretKey
-
-	// create a payment param
-	params := &stripe.PaymentIntentParams{
-
-		Amount:       stripe.Int64(int64(amountToPay)),
-		ReceiptEmail: stripe.String(recieptEmail),
-
-		Currency: stripe.String(string(stripe.CurrencyINR)),
-		AutomaticPaymentMethods: &stripe.PaymentIntentAutomaticPaymentMethodsParams{
-			Enabled: stripe.Bool(true),
-		},
-	}
-
-	// creata new payment intent with this param
-	paymentIntent, err := paymentintent.New(params)
-
-	if err != nil {
-		fmt.Println(err)
-		return "", fmt.Errorf("faild to create strip payment for amount %v", amountToPay)
-	}
-
-	clientSecret = paymentIntent.ClientSecret
-	return clientSecret, nil
-}
-
-func VeifyStripePaymentIntentByID(paymentID string) error {
-
-	stripe.Key = config.GetConfig().StripSecretKey
-
-	// get payment by payment_id
-	paymentIntent, err := paymentintent.Get(paymentID, nil)
-
-	if err != nil {
-		return fmt.Errorf("faild to get stripe paymentIntent of payment_id %v", paymentID)
-	}
-
-	// verify the payment intent
-	if paymentIntent.Status != stripe.PaymentIntentStatusSucceeded && paymentIntent.Status != stripe.PaymentIntentStatusRequiresCapture {
-		return fmt.Errorf("payment not not completed")
-	}
-
-	return nil
 }
 
 func GenerateRandomString(length int) string {

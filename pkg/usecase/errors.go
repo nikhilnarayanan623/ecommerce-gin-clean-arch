@@ -59,4 +59,9 @@ var (
 
 	// wish list
 	ErrExistWishListProductItem = errors.New("product item already exist on wish list")
+
+	//  payment
+	ErrBlockedPayment          = errors.New("selected payment is blocked by admin")
+	ErrPaymentAmountReachedMax = errors.New("order total price reached payment method maximum amount")
+	ErrPaymentNotApproved      = errors.New("payment not approved")
 )

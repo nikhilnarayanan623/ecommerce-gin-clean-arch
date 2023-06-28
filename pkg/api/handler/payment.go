@@ -5,7 +5,9 @@ import (
 
 	"github.com/gin-gonic/gin"
 	handlerInterface "github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/api/handler/interfaces"
+	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/domain"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/usecase/interfaces"
+	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/utils"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/utils/request"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/utils/response"
 )
@@ -143,4 +145,40 @@ func (c *paymentHandler) findAllPaymentMethods() func(ctx *gin.Context) {
 
 		response.SuccessResponse(ctx, http.StatusOK, "Successfully retrieved all payment methods", paymentMethods)
 	}
+}
+
+// PaymentCOD godoc
+// @summary Place order  for COD (User)
+// @Description API for user to place order for cash on delivery
+// @security ApiKeyAuth
+// @tags User Payment
+// @id PaymentCOD
+// @Param shop_order_id formData string true "Shop Order ID"
+// @Router /carts/place-order/cod [post]
+// @Success 200 {object} response.Response{} "successfully order placed for COD"
+// @Failure 500 {object} response.Response{}  "Failed place order for COD"
+func (c *paymentHandler) PaymentCOD(ctx *gin.Context) {
+
+	shopOrderID, err := request.GetFormValuesAsUint(ctx, "shop_order_id")
+	if err != nil {
+		response.ErrorResponse(ctx, http.StatusBadRequest, BindFormValueMessage, err, nil)
+		return
+	}
+
+	UserID := utils.GetUserIdFromContext(ctx)
+
+	approveReq := request.ApproveOrder{
+		ShopOrderID: shopOrderID,
+		PaymentType: domain.CODPayment,
+	}
+
+	// approve the order and clear the user cart
+	err = c.paymentUseCase.ApproveShopOrderAndClearCart(ctx, UserID, approveReq)
+
+	if err != nil {
+		response.ErrorResponse(ctx, http.StatusInternalServerError, "Failed to approve order and clear cart", err, nil)
+		return
+	}
+
+	response.SuccessResponse(ctx, http.StatusOK, "Successfully order placed for cod")
 }

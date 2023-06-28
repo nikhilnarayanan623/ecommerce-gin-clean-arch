@@ -10,4 +10,12 @@ type PaymentHandler interface {
 	UpdatePaymentMethod(ctx *gin.Context)
 	FindAllPaymentMethodsAdmin() func(ctx *gin.Context)
 	FindAllPaymentMethodsUser() func(ctx *gin.Context)
+
+	PaymentCOD(ctx *gin.Context)
+
+	RazorpayCheckout(ctx *gin.Context)
+	RazorpayVerify(ctx *gin.Context)
+
+	StripePaymentVeify(ctx *gin.Context)
+	StripPaymentCheckout(ctx *gin.Context)
 }

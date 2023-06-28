@@ -14,6 +14,7 @@ type OrderRepository interface {
 	SaveOrderLine(ctx context.Context, orderLine domain.OrderLine) error
 
 	UpdateShopOrderOrderStatus(ctx context.Context, shopOrderID, changeStatusID uint) error
+	UpdateShopOrderStatusAndSavePaymentMethod(ctx context.Context, shopOrderID, orderStatusID, paymentID uint) error
 
 	// shop order order
 	SaveShopOrder(ctx context.Context, shopOrder domain.ShopOrder) (shopOrderID uint, err error)
