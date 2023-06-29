@@ -28,11 +28,11 @@ func (c *paymentDatabase) FindPaymentMethodByID(ctx context.Context, paymentMeth
 	return paymentMethods, err
 }
 
-// find payment_method by payment_type
+// find payment_method by name
 func (c *paymentDatabase) FindPaymentMethodByType(ctx context.Context,
 	paymentType domain.PaymentType) (paymentMethod domain.PaymentMethod, err error) {
 
-	query := `SELECT * FROM payment_methods WHERE payment_type = $1`
+	query := `SELECT * FROM payment_methods WHERE name = $1`
 	err = c.db.Raw(query, paymentType).Scan(&paymentMethod).Error
 
 	return paymentMethod, err
@@ -48,8 +48,8 @@ func (c *paymentDatabase) FindAllPaymentMethods(ctx context.Context) (paymentMet
 
 func (c *paymentDatabase) SavePaymentMethod(ctx context.Context, paymentMethod domain.PaymentMethod) (paymentMethodID uint, err error) {
 
-	query := `INSERT INTO payment_methods (payment_type,block_status,maximum_amount) VALUES ($1, $2, $3)`
-	err = c.db.Raw(query, paymentMethod.PaymentType, paymentMethod.BlockStatus, paymentMethod.MaximumAmount).Scan(&paymentMethod).Error
+	query := `INSERT INTO payment_methods (name, block_status, maximum_amount) VALUES ($1, $2, $3)`
+	err = c.db.Raw(query, paymentMethod.Name, paymentMethod.BlockStatus, paymentMethod.MaximumAmount).Scan(&paymentMethod).Error
 
 	return paymentMethod.ID, err
 }

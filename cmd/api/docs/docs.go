@@ -16,26 +16,6 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/": {
-            "get": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "description": "after user login user will seen this page with user informations",
-                "tags": [
-                    "Home"
-                ],
-                "summary": "api for showing home page of user",
-                "operationId": "User Home",
-                "responses": {
-                    "200": {
-                        "description": "Welcome Home"
-                    }
-                }
-            }
-        },
         "/account": {
             "get": {
                 "security": [
@@ -48,7 +28,7 @@ const docTemplate = `{
                     "User Profile"
                 ],
                 "summary": "Get User Profile (User)",
-                "operationId": "FindProfile",
+                "operationId": "GetProfile",
                 "responses": {
                     "200": {
                         "description": "Successfully retrieved user details"
@@ -118,7 +98,7 @@ const docTemplate = `{
                     "User Profile"
                 ],
                 "summary": "Get all addresses (User)",
-                "operationId": "FindAllAddresses",
+                "operationId": "GetAllAddresses",
                 "responses": {
                     "200": {
                         "description": "successfully retrieved all user addresses",
@@ -217,6 +197,49 @@ const docTemplate = `{
                 }
             }
         },
+        "/account/coupons": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "API for user to get all coupons",
+                "tags": [
+                    "User Profile"
+                ],
+                "summary": "Get all user coupons (User)",
+                "operationId": "GetAllCouponsForUser",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Page Number",
+                        "name": "page_number",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Count Of Order",
+                        "name": "count",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successfully found all coupons for user",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Failed to find all user",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
         "/account/wallet": {
             "get": {
                 "description": "API for user to get user wallet",
@@ -224,7 +247,7 @@ const docTemplate = `{
                     "User Profile"
                 ],
                 "summary": "Get user wallet  (User)",
-                "operationId": "FindUserWallet",
+                "operationId": "GetUserWallet",
                 "responses": {
                     "200": {
                         "description": "Successfully retrieve user wallet",
@@ -248,7 +271,7 @@ const docTemplate = `{
                     "User Profile"
                 ],
                 "summary": "Get user wallet  (User)",
-                "operationId": "FindUserWalletTransactions",
+                "operationId": "GetUserWalletTransactions",
                 "responses": {
                     "200": {
                         "description": "Successfully retrieved user wallet transactions",
@@ -271,16 +294,105 @@ const docTemplate = `{
                 }
             }
         },
-        "/admin": {
+        "/account/wishlist": {
             "get": {
-                "tags": [
-                    "Admin Home"
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
                 ],
-                "summary": "api admin home",
-                "operationId": "AdminHome",
+                "tags": [
+                    "User Profile"
+                ],
+                "summary": "Get whish list product items (User)",
+                "operationId": "GetWishList",
                 "responses": {
                     "200": {
-                        "description": "Admin home page",
+                        "description": "Successfully retrieved all product items in th wish list"
+                    },
+                    "500": {
+                        "description": "Failed to retrieve product items from the wish list"
+                    }
+                }
+            }
+        },
+        "/account/wishlist/{product_item_id}": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "tags": [
+                    "User Profile"
+                ],
+                "summary": "Add to whish list (User)",
+                "operationId": "SaveToWishList",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Product Item ID",
+                        "name": "product_item_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successfully product items added to whish list",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "invalid input",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "409": {
+                        "description": "Product item already exist on wish list",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Failed to add product item to wishlist",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "tags": [
+                    "User Profile"
+                ],
+                "summary": "Remove from whish list (User)",
+                "operationId": "RemoveFromWishList",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Product Item ID",
+                        "name": "product_item_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successfully removed product item from wishlist",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "invalid input",
                         "schema": {
                             "$ref": "#/definitions/response.Response"
                         }
@@ -434,7 +546,7 @@ const docTemplate = `{
                     "Admin Category"
                 ],
                 "summary": "Get all categories (Admin)",
-                "operationId": "FindAllCategories",
+                "operationId": "GetAllCategories",
                 "parameters": [
                     {
                         "type": "integer",
@@ -590,7 +702,7 @@ const docTemplate = `{
                     "Admin Category"
                 ],
                 "summary": "Get all variations (Admin)",
-                "operationId": "FindAllVariations",
+                "operationId": "GetAllVariations",
                 "parameters": [
                     {
                         "type": "integer",
@@ -614,7 +726,7 @@ const docTemplate = `{
                         }
                     },
                     "500": {
-                        "description": "Failed to find variations and its values",
+                        "description": "Failed to Get variations and its values",
                         "schema": {
                             "$ref": "#/definitions/response.Response"
                         }
@@ -752,11 +864,12 @@ const docTemplate = `{
                         "ApiKeyAuth": []
                     }
                 ],
+                "description": "API for admin to get all coupons",
                 "tags": [
                     "Admin Coupon"
                 ],
-                "summary": "api for admin to see all coupons",
-                "operationId": "FindAllCoupons",
+                "summary": "Get all coupons (Admin)",
+                "operationId": "GetAllCouponsAdmin",
                 "parameters": [
                     {
                         "type": "integer",
@@ -792,10 +905,11 @@ const docTemplate = `{
                         "ApiKeyAuth": []
                     }
                 ],
+                "description": "API for admin update coupon details",
                 "tags": [
                     "Admin Coupon"
                 ],
-                "summary": "api for admin to update the coupon",
+                "summary": "Update Coupon (Admin)",
                 "operationId": "UpdateCoupon",
                 "parameters": [
                     {
@@ -829,10 +943,11 @@ const docTemplate = `{
                         "ApiKeyAuth": []
                     }
                 ],
+                "description": "API for admin to add a new coupon",
                 "tags": [
                     "Admin Coupon"
                 ],
-                "summary": "api for admin to add coupon",
+                "summary": "Add coupons (Admin)",
                 "operationId": "SaveCoupon",
                 "parameters": [
                     {
@@ -863,11 +978,12 @@ const docTemplate = `{
         },
         "/admin/offers": {
             "get": {
+                "description": "API for admin to get all offers",
                 "tags": [
                     "Admin Offers"
                 ],
-                "summary": "api for find all offers",
-                "operationId": "FindAllOffers",
+                "summary": "Get all offers (Admin)",
+                "operationId": "GetAllOffers",
                 "parameters": [
                     {
                         "type": "integer",
@@ -890,7 +1006,7 @@ const docTemplate = `{
                         }
                     },
                     "500": {
-                        "description": "Failed to find all offers",
+                        "description": "Failed to get all offers",
                         "schema": {
                             "$ref": "#/definitions/response.Response"
                         }
@@ -898,10 +1014,11 @@ const docTemplate = `{
                 }
             },
             "post": {
+                "description": "API for admin to add an offer (Admin)",
                 "tags": [
                     "Admin Offers"
                 ],
-                "summary": "api for admin to add a new offer",
+                "summary": "Add offer (Admin)",
                 "operationId": "SaveOffer",
                 "parameters": [
                     {
@@ -938,11 +1055,12 @@ const docTemplate = `{
         },
         "/admin/offers/category": {
             "get": {
+                "description": "API for admin to get all category offers",
                 "tags": [
                     "Admin Offers"
                 ],
-                "summary": "api for admin to find all category offers",
-                "operationId": "FindAllCategoryOffers",
+                "summary": "Get all category offers (Admin)",
+                "operationId": "GetAllCategoryOffers",
                 "parameters": [
                     {
                         "type": "integer",
@@ -973,10 +1091,11 @@ const docTemplate = `{
                 }
             },
             "post": {
+                "description": "API for admin to add an offer category",
                 "tags": [
                     "Admin Offers"
                 ],
-                "summary": "api for admin to add a new category offer",
+                "summary": "Add category offer (Admin)",
                 "operationId": "SaveCategoryOffer",
                 "parameters": [
                     {
@@ -1005,10 +1124,11 @@ const docTemplate = `{
                 }
             },
             "patch": {
+                "description": "API admin to change product offer to another offer",
                 "tags": [
                     "Admin Offers"
                 ],
-                "summary": "api for admin to change product category to another existing offer",
+                "summary": "Change product offer (Admin)",
                 "operationId": "ChangeCategoryOffer",
                 "parameters": [
                     {
@@ -1039,10 +1159,11 @@ const docTemplate = `{
         },
         "/admin/offers/category/{offer_category_id}": {
             "delete": {
+                "description": "API admin to remove a offer from category",
                 "tags": [
                     "Admin Offers"
                 ],
-                "summary": "api for admin to remove a category offer",
+                "summary": "Remove category offer (Admin)",
                 "operationId": "RemoveCategoryOffer",
                 "parameters": [
                     {
@@ -1071,11 +1192,12 @@ const docTemplate = `{
         },
         "/admin/offers/products": {
             "get": {
+                "description": "API for admin to get all product offers",
                 "tags": [
                     "Admin Offers"
                 ],
-                "summary": "api for admin to find all product offers",
-                "operationId": "FindAllProductsOffers",
+                "summary": "Get all product offers (Admin)",
+                "operationId": "GetAllProductsOffers",
                 "parameters": [
                     {
                         "type": "integer",
@@ -1106,10 +1228,11 @@ const docTemplate = `{
                 }
             },
             "post": {
+                "description": "API for admin to add an offer for product",
                 "tags": [
                     "Admin Offers"
                 ],
-                "summary": "api for admin to add offer for a product",
+                "summary": "Add product offer (Admin)",
                 "operationId": "SaveProductOffer",
                 "parameters": [
                     {
@@ -1138,10 +1261,11 @@ const docTemplate = `{
                 }
             },
             "patch": {
+                "description": "API admin to change product offer to another offer",
                 "tags": [
                     "Admin Offers"
                 ],
-                "summary": "api for admin to change product offer to another existing offer",
+                "summary": "Change product offer (Admin)",
                 "operationId": "ChangeProductOffer",
                 "parameters": [
                     {
@@ -1172,10 +1296,11 @@ const docTemplate = `{
         },
         "/admin/offers/products/{offer_product_id}": {
             "delete": {
+                "description": "API admin to remove a offer from product",
                 "tags": [
                     "Admin Offers"
                 ],
-                "summary": "api for admin to remove offer product offer",
+                "summary": "Remove product offer (Admin)",
                 "operationId": "RemoveProductOffer",
                 "parameters": [
                     {
@@ -1204,10 +1329,11 @@ const docTemplate = `{
         },
         "/admin/offers/{offer_id}": {
             "delete": {
+                "description": "API admin to remove an offer",
                 "tags": [
                     "Admin Offers"
                 ],
-                "summary": "api for admin to remove offer",
+                "summary": "Remove offer (Admin)",
                 "operationId": "RemoveOffer",
                 "parameters": [
                     {
@@ -1276,7 +1402,7 @@ const docTemplate = `{
                     "Admin Orders"
                 ],
                 "summary": "Get all orders (Admin)",
-                "operationId": "FindAllShopOrders",
+                "operationId": "GetAllShopOrders",
                 "parameters": [
                     {
                         "type": "integer",
@@ -1320,7 +1446,7 @@ const docTemplate = `{
                     "Admin Orders"
                 ],
                 "summary": "Get all order returns (Admin)",
-                "operationId": "FindAllOrderReturns",
+                "operationId": "GetAllOrderReturns",
                 "parameters": [
                     {
                         "type": "integer",
@@ -1358,7 +1484,7 @@ const docTemplate = `{
                     "Admin Orders"
                 ],
                 "summary": "Get all pending returns (Admin)",
-                "operationId": "FindAllPendingReturns",
+                "operationId": "GetAllPendingReturns",
                 "parameters": [
                     {
                         "type": "integer",
@@ -1434,7 +1560,7 @@ const docTemplate = `{
                     "Admin Orders"
                 ],
                 "summary": "Get all order statuses (Admin)",
-                "operationId": "FindAllOrderStatuses",
+                "operationId": "GetAllOrderStatuses",
                 "responses": {
                     "200": {
                         "description": "Successfully retrieved all order statuses",
@@ -1464,7 +1590,7 @@ const docTemplate = `{
                     "Admin Orders"
                 ],
                 "summary": "Get all order items (Admin)",
-                "operationId": "FindAllOrderItemsAdmin",
+                "operationId": "GetAllOrderItemsAdmin",
                 "parameters": [
                     {
                         "type": "integer",
@@ -1555,7 +1681,7 @@ const docTemplate = `{
                     "Admin Payment"
                 ],
                 "summary": "Get payment methods (Admin)",
-                "operationId": "FindAllPaymentMethodsAdmin",
+                "operationId": "GetAllPaymentMethodsAdmin",
                 "responses": {
                     "200": {
                         "description": "Failed to retrieve payment methods",
@@ -1584,7 +1710,7 @@ const docTemplate = `{
                     "Admin Products"
                 ],
                 "summary": "Get all products (Admin)",
-                "operationId": "FindAllProductsAdmin",
+                "operationId": "GetAllProductsAdmin",
                 "parameters": [
                     {
                         "type": "integer",
@@ -1607,7 +1733,7 @@ const docTemplate = `{
                         }
                     },
                     "500": {
-                        "description": "Failed to find all products",
+                        "description": "Failed to Get all products",
                         "schema": {
                             "$ref": "#/definitions/response.Response"
                         }
@@ -1713,7 +1839,7 @@ const docTemplate = `{
         },
         "/admin/products/{product_id}/items": {
             "get": {
-                "description": "API for admin to find all product items for a specific product",
+                "description": "API for admin to get all product items for a specific product",
                 "consumes": [
                     "application/json"
                 ],
@@ -1724,7 +1850,7 @@ const docTemplate = `{
                     "Admin Products"
                 ],
                 "summary": "Get all product items (Admin)",
-                "operationId": "FindAllProductItemsAdmin",
+                "operationId": "GetAllProductItemsAdmin",
                 "parameters": [
                     {
                         "type": "integer",
@@ -1804,11 +1930,12 @@ const docTemplate = `{
         },
         "/admin/sales": {
             "get": {
+                "description": "API fro admin to get all sales report for a specific period in csv form",
                 "tags": [
                     "Admin Sales"
                 ],
-                "summary": "api for admin to see full sales report and download it as csv",
-                "operationId": "FullSalesReport",
+                "summary": "Get full sales report (Admin)",
+                "operationId": "GetFullSalesReport",
                 "parameters": [
                     {
                         "type": "string",
@@ -1859,11 +1986,12 @@ const docTemplate = `{
         },
         "/admin/stocks": {
             "get": {
+                "description": "API for admin to get all stocks",
                 "tags": [
                     "Admin Stock"
                 ],
-                "summary": "api for admin to find all stock stock details",
-                "operationId": "FindAllStocks",
+                "summary": "Get all stocks (Admin)",
+                "operationId": "GetAllStocks",
                 "parameters": [
                     {
                         "type": "integer",
@@ -1892,7 +2020,7 @@ const docTemplate = `{
                         }
                     },
                     "500": {
-                        "description": "Failed to find all stocks",
+                        "description": "Failed to Get all stocks",
                         "schema": {
                             "$ref": "#/definitions/response.Response"
                         }
@@ -1900,10 +2028,11 @@ const docTemplate = `{
                 }
             },
             "patch": {
+                "description": "API for admin to update stock details",
                 "tags": [
                     "Admin Stock"
                 ],
-                "summary": "api for admin to update a stock",
+                "summary": "Update stocks (Admin)",
                 "operationId": "UpdateStock",
                 "parameters": [
                     {
@@ -1947,7 +2076,7 @@ const docTemplate = `{
                     "Admin User"
                 ],
                 "summary": "api for admin to find all users",
-                "operationId": "FindAllUsers",
+                "operationId": "GetAllUsers",
                 "parameters": [
                     {
                         "type": "integer",
@@ -2394,7 +2523,7 @@ const docTemplate = `{
                     "User Cart"
                 ],
                 "summary": "Get cart Items (User)",
-                "operationId": "FindCart",
+                "operationId": "GetCart",
                 "responses": {
                     "200": {
                         "description": "Successfully retrieved all cart items",
@@ -2913,48 +3042,6 @@ const docTemplate = `{
                 }
             }
         },
-        "/coupons": {
-            "get": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "tags": [
-                    "User Coupon"
-                ],
-                "summary": "api for user to see all coupons",
-                "operationId": "GetAllCouponsForUser",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Page Number",
-                        "name": "page_number",
-                        "in": "query"
-                    },
-                    {
-                        "type": "integer",
-                        "description": "Count Of Order",
-                        "name": "count",
-                        "in": "query"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Successfully found all coupons for user",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    },
-                    "500": {
-                        "description": "Failed to find all user",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    }
-                }
-            }
-        },
         "/orders": {
             "get": {
                 "description": "API to get order for user user orders",
@@ -2962,7 +3049,7 @@ const docTemplate = `{
                     "User Orders"
                 ],
                 "summary": "Get user orders (User)",
-                "operationId": "FindUserOrder",
+                "operationId": "GetUserOrder",
                 "parameters": [
                     {
                         "type": "integer",
@@ -3005,7 +3092,7 @@ const docTemplate = `{
                 "tags": [
                     "User Orders"
                 ],
-                "summary": "Return request",
+                "summary": "Return request (User)",
                 "operationId": "SubmitReturnRequest",
                 "parameters": [
                     {
@@ -3080,7 +3167,7 @@ const docTemplate = `{
                     "User Orders"
                 ],
                 "summary": "Get all order items (User)",
-                "operationId": "FindAllOrderItemsUser",
+                "operationId": "GetAllOrderItemsUser",
                 "parameters": [
                     {
                         "type": "integer",
@@ -3130,7 +3217,7 @@ const docTemplate = `{
                     "User Payment"
                 ],
                 "summary": "Get payment methods (User)",
-                "operationId": "FindAllPaymentMethodsUser",
+                "operationId": "GetAllPaymentMethodsUser",
                 "responses": {
                     "200": {
                         "description": "Failed to retrieve payment methods",
@@ -3159,7 +3246,7 @@ const docTemplate = `{
                     "User Products"
                 ],
                 "summary": "Get all products (User)",
-                "operationId": "FindAllProductsUser",
+                "operationId": "GetAllProductsUser",
                 "parameters": [
                     {
                         "type": "integer",
@@ -3182,7 +3269,7 @@ const docTemplate = `{
                         }
                     },
                     "500": {
-                        "description": "Failed to find all products",
+                        "description": "Failed to get all products",
                         "schema": {
                             "$ref": "#/definitions/response.Response"
                         }
@@ -3192,7 +3279,7 @@ const docTemplate = `{
         },
         "/products/{product_id}/items": {
             "get": {
-                "description": "API for user to find all product items for a specific product",
+                "description": "API for user to get all product items for a specific product",
                 "consumes": [
                     "application/json"
                 ],
@@ -3203,7 +3290,7 @@ const docTemplate = `{
                     "User Products"
                 ],
                 "summary": "Get all product items (User)",
-                "operationId": "FindAllProductItemsUser",
+                "operationId": "GetAllProductItemsUser",
                 "parameters": [
                     {
                         "type": "integer",
@@ -3222,112 +3309,6 @@ const docTemplate = `{
                     },
                     "400": {
                         "description": "Failed to get all product items",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    }
-                }
-            }
-        },
-        "/wishlist": {
-            "get": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "tags": [
-                    "User Profile"
-                ],
-                "summary": "Get whish list product items (User)",
-                "operationId": "FindWishList",
-                "responses": {
-                    "200": {
-                        "description": "Successfully retrieved all product items in th wish list"
-                    },
-                    "500": {
-                        "description": "Failed to retrieve product items from the wish list"
-                    }
-                }
-            }
-        },
-        "/wishlist/{product_item_id}": {
-            "post": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "tags": [
-                    "User Profile"
-                ],
-                "summary": "Add to whish list (User)",
-                "operationId": "SaveToWishList",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Product Item ID",
-                        "name": "product_item_id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Successfully product items added to whish list",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    },
-                    "400": {
-                        "description": "invalid input",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    },
-                    "409": {
-                        "description": "Product item already exist on wish list",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    },
-                    "500": {
-                        "description": "Failed to add product item to wishlist",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    }
-                }
-            },
-            "delete": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "tags": [
-                    "User Profile"
-                ],
-                "summary": "Remove from whish list (User)",
-                "operationId": "RemoveFromWishList",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Product Item ID",
-                        "name": "product_item_id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "successfully removed product item from wishlist",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    },
-                    "400": {
-                        "description": "invalid input",
                         "schema": {
                             "$ref": "#/definitions/response.Response"
                         }

@@ -8,8 +8,8 @@ type PaymentHandler interface {
 	CartOrderPaymentSelectPage(ctx *gin.Context)
 	// AddPaymentMethod(ctx *gin.Context)
 	UpdatePaymentMethod(ctx *gin.Context)
-	FindAllPaymentMethodsAdmin() func(ctx *gin.Context)
-	FindAllPaymentMethodsUser() func(ctx *gin.Context)
+	GetAllPaymentMethodsAdmin() func(ctx *gin.Context)
+	GetAllPaymentMethodsUser() func(ctx *gin.Context)
 
 	PaymentCOD(ctx *gin.Context)
 

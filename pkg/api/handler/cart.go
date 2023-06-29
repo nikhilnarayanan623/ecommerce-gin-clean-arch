@@ -49,7 +49,7 @@ func (u *cartHandler) AddToCart(ctx *gin.Context) {
 
 	if err != nil {
 		var statusCode int
-		switch true {
+		switch {
 		case errors.Is(err, usecase.ErrProductItemOutOfStock):
 			statusCode = http.StatusNotFound
 		case errors.Is(err, usecase.ErrCartItemAlreadyExist):
@@ -135,17 +135,17 @@ func (u *cartHandler) UpdateCart(ctx *gin.Context) {
 	response.SuccessResponse(ctx, http.StatusOK, "Successfully to update cart item quantity changed in cart")
 }
 
-// FindCart godoc
+// GetCart godoc
 // @Summary Get cart Items (User)
 // @Description API for user to get all cart items
 // @Security ApiKeyAuth
-// @Id FindCart
+// @Id GetCart
 // @Tags User Cart
 // @Router /carts [get]
 // @Success 200 {object} response.Response{} "Successfully retrieved all cart items"
 // @Success 204 {object} response.Response{} "Cart is empty"
 // @Failure 500 {object} response.Response{} "Failed to get user cart"
-func (u *cartHandler) FindCart(ctx *gin.Context) {
+func (u *cartHandler) GetCart(ctx *gin.Context) {
 
 	userId := utils.GetUserIdFromContext(ctx)
 

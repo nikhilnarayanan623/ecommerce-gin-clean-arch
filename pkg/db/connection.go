@@ -20,7 +20,6 @@ func ConnectDatbase(cfg config.Config) (*gorm.DB, error) {
 	})
 
 	if err != nil {
-		log.Fatal("Faild to connect with database")
 		return nil, err
 	}
 
@@ -77,8 +76,15 @@ func ConnectDatbase(cfg config.Config) (*gorm.DB, error) {
 
 	// setup the triggers
 	if err := SetUpDBTriggers(db); err != nil {
-		log.Printf("faild to setup dabase triggers")
-		return db, err
+		log.Printf("failed to setup database triggers")
+		return nil, err
+	}
+
+	if err := saveOrderStatuses(db); err != nil {
+		return nil, err
+	}
+	if err := savePaymentMethods(db); err != nil {
+		return nil, err
 	}
 
 	return db, err

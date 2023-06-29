@@ -50,28 +50,18 @@ func (a *AdminHandler) AdminSignUp(ctx *gin.Context) {
 	response.SuccessResponse(ctx, 200, "Successfully account created for admin", nil)
 }
 
-// AdminHome godoc
-// @summary api admin home
-// @id AdminHome
-// @tags Admin Home
-// @Router /admin [get]
-// @Success 200 {object} response.Response{} "Admin home page"
-func (a *AdminHandler) AdminHome(ctx *gin.Context) {
-
-	response.SuccessResponse(ctx, http.StatusOK, "Admin home page", nil)
-}
-
-// FindAllUsers godoc
-// @summary api for admin to find all users
-// @id FindAllUsers
-// @tags Admin User
+// GetAllUsers godoc
+// @Summary Get all users
+// @Description API for admin to get all user details
+// @Id GetAllUsers
+// @Tags Admin User
 // @Param page_number query int false "Page Number"
 // @Param count query int false "Count"
 // @Router /admin/users [get]
 // @Success 200 {object} response.Response{} "Successfully got all users"
 // @Success 204 {object} response.Response{} "No users found"
 // @Failure 500 {object} response.Response{} "Failed to find all users"
-func (a *AdminHandler) FindAllUsers(ctx *gin.Context) {
+func (a *AdminHandler) GetAllUsers(ctx *gin.Context) {
 
 	pagination := request.GetPagination(ctx)
 
@@ -115,9 +105,10 @@ func (a *AdminHandler) BlockUser(ctx *gin.Context) {
 	response.SuccessResponse(ctx, http.StatusOK, "Successfully changed block status of user")
 }
 
-// FullSalesReport godoc
-// @summary api for admin to see full sales report and download it as csv
-// @id FullSalesReport
+// GetFullSalesReport godoc
+// @Summary Get full sales report (Admin)
+// @Description API fro admin to get all sales report for a specific period in csv form
+// @id GetFullSalesReport
 // @tags Admin Sales
 // @Param start_date query string false "Sales report starting date"
 // @Param end_date query string false "Sales report ending date"
@@ -127,7 +118,7 @@ func (a *AdminHandler) BlockUser(ctx *gin.Context) {
 // @Success 200 {object} response.Response{} "ecommerce_sales_report.csv"
 // @Success 204 {object} response.Response{} "No sales report found"
 // @Failure 500 {object} response.Response{} "failed to get sales report"
-func (c *AdminHandler) FullSalesReport(ctx *gin.Context) {
+func (c *AdminHandler) GetFullSalesReport(ctx *gin.Context) {
 
 	// time
 	startDate, err1 := utils.StringToTime(ctx.Query("start_date"))
@@ -197,24 +188,25 @@ func (c *AdminHandler) FullSalesReport(ctx *gin.Context) {
 
 }
 
-// FindAllStocks godoc
-// @summary api for admin to find all stock stock details
-// @id FindAllStocks
-// @tags Admin Stock
+// GetAllStocks godoc
+// @Summary Get all stocks (Admin)
+// @Description API for admin to get all stocks
+// @Id GetAllStocks
+// @Tags Admin Stock
 // @Param page_number query int false "Page Number"
 // @Param count query int false "Count"
 // @Router /admin/stocks [get]
 // @Success 200 {object} response.Response{} "Successfully found all stocks"
 // @Success 204 {object} response.Response{} "No stocks found"
-// @Failure 500 {object} response.Response{} "Failed to find all stocks"
-func (c *AdminHandler) FindAllStocks(ctx *gin.Context) {
+// @Failure 500 {object} response.Response{} "Failed to Get all stocks"
+func (c *AdminHandler) GetAllStocks(ctx *gin.Context) {
 
 	pagination := request.GetPagination(ctx)
 
 	stocks, err := c.adminUseCase.GetAllStockDetails(ctx, pagination)
 
 	if err != nil {
-		response.ErrorResponse(ctx, http.StatusInternalServerError, "Failed to find all stocks", err, nil)
+		response.ErrorResponse(ctx, http.StatusInternalServerError, "Failed to Get all stocks", err, nil)
 		return
 	}
 
@@ -227,9 +219,10 @@ func (c *AdminHandler) FindAllStocks(ctx *gin.Context) {
 }
 
 // UpdateStock godoc
-// @summary api for admin to update a stock
-// @id UpdateStock
-// @tags Admin Stock
+// @Summary Update stocks (Admin)
+// @Description API for admin to update stock details
+// @Id UpdateStock
+// @Tags Admin Stock
 // @Param page_number query int false "Page Number"
 // @Param count query int false "Order"
 // @Router /admin/stocks [patch]

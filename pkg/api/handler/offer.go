@@ -13,9 +13,10 @@ import (
 )
 
 // SaveOffer godoc
-// @summary api for admin to add a new offer
-// @id SaveOffer
-// @tags Admin Offers
+// @Summary Add offer (Admin)
+// @Description API for admin to add an offer (Admin)
+// @Id SaveOffer
+// @Tags Admin Offers
 // @Param input body request.Offer{} true "input field"
 // @Router /admin/offers [post]
 // @Success 200 {object} response.Response{} "Successfully offer added"
@@ -34,7 +35,7 @@ func (p *ProductHandler) SaveOffer(ctx *gin.Context) {
 	if err != nil {
 		var statusCode int
 
-		switch true {
+		switch {
 		case errors.Is(err, usecase.ErrOfferNameAlreadyExist):
 			statusCode = http.StatusConflict
 		case errors.Is(err, usecase.ErrInvalidOfferEndDate):
@@ -49,22 +50,23 @@ func (p *ProductHandler) SaveOffer(ctx *gin.Context) {
 	response.SuccessResponse(ctx, http.StatusOK, "Successfully offer added", nil)
 }
 
-// FindAllOffers godoc
-// @summary api for find all offers
-// @id FindAllOffers
-// @tags Admin Offers
+// GetAllOffers godoc
+// @Summary Get all offers (Admin)
+// @Description API for admin to get all offers
+// @Id GetAllOffers
+// @Tags Admin Offers
 // @Param page_number query int false "Page Number"
 // @Param count query int false "Count"
 // @Router /admin/offers [get]
 // @Success 200 {object} response.Response{} ""Successfully found all offers"
-// @Failure 500 {object} response.Response{} "Failed to find all offers"
-func (c *ProductHandler) FindAllOffers(ctx *gin.Context) {
+// @Failure 500 {object} response.Response{} "Failed to get all offers"
+func (c *ProductHandler) GetAllOffers(ctx *gin.Context) {
 
 	pagination := request.GetPagination(ctx)
 
 	offers, err := c.productUseCase.FindAllOffers(ctx, pagination)
 	if err != nil {
-		response.ErrorResponse(ctx, http.StatusInternalServerError, "Failed to find all offers", err, nil)
+		response.ErrorResponse(ctx, http.StatusInternalServerError, "Failed to get all offers", err, nil)
 
 		return
 	}
@@ -79,9 +81,10 @@ func (c *ProductHandler) FindAllOffers(ctx *gin.Context) {
 }
 
 // RemoveOffer godoc
-// @summary api for admin to remove offer
-// @id RemoveOffer
-// @tags Admin Offers
+// @summary Remove offer (Admin)
+// @Description API admin to remove an offer
+// @Id RemoveOffer
+// @Tags Admin Offers
 // @Param offer_id path  int true "Offer ID"
 // @Router /admin/offers/{offer_id} [delete]
 // @Success 200 {object} response.Response{} "successfully offer added"
@@ -105,9 +108,10 @@ func (c *ProductHandler) RemoveOffer(ctx *gin.Context) {
 
 }
 
-// @summary api for admin to add a new category offer
-// @id SaveCategoryOffer
-// @tags Admin Offers
+// @Summary Add category offer (Admin)
+// @Description API for admin to add an offer category
+// @Id SaveCategoryOffer
+// @Tags Admin Offers
 // @Param input body request.OfferCategory{} true "input field"
 // @Router /admin/offers/category [post]
 // @Success 200 {object} response.Response{} "successfully offer added for category"
@@ -124,7 +128,7 @@ func (c *ProductHandler) SaveCategoryOffer(ctx *gin.Context) {
 	err := c.productUseCase.SaveCategoryOffer(ctx, body)
 	if err != nil {
 		var statusCode int
-		switch true {
+		switch {
 		case errors.Is(err, usecase.ErrOfferAlreadyEnded):
 			statusCode = http.StatusBadRequest
 		case errors.Is(err, usecase.ErrCategoryOfferAlreadyExist):
@@ -139,23 +143,24 @@ func (c *ProductHandler) SaveCategoryOffer(ctx *gin.Context) {
 	response.SuccessResponse(ctx, http.StatusOK, "Successfully offer added for given category")
 }
 
-// FindAllCategoryOffers godoc
-// @summary api for admin to find all category offers
-// @id FindAllCategoryOffers
-// @tags Admin Offers
+// GetAllCategoryOffers godoc
+// @Summary Get all category offers (Admin)
+// @Description API for admin to get all category offers
+// @Id GetAllCategoryOffers
+// @Tags Admin Offers
 // @Param page_number query int false "Page Number"
 // @Param count query int false "Count"
 // @Router /admin/offers/category [get]
 // @Success 200 {object} response.Response{} "successfully got all offer_category"
 // @Failure 500 {object} response.Response{} "failed to get offers_category"
-func (c *ProductHandler) FindAllCategoryOffers(ctx *gin.Context) {
+func (c *ProductHandler) GetAllCategoryOffers(ctx *gin.Context) {
 
 	pagination := request.GetPagination(ctx)
 
 	offerCategories, err := c.productUseCase.FindAllCategoryOffers(ctx, pagination)
 
 	if err != nil {
-		response.ErrorResponse(ctx, http.StatusInternalServerError, "Failed to find offer categories", err, nil)
+		response.ErrorResponse(ctx, http.StatusInternalServerError, "Failed to get offer categories", err, nil)
 		return
 	}
 
@@ -168,9 +173,10 @@ func (c *ProductHandler) FindAllCategoryOffers(ctx *gin.Context) {
 }
 
 // RemoveCategoryOffer godoc
-// @summary api for admin to remove a category offer
-// @id RemoveCategoryOffer
-// @tags Admin Offers
+// @Summary Remove category offer (Admin)
+// @Description API admin to remove a offer from category
+// @Id RemoveCategoryOffer
+// @Tags Admin Offers
 // @Param offer_category_id path  int true "Offer Category ID"
 // @Router /admin/offers/category/{offer_category_id} [delete]
 // @Success 200 {object} response.Response{} "successfully offer added for category"
@@ -194,9 +200,10 @@ func (c *ProductHandler) RemoveCategoryOffer(ctx *gin.Context) {
 }
 
 // ChangeCategoryOffer godoc
-// @summary api for admin to change product category to another existing offer
-// @id ChangeCategoryOffer
-// @tags Admin Offers
+// @Summary Change product offer (Admin)
+// @Description API admin to change product offer to another offer
+// @Id ChangeCategoryOffer
+// @Tags Admin Offers
 // @Param input body request.UpdateCategoryOffer{} true "input field"
 // @Router /admin/offers/category [patch]
 // @Success 200 {object} response.Response{} "successfully offer replaced for category"
@@ -219,37 +226,11 @@ func (c *ProductHandler) ChangeCategoryOffer(ctx *gin.Context) {
 	response.SuccessResponse(ctx, 200, "Successfully offer changed for given category offer")
 }
 
-// FindAllProductsOffers godoc
-// @summary api for admin to find all product offers
-// @id FindAllProductsOffers
-// @tags Admin Offers
-// @Param page_number query int false "Page Number"
-// @Param count query int false "Count"
-// @Router /admin/offers/products [get]
-// @Success 200 {object} response.Response{} "successfully got all offers_categories"
-// @Failure 500 {object} response.Response{} "failed to get offer_products"
-func (c *ProductHandler) FindAllProductsOffers(ctx *gin.Context) {
-
-	pagination := request.GetPagination(ctx)
-
-	offersOfCategories, err := c.productUseCase.FindAllProductOffers(ctx, pagination)
-	if err != nil {
-		response.ErrorResponse(ctx, http.StatusInternalServerError, "Failed to find all offer products", err, nil)
-		return
-	}
-
-	if offersOfCategories == nil {
-		response.SuccessResponse(ctx, http.StatusOK, "No offer products found", nil)
-		return
-	}
-
-	response.SuccessResponse(ctx, http.StatusOK, "Successfully found all offer products", offersOfCategories)
-}
-
 // SaveProductOffer godoc
-// @summary api for admin to add offer for a product
-// @id SaveProductOffer
-// @tags Admin Offers
+// @Summary Add product offer (Admin)
+// @Description API for admin to add an offer for product
+// @Id SaveProductOffer
+// @Tags Admin Offers
 // @Param input body request.OfferProduct{} true "input field"
 // @Router /admin/offers/products [post]
 // @Success 200 {object} response.Response{} "successfully offer added for product"
@@ -275,10 +256,39 @@ func (c *ProductHandler) SaveProductOffer(ctx *gin.Context) {
 	response.SuccessResponse(ctx, http.StatusOK, "Successfully offer added to given product")
 }
 
+// GetAllProductsOffers godoc
+// @Summary Get all product offers (Admin)
+// @Description API for admin to get all product offers
+// @Id GetAllProductsOffers
+// @Tags Admin Offers
+// @Param page_number query int false "Page Number"
+// @Param count query int false "Count"
+// @Router /admin/offers/products [get]
+// @Success 200 {object} response.Response{} "successfully got all offers_categories"
+// @Failure 500 {object} response.Response{} "failed to get offer_products"
+func (c *ProductHandler) GetAllProductsOffers(ctx *gin.Context) {
+
+	pagination := request.GetPagination(ctx)
+
+	offersOfCategories, err := c.productUseCase.FindAllProductOffers(ctx, pagination)
+	if err != nil {
+		response.ErrorResponse(ctx, http.StatusInternalServerError, "Failed to get all offer products", err, nil)
+		return
+	}
+
+	if offersOfCategories == nil {
+		response.SuccessResponse(ctx, http.StatusOK, "No offer products found", nil)
+		return
+	}
+
+	response.SuccessResponse(ctx, http.StatusOK, "Successfully found all offer products", offersOfCategories)
+}
+
 // RemoveProductOffer godoc
-// @summary api for admin to remove offer product offer
-// @id RemoveProductOffer
-// @tags Admin Offers
+// @Summary Remove product offer (Admin)
+// @Description API admin to remove a offer from product
+// @Id RemoveProductOffer
+// @Tags Admin Offers
 // @param offer_product_id path int true "offer_product_id"
 // @Router /admin/offers/products/{offer_product_id} [delete]
 // @Success 200 {object} response.Response{} "Successfully offer removed from product"
@@ -302,9 +312,10 @@ func (c *ProductHandler) RemoveProductOffer(ctx *gin.Context) {
 }
 
 // ChangeProductOffer godoc
-// @summary api for admin to change product offer to another existing offer
-// @id ChangeProductOffer
-// @tags Admin Offers
+// @Summary Change product offer (Admin)
+// @Description API admin to change product offer to another offer
+// @Id ChangeProductOffer
+// @Tags Admin Offers
 // @Param input body request.UpdateProductOffer{} true "input field"
 // @Router /admin/offers/products [patch]
 // @Success 200 {object} response.Response{} "Successfully offer changed for  given product offer"

@@ -36,17 +36,17 @@ type OrderItem struct {
 }
 
 type ShopOrder struct {
-	UserID          uint      `json:"user_id"`
-	ShopOrderID     uint      `json:"shop_order_id"`
-	OrderDate       time.Time `json:"order_date"`
-	AddressID       uint      `json:"address_id" `
-	Address         Address   `json:"address"`
-	OrderTotalPrice uint      `json:"order_total_price" `
-	Discount        uint      `json:"discount"`
-	OrderStatusID   uint      `json:"order_status_id"`
-	OrderStatus     string    `json:"order_status"`
-	PaymentMethodID uint      `json:"payment_method_id" gorm:"primaryKey;not null"`
-	PaymentType     string    `json:"" gorm:"unique;not null"`
+	UserID            uint      `json:"user_id"`
+	ShopOrderID       uint      `json:"shop_order_id"`
+	OrderDate         time.Time `json:"order_date"`
+	AddressID         uint      `json:"address_id" `
+	Address           Address   `json:"address"`
+	OrderTotalPrice   uint      `json:"order_total_price" `
+	Discount          uint      `json:"discount"`
+	OrderStatusID     uint      `json:"order_status_id"`
+	OrderStatus       string    `json:"order_status"`
+	PaymentMethodID   uint      `json:"payment_method_id" gorm:"primaryKey;not null"`
+	PaymentMethodName string    `json:"payment_method_name" gorm:"unique;not null"`
 }
 
 // checkout

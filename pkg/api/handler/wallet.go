@@ -9,15 +9,15 @@ import (
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/utils/response"
 )
 
-// FindUserWallet godoc
+// GetUserWallet godoc
 // @summary Get user wallet  (User)
 // @description API for user to get user wallet
-// @id FindUserWallet
+// @id GetUserWallet
 // @tags User Profile
 // @Router /account/wallet [get]
 // @Success 200 {object} response.Response{} "Successfully retrieve user wallet"
 // @Failure 500 {object} response.Response{} "Failed to retrieve user wallet"
-func (c *OrderHandler) FindUserWallet(ctx *gin.Context) {
+func (c *OrderHandler) GetUserWallet(ctx *gin.Context) {
 
 	userID := utils.GetUserIdFromContext(ctx)
 
@@ -31,16 +31,16 @@ func (c *OrderHandler) FindUserWallet(ctx *gin.Context) {
 	response.SuccessResponse(ctx, http.StatusOK, "Successfully retrieve user wallet", wallet)
 }
 
-// FindUserWalletTransactions godoc
+// GetUserWalletTransactions godoc
 // @summary Get user wallet  (User)
 // @description API for user to get user wallet transaction
-// @id FindUserWalletTransactions
+// @id GetUserWalletTransactions
 // @tags User Profile
 // @Router /account/wallet/transactions [get]
 // @Success 200 {object} response.Response{} "Successfully retrieved user wallet transactions"
 // @Success 204 {object} response.Response{} "No wallet transaction for user"
 // @Failure 500 {object} response.Response{} "Failed to retrieve user wallet transactions"
-func (c *OrderHandler) FindUserWalletTransactions(ctx *gin.Context) {
+func (c *OrderHandler) GetUserWalletTransactions(ctx *gin.Context) {
 
 	userID := utils.GetUserIdFromContext(ctx)
 	pagination := request.GetPagination(ctx)

@@ -53,7 +53,7 @@ func (c *OrderDatabase) FindAllShopOrdersByUserID(ctx context.Context, userID ui
 	offset := (pagination.PageNumber - 1) * limit
 
 	query := `SELECT so.user_id, so.id AS shop_order_id, so.order_date, so.order_total_price, so.discount, 
-	so.order_status_id, os.status AS order_status,so.address_id, so.payment_method_id, pm.payment_type  
+	so.order_status_id, os.status AS order_status,so.address_id, so.payment_method_id, pm.name AS payment_method_name  
 	FROM shop_orders so 
 	INNER JOIN order_statuses os ON so.order_status_id = os.id 
 	INNER JOIN payment_methods pm ON pm.id = so.payment_method_id 
@@ -72,7 +72,7 @@ func (c *OrderDatabase) FindAllShopOrders(ctx context.Context,
 	offset := (pagination.PageNumber - 1) * limit
 
 	query := `SELECT so.user_id, so.id AS shop_order_id, so.order_date, so.order_total_price, so.discount, 
-	so.order_status_id, os.status AS order_status, so.address_id, so.payment_method_id, pm.payment_type  
+	so.order_status_id, os.status AS order_status, so.address_id, so.payment_method_id, pm.name AS payment_method_name   
 	FROM shop_orders so 
 	INNER JOIN order_statuses os ON so.order_status_id = os.id 
 	INNER JOIN payment_methods pm ON so.payment_method_id = pm.id 

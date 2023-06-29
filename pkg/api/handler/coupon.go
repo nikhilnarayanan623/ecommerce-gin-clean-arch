@@ -22,10 +22,11 @@ func NewCouponHandler(couponUseCase usecase.CouponUseCase) interfaces.CouponHand
 }
 
 // SaveCoupon godoc
-// @summary api for admin to add coupon
-// @security ApiKeyAuth
-// @tags Admin Coupon
-// @id SaveCoupon
+// @Summary Add coupons (Admin)
+// @Description API for admin to add a new coupon
+// @Security ApiKeyAuth
+// @Tags Admin Coupon
+// @Id SaveCoupon
 // @Param        inputs   body     request.Coupon{}   true  "Input Fields"
 // @Router /admin/coupons [post]
 // @Success 200 {object} response.Response{} "successfully coupon added"
@@ -52,17 +53,18 @@ func (c *CouponHandler) SaveCoupon(ctx *gin.Context) {
 	response.SuccessResponse(ctx, http.StatusOK, "Successfully coupon added")
 }
 
-// FindAllCoupons godoc
-// @summary api for admin to see all coupons
-// @security ApiKeyAuth
-// @tags Admin Coupon
-// @id FindAllCoupons
+// GetAllCouponsAdmin godoc
+// @Summary Get all coupons (Admin)
+// @Description API for admin to get all coupons
+// @Security ApiKeyAuth
+// @Tags Admin Coupon
+// @Id GetAllCouponsAdmin
 // @Param page_number query int false "Page Number"
 // @Param count query int false "Count"
 // @Router /admin/coupons [get]
 // @Success 200 {object} response.Response{} "successfully go all the coupons
 // @Failure 500 {object} response.Response{}  "failed to get all coupons"
-func (c *CouponHandler) FindAllCoupons(ctx *gin.Context) {
+func (c *CouponHandler) GetAllCouponsAdmin(ctx *gin.Context) {
 
 	pagination := request.GetPagination(ctx)
 
@@ -80,17 +82,18 @@ func (c *CouponHandler) FindAllCoupons(ctx *gin.Context) {
 	response.SuccessResponse(ctx, http.StatusOK, "Successfully found coupons", coupons)
 }
 
-// GetAllCoupons godoc
-// @summary api for user to see all coupons
+// GetAllCouponsForUser godoc
+// @Summary Get all user coupons (User)
+// @Description API for user to get all coupons
 // @security ApiKeyAuth
-// @tags User Coupon
+// @tags User Profile
 // @id GetAllCouponsForUser
 // @Param page_number query int false "Page Number"
 // @Param count query int false "Count Of Order"
-// @Router /coupons [get]
+// @Router /account/coupons [get]
 // @Success 200 {object} response.Response{} ""Successfully found all coupons for user"
 // @Failure 500 {object} response.Response{}  "Failed to find all user"
-func (c *CouponHandler) FindAllCouponsForUser(ctx *gin.Context) {
+func (c *CouponHandler) GetAllCouponsForUser(ctx *gin.Context) {
 
 	userID := utils.GetUserIdFromContext(ctx)
 	pagination := request.GetPagination(ctx)
@@ -111,10 +114,11 @@ func (c *CouponHandler) FindAllCouponsForUser(ctx *gin.Context) {
 }
 
 // UpdateCoupon godoc
-// @summary api for admin to update the coupon
-// @security ApiKeyAuth
-// @tags Admin Coupon
-// @id UpdateCoupon
+// @Summary Update Coupon (Admin)
+// @Description API for admin update coupon details
+// @Security ApiKeyAuth
+// @Tags Admin Coupon
+// @Id UpdateCoupon
 // @Param        inputs   body     request.EditCoupon{}   true  "Input Field"
 // @Router /admin/coupons [put]
 // @Success 200 {object} response.Response{} "Successfully updated the coupon"

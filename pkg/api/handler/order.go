@@ -23,17 +23,17 @@ func NewOrderHandler(orderUseCase usecaseInterface.OrderUseCase) interfaces.Orde
 	}
 }
 
-// FindAllOrderStatuses godoc
+// GetAllOrderStatuses godoc
 // @Summary Get all order statuses (Admin)
 // @Description API for admin to get all available order statuses
 // @Security ApiKeyAuth
-// @Id FindAllOrderStatuses
+// @Id GetAllOrderStatuses
 // @Tags Admin Orders
 // @Router /admin/orders/statuses [get]
 // @Success 200 {object} response.Response{} "Successfully retrieved all order statuses"
 // @Success 204 {object} response.Response{} "No order statuses found"
 // @Failure 500 {object} response.Response{}  "Failed to find all order statuses"
-func (c *OrderHandler) FindAllOrderStatuses(ctx *gin.Context) {
+func (c *OrderHandler) GetAllOrderStatuses(ctx *gin.Context) {
 
 	orderStatuses, err := c.orderUseCase.FindAllOrderStatuses(ctx)
 
@@ -78,7 +78,7 @@ func (c *OrderHandler) SaveOrder(ctx *gin.Context) {
 	if err != nil {
 		var statusCode int
 
-		switch true {
+		switch {
 		case errors.Is(err, usecase.ErrEmptyCart):
 			statusCode = http.StatusNoContent
 		case errors.Is(err, usecase.ErrOutOfStockOnCart):
@@ -96,10 +96,10 @@ func (c *OrderHandler) SaveOrder(ctx *gin.Context) {
 	response.SuccessResponse(ctx, http.StatusOK, "Successfully order saved", data)
 }
 
-// FindUserOrder godoc
+// GetUserOrder godoc
 // @summary Get user orders (User)
 // @description API to get order for user user orders
-// @id FindUserOrder
+// @id GetUserOrder
 // @tags User Orders
 // @Param page_number query int false "Page Number"
 // @Param count query int false "Count Of Order"
@@ -107,7 +107,7 @@ func (c *OrderHandler) SaveOrder(ctx *gin.Context) {
 // @Success 200 {object} response.Response{} "Successfully retrieved all user orders"
 // @Success 204 {object} response.Response{} "No shop orders for user"
 // @Failure 500 {object} response.Response{} "Failed to retrieve all user orders"
-func (c *OrderHandler) FindUserOrder(ctx *gin.Context) {
+func (c *OrderHandler) GetUserOrder(ctx *gin.Context) {
 
 	userId := utils.GetUserIdFromContext(ctx)
 	pagination := request.GetPagination(ctx)
@@ -127,10 +127,10 @@ func (c *OrderHandler) FindUserOrder(ctx *gin.Context) {
 	response.SuccessResponse(ctx, http.StatusOK, "Successfully retrieved all user orders", orders)
 }
 
-// FindAllShopOrders godoc
+// GetAllShopOrders godoc
 // @Summary Get all orders (Admin)
 // @Description API for admin to get all orders
-// @Id FindAllShopOrders
+// @Id GetAllShopOrders
 // @Tags Admin Orders
 // @Param page_number query int false "Page Number"
 // @Param count query int false "Count"
@@ -138,7 +138,7 @@ func (c *OrderHandler) FindUserOrder(ctx *gin.Context) {
 // @Success 200 {object} response.Response{} "Successfully retrieved all shop orders"
 // @Success 204 {object} response.Response{} "No shop order found"
 // @Failure 500 {object} response.Response{} "Failed to find all shop orders"
-func (c *OrderHandler) FindAllShopOrders(ctx *gin.Context) {
+func (c *OrderHandler) GetAllShopOrders(ctx *gin.Context) {
 
 	pagination := request.GetPagination(ctx)
 
@@ -156,10 +156,10 @@ func (c *OrderHandler) FindAllShopOrders(ctx *gin.Context) {
 	response.SuccessResponse(ctx, http.StatusOK, "Successfully retrieved all shop orders", shopOrders)
 }
 
-// FindAllOrderItemsUser godoc
+// GetAllOrderItemsUser godoc
 // @Summary Get all order items (User)
 // @Description API for user to get all order items of a specific order
-// @Id FindAllOrderItemsUser
+// @Id GetAllOrderItemsUser
 // @Tags User Orders
 // @Param shop_order_id path int true "Shop Order ID"
 // @Param page_number query int false "Page Number"
@@ -167,14 +167,14 @@ func (c *OrderHandler) FindAllShopOrders(ctx *gin.Context) {
 // @Router /orders/{shop_order_id}/items  [get]
 // @Success 200 {object} response.Response{} "Successfully found order items"
 // @Failure 500 {object} response.Response{} "Failed to find order items"
-func (c *OrderHandler) FindAllOrderItemsUser() func(ctx *gin.Context) {
+func (c *OrderHandler) GetAllOrderItemsUser() func(ctx *gin.Context) {
 	return c.findAllOrderItems()
 }
 
-// FindAllOrderItemsAdmin godoc
+// GetAllOrderItemsAdmin godoc
 // @Summary Get all order items (Admin)
 // @Description API for user to get all order items of a specific order
-// @Id FindAllOrderItemsAdmin
+// @Id GetAllOrderItemsAdmin
 // @Tags Admin Orders
 // @Param shop_order_id path int true "Shop Order ID"
 // @Param page_number query int false "Page Number"
@@ -183,7 +183,7 @@ func (c *OrderHandler) FindAllOrderItemsUser() func(ctx *gin.Context) {
 // @Success 200 {object} response.Response{} "Successfully found order items"
 // @Success 204 {object} response.Response{} "No order items found"
 // @Failure 500 {object} response.Response{} "Failed to find order items"
-func (c *OrderHandler) FindAllOrderItemsAdmin() func(ctx *gin.Context) {
+func (c *OrderHandler) GetAllOrderItemsAdmin() func(ctx *gin.Context) {
 	return c.findAllOrderItems()
 }
 
@@ -266,7 +266,7 @@ func (c *OrderHandler) UpdateOrderStatus(ctx *gin.Context) {
 }
 
 // SubmitReturnRequest godoc
-// @Summary Return request
+// @Summary Return request (User)
 // @Description API for user to request a return for delivered order
 // @Id SubmitReturnRequest
 // @Tags User Orders
@@ -291,17 +291,17 @@ func (c OrderHandler) SubmitReturnRequest(ctx *gin.Context) {
 	response.SuccessResponse(ctx, http.StatusOK, "Successfully return request submitted for order", nil)
 }
 
-// FindAllOrderReturns godoc
+// GetAllOrderReturns godoc
 // @Summary Get all order returns (Admin)
 // @Description API for admin to get all order returns
-// @Id FindAllOrderReturns
+// @Id GetAllOrderReturns
 // @Tags Admin Orders
 // @Param page_number query int false "Page Number"
 // @Param count query int false "Count Of Order"
 // @Router /admin/orders/returns [get]
 // @Success 200 {object} response.Response{} "Successfully found all order returns"
 // @Failure 500 {object} response.Response{} "Failed to find all order returns"
-func (c *OrderHandler) FindAllOrderReturns(ctx *gin.Context) {
+func (c *OrderHandler) GetAllOrderReturns(ctx *gin.Context) {
 
 	pagination := request.GetPagination(ctx)
 
@@ -319,17 +319,17 @@ func (c *OrderHandler) FindAllOrderReturns(ctx *gin.Context) {
 	response.SuccessResponse(ctx, http.StatusOK, "Successfully found all order returns", orderReturns)
 }
 
-// FindAllPendingReturns godoc
+// GetAllPendingReturns godoc
 // @Summary Get all pending returns (Admin)
 // @Description API for admin to get all pending returns
-// @Id FindAllPendingReturns
+// @Id GetAllPendingReturns
 // @Tags Admin Orders
 // @Param page_number query int false "Page Number"
 // @Param count query int false "Count Of Order"
 // @Router /admin/orders/returns/pending [get]
 // @Success 200 {object} response.Response{} "Successfully found all pending orders return requests"
 // @Failure 500 {object} response.Response{} "Failed to find all pending order return requests"
-func (c *OrderHandler) FindAllPendingReturns(ctx *gin.Context) {
+func (c *OrderHandler) GetAllPendingReturns(ctx *gin.Context) {
 
 	pagination := request.GetPagination(ctx)
 
