@@ -53,7 +53,7 @@ func (c *AuthHandler) UserLogin(ctx *gin.Context) {
 
 		var statusCode int
 
-		switch true {
+		switch {
 		case errors.Is(err, usecase.ErrEmptyLoginCredentials):
 			statusCode = http.StatusBadRequest
 		case errors.Is(err, usecase.ErrUserNotExist):
@@ -107,7 +107,7 @@ func (u *AuthHandler) UserLoginOtpSend(ctx *gin.Context) {
 	if err != nil {
 		var statusCode int
 
-		switch true {
+		switch {
 		case errors.Is(err, usecase.ErrEmptyLoginCredentials):
 			statusCode = http.StatusBadRequest
 		case errors.Is(err, usecase.ErrUserNotExist):
@@ -152,7 +152,7 @@ func (c *AuthHandler) UserLoginOtpVerify(ctx *gin.Context) {
 	userID, err := c.authUseCase.LoginOtpVerify(ctx, body)
 	if err != nil {
 		var statusCode int
-		switch true {
+		switch {
 		case errors.Is(err, usecase.ErrOtpExpired):
 			statusCode = http.StatusGone
 		case errors.Is(err, usecase.ErrInvalidOtp):
@@ -233,7 +233,7 @@ func (c *AuthHandler) AdminLogin(ctx *gin.Context) {
 
 		var statusCode int
 
-		switch true {
+		switch {
 		case errors.Is(err, usecase.ErrEmptyLoginCredentials):
 			statusCode = http.StatusBadRequest
 		case errors.Is(err, usecase.ErrUserNotExist):
@@ -347,7 +347,7 @@ func (c *AuthHandler) renewAccessToken(tokenUser token.UserType) gin.HandlerFunc
 		if err != nil {
 			var statusCode int
 
-			switch true {
+			switch {
 			case errors.Is(err, usecase.ErrInvalidRefreshToken):
 				statusCode = http.StatusUnauthorized
 			case errors.Is(err, usecase.ErrRefreshSessionNotExist):

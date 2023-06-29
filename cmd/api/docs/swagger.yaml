@@ -490,22 +490,10 @@ definitions:
 info:
   contact: {}
 paths:
-  /:
-    get:
-      description: after user login user will seen this page with user informations
-      operationId: User Home
-      responses:
-        "200":
-          description: Welcome Home
-      security:
-      - ApiKeyAuth: []
-      summary: api for showing home page of user
-      tags:
-      - Home
   /account:
     get:
       description: API for user to get all user details
-      operationId: FindProfile
+      operationId: GetProfile
       responses:
         "200":
           description: Successfully retrieved user details
@@ -549,7 +537,7 @@ paths:
   /account/address:
     get:
       description: API for user to get all user addresses
-      operationId: FindAllAddresses
+      operationId: GetAllAddresses
       responses:
         "200":
           description: successfully retrieved all user addresses
@@ -616,10 +604,37 @@ paths:
       summary: Update address (User)
       tags:
       - User Profile
+  /account/coupons:
+    get:
+      description: API for user to get all coupons
+      operationId: GetAllCouponsForUser
+      parameters:
+      - description: Page Number
+        in: query
+        name: page_number
+        type: integer
+      - description: Count Of Order
+        in: query
+        name: count
+        type: integer
+      responses:
+        "200":
+          description: Successfully found all coupons for user
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Failed to find all user
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: Get all user coupons (User)
+      tags:
+      - User Profile
   /account/wallet:
     get:
       description: API for user to get user wallet
-      operationId: FindUserWallet
+      operationId: GetUserWallet
       responses:
         "200":
           description: Successfully retrieve user wallet
@@ -635,7 +650,7 @@ paths:
   /account/wallet/transactions:
     get:
       description: API for user to get user wallet transaction
-      operationId: FindUserWalletTransactions
+      operationId: GetUserWalletTransactions
       responses:
         "200":
           description: Successfully retrieved user wallet transactions
@@ -652,17 +667,72 @@ paths:
       summary: Get user wallet  (User)
       tags:
       - User Profile
-  /admin:
+  /account/wishlist:
     get:
-      operationId: AdminHome
+      operationId: GetWishList
       responses:
         "200":
-          description: Admin home page
+          description: Successfully retrieved all product items in th wish list
+        "500":
+          description: Failed to retrieve product items from the wish list
+      security:
+      - ApiKeyAuth: []
+      summary: Get whish list product items (User)
+      tags:
+      - User Profile
+  /account/wishlist/{product_item_id}:
+    delete:
+      operationId: RemoveFromWishList
+      parameters:
+      - description: Product Item ID
+        in: path
+        name: product_item_id
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: successfully removed product item from wishlist
           schema:
             $ref: '#/definitions/response.Response'
-      summary: api admin home
+        "400":
+          description: invalid input
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: Remove from whish list (User)
       tags:
-      - Admin Home
+      - User Profile
+    post:
+      operationId: SaveToWishList
+      parameters:
+      - description: Product Item ID
+        in: path
+        name: product_item_id
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: Successfully product items added to whish list
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: invalid input
+          schema:
+            $ref: '#/definitions/response.Response'
+        "409":
+          description: Product item already exist on wish list
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Failed to add product item to wishlist
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: Add to whish list (User)
+      tags:
+      - User Profile
   /admin/auth/login:
     post:
       description: API for admin to login with password
@@ -750,7 +820,7 @@ paths:
       consumes:
       - application/json
       description: API for admin to get all categories and their subcategories
-      operationId: FindAllCategories
+      operationId: GetAllCategories
       parameters:
       - description: Page number
         in: query
@@ -812,7 +882,7 @@ paths:
       consumes:
       - application/json
       description: API for admin to get all variation and its values of a category
-      operationId: FindAllVariations
+      operationId: GetAllVariations
       parameters:
       - description: Category ID
         in: path
@@ -831,7 +901,7 @@ paths:
           schema:
             $ref: '#/definitions/response.Response'
         "500":
-          description: Failed to find variations and its values
+          description: Failed to Get variations and its values
           schema:
             $ref: '#/definitions/response.Response'
       security:
@@ -958,7 +1028,8 @@ paths:
       - Admin Category
   /admin/coupons:
     get:
-      operationId: FindAllCoupons
+      description: API for admin to get all coupons
+      operationId: GetAllCouponsAdmin
       parameters:
       - description: Page Number
         in: query
@@ -979,10 +1050,11 @@ paths:
             $ref: '#/definitions/response.Response'
       security:
       - ApiKeyAuth: []
-      summary: api for admin to see all coupons
+      summary: Get all coupons (Admin)
       tags:
       - Admin Coupon
     post:
+      description: API for admin to add a new coupon
       operationId: SaveCoupon
       parameters:
       - description: Input Fields
@@ -1002,10 +1074,11 @@ paths:
             $ref: '#/definitions/response.Response'
       security:
       - ApiKeyAuth: []
-      summary: api for admin to add coupon
+      summary: Add coupons (Admin)
       tags:
       - Admin Coupon
     put:
+      description: API for admin update coupon details
       operationId: UpdateCoupon
       parameters:
       - description: Input Field
@@ -1025,12 +1098,13 @@ paths:
             $ref: '#/definitions/response.Response'
       security:
       - ApiKeyAuth: []
-      summary: api for admin to update the coupon
+      summary: Update Coupon (Admin)
       tags:
       - Admin Coupon
   /admin/offers:
     get:
-      operationId: FindAllOffers
+      description: API for admin to get all offers
+      operationId: GetAllOffers
       parameters:
       - description: Page Number
         in: query
@@ -1046,13 +1120,14 @@ paths:
           schema:
             $ref: '#/definitions/response.Response'
         "500":
-          description: Failed to find all offers
+          description: Failed to get all offers
           schema:
             $ref: '#/definitions/response.Response'
-      summary: api for find all offers
+      summary: Get all offers (Admin)
       tags:
       - Admin Offers
     post:
+      description: API for admin to add an offer (Admin)
       operationId: SaveOffer
       parameters:
       - description: input field
@@ -1074,11 +1149,12 @@ paths:
           description: Offer already exist
           schema:
             $ref: '#/definitions/response.Response'
-      summary: api for admin to add a new offer
+      summary: Add offer (Admin)
       tags:
       - Admin Offers
   /admin/offers/{offer_id}:
     delete:
+      description: API admin to remove an offer
       operationId: RemoveOffer
       parameters:
       - description: Offer ID
@@ -1095,12 +1171,13 @@ paths:
           description: invalid input
           schema:
             $ref: '#/definitions/response.Response'
-      summary: api for admin to remove offer
+      summary: Remove offer (Admin)
       tags:
       - Admin Offers
   /admin/offers/category:
     get:
-      operationId: FindAllCategoryOffers
+      description: API for admin to get all category offers
+      operationId: GetAllCategoryOffers
       parameters:
       - description: Page Number
         in: query
@@ -1119,10 +1196,11 @@ paths:
           description: failed to get offers_category
           schema:
             $ref: '#/definitions/response.Response'
-      summary: api for admin to find all category offers
+      summary: Get all category offers (Admin)
       tags:
       - Admin Offers
     patch:
+      description: API admin to change product offer to another offer
       operationId: ChangeCategoryOffer
       parameters:
       - description: input field
@@ -1140,10 +1218,11 @@ paths:
           description: invalid input
           schema:
             $ref: '#/definitions/response.Response'
-      summary: api for admin to change product category to another existing offer
+      summary: Change product offer (Admin)
       tags:
       - Admin Offers
     post:
+      description: API for admin to add an offer category
       operationId: SaveCategoryOffer
       parameters:
       - description: input field
@@ -1161,11 +1240,12 @@ paths:
           description: invalid input
           schema:
             $ref: '#/definitions/response.Response'
-      summary: api for admin to add a new category offer
+      summary: Add category offer (Admin)
       tags:
       - Admin Offers
   /admin/offers/category/{offer_category_id}:
     delete:
+      description: API admin to remove a offer from category
       operationId: RemoveCategoryOffer
       parameters:
       - description: Offer Category ID
@@ -1182,12 +1262,13 @@ paths:
           description: invalid input
           schema:
             $ref: '#/definitions/response.Response'
-      summary: api for admin to remove a category offer
+      summary: Remove category offer (Admin)
       tags:
       - Admin Offers
   /admin/offers/products:
     get:
-      operationId: FindAllProductsOffers
+      description: API for admin to get all product offers
+      operationId: GetAllProductsOffers
       parameters:
       - description: Page Number
         in: query
@@ -1206,10 +1287,11 @@ paths:
           description: failed to get offer_products
           schema:
             $ref: '#/definitions/response.Response'
-      summary: api for admin to find all product offers
+      summary: Get all product offers (Admin)
       tags:
       - Admin Offers
     patch:
+      description: API admin to change product offer to another offer
       operationId: ChangeProductOffer
       parameters:
       - description: input field
@@ -1227,10 +1309,11 @@ paths:
           description: invalid input
           schema:
             $ref: '#/definitions/response.Response'
-      summary: api for admin to change product offer to another existing offer
+      summary: Change product offer (Admin)
       tags:
       - Admin Offers
     post:
+      description: API for admin to add an offer for product
       operationId: SaveProductOffer
       parameters:
       - description: input field
@@ -1248,11 +1331,12 @@ paths:
           description: invalid input
           schema:
             $ref: '#/definitions/response.Response'
-      summary: api for admin to add offer for a product
+      summary: Add product offer (Admin)
       tags:
       - Admin Offers
   /admin/offers/products/{offer_product_id}:
     delete:
+      description: API admin to remove a offer from product
       operationId: RemoveProductOffer
       parameters:
       - description: offer_product_id
@@ -1269,7 +1353,7 @@ paths:
           description: invalid input on params
           schema:
             $ref: '#/definitions/response.Response'
-      summary: api for admin to remove offer product offer
+      summary: Remove product offer (Admin)
       tags:
       - Admin Offers
   /admin/orders/:
@@ -1298,7 +1382,7 @@ paths:
   /admin/orders/{shop_order_id}/items:
     get:
       description: API for user to get all order items of a specific order
-      operationId: FindAllOrderItemsAdmin
+      operationId: GetAllOrderItemsAdmin
       parameters:
       - description: Shop Order ID
         in: path
@@ -1332,7 +1416,7 @@ paths:
   /admin/orders/all:
     get:
       description: API for admin to get all orders
-      operationId: FindAllShopOrders
+      operationId: GetAllShopOrders
       parameters:
       - description: Page Number
         in: query
@@ -1361,7 +1445,7 @@ paths:
   /admin/orders/returns:
     get:
       description: API for admin to get all order returns
-      operationId: FindAllOrderReturns
+      operationId: GetAllOrderReturns
       parameters:
       - description: Page Number
         in: query
@@ -1386,7 +1470,7 @@ paths:
   /admin/orders/returns/pending:
     get:
       description: API for admin to get all pending returns
-      operationId: FindAllPendingReturns
+      operationId: GetAllPendingReturns
       parameters:
       - description: Page Number
         in: query
@@ -1433,7 +1517,7 @@ paths:
   /admin/orders/statuses:
     get:
       description: API for admin to get all available order statuses
-      operationId: FindAllOrderStatuses
+      operationId: GetAllOrderStatuses
       responses:
         "200":
           description: Successfully retrieved all order statuses
@@ -1478,7 +1562,7 @@ paths:
   /admin/payment-methods:
     get:
       description: API for admin to get all payment methods
-      operationId: FindAllPaymentMethodsAdmin
+      operationId: GetAllPaymentMethodsAdmin
       responses:
         "200":
           description: Failed to retrieve payment methods
@@ -1496,7 +1580,7 @@ paths:
   /admin/products:
     get:
       description: API for admin to get all products
-      operationId: FindAllProductsAdmin
+      operationId: GetAllProductsAdmin
       parameters:
       - description: Page Number
         in: query
@@ -1512,7 +1596,7 @@ paths:
           schema:
             $ref: '#/definitions/response.Response'
         "500":
-          description: Failed to find all products
+          description: Failed to Get all products
           schema:
             $ref: '#/definitions/response.Response'
       security:
@@ -1588,8 +1672,8 @@ paths:
     get:
       consumes:
       - application/json
-      description: API for admin to find all product items for a specific product
-      operationId: FindAllProductItemsAdmin
+      description: API for admin to get all product items for a specific product
+      operationId: GetAllProductItemsAdmin
       parameters:
       - description: Product ID
         in: path
@@ -1647,7 +1731,9 @@ paths:
       - Admin Products
   /admin/sales:
     get:
-      operationId: FullSalesReport
+      description: API fro admin to get all sales report for a specific period in
+        csv form
+      operationId: GetFullSalesReport
       parameters:
       - description: Sales report starting date
         in: query
@@ -1678,12 +1764,13 @@ paths:
           description: failed to get sales report
           schema:
             $ref: '#/definitions/response.Response'
-      summary: api for admin to see full sales report and download it as csv
+      summary: Get full sales report (Admin)
       tags:
       - Admin Sales
   /admin/stocks:
     get:
-      operationId: FindAllStocks
+      description: API for admin to get all stocks
+      operationId: GetAllStocks
       parameters:
       - description: Page Number
         in: query
@@ -1703,13 +1790,14 @@ paths:
           schema:
             $ref: '#/definitions/response.Response'
         "500":
-          description: Failed to find all stocks
+          description: Failed to Get all stocks
           schema:
             $ref: '#/definitions/response.Response'
-      summary: api for admin to find all stock stock details
+      summary: Get all stocks (Admin)
       tags:
       - Admin Stock
     patch:
+      description: API for admin to update stock details
       operationId: UpdateStock
       parameters:
       - description: Page Number
@@ -1733,12 +1821,12 @@ paths:
           description: Failed to update stock
           schema:
             $ref: '#/definitions/response.Response'
-      summary: api for admin to update a stock
+      summary: Update stocks (Admin)
       tags:
       - Admin Stock
   /admin/users:
     get:
-      operationId: FindAllUsers
+      operationId: GetAllUsers
       parameters:
       - description: Page Number
         in: query
@@ -2021,7 +2109,7 @@ paths:
   /carts:
     get:
       description: API for user to get all cart items
-      operationId: FindCart
+      operationId: GetCart
       responses:
         "200":
           description: Successfully retrieved all cart items
@@ -2357,36 +2445,10 @@ paths:
       summary: Stripe verify (User)
       tags:
       - User Payment
-  /coupons:
-    get:
-      operationId: GetAllCouponsForUser
-      parameters:
-      - description: Page Number
-        in: query
-        name: page_number
-        type: integer
-      - description: Count Of Order
-        in: query
-        name: count
-        type: integer
-      responses:
-        "200":
-          description: Successfully found all coupons for user
-          schema:
-            $ref: '#/definitions/response.Response'
-        "500":
-          description: Failed to find all user
-          schema:
-            $ref: '#/definitions/response.Response'
-      security:
-      - ApiKeyAuth: []
-      summary: api for user to see all coupons
-      tags:
-      - User Coupon
   /orders:
     get:
       description: API to get order for user user orders
-      operationId: FindUserOrder
+      operationId: GetUserOrder
       parameters:
       - description: Page Number
         in: query
@@ -2441,7 +2503,7 @@ paths:
   /orders/{shop_order_id}/items:
     get:
       description: API for user to get all order items of a specific order
-      operationId: FindAllOrderItemsUser
+      operationId: GetAllOrderItemsUser
       parameters:
       - description: Shop Order ID
         in: path
@@ -2488,13 +2550,13 @@ paths:
           description: invalid input
           schema:
             $ref: '#/definitions/response.Response'
-      summary: Return request
+      summary: Return request (User)
       tags:
       - User Orders
   /payment-methods:
     get:
       description: API for user to get all payment methods
-      operationId: FindAllPaymentMethodsUser
+      operationId: GetAllPaymentMethodsUser
       responses:
         "200":
           description: Failed to retrieve payment methods
@@ -2512,7 +2574,7 @@ paths:
   /products:
     get:
       description: API for user to get all products
-      operationId: FindAllProductsUser
+      operationId: GetAllProductsUser
       parameters:
       - description: Page Number
         in: query
@@ -2528,7 +2590,7 @@ paths:
           schema:
             $ref: '#/definitions/response.Response'
         "500":
-          description: Failed to find all products
+          description: Failed to get all products
           schema:
             $ref: '#/definitions/response.Response'
       security:
@@ -2540,8 +2602,8 @@ paths:
     get:
       consumes:
       - application/json
-      description: API for user to find all product items for a specific product
-      operationId: FindAllProductItemsUser
+      description: API for user to get all product items for a specific product
+      operationId: GetAllProductItemsUser
       parameters:
       - description: Product ID
         in: path
@@ -2562,70 +2624,4 @@ paths:
       summary: Get all product items (User)
       tags:
       - User Products
-  /wishlist:
-    get:
-      operationId: FindWishList
-      responses:
-        "200":
-          description: Successfully retrieved all product items in th wish list
-        "500":
-          description: Failed to retrieve product items from the wish list
-      security:
-      - ApiKeyAuth: []
-      summary: Get whish list product items (User)
-      tags:
-      - User Profile
-  /wishlist/{product_item_id}:
-    delete:
-      operationId: RemoveFromWishList
-      parameters:
-      - description: Product Item ID
-        in: path
-        name: product_item_id
-        required: true
-        type: integer
-      responses:
-        "200":
-          description: successfully removed product item from wishlist
-          schema:
-            $ref: '#/definitions/response.Response'
-        "400":
-          description: invalid input
-          schema:
-            $ref: '#/definitions/response.Response'
-      security:
-      - ApiKeyAuth: []
-      summary: Remove from whish list (User)
-      tags:
-      - User Profile
-    post:
-      operationId: SaveToWishList
-      parameters:
-      - description: Product Item ID
-        in: path
-        name: product_item_id
-        required: true
-        type: integer
-      responses:
-        "200":
-          description: Successfully product items added to whish list
-          schema:
-            $ref: '#/definitions/response.Response'
-        "400":
-          description: invalid input
-          schema:
-            $ref: '#/definitions/response.Response'
-        "409":
-          description: Product item already exist on wish list
-          schema:
-            $ref: '#/definitions/response.Response'
-        "500":
-          description: Failed to add product item to wishlist
-          schema:
-            $ref: '#/definitions/response.Response'
-      security:
-      - ApiKeyAuth: []
-      summary: Add to whish list (User)
-      tags:
-      - User Profile
 swagger: "2.0"

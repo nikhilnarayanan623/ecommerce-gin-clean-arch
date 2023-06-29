@@ -42,37 +42,6 @@ func (c *paymentHandler) CartOrderPaymentSelectPage(ctx *gin.Context) {
 	ctx.HTML(200, "paymentForm.html", Payments)
 }
 
-// // AddPaymentMethod godoc
-// // @summary api for admin to add a new payment method
-// // @security ApiKeyAuth
-// // @tags Admin Payment
-// // @id AddPaymentMethod
-// // @Router /admin/payment-method [post]
-// // @Success 200 {object} response.Response{} "successfully payment added"
-// // @Success 400 {object} response.Response{} "Failed to bind input"
-// // @Failure 500 {object} response.Response{}  "Failed to add payment method"
-// func (c *paymentHandler) AddPaymentMethod(ctx *gin.Context) {
-
-// 	var body request.PaymentMethod
-
-// 	if err := ctx.ShouldBindJSON(&body); err != nil {
-// 		response.ErrorResponse(ctx, http.StatusBadRequest, BindJsonFailMessage, err, nil)
-// 		return
-// 	}
-
-// 	var paymentMethod domain.PaymentMethod
-// 	copier.Copy(&paymentMethod, &body)
-
-// 	err := c.paymentUseCase.SavePaymentMethod(ctx, paymentMethod)
-
-// 	if err != nil {
-// 		response.ErrorResponse(ctx, http.StatusInternalServerError, "Failed to add payment_method", err, nil)
-// 		return
-// 	}
-
-// 	response.SuccessResponse(ctx, http.StatusOK, "Successfully added payment method", nil)
-// }
-
 // UpdatePaymentMethod godoc
 // @Summary Update payment method (Admin)
 // @Description API for admin to change maximum price or block or unblock the payment method
@@ -102,29 +71,29 @@ func (c *paymentHandler) UpdatePaymentMethod(ctx *gin.Context) {
 	response.SuccessResponse(ctx, http.StatusOK, "Successfully payment method updated", nil)
 }
 
-// FindAllPaymentMethodsAdmin godoc
+// GetAllPaymentMethodsAdmin godoc
 // @summary Get payment methods (Admin)
 // @Description API for admin to get all payment methods
 // @security ApiKeyAuth
 // @tags Admin Payment
-// @id FindAllPaymentMethodsAdmin
+// @id GetAllPaymentMethodsAdmin
 // @Router /admin/payment-methods [get]
 // @Success 200 {object} response.Response{} "Failed to retrieve payment methods"
 // @Failure 500 {object} response.Response{}   "Successfully retrieved all payment methods"
-func (c *paymentHandler) FindAllPaymentMethodsAdmin() func(ctx *gin.Context) {
+func (c *paymentHandler) GetAllPaymentMethodsAdmin() func(ctx *gin.Context) {
 	return c.findAllPaymentMethods()
 }
 
-// FindAllPaymentMethodsUser godoc
+// GetAllPaymentMethodsUser godoc
 // @summary Get payment methods (User)
 // @Description API for user to get all payment methods
 // @security ApiKeyAuth
 // @tags User Payment
-// @id FindAllPaymentMethodsUser
+// @id GetAllPaymentMethodsUser
 // @Router /payment-methods [get]
 // @Success 200 {object} response.Response{} "Failed to retrieve payment methods"
 // @Failure 500 {object} response.Response{}   "Successfully retrieved all payment methods"
-func (c *paymentHandler) FindAllPaymentMethodsUser() func(ctx *gin.Context) {
+func (c *paymentHandler) GetAllPaymentMethodsUser() func(ctx *gin.Context) {
 	return c.findAllPaymentMethods()
 }
 
@@ -169,7 +138,7 @@ func (c *paymentHandler) PaymentCOD(ctx *gin.Context) {
 
 	approveReq := request.ApproveOrder{
 		ShopOrderID: shopOrderID,
-		PaymentType: domain.CODPayment,
+		PaymentType: domain.CodPayment,
 	}
 
 	// approve the order and clear the user cart

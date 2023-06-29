@@ -48,26 +48,6 @@ func (c *paymentUseCase) FindPaymentMethodByID(ctx context.Context, paymentMetho
 	return c.paymentRepo.FindPaymentMethodByID(ctx, paymentMethodID)
 }
 
-// func (c *paymentUseCase) SavePaymentMethod(ctx context.Context, paymentMethod domain.PaymentMethod) error {
-
-// 	// first check the payment_method alreadcy exist with given payment_type
-// 	checkPayment, err := c.paymentRepo.FindPaymentMethodByType(ctx, paymentMethod.PaymentType)
-// 	if err != nil {
-// 		return err
-// 	} else if checkPayment.ID != 0 {
-// 		return fmt.Errorf("an payment_method already exist wtih given payment_type %v", paymentMethod.PaymentType)
-// 	}
-
-// 	// save payment
-// 	paymentMethodID, err := c.paymentRepo.SavePaymentMethod(ctx, paymentMethod)
-// 	if err != nil {
-// 		return err
-// 	}
-
-// 	log.Printf("successfully saved payment method for payment_type %v with id %v", paymentMethod.PaymentType, paymentMethodID)
-// 	return nil
-// }
-
 func (c *paymentUseCase) UpdatePaymentMethod(ctx context.Context, paymentMethod request.PaymentMethodUpdate) error {
 
 	err := c.paymentRepo.UpdatePaymentMethod(ctx, paymentMethod)

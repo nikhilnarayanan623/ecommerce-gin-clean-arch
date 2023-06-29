@@ -11,7 +11,6 @@ import (
 type PaymentUseCase interface {
 	FindAllPaymentMethods(ctx context.Context) ([]domain.PaymentMethod, error)
 	FindPaymentMethodByID(ctx context.Context, paymentMethodID uint) (domain.PaymentMethod, error)
-	// SavePaymentMethod(ctx context.Context, paymentMethod domain.PaymentMethod) error
 	UpdatePaymentMethod(ctx context.Context, paymentMethod request.PaymentMethodUpdate) error
 
 	// razorpay

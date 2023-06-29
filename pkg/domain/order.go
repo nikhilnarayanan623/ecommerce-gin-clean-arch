@@ -22,14 +22,17 @@ const (
 	StatusOrderReturned   OrderStatusType = "order returned"
 
 	// payment type
-	RazopayPayment PaymentType = "razor pay"
-	CODPayment     PaymentType = "cod"
-	StripePayment  PaymentType = "stripe"
+	RazopayPayment        PaymentType = "razor pay"
+	RazorPayMaximumAmount             = 50000 // this is only for initial admin can later change this
+	CodPayment            PaymentType = "cod"
+	CodMaximumAmount                  = 20000
+	StripePayment         PaymentType = "stripe"
+	StripeMaximumAmount               = 50000
 )
 
 type PaymentMethod struct {
 	ID            uint        `json:"id" gorm:"primaryKey;not null"`
-	PaymentType   PaymentType `json:"payment_type" gorm:"unique;not null"`
+	Name          PaymentType `json:"name" gorm:"unique;not null"`
 	BlockStatus   bool        `json:"block_status" gorm:"not null;default:false"`
 	MaximumAmount uint        `json:"maximum_amount" gorm:"not null"`
 }

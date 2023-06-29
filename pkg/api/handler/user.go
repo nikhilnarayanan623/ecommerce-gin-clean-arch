@@ -25,19 +25,6 @@ func NewUserHandler(userUsecase usecaseInterface.UserUseCase) interfaces.UserHan
 	}
 }
 
-// Home godoc
-// @summary api for showing home page of user
-// @description after user login user will seen this page with user informations
-// @security ApiKeyAuth
-// @id User Home
-// @tags Home
-// @Router / [get]
-// @Success 200 "Welcome Home"
-func (u *UserHandler) Home(ctx *gin.Context) {
-
-	response.SuccessResponse(ctx, http.StatusOK, "welcome to home page", nil)
-}
-
 // // Logout godoc
 // // @summary api for user to logout
 // // @description user can logout
@@ -85,16 +72,16 @@ func (c *UserHandler) CheckOutCart(ctx *gin.Context) {
 	// ctx.JSON(http.StatusOK, responser)
 }
 
-// FindProfile godoc
+// GetProfile godoc
 // @Summary Get User Profile (User)
 // @Description API for user to get all user details
 // @Security ApiKeyAuth
-// @Id FindProfile
+// @Id GetProfile
 // @Tags User Profile
 // @Router /account [get]
 // @Success 200 "Successfully retrieved user details"
 // @Failure 500 {object} response.Response{} "Failed to retrieve user details"
-func (u *UserHandler) FindProfile(ctx *gin.Context) {
+func (u *UserHandler) GetProfile(ctx *gin.Context) {
 
 	userID := utils.GetUserIdFromContext(ctx)
 
@@ -184,23 +171,23 @@ func (u *UserHandler) SaveAddress(ctx *gin.Context) {
 	response.SuccessResponse(ctx, http.StatusCreated, "Successfully address saved")
 }
 
-// FindAllAddresses godoc
+// GetAllAddresses godoc
 // @Summary Get all addresses (User)
 // @Description API for user to get all user addresses
 // @Security ApiKeyAuth
-// @Id FindAllAddresses
+// @Id GetAllAddresses
 // @Tags User Profile
 // @Router /account/address [get]
 // @Success 200 {object} response.Response{} "successfully retrieved all user addresses"
 // @Failure 500 {object} response.Response{} "failed to show user addresses"
-func (u *UserHandler) FindAllAddresses(ctx *gin.Context) {
+func (u *UserHandler) GetAllAddresses(ctx *gin.Context) {
 
 	userID := utils.GetUserIdFromContext(ctx)
 
 	addresses, err := u.userUseCase.FindAddresses(ctx, userID)
 
 	if err != nil {
-		response.ErrorResponse(ctx, http.StatusInternalServerError, "Failed to find user addresses", err, nil)
+		response.ErrorResponse(ctx, http.StatusInternalServerError, "Failed to get user addresses", err, nil)
 		return
 	}
 
@@ -254,7 +241,7 @@ func (u *UserHandler) UpdateAddress(ctx *gin.Context) {
 // @Id SaveToWishList
 // @Tags User Profile
 // @Param product_item_id path int true "Product Item ID"
-// @Router /wishlist/{product_item_id} [post]
+// @Router /account/wishlist/{product_item_id} [post]
 // @Success 200 {object} response.Response{} "Successfully product items added to whish list"
 // @Failure 400 {object} response.Response{} "invalid input"
 // @Failure 409 {object} response.Response{} "Product item already exist on wish list"
@@ -294,7 +281,7 @@ func (u *UserHandler) SaveToWishList(ctx *gin.Context) {
 // @Id RemoveFromWishList
 // @Tags User Profile
 // @Param product_item_id path int true "Product Item ID"
-// @Router /wishlist/{product_item_id} [delete]
+// @Router /account/wishlist/{product_item_id} [delete]
 // @Success 200 {object} response.Response{} "successfully removed product item from wishlist"
 // @Failure 400 {object} response.Response{} "invalid input"
 func (u *UserHandler) RemoveFromWishList(ctx *gin.Context) {
@@ -317,16 +304,16 @@ func (u *UserHandler) RemoveFromWishList(ctx *gin.Context) {
 	response.SuccessResponse(ctx, http.StatusOK, "Successfully removed product item from wishlist", nil)
 }
 
-// FindWishList godoc
+// GetWishList godoc
 // @Summary Get whish list product items (User)
 // @Descriptions API for user to get product items in the wish list
 // @Security ApiKeyAuth
-// @Id FindWishList
+// @Id GetWishList
 // @Tags User Profile
-// @Router /wishlist [get]
+// @Router /account/wishlist [get]
 // @Success 200 "Successfully retrieved all product items in th wish list"
 // @Failure 500  "Failed to retrieve product items from the wish list"
-func (u *UserHandler) FindWishList(ctx *gin.Context) {
+func (u *UserHandler) GetWishList(ctx *gin.Context) {
 
 	userID := utils.GetUserIdFromContext(ctx)
 
