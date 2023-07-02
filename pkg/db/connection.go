@@ -80,6 +80,10 @@ func ConnectDatbase(cfg config.Config) (*gorm.DB, error) {
 		return nil, err
 	}
 
+	if err := saveAdmin(db, cfg.AdminEmail, cfg.AdminUserName, cfg.AdminPassword); err != nil {
+		return nil, err
+	}
+
 	if err := saveOrderStatuses(db); err != nil {
 		return nil, err
 	}

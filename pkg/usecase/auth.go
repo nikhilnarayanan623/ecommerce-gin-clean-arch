@@ -7,13 +7,13 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/api/handler/request"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/domain"
-	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/otp"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/repository/interfaces"
-	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/token"
+	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/service/otp"
+	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/service/token"
 	service "github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/usecase/interfaces"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/utils"
-	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/utils/request"
 )
 
 type authUseCase struct {
@@ -280,7 +280,8 @@ func (c *authUseCase) GoogleLogin(ctx context.Context, user domain.User) (userID
 	existUser, err := c.userRepo.FindUserByEmail(ctx, user.Email)
 	if err != nil {
 		return userID, fmt.Errorf("failed to get user details with given email \nerror:%v", err.Error())
-	} else if existUser.ID != 0 {
+	}
+	if existUser.ID != 0 {
 		return existUser.ID, nil
 	}
 

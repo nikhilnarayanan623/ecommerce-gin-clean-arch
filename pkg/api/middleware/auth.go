@@ -5,24 +5,9 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/token"
-	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/utils/response"
+	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/api/handler/response"
+	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/service/token"
 )
-
-type Middleware interface {
-	GetUserAuthMiddleware() gin.HandlerFunc
-	GetAdminAuthMiddleware() gin.HandlerFunc
-}
-
-type middleware struct {
-	tokenService token.TokenService
-}
-
-func NewMiddleware(tokenService token.TokenService) Middleware {
-	return &middleware{
-		tokenService: tokenService,
-	}
-}
 
 const (
 	authorizationHeaderKey string = "authorization"
@@ -30,13 +15,13 @@ const (
 )
 
 // Get User Auth middleware
-func (c *middleware) GetUserAuthMiddleware() gin.HandlerFunc {
+func (c *middleware) AuthenticateUser() gin.HandlerFunc {
 	// return c.authorize(token.User)
 	return c.middlewareUsingCookie(token.User)
 }
 
 // Get Admin Auth middleware
-func (c *middleware) GetAdminAuthMiddleware() gin.HandlerFunc {
+func (c *middleware) AuthenticateAdmin() gin.HandlerFunc {
 	// return c.authorize(token.Admin)
 	return c.middlewareUsingCookie(token.Admin)
 }

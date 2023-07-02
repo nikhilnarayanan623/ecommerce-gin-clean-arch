@@ -2,8 +2,10 @@ package db
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/domain"
+	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/utils"
 	"gorm.io/gorm"
 )
 
@@ -84,6 +86,34 @@ func savePaymentMethods(db *gorm.DB) error {
 			}
 		}
 		exist = false
+	}
+	return nil
+}
+
+func saveAdmin(db *gorm.DB, email, userName, password string) error {
+
+	var (
+		searchQuery = `SELECT CASE WHEN id != 0 THEN 'T' ELSE 'F' END as exist FROM admins WHERE email = $1`
+		insertQuery = `INSERT INTO admins (email, user_name, password, created_at) VALUES ($1, $2, $3, $4)`
+		exist       bool
+		err         error
+	)
+
+	err = db.Raw(searchQuery, email).Scan(&exist).Error
+	if err != nil {
+		return fmt.Errorf("failed to check admin already exist err:%w", err)
+	}
+
+	if !exist {
+		hashPass, err := utils.GetHashedPassword(password)
+		if err != nil {
+			return fmt.Errorf("failed to hash password err: %w", err)
+		}
+		createdAt := time.Now()
+		err = db.Exec(insertQuery, email, userName, hashPass, createdAt).Error
+		if err != nil {
+			return fmt.Errorf("failed to save admin details %w", err)
+		}
 	}
 	return nil
 }

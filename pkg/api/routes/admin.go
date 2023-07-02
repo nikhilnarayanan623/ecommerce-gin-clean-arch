@@ -28,7 +28,7 @@ func AdminRoutes(api *gin.RouterGroup, authHandler handlerInterface.AuthHandler,
 		auth.POST("/renew-access-token", authHandler.AdminRenewAccessToken())
 	}
 
-	api.Use(middleware.GetAdminAuthMiddleware())
+	api.Use(middleware.AuthenticateAdmin())
 	{
 
 		// user side
@@ -41,17 +41,17 @@ func AdminRoutes(api *gin.RouterGroup, authHandler handlerInterface.AuthHandler,
 		category := api.Group("/categories")
 		{
 			category.GET("/", productHandler.GetAllCategories)
-			category.POST("/", productHandler.SaveCategory)
-			category.POST("/sub-categories", productHandler.SaveSubCategory)
+			category.POST("/", middleware.TrimSpaces(), productHandler.SaveCategory)
+			category.POST("/sub-categories", middleware.TrimSpaces(), productHandler.SaveSubCategory)
 
 			variation := category.Group("/:category_id/variations")
 			{
-				variation.POST("/", productHandler.SaveVariation)
+				variation.POST("/", middleware.TrimSpaces(), productHandler.SaveVariation)
 				variation.GET("/", productHandler.GetAllVariations)
 
 				variationOption := variation.Group("/:variation_id/options")
 				{
-					variationOption.POST("/", productHandler.SaveVariationOption)
+					variationOption.POST("/", middleware.TrimSpaces(), productHandler.SaveVariationOption)
 				}
 			}
 
@@ -60,8 +60,8 @@ func AdminRoutes(api *gin.RouterGroup, authHandler handlerInterface.AuthHandler,
 		product := api.Group("/products")
 		{
 			product.GET("/", productHandler.GetAllProductsAdmin())
-			product.POST("/", productHandler.SaveProduct)
-			product.PUT("/", productHandler.UpdateProduct)
+			product.POST("/", middleware.TrimSpaces(), productHandler.SaveProduct)
+			product.PUT("/", middleware.TrimSpaces(), productHandler.UpdateProduct)
 
 			productItem := product.Group("/:product_id/items")
 			{
@@ -98,17 +98,17 @@ func AdminRoutes(api *gin.RouterGroup, authHandler handlerInterface.AuthHandler,
 		// offer
 		offer := api.Group("/offers")
 		{
-			offer.POST("/", productHandler.SaveOffer)   // add a new offer
-			offer.GET("/", productHandler.GetAllOffers) // get all offers
+			offer.POST("/", middleware.TrimSpaces(), productHandler.SaveOffer) // add a new offer
+			offer.GET("/", productHandler.GetAllOffers)                        // get all offers
 			offer.DELETE("/:offer_id", productHandler.RemoveOffer)
 
-			offer.GET("/category", productHandler.GetAllCategoryOffers) // to get all offers of categories
-			offer.POST("/category", productHandler.SaveCategoryOffer)   // add offer for categories
+			offer.GET("/category", productHandler.GetAllCategoryOffers)                        // to get all offers of categories
+			offer.POST("/category", middleware.TrimSpaces(), productHandler.SaveCategoryOffer) // add offer for categories
 			offer.PATCH("/category", productHandler.ChangeCategoryOffer)
 			offer.DELETE("/category/:offer_category_id", productHandler.RemoveCategoryOffer)
 
-			offer.GET("/products", productHandler.GetAllProductsOffers) // to get all offers of products
-			offer.POST("/products", productHandler.SaveProductOffer)    // add offer for products
+			offer.GET("/products", productHandler.GetAllProductsOffers)                       // to get all offers of products
+			offer.POST("/products", middleware.TrimSpaces(), productHandler.SaveProductOffer) // add offer for products
 			offer.PATCH("/products", productHandler.ChangeProductOffer)
 			offer.DELETE("/products/:offer_product_id", productHandler.RemoveProductOffer)
 		}
@@ -116,9 +116,9 @@ func AdminRoutes(api *gin.RouterGroup, authHandler handlerInterface.AuthHandler,
 		// coupons
 		coupons := api.Group("/coupons")
 		{
-			coupons.POST("/", couponHandler.SaveCoupon)
+			coupons.POST("/", middleware.TrimSpaces(), couponHandler.SaveCoupon)
 			coupons.GET("/", couponHandler.GetAllCouponsAdmin)
-			coupons.PUT("/", couponHandler.UpdateCoupon)
+			coupons.PUT("/", middleware.TrimSpaces(), couponHandler.UpdateCoupon)
 		}
 
 		// sales report

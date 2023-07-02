@@ -12,9 +12,9 @@ import (
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/api/middleware"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/config"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/db"
-	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/otp"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/repository"
-	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/token"
+	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/service/otp"
+	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/service/token"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/usecase"
 )
 

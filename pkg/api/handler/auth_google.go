@@ -8,10 +8,10 @@ import (
 	"github.com/markbates/goth"
 	"github.com/markbates/goth/gothic"
 	"github.com/markbates/goth/providers/google"
+	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/api/handler/response"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/config"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/domain"
-	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/token"
-	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/utils/response"
+	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/service/token"
 )
 
 // UserGoogleAuthLoginPage godoc

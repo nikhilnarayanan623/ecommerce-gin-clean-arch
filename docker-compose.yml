@@ -3,12 +3,12 @@ services:
 #database container
   postgresdb:
     image: postgres
-    ports: 
-      - 5432:5432
+    # ports: 
+    #   - 5454:5432
     environment:
-      - POSTGRES_USER=nikhil382
+      - POSTGRES_USER=${DB_USER}
       - POSTGRES_PASSWORD=password
-      - POSTGRES_DB=ecommerce_db
+      - POSTGRES_DB=${DB_NAME}
     volumes:
       - database:/var/lib/postgresql/data
 # webapp container
@@ -17,22 +17,38 @@ services:
     ports:
       - 8000:8000
     environment:
+      - ADMIN_EMAIL=${ADMIN_EMAIL}
+      - ADMIN_USER_NAME=${ADMIN_USER_NAME}
+      - ADMIN_PASSWORD=${ADMIN_PASSWORD}
       - DB_HOST=postgresdb
-      - DB_NAME=ecommerce_db
-      - DB_USER=nikhil382
+      - DB_USER=${DB_USER}
       - DB_PASSWORD=password
+      - DB_NAME=${DB_NAME}
       - DB_PORT=5432
+      - ADMIN_AUTH_KEY=${ADMIN_AUTH_KEY}
+      - USER_AUTH_KEY=${USER_AUTH_KEY}
+      - AUTH_TOKEN=${AUTH_TOKEN}
+      - ACCOUNT_SID=${ACCOUNT_SID}
+      - SERVICE_SID=${SERVICE_SID}
+      - RAZOR_PAY_KEY=${RAZOR_PAY_KEY}
+      - RAZOR_PAY_SECRET=${RAZOR_PAY_SECRET}
+      - STRIPE_SECRET=${STRIPE_SECRET}
+      - STRIPE_PUBLISH_KEY=${STRIPE_PUBLISH_KEY}
+      - STRIPE_WEBHOOK=${STRIPE_WEBHOOK}
+      - GOAUTH_CLIENT_ID=${GOAUTH_CLIENT_ID}
+      - GOAUTH_CLIENT_SECRET=${GOAUTH_CLIENT_SECRET}
+      - GOAUTH_CALL_BACK_URL=${GOAUTH_CALL_BACK_URL}
     depends_on:
       - postgresdb
 
-# pg admin for showing the database on GUI
-  # pg-admin:
-  #   image:  dpage/pgadmin4
-  #   ports:
-  #     - 8080:80
-  #   environment:
-  #     - PGADMIN_DEFAULT_EMAIL=nikhil@gmail.com
-  #     - PGADMIN_DEFAULT_PASSWORD=password
+# # pg admin for showing the database on GUI
+#   pg-admin:
+#     image:  dpage/pgadmin4
+#     ports:
+#       - 8080:80
+#     environment:
+#       - PGADMIN_DEFAULT_EMAIL=nikhil@gmail.com
+#       - PGADMIN_DEFAULT_PASSWORD=password
 
 # storing datas on docker side
 volumes:
