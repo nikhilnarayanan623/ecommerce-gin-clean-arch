@@ -39,7 +39,7 @@ func UserRoutes(api *gin.RouterGroup, authHandler handlerInterface.AuthHandler, 
 
 	}
 
-	api.Use(middleware.GetUserAuthMiddleware())
+	api.Use(middleware.AuthenticateUser())
 	{
 
 		// api.POST("/logout", userHandler.UserLogout)

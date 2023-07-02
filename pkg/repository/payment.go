@@ -3,9 +3,9 @@ package repository
 import (
 	"context"
 
+	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/api/handler/request"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/domain"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/repository/interfaces"
-	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/utils/request"
 	"gorm.io/gorm"
 )
 

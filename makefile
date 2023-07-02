@@ -49,14 +49,17 @@ swag: ## Generate swagger docs
 mockgen: # Generate mock files for the test
 	mockgen -source=pkg/repository/interfaces/auth.go -destination=pkg/mock/mockrepo/auth_mock.go -package=mockrepo
 	mockgen -source=pkg/repository/interfaces/user.go -destination=pkg/mock/mockrepo/user_mock.go -package=mockrepo
-	mockgen -source=pkg/token/token.go -destination=pkg/mock/mockservice/token_mock.go -package=mockservice
+	mockgen -source=pkg/service/token/token.go -destination=pkg/mock/mockservice/token_mock.go -package=mockservice
 	mockgen -source=pkg/usecase/interfaces/auth.go -destination=pkg/mock/mockusecase/auth_mock.go -package=mockusecase
 
-docker-up: ## up docker file
+docker-up: ## To up the docker compose file
 	docker-compose up 
 
-docker-down: ## down docker file
+docker-down: ## To down the docker compose file
 	docker-compose down
+
+docker-build: ## To build newdocker file for this project
+	docker build -t nikhil382/ecommerce-gin-clean-arch . 
 
 help: ## Display this help screen
 	@grep -h -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'

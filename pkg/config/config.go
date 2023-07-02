@@ -7,11 +7,14 @@ import (
 
 // to store env variables
 type Config struct {
-	DBHost     string `mapstructure:"DB_HOST"`
-	DBName     string `mapstructure:"DB_NAME"`
-	DBUser     string `mapstructure:"DB_USER"`
-	DBPassword string `mapstructure:"DB_PASSWORD"`
-	DBPort     string `mapstructure:"DB_PORT"`
+	AdminEmail    string `mapstructure:"ADMIN_EMAIL"`
+	AdminUserName string `mapstructure:"ADMIN_USER_NAME"`
+	AdminPassword string `mapstructure:"ADMIN_PASSWORD"`
+	DBHost        string `mapstructure:"DB_HOST"`
+	DBName        string `mapstructure:"DB_NAME"`
+	DBUser        string `mapstructure:"DB_USER"`
+	DBPassword    string `mapstructure:"DB_PASSWORD"`
+	DBPort        string `mapstructure:"DB_PORT"`
 
 	AdminAuthKey string `mapstructure:"ADMIN_AUTH_KEY"`
 	UserAuthKey  string `mapstructure:"USER_AUTH_KEY"`
@@ -34,9 +37,10 @@ type Config struct {
 
 // to hold all names of env variables
 var envsNames = []string{
-	"DB_HOST", "DB_NAME", "DB_USER", "DB_PASSWORD", "DB_PORT", // databse
+	"ADMIN_EMAIL", "ADMIN_USER_NAME", "ADMIN_PASSWORD",
+	"DB_HOST", "DB_NAME", "DB_USER", "DB_PASSWORD", "DB_PORT", // database
 	"ADMIN_AUTH_KEY", "USER_AUTH_KEY", // token auth
-	"AUTH_TOKEN", "ACCOUNT_SID", "SERVICE_SID", // twillio
+	"AUTH_TOKEN", "ACCOUNT_SID", "SERVICE_SID", // twilio
 	"RAZOR_PAY_KEY", "RAZOR_PAY_SECRET", // razor pay
 	"STRIPE_SECRET", "STRIPE_PUBLISH_KEY", "STRIPE_WEBHOOK", // stripe
 	"GOAUTH_CLIENT_ID", "GOAUTH_CLIENT_SECRET", "GOAUTH_CALL_BACK_URL", //goath

@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - name: ecommerce-app
-          image: nikhil382/ecommerce-gin-clean-arch:1.0
+          image: nikhil382/ecommerce-gin-clean-arch
           ports:
             - containerPort: 8000
           env:

@@ -7,12 +7,12 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/copier"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/api/handler/interfaces"
+	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/api/handler/request"
+	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/api/handler/response"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/domain"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/usecase"
 	usecaseInterface "github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/usecase/interfaces"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/utils"
-	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/utils/request"
-	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/utils/response"
 )
 
 type UserHandler struct {
