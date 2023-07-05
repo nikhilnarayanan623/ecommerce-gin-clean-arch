@@ -19,21 +19,4 @@ type ProductHandler interface {
 	SaveProductItem(ctx *gin.Context)
 	GetAllProductItemsAdmin() func(ctx *gin.Context)
 	GetAllProductItemsUser() func(ctx *gin.Context)
-
-	// offer
-	SaveOffer(ctx *gin.Context)
-	RemoveOffer(ctx *gin.Context)
-	GetAllOffers(ctx *gin.Context)
-
-	// category offer
-	GetAllCategoryOffers(ctx *gin.Context)
-	SaveCategoryOffer(ctx *gin.Context)
-	RemoveCategoryOffer(ctx *gin.Context)
-	ChangeCategoryOffer(ctx *gin.Context)
-
-	// product offer
-	GetAllProductsOffers(ctx *gin.Context)
-	SaveProductOffer(ctx *gin.Context)
-	RemoveProductOffer(ctx *gin.Context)
-	ChangeProductOffer(ctx *gin.Context)
 }

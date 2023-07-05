@@ -215,6 +215,7 @@ func (c *productUseCase) SaveProductItem(ctx context.Context, productID uint, pr
 				return utils.PrependMessageToError(err, "failed to save product_item configuration")
 			}
 		}
+
 		return nil
 	})
 

@@ -20,7 +20,8 @@ func NewServerHTTP(authHandler handlerInterface.AuthHandler, middleware middlewa
 	adminHandler handlerInterface.AdminHandler, userHandler handlerInterface.UserHandler,
 	cartHandler handlerInterface.CartHandler, paymentHandler handlerInterface.PaymentHandler,
 	productHandler handlerInterface.ProductHandler, orderHandler handlerInterface.OrderHandler,
-	couponHandler handlerInterface.CouponHandler, stockHandler handlerInterface.StockHandler) *ServerHTTP {
+	couponHandler handlerInterface.CouponHandler, offerHandler handlerInterface.OfferHandler,
+	stockHandler handlerInterface.StockHandler) *ServerHTTP {
 
 	engine := gin.New()
 
@@ -32,10 +33,10 @@ func NewServerHTTP(authHandler handlerInterface.AuthHandler, middleware middlewa
 	engine.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
 
 	// set up routes
-	routes.UserRoutes(engine.Group("/"), authHandler, middleware,
-		userHandler, cartHandler, productHandler, paymentHandler, orderHandler, couponHandler)
-	routes.AdminRoutes(engine.Group("/admin"), authHandler,
-		middleware, adminHandler, productHandler, paymentHandler, orderHandler, couponHandler,stockHandler)
+	routes.UserRoutes(engine.Group("/"), authHandler, middleware, userHandler, cartHandler,
+		productHandler, paymentHandler, orderHandler, couponHandler)
+	routes.AdminRoutes(engine.Group("/admin"), authHandler, middleware, adminHandler,
+		productHandler, paymentHandler, orderHandler, couponHandler, offerHandler, stockHandler)
 
 	// no handler
 	engine.NoRoute(func(ctx *gin.Context) {
