@@ -242,12 +242,36 @@ func (c *productDatabase) FindProductItemByID(ctx context.Context, productItemID
 	return productItem, err
 }
 
-func (c *productDatabase) IsProductItemAlreadyExist(ctx context.Context, productID, variationOptionID uint) (exist bool, err error) {
+// to get how many variations are available for a product
+func (c *productDatabase) FindVariationCountForProduct(ctx context.Context, productID uint) (variationCount uint, err error) {
 
-	query := `SELECT CASE WHEN id != 0 THEN 'T' ELSE 'F' END AS exist FROM product_items pi 
-	INNER JOIN product_configurations pc  ON pi.id = pc.product_item_id AND pc.variation_option_id = $1 
-	AND pi.product_id = $2`
-	err = c.DB.Raw(query, variationOptionID, productID).Scan(&exist).Error
+	query := `SELECT COUNT(v.id) FROM variations v
+	INNER JOIN categories c ON c.id = v.category_id 
+	INNER JOIN products p ON p.category_id = v.category_id 
+	WHERE p.id = $1`
+
+	err = c.DB.Raw(query, productID).Scan(&variationCount).Error
+
+	return
+}
+
+// To find all product item ids which related to the given product id and variation option id
+func (c *productDatabase) FindAllProductItemIDsByProductIDAndVariationOptionID(ctx context.Context, productID,
+	variationOptionID uint) (productItemIDs []uint, err error) {
+
+	query := `SELECT id FROM product_items pi 
+		INNER JOIN product_configurations pc ON pi.id = pc.product_item_id 
+		WHERE pi.product_id = $1 AND variation_option_id = $2`
+	err = c.DB.Raw(query, productID, variationOptionID).Scan(&productItemIDs).Error
+
+	return
+}
+
+func (c *productDatabase) FindAllProductItemIDsByProductID(ctx context.Context,
+	productID uint) (productItemIDs []uint, err error) {
+
+	query := `SELECT id FROM product_items WHERE product_id = $1`
+	err = c.DB.Raw(query, productID).Scan(&productItemIDs).Error
 
 	return
 }

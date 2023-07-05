@@ -20,9 +20,5 @@ func main() {
 		log.Fatal("Failed to initialize the api")
 	}
 
-	// if err := validator.RegisterAllCustomValidations(); err != nil {
-	// 	log.Fatal(err.Error())
-	// }
-
 	server.Start()
 }
