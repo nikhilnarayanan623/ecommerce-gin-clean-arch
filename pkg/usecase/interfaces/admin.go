@@ -15,10 +15,6 @@ type AdminUseCase interface {
 	BlockOrUnBlockUser(ctx context.Context, blockDetails request.BlockUser) error
 
 	GetFullSalesReport(ctx context.Context, requestData request.SalesReport) (salesReport []response.SalesReport, err error)
-
-	// stock side
-	GetAllStockDetails(ctx context.Context, pagination request.Pagination) (stocks []response.Stock, err error)
-	UpdateStockBySKU(ctx context.Context, updateDetails request.UpdateStock) error
 }
 
 // GetCategory(ctx context.Context) (helper.Category, any)

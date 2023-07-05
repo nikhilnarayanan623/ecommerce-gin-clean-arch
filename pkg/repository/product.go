@@ -339,3 +339,5 @@ func (c *productDatabase) FindAllVariationValuesOfProductItem(ctx context.Contex
 // 	fmt.Println(imagess.Image)
 // 	return images, nil
 // }
+
+

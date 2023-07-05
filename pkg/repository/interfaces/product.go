@@ -93,4 +93,6 @@ type ProductRepository interface {
 	//new refracted
 	DeleteAllProductOffersByOfferID(ctx context.Context, offerID uint) error
 	DeleteAllCategoryOffersByOfferID(ctx context.Context, offerID uint) error
+
+	
 }

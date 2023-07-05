@@ -424,6 +424,13 @@ definitions:
     - offer_id
     - product_offer_id
     type: object
+  request.UpdateStock:
+    properties:
+      qty_to_add:
+        type: integer
+      sku:
+        type: string
+    type: object
   request.UserSignUp:
     properties:
       age:
@@ -1697,7 +1704,8 @@ paths:
     post:
       consumes:
       - application/json
-      description: API for admin to add a product item for a specific product
+      description: API for admin to add a product item for a specific product(should
+        select at least one variation option from each variations)
       operationId: SaveProductItem
       parameters:
       - description: Product ID
@@ -1800,14 +1808,12 @@ paths:
       description: API for admin to update stock details
       operationId: UpdateStock
       parameters:
-      - description: Page Number
-        in: query
-        name: page_number
-        type: integer
-      - description: Order
-        in: query
-        name: count
-        type: integer
+      - description: Update stock details
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/request.UpdateStock'
       responses:
         "200":
           description: Successfully updated sock
@@ -1826,6 +1832,7 @@ paths:
       - Admin Stock
   /admin/users:
     get:
+      description: API for admin to get all user details
       operationId: GetAllUsers
       parameters:
       - description: Page Number
@@ -1849,7 +1856,7 @@ paths:
           description: Failed to find all users
           schema:
             $ref: '#/definitions/response.Response'
-      summary: api for admin to find all users
+      summary: Get all users
       tags:
       - Admin User
   /admin/users/block:

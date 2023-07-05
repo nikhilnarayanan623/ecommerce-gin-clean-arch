@@ -3,9 +3,9 @@ package interfaces
 import (
 	"context"
 
-	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/domain"
-	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/api/handler/response"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/api/handler/request"
+	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/api/handler/response"
+	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/domain"
 )
 
 type AdminRepository interface {
@@ -19,6 +19,6 @@ type AdminRepository interface {
 
 	//stock side
 	FindStockBySKU(ctx context.Context, sku string) (stock response.Stock, err error)
-	FindAllStockDetails(ctx context.Context, pagination request.Pagination) (stocks []response.Stock, err error)
-	UpdateStock(ctx context.Context, valuesToUpdate request.UpdateStock) error
+	
+	
 }

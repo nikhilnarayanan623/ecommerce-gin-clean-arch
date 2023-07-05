@@ -7,8 +7,5 @@ type AdminHandler interface {
 	BlockUser(ctx *gin.Context)
 
 	AdminSignUp(ctx *gin.Context)
-
-	UpdateStock(ctx *gin.Context)
-	GetAllStocks(ctx *gin.Context)
 	GetFullSalesReport(ctx *gin.Context)
 }
