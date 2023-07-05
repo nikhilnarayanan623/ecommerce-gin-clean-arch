@@ -44,15 +44,7 @@ func (c *productDatabase) FindCategoryByName(ctx context.Context, categoryName s
 	query := `SELECT * FROM categories WHERE name = ?`
 	err = c.DB.Raw(query, categoryName).Scan(&category).Error
 
-	return category, err
-}
-
-func (c *productDatabase) FindCategoryByID(ctx context.Context, categoryID uint) (category domain.Category, err error) {
-
-	query := `SELECT * FROM categories WHERE id = ?`
-	err = c.DB.Raw(query, categoryID).Scan(&category).Error
-
-	return category, err
+	return
 }
 
 // Save Category
@@ -84,7 +76,7 @@ func (c *productDatabase) FindAllMainCategories(ctx context.Context,
 	LIMIT $1 OFFSET $2`
 	err = c.DB.Raw(query, limit, offset).Scan(&categories).Error
 
-	return categories, err
+	return
 }
 
 // Find all sub categories of a category
@@ -93,15 +85,6 @@ func (c *productDatabase) FindAllSubCategories(ctx context.Context,
 
 	query := `SELECT id, name FROM categories WHERE category_id = $1`
 	err = c.DB.Raw(query, categoryID).Scan(&subCategories).Error
-
-	return
-}
-
-// Find variation by id
-func (c *productDatabase) FindVariationByID(ctx context.Context, variationID uint) (variation domain.Variation, err error) {
-
-	query := `SELECT id, name FROM variations WHERE id = $1`
-	err = c.DB.Raw(query, variationID).Scan(&variation).Error
 
 	return
 }
@@ -170,7 +153,7 @@ func (c *productDatabase) FindProductByID(ctx context.Context, productID uint) (
 	query := `SELECT * FROM products WHERE id = $1`
 	err = c.DB.Raw(query, productID).Scan(&product).Error
 
-	return product, err
+	return
 }
 
 func (c *productDatabase) FindProductByName(ctx context.Context, productName string) (product domain.Product, err error) {
@@ -178,7 +161,7 @@ func (c *productDatabase) FindProductByName(ctx context.Context, productName str
 	query := `SELECT * FROM products WHERE name = $1`
 	err = c.DB.Raw(query, productName).Scan(&product).Error
 
-	return product, err
+	return
 }
 
 func (c *productDatabase) IsProductNameAlreadyExist(ctx context.Context, productName string) (exist bool, err error) {
@@ -230,7 +213,7 @@ func (c *productDatabase) FindAllProducts(ctx context.Context, pagination reques
 
 	err = c.DB.Raw(query, limit, offset).Scan(&products).Error
 
-	return products, err
+	return
 }
 
 // to get productItem id
@@ -267,15 +250,6 @@ func (c *productDatabase) FindAllProductItemIDsByProductIDAndVariationOptionID(c
 	return
 }
 
-func (c *productDatabase) FindAllProductItemIDsByProductID(ctx context.Context,
-	productID uint) (productItemIDs []uint, err error) {
-
-	query := `SELECT id FROM product_items WHERE product_id = $1`
-	err = c.DB.Raw(query, productID).Scan(&productItemIDs).Error
-
-	return
-}
-
 func (c *productDatabase) SaveProductConfiguration(ctx context.Context, productItemID, variationOptionID uint) error {
 
 	query := `INSERT INTO product_configurations (product_item_id, variation_option_id) VALUES ($1, $2)`
@@ -296,7 +270,8 @@ func (c *productDatabase) SaveProductItem(ctx context.Context, productItem domai
 }
 
 // for get all products items for a product
-func (c *productDatabase) FindAllProductItems(ctx context.Context, productID uint) (productItems []response.ProductItems, err error) {
+func (c *productDatabase) FindAllProductItems(ctx context.Context,
+	productID uint) (productItems []response.ProductItems, err error) {
 
 	// first find all product_items
 
@@ -307,7 +282,7 @@ func (c *productDatabase) FindAllProductItems(ctx context.Context, productID uin
 
 	err = c.DB.Raw(query, productID).Scan(&productItems).Error
 
-	return productItems, err
+	return
 }
 
 // Find all variation and value of a product item
@@ -323,21 +298,3 @@ func (c *productDatabase) FindAllVariationValuesOfProductItem(ctx context.Contex
 
 	return
 }
-
-// func (c *productDatabase) FindAllProductItemImages(ctx context.Context, productItemID uint) (images []string, err error) {
-
-// 	query := `SELECT image FROM product_images WHERE product_item_id = $1`
-
-// 	var imagess domain.ProductImage
-
-// 	err = c.DB.Raw(query, productItemID).Scan(&imagess).Error
-
-// 	if err != nil {
-// 		return images, fmt.Errorf("faild to find image of product_item with product_item_id %v", productItemID)
-// 	}
-
-// 	fmt.Println(imagess.Image)
-// 	return images, nil
-// }
-
-

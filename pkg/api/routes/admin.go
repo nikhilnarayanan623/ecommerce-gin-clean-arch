@@ -8,8 +8,8 @@ import (
 
 func AdminRoutes(api *gin.RouterGroup, authHandler handlerInterface.AuthHandler, middleware middleware.Middleware,
 	adminHandler handlerInterface.AdminHandler, productHandler handlerInterface.ProductHandler,
-	paymentHandler handlerInterface.PaymentHandler,
-	orderHandler handlerInterface.OrderHandler, couponHandler handlerInterface.CouponHandler,
+	paymentHandler handlerInterface.PaymentHandler, orderHandler handlerInterface.OrderHandler,
+	couponHandler handlerInterface.CouponHandler, offerHandler handlerInterface.OfferHandler,
 	stockHandler handlerInterface.StockHandler,
 
 ) {
@@ -99,19 +99,19 @@ func AdminRoutes(api *gin.RouterGroup, authHandler handlerInterface.AuthHandler,
 		// offer
 		offer := api.Group("/offers")
 		{
-			offer.POST("/", middleware.TrimSpaces(), productHandler.SaveOffer) // add a new offer
-			offer.GET("/", productHandler.GetAllOffers)                        // get all offers
-			offer.DELETE("/:offer_id", productHandler.RemoveOffer)
+			offer.POST("/", middleware.TrimSpaces(), offerHandler.SaveOffer) // add a new offer
+			offer.GET("/", offerHandler.GetAllOffers)                        // get all offers
+			offer.DELETE("/:offer_id", offerHandler.RemoveOffer)
 
-			offer.GET("/category", productHandler.GetAllCategoryOffers)                        // to get all offers of categories
-			offer.POST("/category", middleware.TrimSpaces(), productHandler.SaveCategoryOffer) // add offer for categories
-			offer.PATCH("/category", productHandler.ChangeCategoryOffer)
-			offer.DELETE("/category/:offer_category_id", productHandler.RemoveCategoryOffer)
+			offer.GET("/category", offerHandler.GetAllCategoryOffers)                        // to get all offers of categories
+			offer.POST("/category", middleware.TrimSpaces(), offerHandler.SaveCategoryOffer) // add offer for categories
+			offer.PATCH("/category", offerHandler.ChangeCategoryOffer)
+			offer.DELETE("/category/:offer_category_id", offerHandler.RemoveCategoryOffer)
 
-			offer.GET("/products", productHandler.GetAllProductsOffers)                       // to get all offers of products
-			offer.POST("/products", middleware.TrimSpaces(), productHandler.SaveProductOffer) // add offer for products
-			offer.PATCH("/products", productHandler.ChangeProductOffer)
-			offer.DELETE("/products/:offer_product_id", productHandler.RemoveProductOffer)
+			offer.GET("/products", offerHandler.GetAllProductsOffers)                       // to get all offers of products
+			offer.POST("/products", middleware.TrimSpaces(), offerHandler.SaveProductOffer) // add offer for products
+			offer.PATCH("/products", offerHandler.ChangeProductOffer)
+			offer.DELETE("/products/:offer_product_id", offerHandler.RemoveProductOffer)
 		}
 
 		// coupons

@@ -6,11 +6,23 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/copier"
+	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/api/handler/interfaces"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/api/handler/request"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/api/handler/response"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/domain"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/usecase"
+	usecaseInterface "github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/usecase/interfaces"
 )
+
+type offerHandler struct {
+	offerUseCase usecaseInterface.OfferUseCase
+}
+
+func NewOfferHandler(offerUseCase usecaseInterface.OfferUseCase) interfaces.OfferHandler {
+	return &offerHandler{
+		offerUseCase: offerUseCase,
+	}
+}
 
 // SaveOffer godoc
 // @Summary Add offer (Admin)
@@ -22,7 +34,7 @@ import (
 // @Success 200 {object} response.Response{} "Successfully offer added"
 // @Failure 409 {object} response.Response{} "Offer already exist"
 // @Failure 400 {object} response.Response{} "Invalid inputs"
-func (p *ProductHandler) SaveOffer(ctx *gin.Context) {
+func (p *offerHandler) SaveOffer(ctx *gin.Context) {
 
 	var body request.Offer
 
@@ -31,7 +43,7 @@ func (p *ProductHandler) SaveOffer(ctx *gin.Context) {
 		return
 	}
 
-	err := p.productUseCase.SaveOffer(ctx, body)
+	err := p.offerUseCase.SaveOffer(ctx, body)
 	if err != nil {
 		var statusCode int
 
@@ -60,11 +72,11 @@ func (p *ProductHandler) SaveOffer(ctx *gin.Context) {
 // @Router /admin/offers [get]
 // @Success 200 {object} response.Response{} ""Successfully found all offers"
 // @Failure 500 {object} response.Response{} "Failed to get all offers"
-func (c *ProductHandler) GetAllOffers(ctx *gin.Context) {
+func (c *offerHandler) GetAllOffers(ctx *gin.Context) {
 
 	pagination := request.GetPagination(ctx)
 
-	offers, err := c.productUseCase.FindAllOffers(ctx, pagination)
+	offers, err := c.offerUseCase.FindAllOffers(ctx, pagination)
 	if err != nil {
 		response.ErrorResponse(ctx, http.StatusInternalServerError, "Failed to get all offers", err, nil)
 
@@ -89,7 +101,7 @@ func (c *ProductHandler) GetAllOffers(ctx *gin.Context) {
 // @Router /admin/offers/{offer_id} [delete]
 // @Success 200 {object} response.Response{} "successfully offer added"
 // @Failure 400 {object} response.Response{} "invalid input"
-func (c *ProductHandler) RemoveOffer(ctx *gin.Context) {
+func (c *offerHandler) RemoveOffer(ctx *gin.Context) {
 
 	offerID, err := request.GetParamAsUint(ctx, "offer_id")
 	if err != nil {
@@ -97,7 +109,7 @@ func (c *ProductHandler) RemoveOffer(ctx *gin.Context) {
 		return
 	}
 
-	err = c.productUseCase.RemoveOffer(ctx, offerID)
+	err = c.offerUseCase.RemoveOffer(ctx, offerID)
 
 	if err != nil {
 		response.ErrorResponse(ctx, http.StatusBadRequest, "Failed to remove offer", err, nil)
@@ -116,7 +128,7 @@ func (c *ProductHandler) RemoveOffer(ctx *gin.Context) {
 // @Router /admin/offers/category [post]
 // @Success 200 {object} response.Response{} "successfully offer added for category"
 // @Failure 400 {object} response.Response{} "invalid input"
-func (c *ProductHandler) SaveCategoryOffer(ctx *gin.Context) {
+func (c *offerHandler) SaveCategoryOffer(ctx *gin.Context) {
 
 	var body request.OfferCategory
 
@@ -125,7 +137,7 @@ func (c *ProductHandler) SaveCategoryOffer(ctx *gin.Context) {
 		return
 	}
 
-	err := c.productUseCase.SaveCategoryOffer(ctx, body)
+	err := c.offerUseCase.SaveCategoryOffer(ctx, body)
 	if err != nil {
 		var statusCode int
 		switch {
@@ -153,11 +165,11 @@ func (c *ProductHandler) SaveCategoryOffer(ctx *gin.Context) {
 // @Router /admin/offers/category [get]
 // @Success 200 {object} response.Response{} "successfully got all offer_category"
 // @Failure 500 {object} response.Response{} "failed to get offers_category"
-func (c *ProductHandler) GetAllCategoryOffers(ctx *gin.Context) {
+func (c *offerHandler) GetAllCategoryOffers(ctx *gin.Context) {
 
 	pagination := request.GetPagination(ctx)
 
-	offerCategories, err := c.productUseCase.FindAllCategoryOffers(ctx, pagination)
+	offerCategories, err := c.offerUseCase.FindAllCategoryOffers(ctx, pagination)
 
 	if err != nil {
 		response.ErrorResponse(ctx, http.StatusInternalServerError, "Failed to get offer categories", err, nil)
@@ -181,7 +193,7 @@ func (c *ProductHandler) GetAllCategoryOffers(ctx *gin.Context) {
 // @Router /admin/offers/category/{offer_category_id} [delete]
 // @Success 200 {object} response.Response{} "successfully offer added for category"
 // @Failure 400 {object} response.Response{} "invalid input"
-func (c *ProductHandler) RemoveCategoryOffer(ctx *gin.Context) {
+func (c *offerHandler) RemoveCategoryOffer(ctx *gin.Context) {
 
 	offerCategoryID, err := request.GetParamAsUint(ctx, "offer_category_id")
 	if err != nil {
@@ -189,7 +201,7 @@ func (c *ProductHandler) RemoveCategoryOffer(ctx *gin.Context) {
 		return
 	}
 
-	err = c.productUseCase.RemoveCategoryOffer(ctx, offerCategoryID)
+	err = c.offerUseCase.RemoveCategoryOffer(ctx, offerCategoryID)
 
 	if err != nil {
 		response.ErrorResponse(ctx, http.StatusBadRequest, "Failed to remove offer form category", err, nil)
@@ -208,7 +220,7 @@ func (c *ProductHandler) RemoveCategoryOffer(ctx *gin.Context) {
 // @Router /admin/offers/category [patch]
 // @Success 200 {object} response.Response{} "successfully offer replaced for category"
 // @Failure 400 {object} response.Response{} "invalid input"
-func (c *ProductHandler) ChangeCategoryOffer(ctx *gin.Context) {
+func (c *offerHandler) ChangeCategoryOffer(ctx *gin.Context) {
 
 	var body request.UpdateCategoryOffer
 
@@ -217,7 +229,7 @@ func (c *ProductHandler) ChangeCategoryOffer(ctx *gin.Context) {
 		return
 	}
 
-	err := c.productUseCase.ChangeCategoryOffer(ctx, body.CategoryOfferID, body.OfferID)
+	err := c.offerUseCase.ChangeCategoryOffer(ctx, body.CategoryOfferID, body.OfferID)
 	if err != nil {
 		response.ErrorResponse(ctx, http.StatusBadRequest, "Failed to change offer for given category offer", err, nil)
 		return
@@ -235,7 +247,7 @@ func (c *ProductHandler) ChangeCategoryOffer(ctx *gin.Context) {
 // @Router /admin/offers/products [post]
 // @Success 200 {object} response.Response{} "successfully offer added for product"
 // @Failure 400 {object} response.Response{} "invalid input"
-func (c *ProductHandler) SaveProductOffer(ctx *gin.Context) {
+func (c *offerHandler) SaveProductOffer(ctx *gin.Context) {
 
 	var body request.OfferProduct
 
@@ -247,7 +259,7 @@ func (c *ProductHandler) SaveProductOffer(ctx *gin.Context) {
 	var offerProduct domain.OfferProduct
 	copier.Copy(&offerProduct, &body)
 
-	err := c.productUseCase.SaveProductOffer(ctx, offerProduct)
+	err := c.offerUseCase.SaveProductOffer(ctx, offerProduct)
 	if err != nil {
 		response.ErrorResponse(ctx, http.StatusBadRequest, "Failed to add offer for given product", err, nil)
 		return
@@ -266,11 +278,11 @@ func (c *ProductHandler) SaveProductOffer(ctx *gin.Context) {
 // @Router /admin/offers/products [get]
 // @Success 200 {object} response.Response{} "successfully got all offers_categories"
 // @Failure 500 {object} response.Response{} "failed to get offer_products"
-func (c *ProductHandler) GetAllProductsOffers(ctx *gin.Context) {
+func (c *offerHandler) GetAllProductsOffers(ctx *gin.Context) {
 
 	pagination := request.GetPagination(ctx)
 
-	offersOfCategories, err := c.productUseCase.FindAllProductOffers(ctx, pagination)
+	offersOfCategories, err := c.offerUseCase.FindAllProductOffers(ctx, pagination)
 	if err != nil {
 		response.ErrorResponse(ctx, http.StatusInternalServerError, "Failed to get all offer products", err, nil)
 		return
@@ -293,7 +305,7 @@ func (c *ProductHandler) GetAllProductsOffers(ctx *gin.Context) {
 // @Router /admin/offers/products/{offer_product_id} [delete]
 // @Success 200 {object} response.Response{} "Successfully offer removed from product"
 // @Failure 400 {object} response.Response{} "invalid input on params"
-func (c *ProductHandler) RemoveProductOffer(ctx *gin.Context) {
+func (c *offerHandler) RemoveProductOffer(ctx *gin.Context) {
 
 	offerProductID, err := request.GetParamAsUint(ctx, "offer_product_id")
 	if err != nil {
@@ -301,7 +313,7 @@ func (c *ProductHandler) RemoveProductOffer(ctx *gin.Context) {
 		return
 	}
 
-	err = c.productUseCase.RemoveProductOffer(ctx, offerProductID)
+	err = c.offerUseCase.RemoveProductOffer(ctx, offerProductID)
 
 	if err != nil {
 		response.ErrorResponse(ctx, http.StatusBadRequest, "Failed to remove offer form product", err, nil)
@@ -320,7 +332,7 @@ func (c *ProductHandler) RemoveProductOffer(ctx *gin.Context) {
 // @Router /admin/offers/products [patch]
 // @Success 200 {object} response.Response{} "Successfully offer changed for  given product offer"
 // @Failure 400 {object} response.Response{} "invalid input"
-func (c *ProductHandler) ChangeProductOffer(ctx *gin.Context) {
+func (c *offerHandler) ChangeProductOffer(ctx *gin.Context) {
 
 	var body request.UpdateProductOffer
 
@@ -329,7 +341,7 @@ func (c *ProductHandler) ChangeProductOffer(ctx *gin.Context) {
 		return
 	}
 
-	err := c.productUseCase.ChangeProductOffer(ctx, body.ProductOfferID, body.OfferID)
+	err := c.offerUseCase.ChangeProductOffer(ctx, body.ProductOfferID, body.OfferID)
 
 	if err != nil {
 		response.ErrorResponse(ctx, http.StatusBadRequest, "Failed to change offer for given product offer", err, nil)
