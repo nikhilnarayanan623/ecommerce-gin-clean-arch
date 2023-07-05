@@ -196,8 +196,8 @@ func TestGenerateRefreshToken(t *testing.T) {
 	tests := []struct {
 		testName              string
 		inputField            service.GenerateTokenParams
-		buildStubAuthRepo     func(t *testing.T, mockRepo *mockrepo.MockAuthRepository)
-		buildStubTokenService func(t *testing.T, tService *mockservice.MockTokenService)
+		buildStubAuthRepo     func(mockRepo *mockrepo.MockAuthRepository)
+		buildStubTokenService func(Service *mockservice.MockTokenService)
 		checkOutput           func(t *testing.T, tokenString string, err error)
 	}{
 		{
@@ -207,11 +207,11 @@ func TestGenerateRefreshToken(t *testing.T) {
 				UserID:   2,
 				UserType: token.User,
 			},
-			buildStubTokenService: func(t *testing.T, tService *mockservice.MockTokenService) {
+			buildStubTokenService: func(tService *mockservice.MockTokenService) {
 				tService.EXPECT().GenerateToken(gomock.Any()).
 					Times(1).Return(token.GenerateTokenResponse{}, errors.New("failed to generate token"))
 			},
-			buildStubAuthRepo: func(t *testing.T, mockRepo *mockrepo.MockAuthRepository) {
+			buildStubAuthRepo: func(mockRepo *mockrepo.MockAuthRepository) {
 				// not expecting calls to any functions
 			},
 			checkOutput: func(t *testing.T, tokenString string, actualError error) {
@@ -224,11 +224,11 @@ func TestGenerateRefreshToken(t *testing.T) {
 			inputField: service.GenerateTokenParams{UserID: 1,
 				UserType: token.User,
 			},
-			buildStubTokenService: func(t *testing.T, tokenAuth *mockservice.MockTokenService) {
+			buildStubTokenService: func(tokenAuth *mockservice.MockTokenService) {
 				tokenAuth.EXPECT().GenerateToken(gomock.Any()).
 					Times(1).Return(token.GenerateTokenResponse{TokenString: "access_token"}, nil)
 			},
-			buildStubAuthRepo: func(t *testing.T, mockRepo *mockrepo.MockAuthRepository) {
+			buildStubAuthRepo: func(mockRepo *mockrepo.MockAuthRepository) {
 				mockRepo.EXPECT().SaveRefreshSession(gomock.Any(), gomock.Any()).
 					Times(1).Return(errors.New("failed to save refresh_session on database"))
 			},
@@ -242,11 +242,11 @@ func TestGenerateRefreshToken(t *testing.T) {
 			inputField: service.GenerateTokenParams{UserID: 1,
 				UserType: token.User,
 			},
-			buildStubTokenService: func(t *testing.T, tokenAuth *mockservice.MockTokenService) {
+			buildStubTokenService: func(tokenAuth *mockservice.MockTokenService) {
 				tokenAuth.EXPECT().GenerateToken(gomock.Any()).
 					Times(1).Return(token.GenerateTokenResponse{TokenID: "token_id", TokenString: "token"}, nil)
 			},
-			buildStubAuthRepo: func(t *testing.T, mockRepo *mockrepo.MockAuthRepository) {
+			buildStubAuthRepo: func(mockRepo *mockrepo.MockAuthRepository) {
 				mockRepo.EXPECT().SaveRefreshSession(gomock.Any(), gomock.Any()).
 					Times(1).Return(nil)
 			},
@@ -262,8 +262,8 @@ func TestGenerateRefreshToken(t *testing.T) {
 			ctl := gomock.NewController(t)
 			mockAuthRepo := mockrepo.NewMockAuthRepository(ctl)
 			mockTokenAuth := mockservice.NewMockTokenService(ctl)
-			test.buildStubAuthRepo(t, mockAuthRepo)
-			test.buildStubTokenService(t, mockTokenAuth)
+			test.buildStubAuthRepo(mockAuthRepo)
+			test.buildStubTokenService(mockTokenAuth)
 
 			authUseCase := NewAuthUseCase(mockAuthRepo, mockTokenAuth, nil, nil, nil)
 			tokenString, err := authUseCase.GenerateRefreshToken(context.Background(), test.inputField)
@@ -286,7 +286,7 @@ func TestVerifyAndGetRefreshTokenSession(t *testing.T) {
 		{
 			testName:     "InvalidRefreshTokenShouldReturnError",
 			refreshToken: "invalidRefreshToken",
-			buildStub: func(authMockRepo *mockrepo.MockAuthRepository, tokenMockAuth *mockservice.MockTokenService) {
+			buildStub: func(_ *mockrepo.MockAuthRepository, tokenMockAuth *mockservice.MockTokenService) {
 				tokenMockAuth.EXPECT().VerifyToken(token.VerifyTokenRequest{TokenString: "invalidRefreshToken", UsedFor: tokenUser}).
 					Times(1).Return(token.VerifyTokenResponse{}, errors.New("invalid refresh token"))
 			},

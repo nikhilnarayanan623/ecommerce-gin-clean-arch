@@ -84,7 +84,7 @@ func (c *productUseCase) SaveVariation(ctx context.Context, categoryID uint, var
 
 		for _, variationName := range variationNames {
 
-			existVariation, err := c.productRepo.FindVariationByNameAndCategoryID(ctx, variationName, categoryID)
+			existVariation, err := repo.FindVariationByNameAndCategoryID(ctx, variationName, categoryID)
 			if err != nil {
 				return utils.PrependMessageToError(err, "failed to check variation already exist")
 			}
@@ -110,7 +110,7 @@ func (c *productUseCase) SaveVariationOption(ctx context.Context, variationID ui
 	err := c.productRepo.Transactions(ctx, func(repo interfaces.ProductRepository) error {
 		for _, variationValue := range variationOptionValues {
 
-			existVarOpt, err := c.productRepo.FindVariationOptionByValueAndVariationID(ctx, variationID, variationValue)
+			existVarOpt, err := repo.FindVariationOptionByValueAndVariationID(ctx, variationID, variationValue)
 			if err != nil {
 				return utils.PrependMessageToError(err, "failed to check variation already exist")
 			}
@@ -118,7 +118,7 @@ func (c *productUseCase) SaveVariationOption(ctx context.Context, variationID ui
 				return utils.PrependMessageToError(ErrVariationOptionAlreadyExist, "variation option value "+variationValue)
 			}
 
-			err = c.productRepo.SaveVariationOption(ctx, variationID, variationValue)
+			err = repo.SaveVariationOption(ctx, variationID, variationValue)
 			if err != nil {
 				return utils.PrependMessageToError(err, "failed to save variation option")
 			}
@@ -174,8 +174,17 @@ func (c *productUseCase) SaveProduct(ctx context.Context, product request.Produc
 // for add new productItem for a specific product
 func (c *productUseCase) SaveProductItem(ctx context.Context, productID uint, productItem request.ProductItem) error {
 
+	variationCount, err := c.productRepo.FindVariationCountForProduct(ctx, productID)
+	if err != nil {
+		return utils.PrependMessageToError(err, "failed to get variation count of product from database")
+	}
+
+	if len(productItem.VariationOptionIDs) != int(variationCount) {
+		return ErrNotEnoughVariations
+	}
+
 	// check the given all combination already exist (Color:Red with Size:M)
-	productItemExist, err := c.isAllVariationCombinationExist(productID, productItem.VariationOptionIDs)
+	productItemExist, err := c.isProductVariationCombinationExist(productID, productItem.VariationOptionIDs)
 	if err != nil {
 		return err
 	}
@@ -215,21 +224,41 @@ func (c *productUseCase) SaveProductItem(ctx context.Context, productID uint, pr
 	return nil
 }
 
-// To check all variation option is exist for the product
-func (c *productUseCase) isAllVariationCombinationExist(productID uint, variationOptionIDs []uint) (exist bool, err error) {
+// step 1 : get product_id and and all variation id as function parameter
+// step 2 : initialize an map for storing product item id and its count(map[uint]int)
+// step 3 : loop through the variation option ids
+// step 4 : then find all product items ids with given product id and the loop variation option id
+// step 5 : if the product item array length is zero means the configuration not exist return false
+// step 6 : then loop through the product items ids array(got from database)
+// step 7 : add each id on the map and increment its count
+// step 8 : check if any of the product items id's count is greater than the variation options ids length then return true
+// step 9 : if the loop exist means product configuration is not exist
+func (c *productUseCase) isProductVariationCombinationExist(productID uint, variationOptionIDs []uint) (exist bool, err error) {
+
+	setOfIds := map[uint]int{}
 
 	for _, variationOptionID := range variationOptionIDs {
-		exist, err := c.productRepo.IsProductItemAlreadyExist(context.Background(), productID, variationOptionID)
+
+		productItemIds, err := c.productRepo.FindAllProductItemIDsByProductIDAndVariationOptionID(context.TODO(),
+			productID, variationOptionID)
 		if err != nil {
-			return false, utils.PrependMessageToError(err, "failed to check product item already exist with given configuration")
+			return false, utils.PrependMessageToError(err, "failed to find product item ids from database using product id and variation option id")
 		}
-		// one of the combination not exist then return
-		if !exist {
+
+		if len(productItemIds) == 0 {
 			return false, nil
 		}
-	}
 
-	return true, nil
+		for _, productItemID := range productItemIds {
+
+			setOfIds[productItemID]++
+			// if any of the ids count is equal to array length it means product item id of this is the existing product item of this configuration
+			if setOfIds[productItemID] >= len(variationOptionIDs) {
+				return true, nil
+			}
+		}
+	}
+	return false, nil
 }
 
 // for get all productItem for a specific product

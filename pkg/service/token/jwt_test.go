@@ -86,7 +86,7 @@ func TestVerifyToken(t *testing.T) {
 			name:           "ChangedSigningMethodShouldReturnInvalidTokenError",
 			expectedOutput: VerifyTokenResponse{},
 			tokenUser:      User,
-			buildStub: func(t *testing.T, tokenAuth TokenService) (tokenString string) {
+			buildStub: func(t *testing.T, _ TokenService) (tokenString string) {
 				// create a token with unsafe signature
 				token := jwt.NewWithClaims(jwt.SigningMethodNone, &jwtClaims{})
 				tokenString, err := token.SignedString(jwt.UnsafeAllowNoneSignatureType)

@@ -382,7 +382,7 @@ func (c *ProductHandler) UpdateProduct(ctx *gin.Context) {
 
 // SaveProductItem godoc
 // @Summary Add a product item (Admin)
-// @Description API for admin to add a product item for a specific product
+// @Description API for admin to add a product item for a specific product(should select at least one variation option from each variations)
 // @ID SaveProductItem
 // @Tags Admin Products
 // @Accept json
@@ -411,9 +411,15 @@ func (p *ProductHandler) SaveProductItem(ctx *gin.Context) {
 
 	if err != nil {
 
-		statusCode := http.StatusInternalServerError
-		if errors.Is(err, usecase.ErrProductItemAlreadyExist) {
+		var statusCode int
+
+		switch {
+		case errors.Is(err, usecase.ErrProductItemAlreadyExist):
 			statusCode = http.StatusConflict
+		case errors.Is(err, usecase.ErrNotEnoughVariations):
+			statusCode = http.StatusBadRequest
+		default:
+			statusCode = http.StatusInternalServerError
 		}
 
 		response.ErrorResponse(ctx, statusCode, "Failed to add product item", err, nil)

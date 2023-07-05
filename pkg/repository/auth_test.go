@@ -8,7 +8,6 @@ import (
 	"time"
 
 	"github.com/DATA-DOG/go-sqlmock"
-	"github.com/google/uuid"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/domain"
 	"github.com/stretchr/testify/assert"
 	"gorm.io/driver/postgres"
@@ -69,22 +68,22 @@ VALUES \(\$1, \$2, \$3, \$4\)`
 
 func TestFindRefreshSessionByTokenID(t *testing.T) {
 	findRefreshSessionQuery := `SELECT \* FROM refresh_sessions WHERE token_id \= \$1`
-
+	expireAt := time.Now().Add(time.Hour * 1)
 	tests := []struct {
 		testName               string
 		tokenID                string
 		expectedRefreshSession domain.RefreshSession
-		buildStub              func(mock sqlmock.Sqlmock, inputTokenID string, dbValues domain.RefreshSession)
+		buildStub              func(mock sqlmock.Sqlmock)
 		expectedError          error
 	}{
 		{
 			testName:               "NonExistingTokenIDReturnEmptyRefreshSession",
 			tokenID:                "non_existing_token_id",
 			expectedRefreshSession: domain.RefreshSession{},
-			buildStub: func(mock sqlmock.Sqlmock, inputTokenID string, inputs domain.RefreshSession) {
+			buildStub: func(mock sqlmock.Sqlmock) {
 				mock.ExpectQuery(findRefreshSessionQuery).
-					WithArgs(inputTokenID).WillReturnRows(sqlmock.NewRows([]string{"token_id", "refresh_token", "expired_at"}).
-					AddRow(uuid.NullUUID{}, "", time.Time{}))
+					WithArgs("non_existing_token_id").WillReturnRows(sqlmock.NewRows([]string{"token_id", "refresh_token", "expired_at"}).
+					AddRow("", "", time.Time{}))
 			},
 			expectedError: nil,
 		},
@@ -93,13 +92,13 @@ func TestFindRefreshSessionByTokenID(t *testing.T) {
 			tokenID:  "existing_token_id",
 			expectedRefreshSession: domain.RefreshSession{
 				TokenID:      "existing_token_id",
-				RefreshToken: "db_refresh_token",
-				ExpireAt:     time.Now().Add(time.Hour * 1),
+				RefreshToken: "db_refresh_token_token",
+				ExpireAt:     expireAt,
 			},
-			buildStub: func(mock sqlmock.Sqlmock, inputTokenID string, inputs domain.RefreshSession) {
+			buildStub: func(mock sqlmock.Sqlmock) {
 				mock.ExpectQuery(findRefreshSessionQuery).
-					WithArgs(inputs.TokenID).WillReturnRows(sqlmock.NewRows([]string{"token_id", "refresh_token", "expired_at"}).
-					AddRow(inputs.TokenID, inputs.RefreshToken, inputs.ExpireAt))
+					WithArgs("existing_token_id").WillReturnRows(sqlmock.NewRows([]string{"token_id", "refresh_token", "expired_at"}).
+					AddRow("existing_token_id", "db_refresh_token_token", expireAt))
 			},
 			expectedError: nil,
 		},
@@ -118,7 +117,7 @@ func TestFindRefreshSessionByTokenID(t *testing.T) {
 			}), &gorm.Config{})
 			assert.NoError(t, err)
 
-			test.buildStub(mock, test.tokenID, test.expectedRefreshSession)
+			test.buildStub(mock)
 
 			authRepo := NewAuthRepository(gormDB)
 			refreshSession, err := authRepo.FindRefreshSessionByTokenID(context.Background(), test.tokenID)

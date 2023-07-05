@@ -22,7 +22,9 @@ type ProductRepository interface {
 	// product items
 	FindProductItemByID(ctx context.Context, productItemID uint) (domain.ProductItem, error)
 	FindAllProductItems(ctx context.Context, productID uint) ([]response.ProductItems, error)
-	IsProductItemAlreadyExist(ctx context.Context, productID, variationOptionID uint) (exist bool, err error)
+	FindVariationCountForProduct(ctx context.Context, productID uint) (variationCount uint, err error) // to check the product config already exist
+	FindAllProductItemIDsByProductID(ctx context.Context, productID uint) (productItemIDs []uint, err error)
+	FindAllProductItemIDsByProductIDAndVariationOptionID(ctx context.Context, productID, variationOptionID uint) ([]uint, error)
 	SaveProductConfiguration(ctx context.Context, productItemID, variationOptionID uint) error
 	SaveProductItem(ctx context.Context, productItem domain.ProductItem) (productItemID uint, err error)
 

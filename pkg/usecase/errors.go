@@ -45,6 +45,7 @@ var (
 
 	// product item
 	ErrProductItemAlreadyExist = errors.New("product item already exist with this configuration")
+	ErrNotEnoughVariations     = errors.New("not enough variation options for this product select one variation option from each variation")
 
 	// offer
 	ErrOfferNameAlreadyExist = errors.New("offer already exist this name")
