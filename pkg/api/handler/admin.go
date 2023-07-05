@@ -15,12 +15,14 @@ import (
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/utils"
 )
 
-type AdminHandler struct {
+type adminHandler struct {
 	adminUseCase usecaseInterface.AdminUseCase
 }
 
 func NewAdminHandler(adminUsecase usecaseInterface.AdminUseCase) interfaces.AdminHandler {
-	return &AdminHandler{adminUseCase: adminUsecase}
+	return &adminHandler{
+		adminUseCase: adminUsecase,
+	}
 }
 
 // // AdminSignUp godoc
@@ -32,7 +34,7 @@ func NewAdminHandler(adminUsecase usecaseInterface.AdminUseCase) interfaces.Admi
 // // @Success 200 {object} response.Response{} "successfully logged in"
 // // @Failure 400 {object} response.Response{} "invalid input"
 // // @Failure 500 {object} response.Response{} "failed to generate jwt token"
-func (a *AdminHandler) AdminSignUp(ctx *gin.Context) {
+func (a *adminHandler) AdminSignUp(ctx *gin.Context) {
 
 	var body domain.Admin
 
@@ -61,7 +63,7 @@ func (a *AdminHandler) AdminSignUp(ctx *gin.Context) {
 // @Success 200 {object} response.Response{} "Successfully got all users"
 // @Success 204 {object} response.Response{} "No users found"
 // @Failure 500 {object} response.Response{} "Failed to find all users"
-func (a *AdminHandler) GetAllUsers(ctx *gin.Context) {
+func (a *adminHandler) GetAllUsers(ctx *gin.Context) {
 
 	pagination := request.GetPagination(ctx)
 
@@ -87,7 +89,7 @@ func (a *AdminHandler) GetAllUsers(ctx *gin.Context) {
 // @Router /admin/users/block [patch]
 // @Success 200 {object} response.Response{} "Successfully changed block status of user"
 // @Failure 400 {object} response.Response{} "invalid input"
-func (a *AdminHandler) BlockUser(ctx *gin.Context) {
+func (a *adminHandler) BlockUser(ctx *gin.Context) {
 
 	var body request.BlockUser
 
@@ -118,7 +120,7 @@ func (a *AdminHandler) BlockUser(ctx *gin.Context) {
 // @Success 200 {object} response.Response{} "ecommerce_sales_report.csv"
 // @Success 204 {object} response.Response{} "No sales report found"
 // @Failure 500 {object} response.Response{} "failed to get sales report"
-func (c *AdminHandler) GetFullSalesReport(ctx *gin.Context) {
+func (c *adminHandler) GetFullSalesReport(ctx *gin.Context) {
 
 	// time
 	startDate, err1 := utils.StringToTime(ctx.Query("start_date"))
@@ -186,65 +188,4 @@ func (c *AdminHandler) GetFullSalesReport(ctx *gin.Context) {
 
 	csvWriter.Flush()
 
-}
-
-// GetAllStocks godoc
-// @Summary Get all stocks (Admin)
-// @Description API for admin to get all stocks
-// @Id GetAllStocks
-// @Tags Admin Stock
-// @Param page_number query int false "Page Number"
-// @Param count query int false "Count"
-// @Router /admin/stocks [get]
-// @Success 200 {object} response.Response{} "Successfully found all stocks"
-// @Success 204 {object} response.Response{} "No stocks found"
-// @Failure 500 {object} response.Response{} "Failed to Get all stocks"
-func (c *AdminHandler) GetAllStocks(ctx *gin.Context) {
-
-	pagination := request.GetPagination(ctx)
-
-	stocks, err := c.adminUseCase.GetAllStockDetails(ctx, pagination)
-
-	if err != nil {
-		response.ErrorResponse(ctx, http.StatusInternalServerError, "Failed to Get all stocks", err, nil)
-		return
-	}
-
-	if len(stocks) == 0 {
-		response.SuccessResponse(ctx, http.StatusNoContent, "No stocks found", nil)
-		return
-	}
-
-	response.SuccessResponse(ctx, http.StatusOK, "Successfully found all stocks", stocks)
-}
-
-// UpdateStock godoc
-// @Summary Update stocks (Admin)
-// @Description API for admin to update stock details
-// @Id UpdateStock
-// @Tags Admin Stock
-// @Param page_number query int false "Page Number"
-// @Param count query int false "Order"
-// @Router /admin/stocks [patch]
-// @Success 200 {object} response.Response{} "Successfully updated sock"
-// @Failure 400 {object} response.Response{} "Failed to bind input"
-// @Failure 500 {object} response.Response{} "Failed to update stock"
-func (c *AdminHandler) UpdateStock(ctx *gin.Context) {
-
-	var body request.UpdateStock
-
-	err := ctx.ShouldBindJSON(&body)
-	if err != nil {
-		response.ErrorResponse(ctx, http.StatusBadRequest, BindJsonFailMessage, err, body)
-		return
-	}
-
-	err = c.adminUseCase.UpdateStockBySKU(ctx, body)
-
-	if err != nil {
-		response.ErrorResponse(ctx, http.StatusInternalServerError, "Failed to update stock", err, nil)
-		return
-	}
-
-	response.SuccessResponse(ctx, http.StatusOK, "Successfully updated sock", nil)
 }

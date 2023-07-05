@@ -10,6 +10,7 @@ func AdminRoutes(api *gin.RouterGroup, authHandler handlerInterface.AuthHandler,
 	adminHandler handlerInterface.AdminHandler, productHandler handlerInterface.ProductHandler,
 	paymentHandler handlerInterface.PaymentHandler,
 	orderHandler handlerInterface.OrderHandler, couponHandler handlerInterface.CouponHandler,
+	stockHandler handlerInterface.StockHandler,
 
 ) {
 
@@ -129,9 +130,9 @@ func AdminRoutes(api *gin.RouterGroup, authHandler handlerInterface.AuthHandler,
 
 		stock := api.Group("/stocks")
 		{
-			stock.GET("/", adminHandler.GetAllStocks)
+			stock.GET("/", stockHandler.GetAllStocks)
 
-			stock.PATCH("/", adminHandler.UpdateStock)
+			stock.PATCH("/", stockHandler.UpdateStock)
 		}
 
 	}

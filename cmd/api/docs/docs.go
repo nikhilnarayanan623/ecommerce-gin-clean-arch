@@ -1876,7 +1876,7 @@ const docTemplate = `{
                 }
             },
             "post": {
-                "description": "API for admin to add a product item for a specific product",
+                "description": "API for admin to add a product item for a specific product(should select at least one variation option from each variations)",
                 "consumes": [
                     "application/json"
                 ],
@@ -2036,16 +2036,13 @@ const docTemplate = `{
                 "operationId": "UpdateStock",
                 "parameters": [
                     {
-                        "type": "integer",
-                        "description": "Page Number",
-                        "name": "page_number",
-                        "in": "query"
-                    },
-                    {
-                        "type": "integer",
-                        "description": "Order",
-                        "name": "count",
-                        "in": "query"
+                        "description": "Update stock details",
+                        "name": "input",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.UpdateStock"
+                        }
                     }
                 ],
                 "responses": {
@@ -2072,10 +2069,11 @@ const docTemplate = `{
         },
         "/admin/users": {
             "get": {
+                "description": "API for admin to get all user details",
                 "tags": [
                     "Admin User"
                 ],
-                "summary": "api for admin to find all users",
+                "summary": "Get all users",
                 "operationId": "GetAllUsers",
                 "parameters": [
                     {
@@ -3909,6 +3907,17 @@ const docTemplate = `{
                 },
                 "product_offer_id": {
                     "type": "integer"
+                }
+            }
+        },
+        "request.UpdateStock": {
+            "type": "object",
+            "properties": {
+                "qty_to_add": {
+                    "type": "integer"
+                },
+                "sku": {
+                    "type": "string"
                 }
             }
         },

@@ -93,26 +93,3 @@ func (c *adminUseCase) GetFullSalesReport(ctx context.Context, requestData reque
 
 	return salesReport, nil
 }
-
-func (c *adminUseCase) GetAllStockDetails(ctx context.Context, pagination request.Pagination) (stocks []response.Stock, err error) {
-	stocks, err = c.adminRepo.FindAllStockDetails(ctx, pagination)
-
-	if err != nil {
-		return stocks, err
-	}
-
-	log.Printf("successfully got stock details")
-	return stocks, nil
-}
-
-func (c *adminUseCase) UpdateStockBySKU(ctx context.Context, updateDetails request.UpdateStock) error {
-
-	err := c.adminRepo.UpdateStock(ctx, updateDetails)
-
-	if err != nil {
-		return err
-	}
-
-	log.Printf("successfully updated of stock details of stock with sku %v", updateDetails.SKU)
-	return nil
-}

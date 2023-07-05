@@ -2,7 +2,6 @@ package repository
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"time"
 
@@ -58,13 +57,10 @@ func (c *adminDatabase) FindAllUser(ctx context.Context, pagination request.Pagi
 }
 
 // sales report from order // !add  product wise report
-func (c *adminDatabase) CreateFullSalesReport(ctc context.Context, reqData request.SalesReport) (salesReport []response.SalesReport, err error) {
+func (c *adminDatabase) CreateFullSalesReport(ctc context.Context, salesReq request.SalesReport) (salesReport []response.SalesReport, err error) {
 
-	limit := reqData.Pagination.Count
-	offset := (reqData.Pagination.PageNumber - 1) * limit
-
-	startDate := reqData.StartDate
-	endDate := reqData.EndDate
+	limit := salesReq.Pagination.Count
+	offset := (salesReq.Pagination.PageNumber - 1) * limit
 
 	query := `SELECT u.first_name, u.email,  so.id AS shop_order_id, so.user_id, so.order_date, 
 	so.order_total_price, so.discount, os.status AS order_status, pm.payment_type FROM shop_orders so
@@ -74,17 +70,16 @@ func (c *adminDatabase) CreateFullSalesReport(ctc context.Context, reqData reque
 	WHERE order_date >= $1 AND order_date <= $2
 	ORDER BY so.order_date LIMIT  $3 OFFSET $4`
 
-	if c.DB.Raw(query, startDate, endDate, limit, offset).Scan(&salesReport).Error != nil {
-		return salesReport, errors.New("faild to collect data to create sales report")
-	}
+	err = c.DB.Raw(query, salesReq.StartDate, salesReq.EndDate, limit, offset).Scan(&salesReport).Error
 
-	return salesReport, nil
+	return
 }
 
 // stock side
 func (c *adminDatabase) FindStockBySKU(ctx context.Context, sku string) (stock response.Stock, err error) {
-	query := `SELECT pi.sku, pi.qty_in_stock, pi.price, p.product_name, vo.variation_value 
-	FROM product_items pi INNER JOIN products p ON p.id = pi.product_id 
+	query := `SELECT pi.sku, pi.qty_in_stock, pi.price, p.name AS product_name, vo.value AS variation_value  
+	FROM product_items pi 
+	INNER JOIN products p ON p.id = pi.product_id 
 	INNER JOIN product_configurations pc ON pc.product_item_id = pi.id 
 	INNER JOIN variation_options vo ON vo.id = pc.variation_option_id
 	WHERE pi.sku = $1`
@@ -94,34 +89,3 @@ func (c *adminDatabase) FindStockBySKU(ctx context.Context, sku string) (stock r
 	return stock, err
 }
 
-func (c *adminDatabase) FindAllStockDetails(ctx context.Context, pagination request.Pagination) (stocks []response.Stock, err error) {
-
-	limit := pagination.Count
-	offset := (pagination.PageNumber - 1) * limit
-
-	query := `SELECT pi.sku, pi.qty_in_stock, pi.price, p.product_name, vo.variation_value 
-	FROM product_items pi INNER JOIN products p ON p.id = pi.product_id 
-	INNER JOIN product_configurations pc ON pc.product_item_id = pi.id 
-	INNER JOIN variation_options vo ON vo.id = pc.variation_option_id 
-	ORDER BY qty_in_stock LIMIT $1 OFFSET $2`
-
-	err = c.DB.Raw(query, limit, offset).Scan(&stocks).Error
-
-	if err != nil {
-		return stocks, fmt.Errorf("faild to find all stocks details from database")
-	}
-
-	return stocks, nil
-}
-
-func (c *adminDatabase) UpdateStock(ctx context.Context, valuesToUpdate request.UpdateStock) error {
-
-	query := `UPDATE product_items SET qty_in_stock = qty_in_stock + $1 WHERE sku = $2`
-
-	err := c.DB.Exec(query, valuesToUpdate.QtyToAdd, valuesToUpdate.SKU).Error
-
-	if err != nil {
-		return fmt.Errorf("faild to update qty for product_item with sku %v", valuesToUpdate.SKU)
-	}
-	return nil
-}
