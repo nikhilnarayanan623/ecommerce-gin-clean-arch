@@ -52,7 +52,8 @@ type ProductItems struct {
 	DiscountPrice   uint                    `json:"discount_price"`
 	SKU             string                  `json:"sku"`
 	QtyInStock      uint                    `json:"qty_in_stock"`
-	VariationValues []ProductVariationValue `gorm:"-"`
+	VariationValues []ProductVariationValue `json:"variation_values" gorm:"-"`
+	Images          []string                `json:"images" gorm:"-"`
 }
 
 type ProductVariationValue struct {
