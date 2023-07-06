@@ -12,29 +12,30 @@ type ProductRepository interface {
 	Transactions(ctx context.Context, trxFn func(repo ProductRepository) error) error
 
 	// category
-	FindCategoryByName(ctx context.Context, categoryName string) (domain.Category, error)
+	IsCategoryNameExist(ctx context.Context, categoryName string) (bool, error)
 	FindAllMainCategories(ctx context.Context, pagination request.Pagination) ([]response.Category, error)
 	SaveCategory(ctx context.Context, categoryName string) error
 
 	// sub category
+	IsSubCategoryNameExist(ctx context.Context, categoryName string, categoryID uint) (bool, error)
 	FindAllSubCategories(ctx context.Context, categoryID uint) ([]response.SubCategory, error)
 	SaveSubCategory(ctx context.Context, categoryID uint, categoryName string) error
 
 	// variation
+	IsVariationNameExistForCategory(ctx context.Context, name string, categoryID uint) (bool, error)
 	SaveVariation(ctx context.Context, categoryID uint, variationName string) error
-	FindVariationByNameAndCategoryID(ctx context.Context, variationName string, categoryID uint) (domain.Variation, error)
 	FindAllVariationsByCategoryID(ctx context.Context, categoryID uint) ([]response.Variation, error)
 
 	// variation values
+	IsVariationValueExistForVariation(ctx context.Context, value string, variationID uint) (exist bool, err error)
 	SaveVariationOption(ctx context.Context, variationID uint, variationValue string) error
-	FindVariationOptionByValueAndVariationID(ctx context.Context, variationID uint, variationValue string) (domain.VariationOption, error)
 	FindAllVariationOptionsByVariationID(ctx context.Context, variationID uint) ([]response.VariationOption, error)
 
 	FindAllVariationValuesOfProductItem(ctx context.Context, productItemID uint) ([]response.ProductVariationValue, error)
 	//product
 	FindProductByID(ctx context.Context, productID uint) (product domain.Product, err error)
-	FindProductByName(ctx context.Context, productName string) (product domain.Product, err error)
-	IsProductNameAlreadyExist(ctx context.Context, productName string) (exist bool, err error)
+	IsProductNameExistForOtherProduct(ctx context.Context, name string, productID uint) (bool, error)
+	IsProductNameExist(ctx context.Context, productName string) (exist bool, err error)
 
 	FindAllProducts(ctx context.Context, pagination request.Pagination) ([]response.Product, error)
 	SaveProduct(ctx context.Context, product request.Product) error

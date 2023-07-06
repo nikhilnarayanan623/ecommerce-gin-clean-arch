@@ -42,11 +42,11 @@ func (c *productUseCase) FindAllCategories(ctx context.Context, pagination reque
 // Save category
 func (c *productUseCase) SaveCategory(ctx context.Context, categoryName string) error {
 
-	existCategory, err := c.productRepo.FindCategoryByName(ctx, categoryName)
+	categoryExist, err := c.productRepo.IsCategoryNameExist(ctx, categoryName)
 	if err != nil {
 		return utils.PrependMessageToError(err, "failed to check category already exist")
 	}
-	if existCategory.ID != 0 {
+	if categoryExist {
 		return ErrCategoryAlreadyExist
 	}
 
@@ -61,11 +61,11 @@ func (c *productUseCase) SaveCategory(ctx context.Context, categoryName string) 
 // Save Sub category
 func (c *productUseCase) SaveSubCategory(ctx context.Context, subCategory request.SubCategory) error {
 
-	existSubCat, err := c.productRepo.FindCategoryByName(ctx, subCategory.Name)
+	subCatExist, err := c.productRepo.IsSubCategoryNameExist(ctx, subCategory.Name, subCategory.CategoryID)
 	if err != nil {
 		return utils.PrependMessageToError(err, "failed to check sub category already exist")
 	}
-	if existSubCat.ID != 0 {
+	if subCatExist {
 		return ErrCategoryAlreadyExist
 	}
 
@@ -84,12 +84,12 @@ func (c *productUseCase) SaveVariation(ctx context.Context, categoryID uint, var
 
 		for _, variationName := range variationNames {
 
-			existVariation, err := repo.FindVariationByNameAndCategoryID(ctx, variationName, categoryID)
+			variationExist, err := repo.IsVariationNameExistForCategory(ctx, variationName, categoryID)
 			if err != nil {
 				return utils.PrependMessageToError(err, "failed to check variation already exist")
 			}
 
-			if existVariation.ID != 0 {
+			if variationExist {
 				return utils.PrependMessageToError(ErrVariationAlreadyExist, "variation name "+variationName)
 			}
 
@@ -110,11 +110,11 @@ func (c *productUseCase) SaveVariationOption(ctx context.Context, variationID ui
 	err := c.productRepo.Transactions(ctx, func(repo interfaces.ProductRepository) error {
 		for _, variationValue := range variationOptionValues {
 
-			existVarOpt, err := repo.FindVariationOptionByValueAndVariationID(ctx, variationID, variationValue)
+			valueExist, err := repo.IsVariationValueExistForVariation(ctx, variationValue, variationID)
 			if err != nil {
 				return utils.PrependMessageToError(err, "failed to check variation already exist")
 			}
-			if existVarOpt.ID != 0 {
+			if valueExist {
 				return utils.PrependMessageToError(ErrVariationOptionAlreadyExist, "variation option value "+variationValue)
 			}
 
@@ -156,11 +156,11 @@ func (c *productUseCase) FindAllProducts(ctx context.Context, pagination request
 // to add new product
 func (c *productUseCase) SaveProduct(ctx context.Context, product request.Product) error {
 
-	exist, err := c.productRepo.IsProductNameAlreadyExist(ctx, product.Name)
+	productNameExist, err := c.productRepo.IsProductNameExist(ctx, product.Name)
 	if err != nil {
 		return utils.PrependMessageToError(err, "failed to check product name already exist")
 	}
-	if exist {
+	if productNameExist {
 		return utils.PrependMessageToError(ErrProductAlreadyExist, "product name "+product.Name)
 	}
 
@@ -320,6 +320,7 @@ func (c *productUseCase) FindAllProductItems(ctx context.Context, productID uint
 	defer cancel()
 
 	go func() {
+
 		// get all variation values of each product items
 		for i, productItem := range productItems {
 
@@ -334,9 +335,8 @@ func (c *productUseCase) FindAllProductItems(ctx context.Context, productID uint
 				}
 				productItems[i].VariationValues = variationValues
 			}
-			errChan <- nil
 		}
-
+		errChan <- nil
 	}()
 
 	go func() {
@@ -376,19 +376,20 @@ func (c *productUseCase) FindAllProductItems(ctx context.Context, productID uint
 	return productItems, nil
 }
 
-func (c *productUseCase) UpdateProduct(ctx context.Context, product domain.Product) error {
+func (c *productUseCase) UpdateProduct(ctx context.Context, updateDetails domain.Product) error {
 
-	// check the given product_name already exist or not
-	existProduct, err := c.productRepo.FindProductByName(ctx, product.Name)
+	nameExistForOther, err := c.productRepo.IsProductNameExistForOtherProduct(ctx, updateDetails.Name, updateDetails.ID)
 	if err != nil {
-		return err
-	}
-	// if we found a product with this name but not for this id means another product exist with this name
-	if existProduct.ID != 0 && existProduct.ID != product.ID {
-		return utils.PrependMessageToError(ErrProductAlreadyExist, "product name "+product.Name)
+		return utils.PrependMessageToError(err, "failed to check product name already exist for other product")
 	}
 
-	err = c.productRepo.UpdateProduct(ctx, product)
+	if nameExistForOther {
+		return utils.PrependMessageToError(ErrProductAlreadyExist, "product name "+updateDetails.Name)
+	}
+
+	// c.productRepo.FindProductByID(ctx, updateDetails.ID)
+
+	err = c.productRepo.UpdateProduct(ctx, updateDetails)
 	if err != nil {
 		return utils.PrependMessageToError(err, "failed to update product")
 	}

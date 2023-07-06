@@ -39,10 +39,11 @@ func (c *productDatabase) Transactions(ctx context.Context, trxFn func(repo inte
 	return nil
 }
 
-func (c *productDatabase) FindCategoryByName(ctx context.Context, categoryName string) (category domain.Category, err error) {
+// To check the category name exist
+func (c *productDatabase) IsCategoryNameExist(ctx context.Context, name string) (exist bool, err error) {
 
-	query := `SELECT * FROM categories WHERE name = ?`
-	err = c.DB.Raw(query, categoryName).Scan(&category).Error
+	query := `SELECT EXISTS(SELECT 1 FROM categories WHERE name = $1 AND category_id IS NULL)`
+	err = c.DB.Raw(query, name).Scan(&exist).Error
 
 	return
 }
@@ -54,6 +55,15 @@ func (c *productDatabase) SaveCategory(ctx context.Context, categoryName string)
 	err = c.DB.Exec(query, categoryName).Error
 
 	return err
+}
+
+// To check the sub category name already exist for the category
+func (c *productDatabase) IsSubCategoryNameExist(ctx context.Context, name string, categoryID uint) (exist bool, err error) {
+
+	query := `SELECT EXISTS(SELECT 1 FROM categories WHERE name = $1 AND category_id = $2)`
+	err = c.DB.Raw(query, name, categoryID).Scan(&exist).Error
+
+	return
 }
 
 // Save Category as sub category
@@ -109,22 +119,22 @@ func (c productDatabase) FindAllVariationOptionsByVariationID(ctx context.Contex
 	return
 }
 
-// Find variation by category id and variation name
-func (c *productDatabase) FindVariationByNameAndCategoryID(ctx context.Context,
-	variationName string, categoryID uint) (variation domain.Variation, err error) {
+// To check a variation exist for the given category
+func (c *productDatabase) IsVariationNameExistForCategory(ctx context.Context,
+	name string, categoryID uint) (exist bool, err error) {
 
-	query := `SELECT id, name FROM variations WHERE category_id = $1 AND name = $2`
-	err = c.DB.Raw(query, categoryID, variationName).Scan(&variation).Error
+	query := `SELECT EXISTS(SELECT 1 FROM variations WHERE name = $1 AND category_id = $2)`
+	err = c.DB.Raw(query, name, categoryID).Scan(&exist).Error
 
 	return
 }
 
-// Find variation option by variation id and variation value
-func (c *productDatabase) FindVariationOptionByValueAndVariationID(ctx context.Context,
-	variationID uint, variationValue string) (variationOption domain.VariationOption, err error) {
+// To check a variation value exist for the given variation
+func (c *productDatabase) IsVariationValueExistForVariation(ctx context.Context,
+	value string, variationID uint) (exist bool, err error) {
 
-	query := `SELECT id, value FROM variation_options WHERE variation_id = $1 AND value = $2`
-	err = c.DB.Raw(query, variationID, variationValue).Scan(&variationOption).Error
+	query := `SELECT EXISTS(SELECT 1 FROM variation_options WHERE value = $1 AND variation_id = $2)`
+	err = c.DB.Raw(query, value, variationID).Scan(&exist).Error
 
 	return
 }
@@ -156,17 +166,18 @@ func (c *productDatabase) FindProductByID(ctx context.Context, productID uint) (
 	return
 }
 
-func (c *productDatabase) FindProductByName(ctx context.Context, productName string) (product domain.Product, err error) {
+func (c *productDatabase) IsProductNameExistForOtherProduct(ctx context.Context,
+	name string, productID uint) (exist bool, err error) {
 
-	query := `SELECT * FROM products WHERE name = $1`
-	err = c.DB.Raw(query, productName).Scan(&product).Error
+	query := `SELECT EXISTS(SELECT id FROM products WHERE name = $1 AND id != $2)`
+	err = c.DB.Raw(query, name, productID).Scan(&exist).Error
 
 	return
 }
 
-func (c *productDatabase) IsProductNameAlreadyExist(ctx context.Context, productName string) (exist bool, err error) {
+func (c *productDatabase) IsProductNameExist(ctx context.Context, productName string) (exist bool, err error) {
 
-	query := `SELECT EXISTS(SELECT 1 FROM products WHERE name = $1) AS exist FROM products`
+	query := `SELECT EXISTS(SELECT 1 FROM products WHERE name = $1)`
 	err = c.DB.Raw(query, productName).Scan(&exist).Error
 
 	return

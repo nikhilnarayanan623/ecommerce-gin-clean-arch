@@ -34,7 +34,7 @@ type Category struct {
 	ID         uint      `json:"-" gorm:"primaryKey;not null"`
 	CategoryID uint      `json:"category_id"`
 	Category   *Category `json:"-"`
-	Name       string    `json:"category_name" gorm:"unique;not null" binding:"required,min=1,max=30"`
+	Name       string    `json:"category_name" gorm:"not null" binding:"required,min=1,max=30"`
 }
 
 // variation means size color etc..
