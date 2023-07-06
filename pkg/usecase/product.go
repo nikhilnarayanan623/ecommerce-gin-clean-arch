@@ -207,12 +207,57 @@ func (c *productUseCase) SaveProductItem(ctx context.Context, productID uint, pr
 			return utils.PrependMessageToError(err, "failed to save product item")
 		}
 
-		// save all product configurations based on given variation option id
-		for _, variationOptionID := range productItem.VariationOptionIDs {
+		errChan := make(chan error, 2)
+		newCtx, cancel := context.WithCancel(ctx) // for any of one of goroutine get error then cancel the working of other also
+		defer cancel()
 
-			err = trxRepo.SaveProductConfiguration(ctx, productItemID, variationOptionID)
-			if err != nil {
-				return utils.PrependMessageToError(err, "failed to save product_item configuration")
+		go func() {
+			// save all product configurations based on given variation option id
+			for _, variationOptionID := range productItem.VariationOptionIDs {
+
+				select {
+				case <-newCtx.Done():
+					return
+				default:
+					err = trxRepo.SaveProductConfiguration(ctx, productItemID, variationOptionID)
+					if err != nil {
+						errChan <- utils.PrependMessageToError(err, "failed to save product_item configuration")
+						return
+					}
+				}
+			}
+			errChan <- nil
+		}()
+
+		go func() {
+			// save all images for the given product item
+			for _, image := range productItem.Images {
+
+				select {
+				case <-newCtx.Done():
+					return
+				default:
+					err = trxRepo.SaveProductItemImage(ctx, productItemID, image)
+					if err != nil {
+						errChan <- utils.PrependMessageToError(err, "failed to save image for product item on database")
+						return
+					}
+				}
+			}
+			errChan <- nil
+		}()
+
+		// wait for the both go routine to complete
+		for i := 1; i <= 2; i++ {
+
+			select {
+			case <-ctx.Done():
+				return nil
+			case err := <-errChan:
+				if err != nil { // if any of the goroutine send error then return the error
+					return err
+				}
+				// no error then continue for the next check of select
 			}
 		}
 
@@ -263,30 +308,70 @@ func (c *productUseCase) isProductVariationCombinationExist(productID uint, vari
 }
 
 // for get all productItem for a specific product
-func (c *productUseCase) FindProductItems(ctx context.Context, productID uint) (productItems []response.ProductItems, err error) {
+func (c *productUseCase) FindAllProductItems(ctx context.Context, productID uint) ([]response.ProductItems, error) {
 
-	productItems, err = c.productRepo.FindAllProductItems(ctx, productID)
+	productItems, err := c.productRepo.FindAllProductItems(ctx, productID)
 	if err != nil {
 		return productItems, err
 	}
 
-	// get all variation values of the product items
-	for i, productItem := range productItems {
-		variationValues, err := c.productRepo.FindAllVariationValuesOfProductItem(ctx, productItem.ID)
-		if err != nil {
-			return nil, utils.PrependMessageToError(err, "failed to find variation values product item")
+	errChan := make(chan error, 2)
+	newCtx, cancel := context.WithCancel(ctx)
+	defer cancel()
+
+	go func() {
+		// get all variation values of each product items
+		for i, productItem := range productItems {
+
+			select { // checking each time context is cancelled or not
+			case <-ctx.Done():
+				return
+			default:
+				variationValues, err := c.productRepo.FindAllVariationValuesOfProductItem(ctx, productItem.ID)
+				if err != nil {
+					errChan <- utils.PrependMessageToError(err, "failed to find variation values product item")
+					return
+				}
+				productItems[i].VariationValues = variationValues
+			}
+			errChan <- nil
 		}
-		productItems[i].VariationValues = variationValues
+
+	}()
+
+	go func() {
+		// get all images of each product items
+		for i, productItem := range productItems {
+
+			select { // checking each time context is cancelled or not
+			case <-newCtx.Done():
+				return
+			default:
+				images, err := c.productRepo.FindAllProductItemImages(ctx, productItem.ID)
+
+				if err != nil {
+					errChan <- utils.PrependMessageToError(err, "failed to find images of product item")
+					return
+				}
+				productItems[i].Images = images
+			}
+		}
+		errChan <- nil
+	}()
+
+	// wait for the two routine to complete
+	for i := 1; i <= 2; i++ {
+
+		select {
+		case <-ctx.Done():
+			return nil, nil
+		case err := <-errChan:
+			if err != nil {
+				return nil, err
+			}
+			// no error then continue for the next check
+		}
 	}
-
-	// for _, productItem := range productItems {
-	// 	images, err := c.productRepo.FindAllProductItemImages(ctx, productItem.ID)
-
-	// 	if err != nil {
-	// 		return productItems, err
-	// 	}
-	// 	fmt.Println(images, "images")
-	// }
 
 	return productItems, nil
 }

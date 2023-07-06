@@ -298,3 +298,22 @@ func (c *productDatabase) FindAllVariationValuesOfProductItem(ctx context.Contex
 
 	return
 }
+
+// To save image for product item
+func (c *productDatabase) SaveProductItemImage(ctx context.Context, productItemID uint, image string) error {
+
+	query := `INSERT INTO product_images (product_item_id, image) VALUES ($1, $2)`
+	err := c.DB.Exec(query, productItemID, image).Error
+
+	return err
+}
+
+// To find all images of a product item
+func (c *productDatabase) FindAllProductItemImages(ctx context.Context, productItemID uint) (images []string, err error) {
+
+	query := `SELECT image FROM product_images WHERE product_item_id = $1`
+
+	err = c.DB.Raw(query, productItemID).Scan(&images).Error
+
+	return
+}

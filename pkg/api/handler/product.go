@@ -461,7 +461,7 @@ func (p *ProductHandler) GetAllProductItemsUser() func(ctx *gin.Context) {
 	return p.getAllProductItems()
 }
 
-// same functionality of geting all product items for admin and user
+// same functionality of get all product items for admin and user
 func (p *ProductHandler) getAllProductItems() func(ctx *gin.Context) {
 
 	return func(ctx *gin.Context) {
@@ -471,7 +471,7 @@ func (p *ProductHandler) getAllProductItems() func(ctx *gin.Context) {
 			response.ErrorResponse(ctx, http.StatusBadRequest, BindParamFailMessage, err, nil)
 		}
 
-		productItems, err := p.productUseCase.FindProductItems(ctx, productID)
+		productItems, err := p.productUseCase.FindAllProductItems(ctx, productID)
 
 		if err != nil {
 			response.ErrorResponse(ctx, http.StatusInternalServerError, "Failed to get all product items", err, nil)
