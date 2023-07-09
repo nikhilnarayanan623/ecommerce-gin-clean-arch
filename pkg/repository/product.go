@@ -217,9 +217,13 @@ func (c *productDatabase) FindAllProducts(ctx context.Context, pagination reques
 	limit := pagination.Count
 	offset := (pagination.PageNumber - 1) * limit
 
-	query := `SELECT p.id, p.name, p.description, p.price, p.discount_price, p.image, p.category_id, 
-	p.image, c.name AS category_name, p.created_at, p.updated_at  
-	FROM products p LEFT JOIN categories c ON p.category_id = c.id 
+	query := `SELECT p.id, p.name, p.description, p.price, p.discount_price, 
+	p.image, p.image, p.category_id, sc.name AS category_name, 
+	mc.name AS main_category_name, 
+	p.created_at, p.updated_at 
+	FROM products p 
+	INNER JOIN categories sc ON p.category_id = sc.id 
+	INNER JOIN categories mc ON sc.category_id = mc.id 
 	ORDER BY created_at DESC LIMIT $1 OFFSET $2`
 
 	err = c.DB.Raw(query, limit, offset).Scan(&products).Error
@@ -287,8 +291,12 @@ func (c *productDatabase) FindAllProductItems(ctx context.Context,
 	// first find all product_items
 
 	query := `SELECT p.name, pi.id,  pi.product_id, pi.price, pi.discount_price, 
-	pi.qty_in_stock, sku FROM product_items pi 
+	pi.qty_in_stock, pi.sku, p.category_id, sc.name AS category_name, 
+	mc.name AS main_category_name
+	FROM product_items pi 
 	INNER JOIN products p ON p.id = pi.product_id 
+	INNER JOIN categories sc ON p.category_id = sc.id 
+	INNER JOIN categories mc ON sc.category_id = mc.id 
 	AND pi.product_id = $1`
 
 	err = c.DB.Raw(query, productID).Scan(&productItems).Error

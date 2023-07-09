@@ -6,16 +6,17 @@ import (
 
 // response for product
 type Product struct {
-	ID            uint      `json:"product_id"`
-	CategoryID    uint      `json:"category_id"`
-	Price         uint      `json:"price"`
-	DiscountPrice uint      `json:"discount_price"`
-	Name          string    `json:"product_name"`
-	Description   string    `json:"description" `
-	CategoryName  string    `json:"category_name"`
-	Image         string    `json:"image"`
-	CreatedAt     time.Time `json:"created_at"`
-	UpdatedAt     time.Time `json:"updated_at"`
+	ID               uint      `json:"product_id"`
+	CategoryID       uint      `json:"category_id"`
+	Price            uint      `json:"price"`
+	DiscountPrice    uint      `json:"discount_price"`
+	Name             string    `json:"product_name"`
+	Description      string    `json:"description" `
+	CategoryName     string    `json:"category_name"`
+	MainCategoryName string    `json:"main_category_name"`
+	Image            string    `json:"image"`
+	CreatedAt        time.Time `json:"created_at"`
+	UpdatedAt        time.Time `json:"updated_at"`
 }
 
 // for a specific category representation
@@ -45,15 +46,17 @@ type VariationOption struct {
 
 // for response a specific products all product items
 type ProductItems struct {
-	ID              uint                    `json:"product_item_id"`
-	Name            string                  `json:"product_name"`
-	ProductID       uint                    `json:"product_id"`
-	Price           uint                    `json:"price"`
-	DiscountPrice   uint                    `json:"discount_price"`
-	SKU             string                  `json:"sku"`
-	QtyInStock      uint                    `json:"qty_in_stock"`
-	VariationValues []ProductVariationValue `json:"variation_values" gorm:"-"`
-	Images          []string                `json:"images" gorm:"-"`
+	ID               uint                    `json:"product_item_id"`
+	Name             string                  `json:"product_name"`
+	ProductID        uint                    `json:"product_id"`
+	Price            uint                    `json:"price"`
+	DiscountPrice    uint                    `json:"discount_price"`
+	SKU              string                  `json:"sku"`
+	QtyInStock       uint                    `json:"qty_in_stock"`
+	CategoryName     string                  `json:"category_name"`
+	MainCategoryName string                  `json:"main_category_name"`
+	VariationValues  []ProductVariationValue `json:"variation_values" gorm:"-"`
+	Images           []string                `json:"images" gorm:"-"`
 }
 
 type ProductVariationValue struct {
