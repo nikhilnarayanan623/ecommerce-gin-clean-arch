@@ -21,7 +21,7 @@ func NewStockRepository(db *gorm.DB) interfaces.StockRepository {
 
 func (c *stockDatabase) Update(ctx context.Context, valuesToUpdate request.UpdateStock) error {
 
-	query := `UPDpATE product_items SET qty_in_stock = qty_in_stock + $1 WHERE sku = $2`
+	query := `UPDATE product_items SET qty_in_stock = qty_in_stock + $1 WHERE sku = $2`
 
 	err := c.DB.Exec(query, valuesToUpdate.QtyToAdd, valuesToUpdate.SKU).Error
 
