@@ -11,43 +11,43 @@ func SetUpDBTriggers(db *gorm.DB) error {
 
 	// first execute the trigger funtion
 	if db.Exec(cartTotalPriceUpdateSqlFunc).Error != nil {
-		return errors.New("faild to execute cart_total_Pirce update trigger fun()")
+		return errors.New("failed to execute cart_total_price update trigger fun()")
 	}
 
 	// create trigger for calling the update funciton
 	if db.Exec(cartTotalPriceTriggerExec).Error != nil {
-		return errors.New("faild to create trigger for update total price on cart")
+		return errors.New("failed to create trigger for update total price on cart")
 	}
 
 	// update product_item qty on order time
 	if db.Exec(orderProductUpdateOnPlaceOrder).Error != nil {
-		return errors.New("faild to excute orderProductUpdate() trigger function")
+		return errors.New("failed to execute orderProductUpdate() trigger function")
 	}
 
 	if db.Exec(orderProductUpdateOnPlaceOrderTriggerExec).Error != nil {
-		return errors.New("faild to create orderProductUpdateTriggerExec trigger")
+		return errors.New("failed to create orderProductUpdateTriggerExec trigger")
 	}
 
 	//update product_item qty on order returned
 	if db.Exec(orderReturnProductUpdate).Error != nil {
-		return errors.New("faild to create orderReturnProductUpdate() trigger function")
+		return errors.New("failed to create orderReturnProductUpdate() trigger function")
 	}
 
 	if db.Exec(orderStatusFindFunc).Error != nil {
-		return errors.New("faild to create orderStatusFindFunc function for return order_status")
+		return errors.New("failed to create orderStatusFindFunc function for return order_status")
 	}
 
 	if db.Exec(orderReturnProductUpdateExec).Error != nil {
-		return errors.New("faild to create orderReturnProductUpdateExec trigger")
+		return errors.New("failed to create orderReturnProductUpdateExec trigger")
 	}
 
-	log.Printf("successfully trggers updated for databse")
+	log.Printf("successfully triggers updated for database")
 	return nil
 }
 
 var (
 	// function which return total price calculation on cart when product_item added or remove delete cart
-	// in here cheking  first it delete any row from cart_item then take its cart_id an find all cart_items with this id and calculate total price and update it
+	// in here checking  first it delete any row from cart_item then take its cart_id an find all cart_items with this id and calculate total price and update it
 	// cart with this cart_id
 	// any other like update or inset then take the cart_id and calculate the total price update on cart
 	cartTotalPriceUpdateSqlFunc = `CREATE OR REPLACE FUNCTION update_cart_total_price() 
@@ -81,7 +81,7 @@ var (
 	AFTER INSERT OR UPDATE OR DELETE ON cart_items
 	FOR EACH ROW EXECUTE FUNCTION update_cart_total_price();`
 
-	//for updating product_item quntity when order place
+	//for updating product_item quantity when order place
 	orderProductUpdateOnPlaceOrder = `CREATE OR REPLACE FUNCTION update_product_quantity() 
 	RETURNS TRIGGER AS $$ 
 	BEGIN 

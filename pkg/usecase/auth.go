@@ -281,11 +281,14 @@ func (c *authUseCase) GoogleLogin(ctx context.Context, user domain.User) (userID
 	if err != nil {
 		return userID, fmt.Errorf("failed to get user details with given email \nerror:%v", err.Error())
 	}
+
 	if existUser.ID != 0 {
 		return existUser.ID, nil
 	}
 
+	// create a random user name for user based on user name
 	user.UserName = utils.GenerateRandomUserName(user.FirstName)
+
 	userID, err = c.userRepo.SaveUser(ctx, user)
 	if err != nil {
 		return userID, fmt.Errorf("failed to save user details \nerror:%v", err.Error())

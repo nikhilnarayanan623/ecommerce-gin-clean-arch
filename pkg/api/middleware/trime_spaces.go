@@ -3,7 +3,7 @@ package middleware
 import (
 	"bytes"
 	"encoding/json"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"strings"
 
@@ -16,7 +16,7 @@ func (c *middleware) TrimSpaces() gin.HandlerFunc {
 
 		ctx.Request.Body = http.MaxBytesReader(ctx.Writer, ctx.Request.Body, int64(32<<20))
 
-		bodyBytes, err := ioutil.ReadAll(ctx.Request.Body)
+		bodyBytes, err := io.ReadAll(ctx.Request.Body)
 		if err != nil {
 			ctx.Abort()
 			response.ErrorResponse(ctx, http.StatusBadRequest, "failed to ready request body", err, nil)
@@ -25,7 +25,7 @@ func (c *middleware) TrimSpaces() gin.HandlerFunc {
 
 		bodyBytes = trimSpacesInJson(bodyBytes)
 
-		ctx.Request.Body = ioutil.NopCloser(bytes.NewReader(bodyBytes))
+		ctx.Request.Body = io.NopCloser(bytes.NewReader(bodyBytes))
 	}
 }
 

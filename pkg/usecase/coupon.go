@@ -177,3 +177,4 @@ func (c *couponUseCase) ApplyCouponToCart(ctx context.Context, userID uint, coup
 	log.Printf("successfully updated the cart price with dicount price %d", discountAmount)
 	return discountAmount, nil
 }
+	

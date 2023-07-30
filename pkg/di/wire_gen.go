@@ -21,7 +21,7 @@ import (
 // Injectors from wire.go:
 
 func InitializeApi(cfg config.Config) (*http.ServerHTTP, error) {
-	gormDB, err := db.ConnectDatbase(cfg)
+	gormDB, err := db.ConnectDatabase(cfg)
 	if err != nil {
 		return nil, err
 	}

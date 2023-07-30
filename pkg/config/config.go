@@ -35,7 +35,7 @@ type Config struct {
 	GoauthCallbackUrl  string `mapstructure:"GOAUTH_CALL_BACK_URL"`
 }
 
-// to hold all names of env variables
+// name of envs and used to read from system envs
 var envsNames = []string{
 	"ADMIN_EMAIL", "ADMIN_USER_NAME", "ADMIN_PASSWORD",
 	"DB_HOST", "DB_NAME", "DB_USER", "DB_PASSWORD", "DB_PORT", // database
@@ -50,11 +50,16 @@ var config Config
 
 func LoadConfig() (Config, error) {
 
-	// set-up viper
+	// read from .env file
 	viper.AddConfigPath("./")
 	viper.SetConfigFile(".env")
-	viper.ReadInConfig()
+	err := viper.ReadInConfig()
+	// if there is no error means found .env file and read from it
+	if err == nil {
+		return config, nil
+	}
 
+	// if there is error then read envs from system environments
 	for _, env := range envsNames {
 		if err := viper.BindEnv(env); err != nil {
 			return config, err

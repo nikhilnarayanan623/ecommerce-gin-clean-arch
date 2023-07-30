@@ -29,10 +29,11 @@ func GenerateRandomUserName(FirstName string) string {
 	suffix := make([]byte, 4)
 
 	numbers := "1234567890"
-	rand.Seed(time.Now().UnixMilli())
+	seed := time.Now().UnixNano()
+	rng := rand.New(rand.NewSource(seed))
 
 	for i := range suffix {
-		suffix[i] = numbers[rand.Intn(10)]
+		suffix[i] = numbers[rng.Intn(10)]
 	}
 
 	userName := (FirstName + string(suffix))

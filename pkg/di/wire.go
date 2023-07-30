@@ -18,7 +18,7 @@ import (
 
 func InitializeApi(cfg config.Config) (*http.ServerHTTP, error) {
 
-	wire.Build(db.ConnectDatbase,
+	wire.Build(db.ConnectDatabase,
 		//external
 		token.NewTokenService,
 		otp.NewOtpAuth,

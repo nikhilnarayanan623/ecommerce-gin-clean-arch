@@ -4,7 +4,6 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/jinzhu/copier"
 	"github.com/markbates/goth"
 	"github.com/markbates/goth/gothic"
 	"github.com/markbates/goth/providers/google"
@@ -68,9 +67,12 @@ func (c *AuthHandler) UserGoogleAuthCallBack(ctx *gin.Context) {
 		return
 	}
 
-	var user domain.User
-
-	copier.Copy(&user, &googleUser)
+	user := domain.User{
+		FirstName:   googleUser.FirstName,
+		LastName:    googleUser.LastName,
+		Email:       googleUser.Email,
+		GoogleImage: googleUser.AvatarURL,
+	}
 
 	userID, err := c.authUseCase.GoogleLogin(ctx, user)
 	if err != nil {

@@ -91,10 +91,7 @@ func (u *UserHandler) GetProfile(ctx *gin.Context) {
 		return
 	}
 
-	var data response.User
-	copier.Copy(&data, &user)
-
-	response.SuccessResponse(ctx, http.StatusOK, "Successfully retrieved user details", data)
+	response.SuccessResponse(ctx, http.StatusOK, "Successfully retrieved user details", user)
 }
 
 // UpdateProfile godoc

@@ -11,7 +11,7 @@ import (
 )
 
 // func to connect data base using config(database config) and return address of a new instnce of gorm DB
-func ConnectDatbase(cfg config.Config) (*gorm.DB, error) {
+func ConnectDatabase(cfg config.Config) (*gorm.DB, error) {
 
 	dsn := fmt.Sprintf("host=%s user=%s dbname=%s port=%s password=%s", cfg.DBHost, cfg.DBUser, cfg.DBName, cfg.DBPort, cfg.DBPassword)
 
@@ -24,7 +24,7 @@ func ConnectDatbase(cfg config.Config) (*gorm.DB, error) {
 	}
 
 	// migrate the database tables
-	db.AutoMigrate(
+	err = db.AutoMigrate(
 
 		//auth
 		domain.RefreshSession{},
@@ -73,6 +73,11 @@ func ConnectDatbase(cfg config.Config) (*gorm.DB, error) {
 		domain.Wallet{},
 		domain.Transaction{},
 	)
+
+	if err != nil {
+		log.Printf("failed to migrate database models")
+		return nil, err
+	}
 
 	// setup the triggers
 	if err := SetUpDBTriggers(db); err != nil {

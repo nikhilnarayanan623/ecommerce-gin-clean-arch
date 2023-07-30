@@ -63,12 +63,13 @@ func (c *userDatabase) FindUserByUserNameEmailOrPhoneNotID(ctx context.Context,
 func (c *userDatabase) SaveUser(ctx context.Context, user domain.User) (userID uint, err error) {
 
 	//save the user details
-	query := `INSERT INTO users (user_name, first_name, last_name, age, email, phone, password,created_at) 
-	VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING id`
+	query := `INSERT INTO users (user_name, first_name, 
+		last_name, age, email, phone, password, google_image, created_at) 
+	VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9 ) RETURNING id`
 
 	createdAt := time.Now()
 	err = c.DB.Raw(query, user.UserName, user.FirstName, user.LastName,
-		user.Age, user.Email, user.Phone, user.Password, createdAt).Scan(&user).Error
+		user.Age, user.Email, user.Phone, user.Password, user.GoogleImage, createdAt).Scan(&user).Error
 
 	return userID, err
 }

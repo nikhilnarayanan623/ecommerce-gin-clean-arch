@@ -206,7 +206,8 @@ func TestUserRenewRefreshToken(t *testing.T) {
 				assert.NoError(t, err)
 
 				var tokenResponse response.TokenResponse
-				json.Unmarshal(jsonData, &tokenResponse)
+				err = json.Unmarshal(jsonData, &tokenResponse)
+				assert.NoError(t, err)
 
 				assert.Equal(t, "generated_access_token", tokenResponse.AccessToken)
 			},
@@ -245,7 +246,11 @@ func TestUserRenewRefreshToken(t *testing.T) {
 }
 
 func getResponseStructFromResponseBody(responseBody *bytes.Buffer) (responseStruct response.Response, err error) {
+
 	data, err := io.ReadAll(responseBody)
-	json.Unmarshal(data, &responseStruct)
+	if err := json.Unmarshal(data, &responseStruct); err != nil {
+		return response.Response{}, nil
+	}
+
 	return
 }

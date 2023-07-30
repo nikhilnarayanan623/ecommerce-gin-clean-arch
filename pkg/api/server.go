@@ -49,7 +49,7 @@ func NewServerHTTP(authHandler handlerInterface.AuthHandler, middleware middlewa
 	return &ServerHTTP{Engine: engine}
 }
 
-func (s *ServerHTTP) Start() {
+func (s *ServerHTTP) Start() error {
 
-	s.Engine.Run(":8000")
+	return s.Engine.Run(":8000")
 }

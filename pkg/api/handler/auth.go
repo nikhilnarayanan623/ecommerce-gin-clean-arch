@@ -189,7 +189,10 @@ func (c *AuthHandler) UserSignUp(ctx *gin.Context) {
 	}
 
 	var user domain.User
-	copier.Copy(&user, body)
+	if err := copier.Copy(&user, body); err != nil {
+		response.ErrorResponse(ctx, http.StatusInternalServerError, "failed to copy details", err, nil)
+		return
+	}
 
 	err := c.authUseCase.UserSignUp(ctx, user)
 

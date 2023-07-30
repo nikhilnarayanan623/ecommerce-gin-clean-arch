@@ -9,10 +9,10 @@ import (
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/service/token"
 )
 
-const (
-	authorizationHeaderKey string = "authorization"
-	authorizationType      string = "bearer"
-)
+// const (
+// 	authorizationHeaderKey string = "authorization"
+// 	authorizationType      string = "bearer"
+// )
 
 // Get User Auth middleware
 func (c *middleware) AuthenticateUser() gin.HandlerFunc {
