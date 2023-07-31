@@ -78,14 +78,14 @@ func TestUserLogin(t *testing.T) {
 			buildStub: func(mockRepo *mockrepo.MockUserRepository, loginDetails request.Login) {
 				hashedPassword, err := utils.GetHashedPassword(loginDetails.Password)
 				assert.NoError(t, err)
-				outputUser := domain.User{ID: 1, Email: loginDetails.Email, Password: hashedPassword}
+				outputUser := domain.User{ID: 1, Email: loginDetails.Email, Password: hashedPassword, Verified: true}
 				mockRepo.EXPECT().FindUserByEmail(gomock.Any(), loginDetails.Email).
 					Times(1).Return(outputUser, nil)
 			},
 			expectedError: nil,
 		},
 		{
-			testName:       "FindUserErrorShouldReturnError",
+			testName:       "FindUserErrorFromDBShouldReturnError",
 			input:          createRandomLoginDetail(UserName),
 			expectedOutput: 0,
 			buildStub: func(mockRepo *mockrepo.MockUserRepository, loginDetails request.Login) {
@@ -94,7 +94,7 @@ func TestUserLogin(t *testing.T) {
 					FindUserByUserName(gomock.Any(), loginDetails.UserName).
 					Times(1).Return(domain.User{}, dbError)
 			},
-			expectedError: fmt.Errorf("an error found when find user \nerror: %v", "error from find user on database"),
+			expectedError: fmt.Errorf("failed to find user from database \nerror: %v", "error from find user on database"),
 		},
 		{
 			testName:       "NonExistingEmailShouldReturnErrorOfUserNotExist",
@@ -138,10 +138,11 @@ func TestUserLogin(t *testing.T) {
 			buildStub: func(mockRepo *mockrepo.MockUserRepository, loginDetails request.Login) {
 				hashedPassword, err := utils.GetHashedPassword(loginDetails.Password)
 				assert.NoError(t, err)
-				outputUser := domain.User{ID: 1, Password: hashedPassword}
+				outputUser := domain.User{ID: 1, Password: hashedPassword, Verified: true}
 				mockRepo.EXPECT().FindUserByPhoneNumber(gomock.Any(), loginDetails.Phone).
 					Times(1).Return(outputUser, nil)
 			},
+			expectedError: nil,
 		},
 	}
 

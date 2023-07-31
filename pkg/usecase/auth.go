@@ -60,7 +60,7 @@ func (c *authUseCase) UserLogin(ctx context.Context, loginDetails request.Login)
 	}
 
 	if err != nil {
-		return 0, fmt.Errorf("failed to find user \nerror: %w", err)
+		return 0, utils.PrependMessageToError(err, "failed to find user from database")
 	}
 
 	if user.ID == 0 {
@@ -80,7 +80,7 @@ func (c *authUseCase) UserLogin(ctx context.Context, loginDetails request.Login)
 		return 0, ErrWrongPassword
 	}
 
-	return 0, nil
+	return user.ID, nil
 }
 
 func (c *authUseCase) UserLoginOtpSend(ctx context.Context, loginDetails request.OTPLogin) (string, error) {
