@@ -54,15 +54,13 @@ func LoadConfig() (Config, error) {
 	viper.AddConfigPath("./")
 	viper.SetConfigFile(".env")
 	err := viper.ReadInConfig()
-	// if there is no error means found .env file and read from it
-	if err == nil {
-		return config, nil
-	}
-
-	// if there is error then read envs from system environments
-	for _, env := range envsNames {
-		if err := viper.BindEnv(env); err != nil {
-			return config, err
+	// if there is an error to read from config means user using system envs instead of .env file
+	if err != nil {
+		// bind from system envs
+		for _, env := range envsNames {
+			if err := viper.BindEnv(env); err != nil {
+				return config, err
+			}
 		}
 	}
 

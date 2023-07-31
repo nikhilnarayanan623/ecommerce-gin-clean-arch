@@ -16,6 +16,7 @@ type UserRepository interface {
 	FindUserByUserNameEmailOrPhoneNotID(ctx context.Context, user domain.User) (domain.User, error)
 
 	SaveUser(ctx context.Context, user domain.User) (userID uint, err error)
+	UpdateVerified(ctx context.Context, userID uint) error
 	UpdateUser(ctx context.Context, user domain.User) (err error)
 	UpdateBlockStatus(ctx context.Context, userID uint, blockStatus bool) error
 

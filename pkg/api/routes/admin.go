@@ -16,7 +16,7 @@ func AdminRoutes(api *gin.RouterGroup, authHandler handlerInterface.AuthHandler,
 
 	auth := api.Group("/auth")
 	{
-		login := auth.Group("/login")
+		login := auth.Group("/sign-in")
 		{
 			login.POST("/", authHandler.AdminLogin)
 		}

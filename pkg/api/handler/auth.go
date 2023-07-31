@@ -32,8 +32,8 @@ func NewAuthHandler(authUsecase usecaseInterface.AuthUseCase) interfaces.AuthHan
 // @Id UserLogin
 // @Tags User Authentication
 // @Param        inputs   body     request.Login{}   true  "Login Details"
-// @Router /auth/login [post]
-// @Success 200 {object} response.Response{} "Successfully logged in"
+// @Router /auth/sign-in [post]
+// @Success 200 {object} response.Response{data=response.TokenResponse} "Successfully logged in"
 // @Failure 400 {object} response.Response{}  "Invalid inputs"
 // @Failure 403 {object} response.Response{}  "User blocked by admin"
 // @Failure 401 {object} response.Response{}  "User not exist with given login credentials"
@@ -60,6 +60,8 @@ func (c *AuthHandler) UserLogin(ctx *gin.Context) {
 			statusCode = http.StatusNotFound
 		case errors.Is(err, usecase.ErrUserBlocked):
 			statusCode = http.StatusForbidden
+		case errors.Is(err, usecase.ErrUserNotVerified):
+			statusCode = http.StatusUnauthorized
 		case errors.Is(err, usecase.ErrWrongPassword):
 			statusCode = http.StatusUnauthorized
 		default:
@@ -81,8 +83,8 @@ func (c *AuthHandler) UserLogin(ctx *gin.Context) {
 // @Id UserLoginOtpSend
 // @Tags User Authentication
 // @Param inputs body request.OTPLogin{} true "Login credentials"
-// @Router /auth/login/otp-send [post]
-// @Success 200 {object} response.Response{}  "Successfully otp send to user's registered number"
+// @Router /auth/sign-in/otp/send [post]
+// @Success 200 {object} response.Response{response.OTPResponse{}}  "Successfully otp send to user's registered number"
 // @Failure 400 {object} response.Response{}  "Invalid Otp"
 // @Failure 403 {object} response.Response{}  "User blocked by admin"
 // @Failure 401 {object} response.Response{}  "User not exist with given login credentials"
@@ -121,10 +123,10 @@ func (u *AuthHandler) UserLoginOtpSend(ctx *gin.Context) {
 		return
 	}
 
-	optRes := response.OTPResponse{
+	otpRes := response.OTPResponse{
 		OtpID: otpID,
 	}
-	response.SuccessResponse(ctx, http.StatusOK, "Successfully otp send to user's registered number", optRes)
+	response.SuccessResponse(ctx, http.StatusOK, "Successfully otp send to user's registered number", otpRes)
 }
 
 // UserLoginOtpVerify godoc
@@ -134,8 +136,8 @@ func (u *AuthHandler) UserLoginOtpSend(ctx *gin.Context) {
 // @id UserLoginOtpVerify
 // @tags User Authentication
 // @param inputs body request.OTPVerify{} true "Otp Verify Details"
-// @Router /auth/login/otp-verify [post]
-// @Success 200 {object} response.Response{} "Successfully user logged in"
+// @Router /auth/sign-in/otp/verify [post]
+// @Success 200 {object} response.Response{data=response.TokenResponse} "Successfully user logged in"
 // @Failure 400 {object} response.Response{} "Invalid inputs"
 // @Failure 401 {object} response.Response{} "Otp not matched"
 // @Failure 410 {object} response.Response{} "Otp Expired"
@@ -174,8 +176,8 @@ func (c *AuthHandler) UserLoginOtpVerify(ctx *gin.Context) {
 // @Id UserSignUp
 // @Tags User Authentication
 // @Param input body request.UserSignUp{} true "Input Fields"
-// @Router /auth/signup [post]
-// @Success 200 {object} response.Response{} "Successfully Account Created"
+// @Router /auth/sign-up [post]
+// @Success 200 {object} response.Response{data=response.OTPResponse} "Successfully account created and otp send to registered number"
 // @Failure 400 {object} response.Response{} "Invalid input"
 // @Failure 409 {object} response.Response{} "A verified user already exist with given user credentials"
 // @Failure 500 {object} response.Response{} "Failed to signup"
@@ -194,7 +196,7 @@ func (c *AuthHandler) UserSignUp(ctx *gin.Context) {
 		return
 	}
 
-	err := c.authUseCase.UserSignUp(ctx, user)
+	otpID, err := c.authUseCase.UserSignUp(ctx, user)
 
 	if err != nil {
 		statusCode := http.StatusInternalServerError
@@ -206,7 +208,52 @@ func (c *AuthHandler) UserSignUp(ctx *gin.Context) {
 		return
 	}
 
-	response.SuccessResponse(ctx, http.StatusCreated, "Successfully Account Created")
+	otpRes := response.OTPResponse{
+		OtpID: otpID,
+	}
+
+	response.SuccessResponse(ctx, http.StatusCreated,
+		"Successfully account created and otp send to registered number", otpRes)
+}
+
+// UserSignUpVerify godoc
+// @summary UserSingUp verify OTP  (User)
+// @description API for user to verify otp on sign up
+// @security ApiKeyAuth
+// @id UserSignUpVerify
+// @tags User Authentication
+// @param inputs body request.OTPVerify{} true "Otp Verify Details"
+// @Router /auth/sing-up/verify [post]
+// @Success 200 {object} response.Response{data=response.TokenResponse} "Successfully otp verified for user sign up"
+// @Failure 400 {object} response.Response{} "Invalid inputs"
+// @Failure 401 {object} response.Response{} "Otp not matched"
+// @Failure 410 {object} response.Response{} "Otp Expired"
+// @Failure 500 {object} response.Response{} "Failed to verify otp"
+func (c *AuthHandler) UserSignUpVerify(ctx *gin.Context) {
+
+	var body request.OTPVerify
+	if err := ctx.ShouldBindJSON(&body); err != nil {
+		response.ErrorResponse(ctx, http.StatusBadRequest, BindJsonFailMessage, err, body)
+		return
+	}
+
+	// get the user using loginOtp useCase
+	userID, err := c.authUseCase.SingUpOtpVerify(ctx, body)
+	if err != nil {
+		var statusCode int
+		switch {
+		case errors.Is(err, usecase.ErrOtpExpired):
+			statusCode = http.StatusGone
+		case errors.Is(err, usecase.ErrInvalidOtp):
+			statusCode = http.StatusUnauthorized
+		default:
+			statusCode = http.StatusInternalServerError
+		}
+		response.ErrorResponse(ctx, statusCode, "Failed to verify otp", err, nil)
+		return
+	}
+
+	c.setupTokenAndResponse(ctx, token.User, userID)
 }
 
 // AdminLogin godoc
@@ -216,8 +263,8 @@ func (c *AuthHandler) UserSignUp(ctx *gin.Context) {
 // @Id AdminLogin
 // @Tags Admin Authentication
 // @Param input body request.Login{} true "Login credentials"
-// @Router /admin/auth/login [post]
-// @Success 200 {object} response.Response{} "Successfully logged in"
+// @Router /admin/auth/sign-in [post]
+// @Success 200 {object} response.Response{data=response.TokenResponse} "Successfully logged in"
 // @Failure 400 {object} response.Response{} "Invalid input"
 // @Failure 401 {object} response.Response{} "Wrong password"
 // @Failure 404 {object} response.Response{} "Admin not exist with this details"

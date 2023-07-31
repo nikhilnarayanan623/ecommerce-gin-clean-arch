@@ -6,6 +6,7 @@ type AuthHandler interface {
 	//userSide
 	UserLogin(ctx *gin.Context)
 	UserSignUp(ctx *gin.Context)
+	UserSignUpVerify(ctx *gin.Context)
 
 	UserGoogleAuthInitialize(ctx *gin.Context)
 	UserGoogleAuthLoginPage(ctx *gin.Context)

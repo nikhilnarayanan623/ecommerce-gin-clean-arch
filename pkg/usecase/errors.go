@@ -6,6 +6,7 @@ var (
 	// login
 	ErrEmptyLoginCredentials = errors.New("all login credentials are empty")
 	ErrUserNotExist          = errors.New("user not exist with given login credentials")
+	ErrUserNotVerified       = errors.New("user not verified")
 	ErrUserBlocked           = errors.New("user blocked by admin")
 	ErrWrongPassword         = errors.New("password doesn't match")
 	// otp

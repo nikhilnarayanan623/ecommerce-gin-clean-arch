@@ -485,6 +485,11 @@ definitions:
     required:
     - variation_value
     type: object
+  response.OTPResponse:
+    properties:
+      otp_id:
+        type: string
+    type: object
   response.Response:
     properties:
       data: {}
@@ -493,6 +498,13 @@ definitions:
         type: string
       success:
         type: boolean
+    type: object
+  response.TokenResponse:
+    properties:
+      access_token:
+        type: string
+      refresh_token:
+        type: string
     type: object
 info:
   contact: {}
@@ -740,43 +752,6 @@ paths:
       summary: Add to whish list (User)
       tags:
       - User Profile
-  /admin/auth/login:
-    post:
-      description: API for admin to login with password
-      operationId: AdminLogin
-      parameters:
-      - description: Login credentials
-        in: body
-        name: input
-        required: true
-        schema:
-          $ref: '#/definitions/request.Login'
-      responses:
-        "200":
-          description: Successfully logged in
-          schema:
-            $ref: '#/definitions/response.Response'
-        "400":
-          description: Invalid input
-          schema:
-            $ref: '#/definitions/response.Response'
-        "401":
-          description: Wrong password
-          schema:
-            $ref: '#/definitions/response.Response'
-        "404":
-          description: Admin not exist with this details
-          schema:
-            $ref: '#/definitions/response.Response'
-        "500":
-          description: Failed to login
-          schema:
-            $ref: '#/definitions/response.Response'
-      security:
-      - ApiKeyAuth: []
-      summary: Login with password (Admin)
-      tags:
-      - Admin Authentication
   /admin/auth/renew-access-token:
     post:
       description: API for admin to renew access token using refresh token
@@ -820,6 +795,48 @@ paths:
       security:
       - ApiKeyAuth: []
       summary: Renew Access Token (Admin)
+      tags:
+      - Admin Authentication
+  /admin/auth/sign-in:
+    post:
+      description: API for admin to login with password
+      operationId: AdminLogin
+      parameters:
+      - description: Login credentials
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/request.Login'
+      responses:
+        "200":
+          description: Successfully logged in
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/response.TokenResponse'
+              type: object
+        "400":
+          description: Invalid input
+          schema:
+            $ref: '#/definitions/response.Response'
+        "401":
+          description: Wrong password
+          schema:
+            $ref: '#/definitions/response.Response'
+        "404":
+          description: Admin not exist with this details
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Failed to login
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: Login with password (Admin)
       tags:
       - Admin Authentication
   /admin/categories:
@@ -1923,118 +1940,6 @@ paths:
       summary: Initialize google auth (User)
       tags:
       - User Authentication
-  /auth/login:
-    post:
-      description: API for user to login with email | phone | user_name with password
-      operationId: UserLogin
-      parameters:
-      - description: Login Details
-        in: body
-        name: inputs
-        required: true
-        schema:
-          $ref: '#/definitions/request.Login'
-      responses:
-        "200":
-          description: Successfully logged in
-          schema:
-            $ref: '#/definitions/response.Response'
-        "400":
-          description: Invalid inputs
-          schema:
-            $ref: '#/definitions/response.Response'
-        "401":
-          description: User not exist with given login credentials
-          schema:
-            $ref: '#/definitions/response.Response'
-        "403":
-          description: User blocked by admin
-          schema:
-            $ref: '#/definitions/response.Response'
-        "500":
-          description: Failed to login
-          schema:
-            $ref: '#/definitions/response.Response'
-      security:
-      - ApiKeyAuth: []
-      summary: Login with password (User)
-      tags:
-      - User Authentication
-  /auth/login/otp-send:
-    post:
-      description: 'API for user to send otp for login enter email | phone | user_name
-        : otp will send to user registered number'
-      operationId: UserLoginOtpSend
-      parameters:
-      - description: Login credentials
-        in: body
-        name: inputs
-        required: true
-        schema:
-          $ref: '#/definitions/request.OTPLogin'
-      responses:
-        "200":
-          description: Successfully otp send to user's registered number
-          schema:
-            $ref: '#/definitions/response.Response'
-        "400":
-          description: Invalid Otp
-          schema:
-            $ref: '#/definitions/response.Response'
-        "401":
-          description: User not exist with given login credentials
-          schema:
-            $ref: '#/definitions/response.Response'
-        "403":
-          description: User blocked by admin
-          schema:
-            $ref: '#/definitions/response.Response'
-        "500":
-          description: Failed to send otp
-          schema:
-            $ref: '#/definitions/response.Response'
-      security:
-      - ApiKeyAuth: []
-      summary: Login with Otp send (User)
-      tags:
-      - User Authentication
-  /auth/login/otp-verify:
-    post:
-      description: API for user to verify otp
-      operationId: UserLoginOtpVerify
-      parameters:
-      - description: Otp Verify Details
-        in: body
-        name: inputs
-        required: true
-        schema:
-          $ref: '#/definitions/request.OTPVerify'
-      responses:
-        "200":
-          description: Successfully user logged in
-          schema:
-            $ref: '#/definitions/response.Response'
-        "400":
-          description: Invalid inputs
-          schema:
-            $ref: '#/definitions/response.Response'
-        "401":
-          description: Otp not matched
-          schema:
-            $ref: '#/definitions/response.Response'
-        "410":
-          description: Otp Expired
-          schema:
-            $ref: '#/definitions/response.Response'
-        "500":
-          description: Failed to verify otp
-          schema:
-            $ref: '#/definitions/response.Response'
-      security:
-      - ApiKeyAuth: []
-      summary: Login with Otp verify (User)
-      tags:
-      - User Authentication
   /auth/renew-access-token:
     post:
       description: API for user to renew access token using refresh token
@@ -2080,7 +1985,129 @@ paths:
       summary: Renew Access Token (User)
       tags:
       - User Authentication
-  /auth/signup:
+  /auth/sign-in:
+    post:
+      description: API for user to login with email | phone | user_name with password
+      operationId: UserLogin
+      parameters:
+      - description: Login Details
+        in: body
+        name: inputs
+        required: true
+        schema:
+          $ref: '#/definitions/request.Login'
+      responses:
+        "200":
+          description: Successfully logged in
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/response.TokenResponse'
+              type: object
+        "400":
+          description: Invalid inputs
+          schema:
+            $ref: '#/definitions/response.Response'
+        "401":
+          description: User not exist with given login credentials
+          schema:
+            $ref: '#/definitions/response.Response'
+        "403":
+          description: User blocked by admin
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Failed to login
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: Login with password (User)
+      tags:
+      - User Authentication
+  /auth/sign-in/otp/send:
+    post:
+      description: 'API for user to send otp for login enter email | phone | user_name
+        : otp will send to user registered number'
+      operationId: UserLoginOtpSend
+      parameters:
+      - description: Login credentials
+        in: body
+        name: inputs
+        required: true
+        schema:
+          $ref: '#/definitions/request.OTPLogin'
+      responses:
+        "200":
+          description: Successfully otp send to user's registered number
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Invalid Otp
+          schema:
+            $ref: '#/definitions/response.Response'
+        "401":
+          description: User not exist with given login credentials
+          schema:
+            $ref: '#/definitions/response.Response'
+        "403":
+          description: User blocked by admin
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Failed to send otp
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: Login with Otp send (User)
+      tags:
+      - User Authentication
+  /auth/sign-in/otp/verify:
+    post:
+      description: API for user to verify otp
+      operationId: UserLoginOtpVerify
+      parameters:
+      - description: Otp Verify Details
+        in: body
+        name: inputs
+        required: true
+        schema:
+          $ref: '#/definitions/request.OTPVerify'
+      responses:
+        "200":
+          description: Successfully user logged in
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/response.TokenResponse'
+              type: object
+        "400":
+          description: Invalid inputs
+          schema:
+            $ref: '#/definitions/response.Response'
+        "401":
+          description: Otp not matched
+          schema:
+            $ref: '#/definitions/response.Response'
+        "410":
+          description: Otp Expired
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Failed to verify otp
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: Login with Otp verify (User)
+      tags:
+      - User Authentication
+  /auth/sign-up:
     post:
       description: API for user to register a new account
       operationId: UserSignUp
@@ -2093,9 +2120,14 @@ paths:
           $ref: '#/definitions/request.UserSignUp'
       responses:
         "200":
-          description: Successfully Account Created
+          description: Successfully account created and otp send to registered number
           schema:
-            $ref: '#/definitions/response.Response'
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/response.OTPResponse'
+              type: object
         "400":
           description: Invalid input
           schema:
@@ -2111,6 +2143,48 @@ paths:
       security:
       - ApiKeyAuth: []
       summary: Signup (User)
+      tags:
+      - User Authentication
+  /auth/sing-up/verify:
+    post:
+      description: API for user to verify otp on sign up
+      operationId: UserSignUpVerify
+      parameters:
+      - description: Otp Verify Details
+        in: body
+        name: inputs
+        required: true
+        schema:
+          $ref: '#/definitions/request.OTPVerify'
+      responses:
+        "200":
+          description: Successfully otp verified for user sign up
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/response.TokenResponse'
+              type: object
+        "400":
+          description: Invalid inputs
+          schema:
+            $ref: '#/definitions/response.Response'
+        "401":
+          description: Otp not matched
+          schema:
+            $ref: '#/definitions/response.Response'
+        "410":
+          description: Otp Expired
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Failed to verify otp
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: UserSingUp verify OTP  (User)
       tags:
       - User Authentication
   /carts:

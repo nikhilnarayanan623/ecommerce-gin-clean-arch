@@ -11,7 +11,8 @@ import (
 //go:generate mockgen -destination=../../mock/mockusecase/auth_mock.go -package=mockusecase . AuthUseCase
 type AuthUseCase interface {
 	//user
-	UserSignUp(ctx context.Context, signUpDetails domain.User) error
+	UserSignUp(ctx context.Context, signUpDetails domain.User) (otpID string, err error)
+	SingUpOtpVerify(ctx context.Context, otpVerifyDetails request.OTPVerify) (userID uint, err error)
 	GoogleLogin(ctx context.Context, user domain.User) (userID uint, err error)
 	UserLogin(ctx context.Context, loginDetails request.Login) (userID uint, err error)
 	UserLoginOtpSend(ctx context.Context, loginDetails request.OTPLogin) (otpID string, err error)
