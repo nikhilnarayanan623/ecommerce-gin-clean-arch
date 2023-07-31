@@ -14,16 +14,17 @@ func UserRoutes(api *gin.RouterGroup, authHandler handlerInterface.AuthHandler, 
 
 	auth := api.Group("/auth")
 	{
-		signup := auth.Group("/signup")
+		signup := auth.Group("/sign-up")
 		{
 			signup.POST("/", authHandler.UserSignUp)
+			signup.POST("/verify", authHandler.UserSignUpVerify)
 		}
 
-		login := auth.Group("/login")
+		login := auth.Group("/sign-in")
 		{
 			login.POST("/", authHandler.UserLogin)
-			login.POST("/otp-send", authHandler.UserLoginOtpSend)
-			login.POST("/otp-verify", authHandler.UserLoginOtpVerify)
+			login.POST("/otp/send", authHandler.UserLoginOtpSend)
+			login.POST("/otp/verify", authHandler.UserLoginOtpVerify)
 		}
 
 		goath := auth.Group("/google-auth")

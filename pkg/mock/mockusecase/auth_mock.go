@@ -113,6 +113,21 @@ func (mr *MockAuthUseCaseMockRecorder) LoginOtpVerify(ctx, otpVerifyDetails inte
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "LoginOtpVerify", reflect.TypeOf((*MockAuthUseCase)(nil).LoginOtpVerify), ctx, otpVerifyDetails)
 }
 
+// SingUpOtpVerify mocks base method.
+func (m *MockAuthUseCase) SingUpOtpVerify(ctx context.Context, otpVerifyDetails request.OTPVerify) (uint, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "SingUpOtpVerify", ctx, otpVerifyDetails)
+	ret0, _ := ret[0].(uint)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// SingUpOtpVerify indicates an expected call of SingUpOtpVerify.
+func (mr *MockAuthUseCaseMockRecorder) SingUpOtpVerify(ctx, otpVerifyDetails interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SingUpOtpVerify", reflect.TypeOf((*MockAuthUseCase)(nil).SingUpOtpVerify), ctx, otpVerifyDetails)
+}
+
 // UserLogin mocks base method.
 func (m *MockAuthUseCase) UserLogin(ctx context.Context, loginDetails request.Login) (uint, error) {
 	m.ctrl.T.Helper()
@@ -144,11 +159,12 @@ func (mr *MockAuthUseCaseMockRecorder) UserLoginOtpSend(ctx, loginDetails interf
 }
 
 // UserSignUp mocks base method.
-func (m *MockAuthUseCase) UserSignUp(ctx context.Context, signUpDetails domain.User) error {
+func (m *MockAuthUseCase) UserSignUp(ctx context.Context, signUpDetails domain.User) (string, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "UserSignUp", ctx, signUpDetails)
-	ret0, _ := ret[0].(error)
-	return ret0
+	ret0, _ := ret[0].(string)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
 }
 
 // UserSignUp indicates an expected call of UserSignUp.

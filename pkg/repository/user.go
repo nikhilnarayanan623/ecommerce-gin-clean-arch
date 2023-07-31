@@ -74,6 +74,14 @@ func (c *userDatabase) SaveUser(ctx context.Context, user domain.User) (userID u
 	return userID, err
 }
 
+func (c *userDatabase) UpdateVerified(ctx context.Context, userID uint) error {
+
+	query := `UPDATE users SET verified = 'T' WHERE id = $1`
+	err := c.DB.Exec(query, userID).Error
+
+	return err
+}
+
 func (c *userDatabase) UpdateUser(ctx context.Context, user domain.User) (err error) {
 
 	updatedAt := time.Now()

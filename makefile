@@ -14,9 +14,9 @@ ${BINARY_DIR}:
 
 build: ${BINARY_DIR} ## Compile the code, build Executable File
 #	$(GOCMD) build -o $(BINARY_DIR) -v ./cmd/api
-	GOARCH=amd64 $(GOCMD) build -v -o $(BINARY_DIR)/api-linux-amd64 ./cmd/api
+	GOARCH=amd64 $(GOCMD) build -v -o $(BINARY_DIR)/api-linux-amd64 ./cmd/api/main.go
 run: ## Start application
-	$(GOCMD) run ./cmd/api
+	$(GOCMD) run ./cmd/api/main.go
 
 test: ## Run tests
 	$(GOCMD) test ./... -cover

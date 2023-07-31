@@ -343,3 +343,17 @@ func (mr *MockUserRepositoryMockRecorder) UpdateUserAddress(ctx, userAddress int
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateUserAddress", reflect.TypeOf((*MockUserRepository)(nil).UpdateUserAddress), ctx, userAddress)
 }
+
+// UpdateVerified mocks base method.
+func (m *MockUserRepository) UpdateVerified(ctx context.Context, userID uint) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UpdateVerified", ctx, userID)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// UpdateVerified indicates an expected call of UpdateVerified.
+func (mr *MockUserRepositoryMockRecorder) UpdateVerified(ctx, userID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateVerified", reflect.TypeOf((*MockUserRepository)(nil).UpdateVerified), ctx, userID)
+}

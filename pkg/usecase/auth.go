@@ -43,9 +43,12 @@ const (
 	RefreshTokenDuration = time.Hour * 24 * 7
 )
 
-func (c *authUseCase) UserLogin(ctx context.Context, loginDetails request.Login) (userID uint, err error) {
+func (c *authUseCase) UserLogin(ctx context.Context, loginDetails request.Login) (uint, error) {
 
-	var user domain.User
+	var (
+		user domain.User
+		err  error
+	)
 	if loginDetails.Email != "" {
 		user, err = c.userRepo.FindUserByEmail(ctx, loginDetails.Email)
 	} else if loginDetails.UserName != "" {
@@ -53,27 +56,31 @@ func (c *authUseCase) UserLogin(ctx context.Context, loginDetails request.Login)
 	} else if loginDetails.Phone != "" {
 		user, err = c.userRepo.FindUserByPhoneNumber(ctx, loginDetails.Phone)
 	} else {
-		return userID, ErrEmptyLoginCredentials
+		return 0, ErrEmptyLoginCredentials
 	}
 
 	if err != nil {
-		return userID, fmt.Errorf("failed to find user \nerror: %w", err)
+		return 0, fmt.Errorf("failed to find user \nerror: %w", err)
 	}
 
 	if user.ID == 0 {
-		return userID, ErrUserNotExist
+		return 0, ErrUserNotExist
+	}
+
+	if !user.Verified {
+		return 0, ErrUserNotVerified
 	}
 
 	if user.BlockStatus {
-		return userID, ErrUserBlocked
+		return 0, ErrUserBlocked
 	}
 
 	err = utils.ComparePasswordWithHashedPassword(loginDetails.Password, user.Password)
 	if err != nil {
-		return userID, ErrWrongPassword
+		return 0, ErrWrongPassword
 	}
 
-	return user.ID, nil
+	return 0, nil
 }
 
 func (c *authUseCase) UserLoginOtpSend(ctx context.Context, loginDetails request.OTPLogin) (string, error) {
@@ -129,7 +136,7 @@ func (c *authUseCase) LoginOtpVerify(ctx context.Context, otpVerifyDetails reque
 
 	otpSession, err := c.authRepo.FindOtpSession(ctx, otpVerifyDetails.OtpID)
 	if err != nil {
-		return 0, fmt.Errorf("failed to get otp session \nerror:%v", err.Error())
+		return 0, utils.PrependMessageToError(err, "failed to find otp session from database")
 	}
 
 	if time.Since(otpSession.ExpireAt) > 0 {
@@ -138,7 +145,7 @@ func (c *authUseCase) LoginOtpVerify(ctx context.Context, otpVerifyDetails reque
 
 	valid, err := c.optAuth.VerifyOtp("+91"+otpSession.Phone, otpVerifyDetails.Otp)
 	if err != nil {
-		return 0, fmt.Errorf("failed to verify otp \nerror:%v", err.Error())
+		return 0, utils.PrependMessageToError(err, "failed to verify otp")
 	}
 	if !valid {
 		return 0, ErrInvalidOtp
@@ -246,32 +253,81 @@ func (c *authUseCase) VerifyAndGetRefreshTokenSession(ctx context.Context, refre
 	return refreshSession, nil
 }
 
-func (c *authUseCase) UserSignUp(ctx context.Context, signUpDetails domain.User) error {
+func (c *authUseCase) UserSignUp(ctx context.Context, signUpDetails domain.User) (string, error) {
 
 	existUser, err := c.userRepo.FindUserByUserNameEmailOrPhoneNotID(ctx, signUpDetails)
 	if err != nil {
-		return utils.PrependMessageToError(err, "failed to check user details already exist")
+		return "", utils.PrependMessageToError(err, "failed to check user details already exist")
 	}
 
 	// if user already exist then find the exists details and append that error with user already exist error
 	if existUser.ID != 0 {
 		err = utils.CompareUserExistingDetails(existUser, signUpDetails)
 		err = utils.AppendMessageToError(ErrUserAlreadyExit, err.Error())
-		return err
+		return "", err
 	}
 
 	hashPass, err := utils.GenerateHashFromPassword(signUpDetails.Password)
 	if err != nil {
-		return utils.PrependMessageToError(err, "failed to hash the password")
+		return "", utils.PrependMessageToError(err, "failed to hash the password")
 	}
 
 	signUpDetails.Password = string(hashPass)
-	_, err = c.userRepo.SaveUser(ctx, signUpDetails)
+	userID, err := c.userRepo.SaveUser(ctx, signUpDetails)
 
 	if err != nil {
-		return utils.PrependMessageToError(err, "failed to save user details")
+		return "", utils.PrependMessageToError(err, "failed to save user details")
 	}
-	return nil
+
+	_, err = c.optAuth.SentOtp("+91" + signUpDetails.Phone)
+
+	if err != nil {
+		return "", fmt.Errorf("failed to send otp \nerrors:%v", err.Error())
+	}
+
+	otpID := uuid.NewString()
+
+	otpSession := domain.OtpSession{
+		OtpID:    otpID,
+		UserID:   userID,
+		Phone:    signUpDetails.Phone,
+		ExpireAt: time.Now().Add(time.Minute * 2),
+	}
+
+	err = c.authRepo.SaveOtpSession(ctx, otpSession)
+	if err != nil {
+		return "", fmt.Errorf("failed to save otp session \nerror:%v", err.Error())
+	}
+
+	return otpID, nil
+}
+
+func (c *authUseCase) SingUpOtpVerify(ctx context.Context,
+	otpVerifyDetails request.OTPVerify) (userID uint, err error) {
+
+	otpSession, err := c.authRepo.FindOtpSession(ctx, otpVerifyDetails.OtpID)
+	if err != nil {
+		return 0, utils.PrependMessageToError(err, "failed to find otp session from database")
+	}
+
+	if time.Since(otpSession.ExpireAt) > 0 {
+		return 0, ErrOtpExpired
+	}
+
+	valid, err := c.optAuth.VerifyOtp("+91"+otpSession.Phone, otpVerifyDetails.Otp)
+	if err != nil {
+		return 0, utils.PrependMessageToError(err, "failed to verify otp")
+	}
+	if !valid {
+		return 0, ErrInvalidOtp
+	}
+
+	err = c.userRepo.UpdateVerified(ctx, otpSession.ID)
+	if err != nil {
+		return 0, utils.PrependMessageToError(err, "failed to update user verified on database")
+	}
+
+	return otpSession.UserID, nil
 }
 
 // google login
