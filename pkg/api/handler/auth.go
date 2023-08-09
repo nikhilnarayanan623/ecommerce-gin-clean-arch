@@ -223,7 +223,7 @@ func (c *AuthHandler) UserSignUp(ctx *gin.Context) {
 // @id UserSignUpVerify
 // @tags User Authentication
 // @param inputs body request.OTPVerify{} true "Otp Verify Details"
-// @Router /auth/sing-up/verify [post]
+// @Router /auth/sign-up/verify [post]
 // @Success 200 {object} response.Response{data=response.TokenResponse} "Successfully otp verified for user sign up"
 // @Failure 400 {object} response.Response{} "Invalid inputs"
 // @Failure 401 {object} response.Response{} "Otp not matched"
