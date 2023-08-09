@@ -2557,7 +2557,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/auth/sing-up/verify": {
+        "/auth/sign-up/verify": {
             "post": {
                 "security": [
                     {

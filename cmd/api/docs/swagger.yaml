@@ -2145,7 +2145,7 @@ paths:
       summary: Signup (User)
       tags:
       - User Authentication
-  /auth/sing-up/verify:
+  /auth/sign-up/verify:
     post:
       description: API for user to verify otp on sign up
       operationId: UserSignUpVerify
