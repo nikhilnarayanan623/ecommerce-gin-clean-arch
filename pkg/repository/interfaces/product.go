@@ -38,7 +38,7 @@ type ProductRepository interface {
 	IsProductNameExist(ctx context.Context, productName string) (exist bool, err error)
 
 	FindAllProducts(ctx context.Context, pagination request.Pagination) ([]response.Product, error)
-	SaveProduct(ctx context.Context, product request.Product) error
+	SaveProduct(ctx context.Context, product domain.Product) error
 	UpdateProduct(ctx context.Context, product domain.Product) error
 
 	// product items

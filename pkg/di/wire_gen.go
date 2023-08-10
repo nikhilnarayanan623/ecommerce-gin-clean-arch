@@ -13,6 +13,7 @@ import (
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/config"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/db"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/repository"
+	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/service/cloud"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/service/otp"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/service/token"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/usecase"
@@ -46,7 +47,11 @@ func InitializeApi(cfg config.Config) (*http.ServerHTTP, error) {
 	couponRepository := repository.NewCouponRepository(gormDB)
 	paymentUseCase := usecase.NewPaymentUseCase(paymentRepository, orderRepository, userRepository, cartRepository, couponRepository)
 	paymentHandler := handler.NewPaymentHandler(paymentUseCase)
-	productUseCase := usecase.NewProductUseCase(productRepository)
+	cloudService, err := cloud.NewAWSCloudService(cfg)
+	if err != nil {
+		return nil, err
+	}
+	productUseCase := usecase.NewProductUseCase(productRepository, cloudService)
 	productHandler := handler.NewProductHandler(productUseCase)
 	orderUseCase := usecase.NewOrderUseCase(orderRepository, cartRepository, userRepository, paymentRepository)
 	orderHandler := handler.NewOrderHandler(orderUseCase)

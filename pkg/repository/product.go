@@ -184,7 +184,7 @@ func (c *productDatabase) IsProductNameExist(ctx context.Context, productName st
 }
 
 // to add a new product in database
-func (c *productDatabase) SaveProduct(ctx context.Context, product request.Product) error {
+func (c *productDatabase) SaveProduct(ctx context.Context, product domain.Product) error {
 
 	query := `INSERT INTO products (name, description, category_id, price, image, created_at) 
 	VALUES($1, $2, $3, $4, $5, $6)`

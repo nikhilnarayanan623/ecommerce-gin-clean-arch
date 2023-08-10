@@ -33,6 +33,11 @@ type Config struct {
 	GoathClientID      string `mapstructure:"GOAUTH_CLIENT_ID"`
 	GoauthClientSecret string `mapstructure:"GOAUTH_CLIENT_SECRET"`
 	GoauthCallbackUrl  string `mapstructure:"GOAUTH_CALL_BACK_URL"`
+
+	AwsAccessKeyID string `mapstructure:"AWS_ACCESS_KEY_ID"`
+	AwsSecretKey   string `mapstructure:"AWS_SECRET_ACCESS_KEY"`
+	AwsRegion      string `mapstructure:"AWS_REGION"`
+	AwsBucketName  string `mapstructure:"AWS_BUCKET_NAME"`
 }
 
 // name of envs and used to read from system envs
@@ -44,6 +49,7 @@ var envsNames = []string{
 	"RAZOR_PAY_KEY", "RAZOR_PAY_SECRET", // razor pay
 	"STRIPE_SECRET", "STRIPE_PUBLISH_KEY", "STRIPE_WEBHOOK", // stripe
 	"GOAUTH_CLIENT_ID", "GOAUTH_CLIENT_SECRET", "GOAUTH_CALL_BACK_URL", //goath
+	"AWS_ACCESS_KEY_ID", "AWS_SECRET_ACCESS_KEY", "AWS_REGION", "AWS_BUCKET_NAME", // aws s3
 }
 
 var config Config
