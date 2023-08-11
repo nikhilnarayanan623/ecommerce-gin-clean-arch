@@ -1,12 +1,14 @@
 package request
 
+import "mime/multipart"
+
 // for a new product
 type Product struct {
-	Name        string `json:"product_name" binding:"required,min=3,max=50"`
-	Description string `json:"description" binding:"required,min=10,max=100"`
-	CategoryID  uint   `json:"category_id" binding:"required"`
-	Price       uint   `json:"price" binding:"required,numeric"`
-	Image       string `json:"image" binding:"required"`
+	Name            string `json:"product_name" binding:"required,min=3,max=50"`
+	Description     string `json:"description" binding:"required,min=10,max=100"`
+	CategoryID      uint   `json:"category_id" binding:"required"`
+	Price           uint   `json:"price" binding:"required,numeric"`
+	ImageFileHeader *multipart.FileHeader
 }
 type UpdateProduct struct {
 	ID          uint   `json:"product_id" binding:"required"`

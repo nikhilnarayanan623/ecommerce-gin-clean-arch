@@ -7,17 +7,22 @@ import (
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/api/handler/response"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/domain"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/repository/interfaces"
+	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/service/cloud"
 	service "github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/usecase/interfaces"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/utils"
 )
 
 type productUseCase struct {
-	productRepo interfaces.ProductRepository
+	productRepo  interfaces.ProductRepository
+	cloudService cloud.CloudService
 }
 
 // to get a new instance of productUseCase
-func NewProductUseCase(productRepo interfaces.ProductRepository) service.ProductUseCase {
-	return &productUseCase{productRepo: productRepo}
+func NewProductUseCase(productRepo interfaces.ProductRepository, cloudService cloud.CloudService) service.ProductUseCase {
+	return &productUseCase{
+		productRepo:  productRepo,
+		cloudService: cloudService,
+	}
 }
 
 func (c *productUseCase) FindAllCategories(ctx context.Context, pagination request.Pagination) ([]response.Category, error) {
@@ -149,8 +154,22 @@ func (c *productUseCase) FindAllVariationsAndItsValues(ctx context.Context, cate
 }
 
 // to get all product
-func (c *productUseCase) FindAllProducts(ctx context.Context, pagination request.Pagination) (products []response.Product, err error) {
-	return c.productRepo.FindAllProducts(ctx, pagination)
+func (c *productUseCase) FindAllProducts(ctx context.Context, pagination request.Pagination) ([]response.Product, error) {
+	products, err := c.productRepo.FindAllProducts(ctx, pagination)
+	if err != nil {
+		return nil, utils.PrependMessageToError(err, "failed to get product details from database")
+	}
+
+	for i := range products {
+
+		url, err := c.cloudService.GetFileUrl(ctx, products[i].Image)
+		if err != nil {
+			continue
+		}
+		products[i].Image = url
+	}
+
+	return products, nil
 }
 
 // to add new product
@@ -164,7 +183,18 @@ func (c *productUseCase) SaveProduct(ctx context.Context, product request.Produc
 		return utils.PrependMessageToError(ErrProductAlreadyExist, "product name "+product.Name)
 	}
 
-	err = c.productRepo.SaveProduct(ctx, product)
+	uploadID, err := c.cloudService.SaveFile(ctx, product.ImageFileHeader)
+	if err != nil {
+		return utils.PrependMessageToError(err, "failed to save image on cloud storage")
+	}
+
+	err = c.productRepo.SaveProduct(ctx, domain.Product{
+		Name:        product.Name,
+		Description: product.Description,
+		CategoryID:  product.CategoryID,
+		Price:       product.Price,
+		Image:       uploadID,
+	})
 	if err != nil {
 		return utils.PrependMessageToError(err, "failed to save product")
 	}

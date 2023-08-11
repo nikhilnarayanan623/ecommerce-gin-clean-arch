@@ -258,23 +258,40 @@ func (c *ProductHandler) GetAllVariations(ctx *gin.Context) {
 // @Description API for admin to add a new product
 // @ID SaveProduct
 // @Tags Admin Products
-// @Accept json
 // @Produce json
-// @Param input body request.Product{} true "Product input"
+// @Param name formData string true "Product Name"
+// @Param description formData string true "Product Description"
+// @Param category_id formData int true "Category Id"
+// @Param price formData int true "Product Price"
+// @Param image formData file true "Product Description"
 // @Success 200 {object} response.Response{} "successfully product added"
 // @Router /admin/products [post]
 // @Failure 400 {object} response.Response{} "invalid input"
 // @Failure 409 {object} response.Response{} "Product name already exist"
 func (p *ProductHandler) SaveProduct(ctx *gin.Context) {
 
-	var body request.Product
+	name, err1 := request.GetFormValuesAsString(ctx, "name")
+	description, err2 := request.GetFormValuesAsString(ctx, "description")
+	categoryID, err3 := request.GetFormValuesAsUint(ctx, "category_id")
+	price, err4 := request.GetFormValuesAsUint(ctx, "price")
 
-	if err := ctx.ShouldBindJSON(&body); err != nil {
-		response.ErrorResponse(ctx, http.StatusBadRequest, BindJsonFailMessage, err, nil)
+	fileHeader, err5 := ctx.FormFile("image")
+
+	err := errors.Join(err1, err2, err3, err4, err5)
+
+	if err != nil {
+		response.ErrorResponse(ctx, http.StatusBadRequest, BindFormValueMessage, err, nil)
 		return
 	}
 
-	err := p.productUseCase.SaveProduct(ctx, body)
+	product := request.Product{
+		Name:            name,
+		Description:     description,
+		CategoryID:      categoryID,
+		Price:           price,
+		ImageFileHeader: fileHeader,
+	}
+	err = p.productUseCase.SaveProduct(ctx, product)
 
 	if err != nil {
 		statusCode := http.StatusInternalServerError

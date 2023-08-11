@@ -1805,9 +1805,6 @@ const docTemplate = `{
             },
             "post": {
                 "description": "API for admin to add a new product",
-                "consumes": [
-                    "application/json"
-                ],
                 "produces": [
                     "application/json"
                 ],
@@ -1818,13 +1815,39 @@ const docTemplate = `{
                 "operationId": "SaveProduct",
                 "parameters": [
                     {
-                        "description": "Product input",
-                        "name": "input",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/request.Product"
-                        }
+                        "type": "string",
+                        "description": "Product Name",
+                        "name": "name",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Product Description",
+                        "name": "description",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Category Id",
+                        "name": "category_id",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Product Price",
+                        "name": "price",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "file",
+                        "description": "Product Description",
+                        "name": "image",
+                        "in": "formData",
+                        "required": true
                     }
                 ],
                 "responses": {
@@ -3802,37 +3825,6 @@ const docTemplate = `{
                 },
                 "product_id": {
                     "type": "integer"
-                }
-            }
-        },
-        "request.Product": {
-            "type": "object",
-            "required": [
-                "category_id",
-                "description",
-                "image",
-                "price",
-                "product_name"
-            ],
-            "properties": {
-                "category_id": {
-                    "type": "integer"
-                },
-                "description": {
-                    "type": "string",
-                    "maxLength": 100,
-                    "minLength": 10
-                },
-                "image": {
-                    "type": "string"
-                },
-                "price": {
-                    "type": "integer"
-                },
-                "product_name": {
-                    "type": "string",
-                    "maxLength": 50,
-                    "minLength": 3
                 }
             }
         },
