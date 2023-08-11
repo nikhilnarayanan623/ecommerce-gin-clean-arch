@@ -1,3 +1,4 @@
+basePath: /api
 definitions:
   request.Address:
     properties:
@@ -460,7 +461,15 @@ definitions:
         type: string
     type: object
 info:
-  contact: {}
+  contact:
+    email: nikhilnarayanan623@gmail.com
+    name: For API Support
+  description: 'Backend API built with Golang using Clean Code architecture. \nGithub:
+    [https://github.com/nikhilnarayanan623/ecommerce-gin-clean-arch].'
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+  title: E-commerce Application Backend API
 paths:
   /account:
     get:
@@ -2692,4 +2701,7 @@ paths:
       summary: Get all product items (User)
       tags:
       - User Products
+securityDefinitions:
+  BasicAuth:
+    type: basic
 swagger: "2.0"

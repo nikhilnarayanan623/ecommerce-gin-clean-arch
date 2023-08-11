@@ -16,6 +16,18 @@ type ServerHTTP struct {
 	Engine *gin.Engine
 }
 
+// @title E-commerce Application Backend API
+// @description Backend API built with Golang using Clean Code architecture. \nGithub: [https://github.com/nikhilnarayanan623/ecommerce-gin-clean-arch].
+//
+// @contact.name For API Support
+// @contact.email nikhilnarayanan623@gmail.com
+//
+// @license.name MIT
+// @license.url https://opensource.org/licenses/MIT
+//
+// @BasePath /api
+//
+// @securityDefinitions.basic BasicAuth
 func NewServerHTTP(authHandler handlerInterface.AuthHandler, middleware middleware.Middleware,
 	adminHandler handlerInterface.AdminHandler, userHandler handlerInterface.UserHandler,
 	cartHandler handlerInterface.CartHandler, paymentHandler handlerInterface.PaymentHandler,
@@ -33,9 +45,9 @@ func NewServerHTTP(authHandler handlerInterface.AuthHandler, middleware middlewa
 	engine.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
 
 	// set up routes
-	routes.UserRoutes(engine.Group("/"), authHandler, middleware, userHandler, cartHandler,
+	routes.UserRoutes(engine.Group("/api"), authHandler, middleware, userHandler, cartHandler,
 		productHandler, paymentHandler, orderHandler, couponHandler)
-	routes.AdminRoutes(engine.Group("/admin"), authHandler, middleware, adminHandler,
+	routes.AdminRoutes(engine.Group("/api/admin"), authHandler, middleware, adminHandler,
 		productHandler, paymentHandler, orderHandler, couponHandler, offerHandler, stockHandler)
 
 	// no handler
