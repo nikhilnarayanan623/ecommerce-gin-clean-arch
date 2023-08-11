@@ -1,8 +1,18 @@
 {
     "swagger": "2.0",
     "info": {
-        "contact": {}
+        "description": "Backend API built with Golang using Clean Code architecture. \\nGithub: [https://github.com/nikhilnarayanan623/ecommerce-gin-clean-arch].",
+        "title": "E-commerce Application Backend API",
+        "contact": {
+            "name": "For API Support",
+            "email": "nikhilnarayanan623@gmail.com"
+        },
+        "license": {
+            "name": "MIT",
+            "url": "https://opensource.org/licenses/MIT"
+        }
     },
+    "basePath": "/api",
     "paths": {
         "/account": {
             "get": {
@@ -4115,6 +4125,11 @@
                     "type": "string"
                 }
             }
+        }
+    },
+    "securityDefinitions": {
+        "BasicAuth": {
+            "type": "basic"
         }
     }
 }
