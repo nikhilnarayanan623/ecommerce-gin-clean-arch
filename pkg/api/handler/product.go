@@ -2,6 +2,7 @@ package handler
 
 import (
 	"errors"
+	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -398,18 +399,22 @@ func (c *ProductHandler) UpdateProduct(ctx *gin.Context) {
 }
 
 // SaveProductItem godoc
-// @Summary Add a product item (Admin)
-// @Description API for admin to add a product item for a specific product(should select at least one variation option from each variations)
-// @ID SaveProductItem
-// @Tags Admin Products
-// @Accept json
-// @Produce json
-// @Param product_id path int true "Product ID"
-// @Param input body request.ProductItem{} true "Product item input"
-// @Router /admin/products/{product_id}/items [post]
-// @Success 200 {object} response.Response{} "Successfully product item added"
-// @Failure 400 {object} response.Response{} "invalid input"
-// @Failure 409 {object} response.Response{} "Product have already this configured product items exist"
+//
+//	@Summary		Add a product item (Admin)
+//	@Description	API for admin to add a product item for a specific product(should select at least one variation option from each variations)
+//	@ID				SaveProductItem
+//	@Tags			Admin Products
+//	@Accept			json
+//	@Produce		json
+//	@Param			product_id				path		int		true	"Product ID"
+//	@Param			price					formData	int		true	"Price"
+//	@Param			qty_in_stock			formData	int		true	"Quantity In Stock"
+//	@Param			variation_option_ids	formData	[]int	true	"Variation Option IDs"
+//	@Param			images					formData	file	true	"Images"
+//	@Router			/admin/products/{product_id}/items [post]
+//	@Success		200	{object}	response.Response{}	"Successfully product item added"
+//	@Failure		400	{object}	response.Response{}	"invalid input"
+//	@Failure		409	{object}	response.Response{}	"Product have already this configured product items exist"
 func (p *ProductHandler) SaveProductItem(ctx *gin.Context) {
 
 	productID, err := request.GetParamAsUint(ctx, "product_id")
@@ -417,14 +422,28 @@ func (p *ProductHandler) SaveProductItem(ctx *gin.Context) {
 		response.ErrorResponse(ctx, http.StatusBadRequest, BindParamFailMessage, err, nil)
 	}
 
-	var body request.ProductItem
+	price, err1 := request.GetFormValuesAsUint(ctx, "price")
+	qtyInStock, err2 := request.GetFormValuesAsUint(ctx, "qty_in_stock")
+	variationOptionIDS, err3 := request.GetArrayFormValueAsUint(ctx, "variation_option_ids")
+	imageFileHeaders, err4 := request.GetArrayOfFromFiles(ctx, "images")
 
-	if err := ctx.ShouldBindJSON(&body); err != nil {
-		response.ErrorResponse(ctx, http.StatusBadRequest, BindJsonFailMessage, err, nil)
+	err = errors.Join(err1, err2, err3, err4)
+
+	if err != nil {
+		response.ErrorResponse(ctx, http.StatusBadRequest, BindFormValueMessage, err, nil)
 		return
 	}
 
-	err = p.productUseCase.SaveProductItem(ctx, productID, body)
+	productItem := request.ProductItem{
+		Price:              price,
+		VariationOptionIDs: variationOptionIDS,
+		QtyInStock:         qtyInStock,
+		ImageFileHeaders:   imageFileHeaders,
+	}
+
+	fmt.Println(productItem, productID)
+
+	err = p.productUseCase.SaveProductItem(ctx, productID, productItem)
 
 	if err != nil {
 

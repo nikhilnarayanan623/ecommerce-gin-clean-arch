@@ -1932,13 +1932,36 @@ const docTemplate = `{
                         "required": true
                     },
                     {
-                        "description": "Product item input",
-                        "name": "input",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/request.ProductItem"
-                        }
+                        "type": "integer",
+                        "description": "Price",
+                        "name": "price",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Quantity In Stock",
+                        "name": "qty_in_stock",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "array",
+                        "items": {
+                            "type": "integer"
+                        },
+                        "collectionFormat": "csv",
+                        "description": "Variation Option IDs",
+                        "name": "variation_option_ids",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "file",
+                        "description": "Images",
+                        "name": "images",
+                        "in": "formData",
+                        "required": true
                     }
                 ],
                 "responses": {
@@ -3825,39 +3848,6 @@ const docTemplate = `{
                 },
                 "product_id": {
                     "type": "integer"
-                }
-            }
-        },
-        "request.ProductItem": {
-            "type": "object",
-            "required": [
-                "images",
-                "price",
-                "qty_in_stock",
-                "variation_option_ids"
-            ],
-            "properties": {
-                "images": {
-                    "type": "array",
-                    "minItems": 1,
-                    "items": {
-                        "type": "string"
-                    }
-                },
-                "price": {
-                    "type": "integer",
-                    "minimum": 1
-                },
-                "qty_in_stock": {
-                    "type": "integer",
-                    "minimum": 1
-                },
-                "variation_option_ids": {
-                    "type": "array",
-                    "minItems": 1,
-                    "items": {
-                        "type": "integer"
-                    }
                 }
             }
         },

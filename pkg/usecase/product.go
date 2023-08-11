@@ -261,13 +261,20 @@ func (c *productUseCase) SaveProductItem(ctx context.Context, productID uint, pr
 
 		go func() {
 			// save all images for the given product item
-			for _, image := range productItem.Images {
+			for _, imageFile := range productItem.ImageFileHeaders {
 
 				select {
 				case <-newCtx.Done():
 					return
 				default:
-					err = trxRepo.SaveProductItemImage(ctx, productItemID, image)
+					// upload image on cloud
+					uploadID, err := c.cloudService.SaveFile(ctx, imageFile)
+					if err != nil {
+						errChan <- utils.PrependMessageToError(err, "failed to upload image to cloud")
+						return
+					}
+					// save upload id on database
+					err = trxRepo.SaveProductItemImage(ctx, productItemID, uploadID)
 					if err != nil {
 						errChan <- utils.PrependMessageToError(err, "failed to save image for product item on database")
 						return
@@ -352,13 +359,13 @@ func (c *productUseCase) FindAllProductItems(ctx context.Context, productID uint
 	go func() {
 
 		// get all variation values of each product items
-		for i, productItem := range productItems {
+		for i := range productItems {
 
 			select { // checking each time context is cancelled or not
 			case <-ctx.Done():
 				return
 			default:
-				variationValues, err := c.productRepo.FindAllVariationValuesOfProductItem(ctx, productItem.ID)
+				variationValues, err := c.productRepo.FindAllVariationValuesOfProductItem(ctx, productItems[i].ID)
 				if err != nil {
 					errChan <- utils.PrependMessageToError(err, "failed to find variation values product item")
 					return
@@ -371,19 +378,30 @@ func (c *productUseCase) FindAllProductItems(ctx context.Context, productID uint
 
 	go func() {
 		// get all images of each product items
-		for i, productItem := range productItems {
+		for i := range productItems {
 
 			select { // checking each time context is cancelled or not
 			case <-newCtx.Done():
 				return
 			default:
-				images, err := c.productRepo.FindAllProductItemImages(ctx, productItem.ID)
+				images, err := c.productRepo.FindAllProductItemImages(ctx, productItems[i].ID)
+
+				imageUrls := make([]string, len(images))
+
+				for j := range images {
+
+					url, err := c.cloudService.GetFileUrl(ctx, images[j])
+					if err != nil {
+						errChan <- utils.PrependMessageToError(err, "failed to get image url from could service")
+					}
+					imageUrls[j] = url
+				}
 
 				if err != nil {
 					errChan <- utils.PrependMessageToError(err, "failed to find images of product item")
 					return
 				}
-				productItems[i].Images = images
+				productItems[i].Images = imageUrls
 			}
 		}
 		errChan <- nil

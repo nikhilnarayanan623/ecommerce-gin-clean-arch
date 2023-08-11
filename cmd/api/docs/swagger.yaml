@@ -267,30 +267,6 @@ definitions:
     - offer_id
     - product_id
     type: object
-  request.ProductItem:
-    properties:
-      images:
-        items:
-          type: string
-        minItems: 1
-        type: array
-      price:
-        minimum: 1
-        type: integer
-      qty_in_stock:
-        minimum: 1
-        type: integer
-      variation_option_ids:
-        items:
-          type: integer
-        minItems: 1
-        type: array
-    required:
-    - images
-    - price
-    - qty_in_stock
-    - variation_option_ids
-    type: object
   request.RefreshToken:
     properties:
       refresh_token:
@@ -1724,12 +1700,29 @@ paths:
         name: product_id
         required: true
         type: integer
-      - description: Product item input
-        in: body
-        name: input
+      - description: Price
+        in: formData
+        name: price
         required: true
-        schema:
-          $ref: '#/definitions/request.ProductItem'
+        type: integer
+      - description: Quantity In Stock
+        in: formData
+        name: qty_in_stock
+        required: true
+        type: integer
+      - collectionFormat: csv
+        description: Variation Option IDs
+        in: formData
+        items:
+          type: integer
+        name: variation_option_ids
+        required: true
+        type: array
+      - description: Images
+        in: formData
+        name: images
+        required: true
+        type: file
       produces:
       - application/json
       responses:
