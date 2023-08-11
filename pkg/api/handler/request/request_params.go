@@ -23,7 +23,7 @@ func GetFormValuesAsString(ctx *gin.Context, name string) (value string, err err
 func GetFormValuesAsUint(ctx *gin.Context, name string) (uint, error) {
 
 	value := ctx.Request.PostFormValue(name)
-	uintVal, err := strconv.ParseUint(value, 10, 64)
+	uintVal, err := strconv.ParseUint(value, 10, 32)
 
 	if err != nil || uintVal == 0 {
 		return 0, fmt.Errorf("failed to get %s from request body as int", name)
@@ -36,7 +36,7 @@ func GetFormValuesAsUint(ctx *gin.Context, name string) (uint, error) {
 func GetQueryValueAsUint(ctx *gin.Context, key string) (uint, error) {
 
 	value := ctx.Query(key)
-	uintVal, err := strconv.ParseUint(value, 10, 64)
+	uintVal, err := strconv.ParseUint(value, 10, 32)
 	if err != nil || uintVal == 0 {
 		return 0, fmt.Errorf("failed to get %s from query as int", key)
 	}
@@ -48,7 +48,7 @@ func GetQueryValueAsUint(ctx *gin.Context, key string) (uint, error) {
 func GetParamAsUint(ctx *gin.Context, key string) (uint, error) {
 
 	param := ctx.Param(key)
-	value, err := strconv.ParseUint(param, 10, 64)
+	value, err := strconv.ParseUint(param, 10, 32)
 
 	if err != nil || value == 0 {
 		return 0, fmt.Errorf("failed to get %s from param as int", key)
@@ -87,7 +87,7 @@ func GetArrayFormValueAsUint(ctx *gin.Context, name string) ([]uint, error) {
 	for i := range values {
 		fmt.Println("value: ", i)
 
-		num, err := strconv.ParseUint(values[i], 10, 64)
+		num, err := strconv.ParseUint(values[i], 10, 32)
 		if err != nil {
 			return nil, fmt.Errorf("request value is not and integer for %s values", name)
 		}
