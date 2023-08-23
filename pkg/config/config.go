@@ -52,14 +52,12 @@ var envsNames = []string{
 	"AWS_ACCESS_KEY_ID", "AWS_SECRET_ACCESS_KEY", "AWS_REGION", "AWS_BUCKET_NAME", // aws s3
 }
 
-var config Config
-
-func LoadConfig() (Config, error) {
+func LoadConfig() (config Config, err error) {
 
 	// read from .env file
 	viper.AddConfigPath("./")
 	viper.SetConfigFile(".env")
-	err := viper.ReadInConfig()
+	err = viper.ReadInConfig()
 	// if there is an error to read from config means user using system envs instead of .env file
 	if err != nil {
 		// bind from system envs
@@ -78,8 +76,4 @@ func LoadConfig() (Config, error) {
 		return config, err
 	}
 	return config, nil
-}
-
-func GetConfig() Config {
-	return config
 }

@@ -26,17 +26,20 @@ type paymentUseCase struct {
 	userRepo    interfaces.UserRepository
 	cartRepo    interfaces.CartRepository
 	couponRepo  interfaces.CouponRepository
+	config      config.Config
 }
 
 func NewPaymentUseCase(paymentRepo interfaces.PaymentRepository,
 	orderRepo interfaces.OrderRepository, userRepo interfaces.UserRepository,
-	cartRepo interfaces.CartRepository, couponRepo interfaces.CouponRepository) service.PaymentUseCase {
+	cartRepo interfaces.CartRepository, couponRepo interfaces.CouponRepository,
+	config config.Config) service.PaymentUseCase {
 	return &paymentUseCase{
 		paymentRepo: paymentRepo,
 		orderRepo:   orderRepo,
 		userRepo:    userRepo,
 		cartRepo:    cartRepo,
 		couponRepo:  couponRepo,
+		config:      config,
 	}
 }
 
@@ -90,8 +93,8 @@ func (c *paymentUseCase) MakeRazorpayOrder(ctx context.Context, userID, shopOrde
 	//razorpay amount is calculate on pisa for india so make the actual price into paisa
 	razorPayAmount := shopOrder.OrderTotalPrice * 100
 
-	razorpayKey := config.GetConfig().RazorPayKey
-	razorpaySecret := config.GetConfig().RazorPaySecret
+	razorpayKey := c.config.RazorPayKey
+	razorpaySecret := c.config.RazorPaySecret
 
 	client := razorpay.NewClient(razorpayKey, razorpaySecret)
 	// razor pay data for order
@@ -125,8 +128,8 @@ func (c *paymentUseCase) MakeRazorpayOrder(ctx context.Context, userID, shopOrde
 // To verify razor pay payment
 func (c *paymentUseCase) VerifyRazorPay(ctx context.Context, verifyReq request.RazorpayVerify) error {
 
-	razorpayKey := config.GetConfig().RazorPayKey
-	razorPaySecret := config.GetConfig().RazorPaySecret
+	razorpayKey := c.config.RazorPayKey
+	razorPaySecret := c.config.RazorPaySecret
 
 	data := verifyReq.OrderID + "|" + verifyReq.PaymentID
 	h := hmac.New(sha256.New, []byte(razorPaySecret))
@@ -186,7 +189,7 @@ func (c *paymentUseCase) MakeStripeOrder(ctx context.Context, userID, shopOrderI
 		return response.StripeOrder{}, err
 	}
 	// set up the stripe secret key
-	stripe.Key = config.GetConfig().StripSecretKey
+	stripe.Key = c.config.StripSecretKey
 
 	// create a payment param
 	params := &stripe.PaymentIntentParams{
@@ -208,7 +211,7 @@ func (c *paymentUseCase) MakeStripeOrder(ctx context.Context, userID, shopOrderI
 	}
 
 	clientSecret := paymentIntent.ClientSecret
-	stripePublishKey := config.GetConfig().StripPublishKey
+	stripePublishKey := c.config.StripPublishKey
 
 	stripeOrder := response.StripeOrder{
 		ShopOrderID:    shopOrderID,
@@ -222,7 +225,7 @@ func (c *paymentUseCase) MakeStripeOrder(ctx context.Context, userID, shopOrderI
 
 func (c *paymentUseCase) VerifyStripOrder(ctx context.Context, stripePaymentID string) error {
 
-	stripe.Key = config.GetConfig().StripSecretKey
+	stripe.Key = c.config.StripSecretKey
 
 	// get payment by payment_id
 	paymentIntent, err := paymentintent.Get(stripePaymentID, nil)
