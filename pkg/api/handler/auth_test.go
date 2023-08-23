@@ -13,6 +13,7 @@ import (
 	"github.com/golang/mock/gomock"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/api/handler/request"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/api/handler/response"
+	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/config"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/domain"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/mock/mockusecase"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/service/token"
@@ -122,7 +123,7 @@ func TestUserLogin(t *testing.T) {
 			mockUseCase := mockusecase.NewMockAuthUseCase(ctl)
 			test.buildStub(mockUseCase, test.loginDetails)
 
-			authHandler := NewAuthHandler(mockUseCase)
+			authHandler := NewAuthHandler(mockUseCase, config.Config{})
 			server := gin.New()
 			url := "/login"
 			server.POST(url, authHandler.UserLogin)
@@ -221,7 +222,7 @@ func TestUserRenewRefreshToken(t *testing.T) {
 			mockAuthUseCase := mockusecase.NewMockAuthUseCase(ctl)
 			test.buildStub(mockAuthUseCase)
 
-			authHandler := NewAuthHandler(mockAuthUseCase)
+			authHandler := NewAuthHandler(mockAuthUseCase, config.Config{})
 
 			engine := gin.New()
 			url := "/renew-access-token"

@@ -8,7 +8,6 @@ import (
 	"github.com/markbates/goth/gothic"
 	"github.com/markbates/goth/providers/google"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/api/handler/response"
-	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/config"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/domain"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/service/token"
 )
@@ -36,9 +35,9 @@ func (c *AuthHandler) UserGoogleAuthLoginPage(ctx *gin.Context) {
 func (c *AuthHandler) UserGoogleAuthInitialize(ctx *gin.Context) {
 
 	// setup the google provider
-	goauthClientID := config.GetConfig().GoathClientID
-	gouthClientSecret := config.GetConfig().GoauthClientSecret
-	callbackUrl := config.GetConfig().GoauthCallbackUrl
+	goauthClientID := c.config.GoathClientID
+	gouthClientSecret := c.config.GoauthClientSecret
+	callbackUrl := c.config.GoauthCallbackUrl
 
 	// setup privier
 	goth.UseProviders(

@@ -32,7 +32,7 @@ func InitializeApi(cfg config.Config) (*http.ServerHTTP, error) {
 	adminRepository := repository.NewAdminRepository(gormDB)
 	otpAuth := otp.NewOtpAuth(cfg)
 	authUseCase := usecase.NewAuthUseCase(authRepository, tokenService, userRepository, adminRepository, otpAuth)
-	authHandler := handler.NewAuthHandler(authUseCase)
+	authHandler := handler.NewAuthHandler(authUseCase, cfg)
 	middlewareMiddleware := middleware.NewMiddleware(tokenService)
 	adminUseCase := usecase.NewAdminUseCase(adminRepository, userRepository)
 	adminHandler := handler.NewAdminHandler(adminUseCase)
@@ -45,7 +45,7 @@ func InitializeApi(cfg config.Config) (*http.ServerHTTP, error) {
 	paymentRepository := repository.NewPaymentRepository(gormDB)
 	orderRepository := repository.NewOrderRepository(gormDB)
 	couponRepository := repository.NewCouponRepository(gormDB)
-	paymentUseCase := usecase.NewPaymentUseCase(paymentRepository, orderRepository, userRepository, cartRepository, couponRepository)
+	paymentUseCase := usecase.NewPaymentUseCase(paymentRepository, orderRepository, userRepository, cartRepository, couponRepository, cfg)
 	paymentHandler := handler.NewPaymentHandler(paymentUseCase)
 	cloudService, err := cloud.NewAWSCloudService(cfg)
 	if err != nil {

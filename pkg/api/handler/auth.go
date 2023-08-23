@@ -9,6 +9,7 @@ import (
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/api/handler/interfaces"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/api/handler/request"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/api/handler/response"
+	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/config"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/domain"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/service/token"
 	"github.com/nikhilnarayanan623/ecommerce-gin-clean-arch/pkg/usecase"
@@ -17,11 +18,13 @@ import (
 
 type AuthHandler struct {
 	authUseCase usecaseInterface.AuthUseCase
+	config      config.Config
 }
 
-func NewAuthHandler(authUsecase usecaseInterface.AuthUseCase) interfaces.AuthHandler {
+func NewAuthHandler(authUsecase usecaseInterface.AuthUseCase, config config.Config) interfaces.AuthHandler {
 	return &AuthHandler{
 		authUseCase: authUsecase,
+		config:      config,
 	}
 }
 
