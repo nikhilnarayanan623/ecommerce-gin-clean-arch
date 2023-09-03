@@ -29,10 +29,14 @@ jobs:
         run: |
           go test -v -cover ./...
       
-      - name: Build executalbe file
+      - name: Login To Docker Hub
+        run: docker login -u nikhil382 -p ${{ secrets.DOCKER_PASSWORD }}
+        
+      - name: Build And Push The Docker Image
         run: |
-          mkdir -p build/bin
-          GOARCH=amd64 go build -v -o build/bin/api-linux-amd64 ./cmd/api
+          docker build -t nikhil382/ecommerce-gin-clean-arch .
+          docker push nikhil382/ecommerce-gin-clean-arch
+      
 
       
     
