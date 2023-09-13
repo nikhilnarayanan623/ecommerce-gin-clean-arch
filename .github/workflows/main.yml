@@ -24,6 +24,9 @@ jobs:
         run: |
           go mod tidy
           go mod verify
+          
+      - name: Run Build
+        run: go build ./cmd/api
       
       - name: Run Test
         run: |
