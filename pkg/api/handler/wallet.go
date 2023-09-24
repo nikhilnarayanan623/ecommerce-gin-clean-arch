@@ -10,13 +10,14 @@ import (
 )
 
 // GetUserWallet godoc
-// @summary Get user wallet  (User)
-// @description API for user to get user wallet
-// @id GetUserWallet
-// @tags User Profile
-// @Router /account/wallet [get]
-// @Success 200 {object} response.Response{} "Successfully retrieve user wallet"
-// @Failure 500 {object} response.Response{} "Failed to retrieve user wallet"
+//	@Summary		Get user wallet  (User)
+//	@Security		BearerAuth
+//	@Description	API for user to get user wallet
+//	@Id				GetUserWallet
+//	@Tags			User Profile
+//	@Router			/account/wallet [get]
+//	@Success		200	{object}	response.Response{}	"Successfully retrieve user wallet"
+//	@Failure		500	{object}	response.Response{}	"Failed to retrieve user wallet"
 func (c *OrderHandler) GetUserWallet(ctx *gin.Context) {
 
 	userID := utils.GetUserIdFromContext(ctx)
@@ -32,14 +33,15 @@ func (c *OrderHandler) GetUserWallet(ctx *gin.Context) {
 }
 
 // GetUserWalletTransactions godoc
-// @summary Get user wallet  (User)
-// @description API for user to get user wallet transaction
-// @id GetUserWalletTransactions
-// @tags User Profile
-// @Router /account/wallet/transactions [get]
-// @Success 200 {object} response.Response{} "Successfully retrieved user wallet transactions"
-// @Success 204 {object} response.Response{} "No wallet transaction for user"
-// @Failure 500 {object} response.Response{} "Failed to retrieve user wallet transactions"
+//	@Summary		Get user wallet  (User)
+//	@Security		BearerAuth
+//	@Description	API for user to get user wallet transaction
+//	@Id				GetUserWalletTransactions
+//	@Tags			User Profile
+//	@Router			/account/wallet/transactions [get]
+//	@Success		200	{object}	response.Response{}	"Successfully retrieved user wallet transactions"
+//	@Success		204	{object}	response.Response{}	"No wallet transaction for user"
+//	@Failure		500	{object}	response.Response{}	"Failed to retrieve user wallet transactions"
 func (c *OrderHandler) GetUserWalletTransactions(ctx *gin.Context) {
 
 	userID := utils.GetUserIdFromContext(ctx)

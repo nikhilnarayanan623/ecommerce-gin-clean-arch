@@ -22,15 +22,15 @@ func NewCouponHandler(couponUseCase usecase.CouponUseCase) interfaces.CouponHand
 }
 
 // SaveCoupon godoc
-// @Summary Add coupons (Admin)
-// @Description API for admin to add a new coupon
-// @Security ApiKeyAuth
-// @Tags Admin Coupon
-// @Id SaveCoupon
-// @Param        inputs   body     request.Coupon{}   true  "Input Fields"
-// @Router /admin/coupons [post]
-// @Success 200 {object} response.Response{} "successfully coupon added"
-// @Failure 400 {object} response.Response{}  "invalid input"
+//	@Summary		Add coupons (Admin)
+//	@Description	API for admin to add a new coupon
+//	@Security		BearerAuth
+//	@Tags			Admin Coupon
+//	@Id				SaveCoupon
+//	@Param			inputs	body	request.Coupon{}	true	"Input Fields"
+//	@Router			/admin/coupons [post]
+//	@Success		200	{object}	response.Response{}	"successfully coupon added"
+//	@Failure		400	{object}	response.Response{}	"invalid input"
 func (c *CouponHandler) SaveCoupon(ctx *gin.Context) {
 
 	var body request.Coupon
@@ -54,16 +54,16 @@ func (c *CouponHandler) SaveCoupon(ctx *gin.Context) {
 }
 
 // GetAllCouponsAdmin godoc
-// @Summary Get all coupons (Admin)
-// @Description API for admin to get all coupons
-// @Security ApiKeyAuth
-// @Tags Admin Coupon
-// @Id GetAllCouponsAdmin
-// @Param page_number query int false "Page Number"
-// @Param count query int false "Count"
-// @Router /admin/coupons [get]
-// @Success 200 {object} response.Response{} "successfully go all the coupons
-// @Failure 500 {object} response.Response{}  "failed to get all coupons"
+//	@Summary		Get all coupons (Admin)
+//	@Description	API for admin to get all coupons
+//	@Security		BearerAuth
+//	@Tags			Admin Coupon
+//	@Id				GetAllCouponsAdmin
+//	@Param			page_number	query	int	false	"Page Number"
+//	@Param			count		query	int	false	"Count"
+//	@Router			/admin/coupons [get]
+//	@Success		200	{object}	response.Response{}	"successfully go all the coupons
+//	@Failure		500	{object}	response.Response{}	"failed to get all coupons"
 func (c *CouponHandler) GetAllCouponsAdmin(ctx *gin.Context) {
 
 	pagination := request.GetPagination(ctx)
@@ -83,16 +83,16 @@ func (c *CouponHandler) GetAllCouponsAdmin(ctx *gin.Context) {
 }
 
 // GetAllCouponsForUser godoc
-// @Summary Get all user coupons (User)
-// @Description API for user to get all coupons
-// @security ApiKeyAuth
-// @tags User Profile
-// @id GetAllCouponsForUser
-// @Param page_number query int false "Page Number"
-// @Param count query int false "Count Of Order"
-// @Router /account/coupons [get]
-// @Success 200 {object} response.Response{} ""Successfully found all coupons for user"
-// @Failure 500 {object} response.Response{}  "Failed to find all user"
+//	@Summary		Get all user coupons (User)
+//	@Description	API for user to get all coupons
+//	@Security		BearerAuth
+//	@tags			User Profile
+//	@id				GetAllCouponsForUser
+//	@Param			page_number	query	int	false	"Page Number"
+//	@Param			count		query	int	false	"Count Of Order"
+//	@Router			/account/coupons [get]
+//	@Success		200	{object}	response.Response{}	""Successfully	found	all	coupons	for	user"
+//	@Failure		500	{object}	response.Response{}	"Failed to find all user"
 func (c *CouponHandler) GetAllCouponsForUser(ctx *gin.Context) {
 
 	userID := utils.GetUserIdFromContext(ctx)
@@ -114,15 +114,15 @@ func (c *CouponHandler) GetAllCouponsForUser(ctx *gin.Context) {
 }
 
 // UpdateCoupon godoc
-// @Summary Update Coupon (Admin)
-// @Description API for admin update coupon details
-// @Security ApiKeyAuth
-// @Tags Admin Coupon
-// @Id UpdateCoupon
-// @Param        inputs   body     request.EditCoupon{}   true  "Input Field"
-// @Router /admin/coupons [put]
-// @Success 200 {object} response.Response{} "Successfully updated the coupon"
-// @Failure 400 {object} response.Response{}  "invalid input"
+//	@Summary		Update Coupon (Admin)
+//	@Description	API for admin update coupon details
+//	@Security		BearerAuth
+//	@Tags			Admin Coupon
+//	@Id				UpdateCoupon
+//	@Param			inputs	body	request.EditCoupon{}	true	"Input Field"
+//	@Router			/admin/coupons [put]
+//	@Success		200	{object}	response.Response{}	"Successfully updated the coupon"
+//	@Failure		400	{object}	response.Response{}	"invalid input"
 func (c *CouponHandler) UpdateCoupon(ctx *gin.Context) {
 
 	var body request.EditCoupon
@@ -146,15 +146,15 @@ func (c *CouponHandler) UpdateCoupon(ctx *gin.Context) {
 }
 
 // ApplyCouponToCart godoc
-// @Summary Apply coupon
-// @Description API for user to apply a coupon on cart
-// @Security ApiKeyAuth
-// @Tags User Cart
-// @Id ApplyCouponToCart
-// @Param        inputs   body     request.ApplyCoupon{}   true  "Input Field"
-// @Router /carts/apply-coupon [patch]
-// @Success 200 {object} response.Response{} "Successfully coupon applied to user cart"
-// @Failure 400 {object} response.Response{}  "invalid input"
+//	@Summary		Apply coupon
+//	@Description	API for user to apply a coupon on cart
+//	@Security		BearerAuth
+//	@Tags			User Cart
+//	@Id				ApplyCouponToCart
+//	@Param			inputs	body	request.ApplyCoupon{}	true	"Input Field"
+//	@Router			/carts/apply-coupon [patch]
+//	@Success		200	{object}	response.Response{}	"Successfully coupon applied to user cart"
+//	@Failure		400	{object}	response.Response{}	"invalid input"
 func (c *CouponHandler) ApplyCouponToCart(ctx *gin.Context) {
 
 	var body request.ApplyCoupon

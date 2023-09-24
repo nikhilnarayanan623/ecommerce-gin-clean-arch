@@ -43,7 +43,7 @@ func NewUserHandler(userUsecase usecaseInterface.UserUseCase) interfaces.UserHan
 // // CheckOutCart godoc
 // // @summary api for cart checkout
 // // @description user can checkout user cart items
-// // @security ApiKeyAuth
+// // @Security BearerAuth
 // // @id CheckOutCart
 // // @tags User Cart
 // // @Router /carts/checkout [get]
@@ -73,14 +73,15 @@ func (c *UserHandler) CheckOutCart(ctx *gin.Context) {
 }
 
 // GetProfile godoc
-// @Summary Get User Profile (User)
-// @Description API for user to get all user details
-// @Security ApiKeyAuth
-// @Id GetProfile
-// @Tags User Profile
-// @Router /account [get]
-// @Success 200 "Successfully retrieved user details"
-// @Failure 500 {object} response.Response{} "Failed to retrieve user details"
+//
+//	@Summary		Get User Profile (User)
+//	@Security		BearerAuth
+//	@Description	API for user to get all user details
+//	@Id				GetProfile
+//	@Tags			User Profile
+//	@Router			/account [get]
+//	@Success		200	"Successfully retrieved user details"
+//	@Failure		500	{object}	response.Response{}	"Failed to retrieve user details"
 func (u *UserHandler) GetProfile(ctx *gin.Context) {
 
 	userID := utils.GetUserIdFromContext(ctx)
@@ -95,16 +96,17 @@ func (u *UserHandler) GetProfile(ctx *gin.Context) {
 }
 
 // UpdateProfile godoc
-// @Summary Edit profile (User)
-// @Description API for user to edit user details
-// @Security ApiKeyAuth
-// @Id UpdateProfile
-// @Tags User Profile
-// @Param input body request.EditUser{} true "User details input"
-// @Router /account [put]
-// @Success 200 {object} response.Response{} "Successfully profile updated"
-// @Failure 400 {object} response.Response{} "Invalid inputs"
-// @Failure 500 {object} response.Response{} "Failed to update profile"
+//
+//	@Summary		Edit profile (User)
+//	@Security		BearerAuth
+//	@Description	API for user to edit user details
+//	@Id				UpdateProfile
+//	@Tags			User Profile
+//	@Param			input	body	request.EditUser{}	true	"User details input"
+//	@Router			/account [put]
+//	@Success		200	{object}	response.Response{}	"Successfully profile updated"
+//	@Failure		400	{object}	response.Response{}	"Invalid inputs"
+//	@Failure		500	{object}	response.Response{}	"Failed to update profile"
 func (u *UserHandler) UpdateProfile(ctx *gin.Context) {
 
 	userID := utils.GetUserIdFromContext(ctx)
@@ -130,16 +132,17 @@ func (u *UserHandler) UpdateProfile(ctx *gin.Context) {
 }
 
 // SaveAddress godoc
-// @Summary Add a new address (User)
-// @Description API for user to add a new address
-// @Security ApiKeyAuth
-// @Id SaveAddress
-// @Tags User Profile
-// @Param inputs body request.Address{} true "Address input"
-// @Router /account/address [post]
-// @Success 200 {object} response.Response{} "Successfully address added"
-// @Failure 400 {object} response.Response{} "invalid input"
-// @Failure 500 {object} response.Response{} "Failed to save address"
+//
+//	@Summary		Add a new address (User)
+//	@Security		BearerAuth
+//	@Description	API for user to add a new address
+//	@Id				SaveAddress
+//	@Tags			User Profile
+//	@Param			inputs	body	request.Address{}	true	"Address input"
+//	@Router			/account/address [post]
+//	@Success		200	{object}	response.Response{}	"Successfully address added"
+//	@Failure		400	{object}	response.Response{}	"invalid input"
+//	@Failure		500	{object}	response.Response{}	"Failed to save address"
 func (u *UserHandler) SaveAddress(ctx *gin.Context) {
 
 	var body request.Address
@@ -169,14 +172,15 @@ func (u *UserHandler) SaveAddress(ctx *gin.Context) {
 }
 
 // GetAllAddresses godoc
-// @Summary Get all addresses (User)
-// @Description API for user to get all user addresses
-// @Security ApiKeyAuth
-// @Id GetAllAddresses
-// @Tags User Profile
-// @Router /account/address [get]
-// @Success 200 {object} response.Response{} "successfully retrieved all user addresses"
-// @Failure 500 {object} response.Response{} "failed to show user addresses"
+//
+//	@Summary		Get all addresses (User)
+//	@Security		BearerAuth
+//	@Description	API for user to get all user addresses
+//	@Id				GetAllAddresses
+//	@Tags			User Profile
+//	@Router			/account/address [get]
+//	@Success		200	{object}	response.Response{}	"successfully retrieved all user addresses"
+//	@Failure		500	{object}	response.Response{}	"failed to show user addresses"
 func (u *UserHandler) GetAllAddresses(ctx *gin.Context) {
 
 	userID := utils.GetUserIdFromContext(ctx)
@@ -197,15 +201,16 @@ func (u *UserHandler) GetAllAddresses(ctx *gin.Context) {
 }
 
 // UpdateAddress godoc
-// @Summary Update address (User)
-// @Description API for user to update user address
-// @Security ApiKeyAuth
-// @Id UpdateAddress
-// @Tags User Profile
-// @Param input body request.EditAddress{} true "Address input"
-// @Router /account/address [put]
-// @Success 200 {object} response.Response{} "successfully addresses updated"
-// @Failure 400 {object} response.Response{} "can't update the address"
+//
+//	@Summary		Update address (User)
+//	@Security		BearerAuth
+//	@Description	API for user to update user address
+//	@Id				UpdateAddress
+//	@Tags			User Profile
+//	@Param			input	body	request.EditAddress{}	true	"Address input"
+//	@Router			/account/address [put]
+//	@Success		200	{object}	response.Response{}	"successfully addresses updated"
+//	@Failure		400	{object}	response.Response{}	"can't update the address"
 func (u *UserHandler) UpdateAddress(ctx *gin.Context) {
 
 	userID := utils.GetUserIdFromContext(ctx)
@@ -232,17 +237,18 @@ func (u *UserHandler) UpdateAddress(ctx *gin.Context) {
 }
 
 // SaveToWishList godoc
-// @Summary Add to whish list (User)
-// @Descriptions API for user to add product item to wish list
-// @Security ApiKeyAuth
-// @Id SaveToWishList
-// @Tags User Profile
-// @Param product_item_id path int true "Product Item ID"
-// @Router /account/wishlist/{product_item_id} [post]
-// @Success 200 {object} response.Response{} "Successfully product items added to whish list"
-// @Failure 400 {object} response.Response{} "invalid input"
-// @Failure 409 {object} response.Response{} "Product item already exist on wish list"
-// @Failure 500 {object} response.Response{} "Failed to add product item to wishlist"
+//
+//	@Summary		Add to whish list (User)
+//	@Security		BearerAuth
+//	@Descriptions	API for user to add product item to wish list
+//	@Id				SaveToWishList
+//	@Tags			User Profile
+//	@Param			product_item_id	path	int	true	"Product Item ID"
+//	@Router			/account/wishlist/{product_item_id} [post]
+//	@Success		200	{object}	response.Response{}	"Successfully product items added to whish list"
+//	@Failure		400	{object}	response.Response{}	"invalid input"
+//	@Failure		409	{object}	response.Response{}	"Product item already exist on wish list"
+//	@Failure		500	{object}	response.Response{}	"Failed to add product item to wishlist"
 func (u *UserHandler) SaveToWishList(ctx *gin.Context) {
 
 	productItemID, err := request.GetParamAsUint(ctx, "product_item_id")
@@ -272,15 +278,16 @@ func (u *UserHandler) SaveToWishList(ctx *gin.Context) {
 }
 
 // RemoveFromWishList godoc
-// @Summary Remove from whish list (User)
-// @Descriptions API for user to remove a product item from whish list
-// @Security ApiKeyAuth
-// @Id RemoveFromWishList
-// @Tags User Profile
-// @Param product_item_id path int true "Product Item ID"
-// @Router /account/wishlist/{product_item_id} [delete]
-// @Success 200 {object} response.Response{} "successfully removed product item from wishlist"
-// @Failure 400 {object} response.Response{} "invalid input"
+//
+//	@Summary		Remove from whish list (User)
+//	@Security		BearerAuth
+//	@Descriptions	API for user to remove a product item from whish list
+//	@Id				RemoveFromWishList
+//	@Tags			User Profile
+//	@Param			product_item_id	path	int	true	"Product Item ID"
+//	@Router			/account/wishlist/{product_item_id} [delete]
+//	@Success		200	{object}	response.Response{}	"successfully removed product item from wishlist"
+//	@Failure		400	{object}	response.Response{}	"invalid input"
 func (u *UserHandler) RemoveFromWishList(ctx *gin.Context) {
 
 	productItemID, err := request.GetParamAsUint(ctx, "product_item_id")
@@ -302,14 +309,15 @@ func (u *UserHandler) RemoveFromWishList(ctx *gin.Context) {
 }
 
 // GetWishList godoc
-// @Summary Get whish list product items (User)
-// @Descriptions API for user to get product items in the wish list
-// @Security ApiKeyAuth
-// @Id GetWishList
-// @Tags User Profile
-// @Router /account/wishlist [get]
-// @Success 200 "Successfully retrieved all product items in th wish list"
-// @Failure 500  "Failed to retrieve product items from the wish list"
+//
+//	@Summary		Get whish list product items (User)
+//	@Security		BearerAuth
+//	@Descriptions	API for user to get product items in the wish list
+//	@Id				GetWishList
+//	@Tags			User Profile
+//	@Router			/account/wishlist [get]
+//	@Success		200	"Successfully retrieved all product items in th wish list"
+//	@Failure		500	"Failed to retrieve product items from the wish list"
 func (u *UserHandler) GetWishList(ctx *gin.Context) {
 
 	userID := utils.GetUserIdFromContext(ctx)

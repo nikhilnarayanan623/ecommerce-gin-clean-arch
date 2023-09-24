@@ -24,17 +24,18 @@ func NewCartHandler(cartUseCase usecaseInterface.CartUseCase) interfaces.CartHan
 }
 
 // AddToCart godoc
-// @Summary Add product item to cart (User)
-// @Description API for user to add a product item to cart
-// @Security ApiKeyAuth
-// @Id AddToCart
-// @Tags User Cart
-// @Param product_item_id path  int true "Product Item ID"
-// @Router /carts/{product_item_id} [post]
-// @Success 200 {object} response.Response{} "Successfully product item added to cart"
-// @Failure 404 {object} response.Response{} "Product item in out of stock"
-// @Failure 409 {object} response.Response{} "Product item already exist in cart"
-// @Failure 500 {object} response.Response{} "Failed to add product item into cart"
+//
+//	@Summary		Add product item to cart (User)
+//	@Description	API for user to add a product item to cart
+//	@Security		BearerAuth
+//	@Id				AddToCart
+//	@Tags			User Cart
+//	@Param			product_item_id	path	int	true	"Product Item ID"
+//	@Router			/carts/{product_item_id} [post]
+//	@Success		200	{object}	response.Response{}	"Successfully product item added to cart"
+//	@Failure		404	{object}	response.Response{}	"Product item in out of stock"
+//	@Failure		409	{object}	response.Response{}	"Product item already exist in cart"
+//	@Failure		500	{object}	response.Response{}	"Failed to add product item into cart"
 func (u *cartHandler) AddToCart(ctx *gin.Context) {
 
 	productItemID, err := request.GetParamAsUint(ctx, "product_item_id")
@@ -44,7 +45,6 @@ func (u *cartHandler) AddToCart(ctx *gin.Context) {
 	}
 
 	userID := utils.GetUserIdFromContext(ctx)
-
 	err = u.carUseCase.SaveProductItemToCart(ctx, userID, productItemID)
 
 	if err != nil {
@@ -65,17 +65,18 @@ func (u *cartHandler) AddToCart(ctx *gin.Context) {
 }
 
 // RemoveFromCart godoc
-// @Summary Remove product item from cart (User)
-// @Description API for user to remove a product item from cart
-// @Security ApiKeyAuth
-// @Id RemoveFromCart
-// @Tags User Cart
-// @Param product_item_id path  int true "Product Item ID"
-// @Router /carts/{product_item_id} [delete]
-// @Success 200 {object} response.Response{} "Successfully product item removed form cart"
-// @Failure 400 {object} response.Response{}  "invalid input"
-// @Failure 404 {object} response.Response{}  "Product item not exist in cart"
-// @Failure 500 {object} response.Response{}  "Failed to remove product item from cart"
+//
+//	@Summary		Remove product item from cart (User)
+//	@Description	API for user to remove a product item from cart
+//	@Security		BearerAuth
+//	@Id				RemoveFromCart
+//	@Tags			User Cart
+//	@Param			product_item_id	path	int	true	"Product Item ID"
+//	@Router			/carts/{product_item_id} [delete]
+//	@Success		200	{object}	response.Response{}	"Successfully product item removed form cart"
+//	@Failure		400	{object}	response.Response{}	"invalid input"
+//	@Failure		404	{object}	response.Response{}	"Product item not exist in cart"
+//	@Failure		500	{object}	response.Response{}	"Failed to remove product item from cart"
 func (u cartHandler) RemoveFromCart(ctx *gin.Context) {
 
 	productItemID, err := request.GetParamAsUint(ctx, "product_item_id")
@@ -104,16 +105,17 @@ func (u cartHandler) RemoveFromCart(ctx *gin.Context) {
 }
 
 // UpdateCart godoc
-// @Summary Change Cart Qty (User)
-// @Description API for user to update cart item quantity (minimum qty is 1)
-// @Security ApiKeyAuth
-// @Id UpdateCart
-// @Tags User Cart
-// @Param input body request.UpdateCartItem{} true "Input Field"
-// @Router /carts [put]
-// @Success 200 {object} response.Response{} "Successfully to update cart item quantity changed in cart"
-// @Failure 400 {object} response.Response{}   "Invalid input"
-// @Failure 500  {object} response.Response{}  "Failed to update product item in cart"
+//
+//	@Summary		Change Cart Qty (User)
+//	@Description	API for user to update cart item quantity (minimum qty is 1)
+//	@Security		BearerAuth
+//	@Id				UpdateCart
+//	@Tags			User Cart
+//	@Param			input	body	request.UpdateCartItem{}	true	"Input Field"
+//	@Router			/carts [put]
+//	@Success		200	{object}	response.Response{}	"Successfully to update cart item quantity changed in cart"
+//	@Failure		400	{object}	response.Response{}	"Invalid input"
+//	@Failure		500	{object}	response.Response{}	"Failed to update product item in cart"
 func (u *cartHandler) UpdateCart(ctx *gin.Context) {
 
 	var body request.UpdateCartItem
@@ -136,15 +138,16 @@ func (u *cartHandler) UpdateCart(ctx *gin.Context) {
 }
 
 // GetCart godoc
-// @Summary Get cart Items (User)
-// @Description API for user to get all cart items
-// @Security ApiKeyAuth
-// @Id GetCart
-// @Tags User Cart
-// @Router /carts [get]
-// @Success 200 {object} response.Response{} "Successfully retrieved all cart items"
-// @Success 204 {object} response.Response{} "Cart is empty"
-// @Failure 500 {object} response.Response{} "Failed to get user cart"
+//
+//	@Summary		Get cart Items (User)
+//	@Description	API for user to get all cart items
+//	@Security		BearerAuth
+//	@Id				GetCart
+//	@Tags			User Cart
+//	@Router			/carts [get]
+//	@Success		200	{object}	response.Response{}	"Successfully retrieved all cart items"
+//	@Success		204	{object}	response.Response{}	"Cart is empty"
+//	@Failure		500	{object}	response.Response{}	"Failed to get user cart"
 func (u *cartHandler) GetCart(ctx *gin.Context) {
 
 	userId := utils.GetUserIdFromContext(ctx)

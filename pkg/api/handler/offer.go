@@ -25,15 +25,16 @@ func NewOfferHandler(offerUseCase usecaseInterface.OfferUseCase) interfaces.Offe
 }
 
 // SaveOffer godoc
-// @Summary Add offer (Admin)
-// @Description API for admin to add an offer (Admin)
-// @Id SaveOffer
-// @Tags Admin Offers
-// @Param input body request.Offer{} true "input field"
-// @Router /admin/offers [post]
-// @Success 200 {object} response.Response{} "Successfully offer added"
-// @Failure 409 {object} response.Response{} "Offer already exist"
-// @Failure 400 {object} response.Response{} "Invalid inputs"
+//	@Summary		Add offer (Admin)
+//	@Security		BearerAuth
+//	@Description	API for admin to add an offer (Admin)
+//	@Id				SaveOffer
+//	@Tags			Admin Offers
+//	@Param			input	body	request.Offer{}	true	"input field"
+//	@Router			/admin/offers [post]
+//	@Success		200	{object}	response.Response{}	"Successfully offer added"
+//	@Failure		409	{object}	response.Response{}	"Offer already exist"
+//	@Failure		400	{object}	response.Response{}	"Invalid inputs"
 func (p *offerHandler) SaveOffer(ctx *gin.Context) {
 
 	var body request.Offer
@@ -63,15 +64,16 @@ func (p *offerHandler) SaveOffer(ctx *gin.Context) {
 }
 
 // GetAllOffers godoc
-// @Summary Get all offers (Admin)
-// @Description API for admin to get all offers
-// @Id GetAllOffers
-// @Tags Admin Offers
-// @Param page_number query int false "Page Number"
-// @Param count query int false "Count"
-// @Router /admin/offers [get]
-// @Success 200 {object} response.Response{} ""Successfully found all offers"
-// @Failure 500 {object} response.Response{} "Failed to get all offers"
+//	@Summary		Get all offers (Admin)
+//	@Security		BearerAuth
+//	@Description	API for admin to get all offers
+//	@Id				GetAllOffers
+//	@Tags			Admin Offers
+//	@Param			page_number	query	int	false	"Page Number"
+//	@Param			count		query	int	false	"Count"
+//	@Router			/admin/offers [get]
+//	@Success		200	{object}	response.Response{}	""Successfully	found	all	offers"
+//	@Failure		500	{object}	response.Response{}	"Failed to get all offers"
 func (c *offerHandler) GetAllOffers(ctx *gin.Context) {
 
 	pagination := request.GetPagination(ctx)
@@ -93,14 +95,15 @@ func (c *offerHandler) GetAllOffers(ctx *gin.Context) {
 }
 
 // RemoveOffer godoc
-// @summary Remove offer (Admin)
-// @Description API admin to remove an offer
-// @Id RemoveOffer
-// @Tags Admin Offers
-// @Param offer_id path  int true "Offer ID"
-// @Router /admin/offers/{offer_id} [delete]
-// @Success 200 {object} response.Response{} "successfully offer added"
-// @Failure 400 {object} response.Response{} "invalid input"
+//	@summary		Remove offer (Admin)
+//	@Security		BearerAuth
+//	@Description	API admin to remove an offer
+//	@Id				RemoveOffer
+//	@Tags			Admin Offers
+//	@Param			offer_id	path	int	true	"Offer ID"
+//	@Router			/admin/offers/{offer_id} [delete]
+//	@Success		200	{object}	response.Response{}	"successfully offer added"
+//	@Failure		400	{object}	response.Response{}	"invalid input"
 func (c *offerHandler) RemoveOffer(ctx *gin.Context) {
 
 	offerID, err := request.GetParamAsUint(ctx, "offer_id")
@@ -120,14 +123,15 @@ func (c *offerHandler) RemoveOffer(ctx *gin.Context) {
 
 }
 
-// @Summary Add category offer (Admin)
-// @Description API for admin to add an offer category
-// @Id SaveCategoryOffer
-// @Tags Admin Offers
-// @Param input body request.OfferCategory{} true "input field"
-// @Router /admin/offers/category [post]
-// @Success 200 {object} response.Response{} "successfully offer added for category"
-// @Failure 400 {object} response.Response{} "invalid input"
+//	@Summary		Add category offer (Admin)
+//	@Security		BearerAuth
+//	@Description	API for admin to add an offer category
+//	@Id				SaveCategoryOffer
+//	@Tags			Admin Offers
+//	@Param			input	body	request.OfferCategory{}	true	"input field"
+//	@Router			/admin/offers/category [post]
+//	@Success		200	{object}	response.Response{}	"successfully offer added for category"
+//	@Failure		400	{object}	response.Response{}	"invalid input"
 func (c *offerHandler) SaveCategoryOffer(ctx *gin.Context) {
 
 	var body request.OfferCategory
@@ -156,15 +160,16 @@ func (c *offerHandler) SaveCategoryOffer(ctx *gin.Context) {
 }
 
 // GetAllCategoryOffers godoc
-// @Summary Get all category offers (Admin)
-// @Description API for admin to get all category offers
-// @Id GetAllCategoryOffers
-// @Tags Admin Offers
-// @Param page_number query int false "Page Number"
-// @Param count query int false "Count"
-// @Router /admin/offers/category [get]
-// @Success 200 {object} response.Response{} "successfully got all offer_category"
-// @Failure 500 {object} response.Response{} "failed to get offers_category"
+//	@Summary		Get all category offers (Admin)
+//	@Security		BearerAuth
+//	@Description	API for admin to get all category offers
+//	@Id				GetAllCategoryOffers
+//	@Tags			Admin Offers
+//	@Param			page_number	query	int	false	"Page Number"
+//	@Param			count		query	int	false	"Count"
+//	@Router			/admin/offers/category [get]
+//	@Success		200	{object}	response.Response{}	"successfully got all offer_category"
+//	@Failure		500	{object}	response.Response{}	"failed to get offers_category"
 func (c *offerHandler) GetAllCategoryOffers(ctx *gin.Context) {
 
 	pagination := request.GetPagination(ctx)
@@ -185,14 +190,15 @@ func (c *offerHandler) GetAllCategoryOffers(ctx *gin.Context) {
 }
 
 // RemoveCategoryOffer godoc
-// @Summary Remove category offer (Admin)
-// @Description API admin to remove a offer from category
-// @Id RemoveCategoryOffer
-// @Tags Admin Offers
-// @Param offer_category_id path  int true "Offer Category ID"
-// @Router /admin/offers/category/{offer_category_id} [delete]
-// @Success 200 {object} response.Response{} "successfully offer added for category"
-// @Failure 400 {object} response.Response{} "invalid input"
+//	@Summary		Remove category offer (Admin)
+//	@Security		BearerAuth
+//	@Description	API admin to remove a offer from category
+//	@Id				RemoveCategoryOffer
+//	@Tags			Admin Offers
+//	@Param			offer_category_id	path	int	true	"Offer Category ID"
+//	@Router			/admin/offers/category/{offer_category_id} [delete]
+//	@Success		200	{object}	response.Response{}	"successfully offer added for category"
+//	@Failure		400	{object}	response.Response{}	"invalid input"
 func (c *offerHandler) RemoveCategoryOffer(ctx *gin.Context) {
 
 	offerCategoryID, err := request.GetParamAsUint(ctx, "offer_category_id")
@@ -212,14 +218,15 @@ func (c *offerHandler) RemoveCategoryOffer(ctx *gin.Context) {
 }
 
 // ChangeCategoryOffer godoc
-// @Summary Change product offer (Admin)
-// @Description API admin to change product offer to another offer
-// @Id ChangeCategoryOffer
-// @Tags Admin Offers
-// @Param input body request.UpdateCategoryOffer{} true "input field"
-// @Router /admin/offers/category [patch]
-// @Success 200 {object} response.Response{} "successfully offer replaced for category"
-// @Failure 400 {object} response.Response{} "invalid input"
+//	@Summary		Change product offer (Admin)
+//	@Security		BearerAuth
+//	@Description	API admin to change product offer to another offer
+//	@Id				ChangeCategoryOffer
+//	@Tags			Admin Offers
+//	@Param			input	body	request.UpdateCategoryOffer{}	true	"input field"
+//	@Router			/admin/offers/category [patch]
+//	@Success		200	{object}	response.Response{}	"successfully offer replaced for category"
+//	@Failure		400	{object}	response.Response{}	"invalid input"
 func (c *offerHandler) ChangeCategoryOffer(ctx *gin.Context) {
 
 	var body request.UpdateCategoryOffer
@@ -239,14 +246,15 @@ func (c *offerHandler) ChangeCategoryOffer(ctx *gin.Context) {
 }
 
 // SaveProductOffer godoc
-// @Summary Add product offer (Admin)
-// @Description API for admin to add an offer for product
-// @Id SaveProductOffer
-// @Tags Admin Offers
-// @Param input body request.OfferProduct{} true "input field"
-// @Router /admin/offers/products [post]
-// @Success 200 {object} response.Response{} "successfully offer added for product"
-// @Failure 400 {object} response.Response{} "invalid input"
+//	@Summary		Add product offer (Admin)
+//	@Security		BearerAuth
+//	@Description	API for admin to add an offer for product
+//	@Id				SaveProductOffer
+//	@Tags			Admin Offers
+//	@Param			input	body	request.OfferProduct{}	true	"input field"
+//	@Router			/admin/offers/products [post]
+//	@Success		200	{object}	response.Response{}	"successfully offer added for product"
+//	@Failure		400	{object}	response.Response{}	"invalid input"
 func (c *offerHandler) SaveProductOffer(ctx *gin.Context) {
 
 	var body request.OfferProduct
@@ -269,15 +277,16 @@ func (c *offerHandler) SaveProductOffer(ctx *gin.Context) {
 }
 
 // GetAllProductsOffers godoc
-// @Summary Get all product offers (Admin)
-// @Description API for admin to get all product offers
-// @Id GetAllProductsOffers
-// @Tags Admin Offers
-// @Param page_number query int false "Page Number"
-// @Param count query int false "Count"
-// @Router /admin/offers/products [get]
-// @Success 200 {object} response.Response{} "successfully got all offers_categories"
-// @Failure 500 {object} response.Response{} "failed to get offer_products"
+//	@Summary		Get all product offers (Admin)
+//	@Security		BearerAuth
+//	@Description	API for admin to get all product offers
+//	@Id				GetAllProductsOffers
+//	@Tags			Admin Offers
+//	@Param			page_number	query	int	false	"Page Number"
+//	@Param			count		query	int	false	"Count"
+//	@Router			/admin/offers/products [get]
+//	@Success		200	{object}	response.Response{}	"successfully got all offers_categories"
+//	@Failure		500	{object}	response.Response{}	"failed to get offer_products"
 func (c *offerHandler) GetAllProductsOffers(ctx *gin.Context) {
 
 	pagination := request.GetPagination(ctx)
@@ -297,14 +306,15 @@ func (c *offerHandler) GetAllProductsOffers(ctx *gin.Context) {
 }
 
 // RemoveProductOffer godoc
-// @Summary Remove product offer (Admin)
-// @Description API admin to remove a offer from product
-// @Id RemoveProductOffer
-// @Tags Admin Offers
-// @param offer_product_id path int true "offer_product_id"
-// @Router /admin/offers/products/{offer_product_id} [delete]
-// @Success 200 {object} response.Response{} "Successfully offer removed from product"
-// @Failure 400 {object} response.Response{} "invalid input on params"
+//	@Summary		Remove product offer (Admin)
+//	@Security		BearerAuth
+//	@Description	API admin to remove a offer from product
+//	@Id				RemoveProductOffer
+//	@Tags			Admin Offers
+//	@param			offer_product_id	path	int	true	"offer_product_id"
+//	@Router			/admin/offers/products/{offer_product_id} [delete]
+//	@Success		200	{object}	response.Response{}	"Successfully offer removed from product"
+//	@Failure		400	{object}	response.Response{}	"invalid input on params"
 func (c *offerHandler) RemoveProductOffer(ctx *gin.Context) {
 
 	offerProductID, err := request.GetParamAsUint(ctx, "offer_product_id")
@@ -324,14 +334,15 @@ func (c *offerHandler) RemoveProductOffer(ctx *gin.Context) {
 }
 
 // ChangeProductOffer godoc
-// @Summary Change product offer (Admin)
-// @Description API admin to change product offer to another offer
-// @Id ChangeProductOffer
-// @Tags Admin Offers
-// @Param input body request.UpdateProductOffer{} true "input field"
-// @Router /admin/offers/products [patch]
-// @Success 200 {object} response.Response{} "Successfully offer changed for  given product offer"
-// @Failure 400 {object} response.Response{} "invalid input"
+//	@Summary		Change product offer (Admin)
+//	@Security		BearerAuth
+//	@Description	API admin to change product offer to another offer
+//	@Id				ChangeProductOffer
+//	@Tags			Admin Offers
+//	@Param			input	body	request.UpdateProductOffer{}	true	"input field"
+//	@Router			/admin/offers/products [patch]
+//	@Success		200	{object}	response.Response{}	"Successfully offer changed for  given product offer"
+//	@Failure		400	{object}	response.Response{}	"invalid input"
 func (c *offerHandler) ChangeProductOffer(ctx *gin.Context) {
 
 	var body request.UpdateProductOffer

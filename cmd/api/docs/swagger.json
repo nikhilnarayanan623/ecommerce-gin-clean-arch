@@ -18,7 +18,7 @@
             "get": {
                 "security": [
                     {
-                        "ApiKeyAuth": []
+                        "BearerAuth": []
                     }
                 ],
                 "description": "API for user to get all user details",
@@ -42,7 +42,7 @@
             "put": {
                 "security": [
                     {
-                        "ApiKeyAuth": []
+                        "BearerAuth": []
                     }
                 ],
                 "description": "API for user to edit user details",
@@ -88,7 +88,7 @@
             "get": {
                 "security": [
                     {
-                        "ApiKeyAuth": []
+                        "BearerAuth": []
                     }
                 ],
                 "description": "API for user to get all user addresses",
@@ -115,7 +115,7 @@
             "put": {
                 "security": [
                     {
-                        "ApiKeyAuth": []
+                        "BearerAuth": []
                     }
                 ],
                 "description": "API for user to update user address",
@@ -153,7 +153,7 @@
             "post": {
                 "security": [
                     {
-                        "ApiKeyAuth": []
+                        "BearerAuth": []
                     }
                 ],
                 "description": "API for user to add a new address",
@@ -199,7 +199,7 @@
             "get": {
                 "security": [
                     {
-                        "ApiKeyAuth": []
+                        "BearerAuth": []
                     }
                 ],
                 "description": "API for user to get all coupons",
@@ -224,7 +224,7 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "Successfully found all coupons for user",
+                        "description": "Successfully\tfound\tall\tcoupons\tfor\tuser",
                         "schema": {
                             "$ref": "#/definitions/response.Response"
                         }
@@ -240,6 +240,11 @@
         },
         "/account/wallet": {
             "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "API for user to get user wallet",
                 "tags": [
                     "User Profile"
@@ -264,6 +269,11 @@
         },
         "/account/wallet/transactions": {
             "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "API for user to get user wallet transaction",
                 "tags": [
                     "User Profile"
@@ -296,7 +306,7 @@
             "get": {
                 "security": [
                     {
-                        "ApiKeyAuth": []
+                        "BearerAuth": []
                     }
                 ],
                 "tags": [
@@ -318,7 +328,7 @@
             "post": {
                 "security": [
                     {
-                        "ApiKeyAuth": []
+                        "BearerAuth": []
                     }
                 ],
                 "tags": [
@@ -365,7 +375,7 @@
             "delete": {
                 "security": [
                     {
-                        "ApiKeyAuth": []
+                        "BearerAuth": []
                     }
                 ],
                 "tags": [
@@ -470,11 +480,6 @@
         },
         "/admin/auth/sign-in": {
             "post": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
                 "description": "API for admin to login with password",
                 "tags": [
                     "Admin Authentication"
@@ -542,7 +547,7 @@
             "get": {
                 "security": [
                     {
-                        "ApiKeyAuth": []
+                        "BearerAuth": []
                     }
                 ],
                 "description": "API for admin to get all categories and their subcategories",
@@ -589,9 +594,10 @@
             "post": {
                 "security": [
                     {
-                        "ApiKeyAuth": []
+                        "BearerAuth": []
                     }
                 ],
+                "description": "API for Admin to save new category",
                 "consumes": [
                     "application/json"
                 ],
@@ -640,7 +646,7 @@
             "post": {
                 "security": [
                     {
-                        "ApiKeyAuth": []
+                        "BearerAuth": []
                     }
                 ],
                 "description": "API for admin to add a new sub category for a existing category",
@@ -698,7 +704,7 @@
             "get": {
                 "security": [
                     {
-                        "ApiKeyAuth": []
+                        "BearerAuth": []
                     }
                 ],
                 "description": "API for admin to get all variation and its values of a category",
@@ -746,7 +752,7 @@
             "post": {
                 "security": [
                     {
-                        "ApiKeyAuth": []
+                        "BearerAuth": []
                     }
                 ],
                 "description": "API for admin to add new variations for a category",
@@ -805,7 +811,7 @@
             "post": {
                 "security": [
                     {
-                        "ApiKeyAuth": []
+                        "BearerAuth": []
                     }
                 ],
                 "description": "API for admin to add variation options for a variation",
@@ -871,7 +877,7 @@
             "get": {
                 "security": [
                     {
-                        "ApiKeyAuth": []
+                        "BearerAuth": []
                     }
                 ],
                 "description": "API for admin to get all coupons",
@@ -912,7 +918,7 @@
             "put": {
                 "security": [
                     {
-                        "ApiKeyAuth": []
+                        "BearerAuth": []
                     }
                 ],
                 "description": "API for admin update coupon details",
@@ -950,7 +956,7 @@
             "post": {
                 "security": [
                     {
-                        "ApiKeyAuth": []
+                        "BearerAuth": []
                     }
                 ],
                 "description": "API for admin to add a new coupon",
@@ -988,6 +994,11 @@
         },
         "/admin/offers": {
             "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "API for admin to get all offers",
                 "tags": [
                     "Admin Offers"
@@ -1010,7 +1021,7 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "Successfully found all offers",
+                        "description": "Successfully\tfound\tall\toffers",
                         "schema": {
                             "$ref": "#/definitions/response.Response"
                         }
@@ -1024,6 +1035,11 @@
                 }
             },
             "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "API for admin to add an offer (Admin)",
                 "tags": [
                     "Admin Offers"
@@ -1065,6 +1081,11 @@
         },
         "/admin/offers/category": {
             "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "API for admin to get all category offers",
                 "tags": [
                     "Admin Offers"
@@ -1101,6 +1122,11 @@
                 }
             },
             "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "API for admin to add an offer category",
                 "tags": [
                     "Admin Offers"
@@ -1134,6 +1160,11 @@
                 }
             },
             "patch": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "API admin to change product offer to another offer",
                 "tags": [
                     "Admin Offers"
@@ -1169,6 +1200,11 @@
         },
         "/admin/offers/category/{offer_category_id}": {
             "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "API admin to remove a offer from category",
                 "tags": [
                     "Admin Offers"
@@ -1202,6 +1238,11 @@
         },
         "/admin/offers/products": {
             "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "API for admin to get all product offers",
                 "tags": [
                     "Admin Offers"
@@ -1238,6 +1279,11 @@
                 }
             },
             "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "API for admin to add an offer for product",
                 "tags": [
                     "Admin Offers"
@@ -1271,6 +1317,11 @@
                 }
             },
             "patch": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "API admin to change product offer to another offer",
                 "tags": [
                     "Admin Offers"
@@ -1306,6 +1357,11 @@
         },
         "/admin/offers/products/{offer_product_id}": {
             "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "API admin to remove a offer from product",
                 "tags": [
                     "Admin Offers"
@@ -1339,6 +1395,11 @@
         },
         "/admin/offers/{offer_id}": {
             "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "API admin to remove an offer",
                 "tags": [
                     "Admin Offers"
@@ -1372,6 +1433,11 @@
         },
         "/admin/orders/": {
             "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "API for admin to change order status",
                 "tags": [
                     "Admin Orders"
@@ -1407,6 +1473,11 @@
         },
         "/admin/orders/all": {
             "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "API for admin to get all orders",
                 "tags": [
                     "Admin Orders"
@@ -1451,6 +1522,11 @@
         },
         "/admin/orders/returns": {
             "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "API for admin to get all order returns",
                 "tags": [
                     "Admin Orders"
@@ -1489,6 +1565,11 @@
         },
         "/admin/orders/returns/pending": {
             "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "API for admin to get all pending returns",
                 "tags": [
                     "Admin Orders"
@@ -1525,6 +1606,11 @@
                 }
             },
             "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "API for admin to change status of return requested orders",
                 "tags": [
                     "Admin Orders"
@@ -1562,7 +1648,7 @@
             "get": {
                 "security": [
                     {
-                        "ApiKeyAuth": []
+                        "BearerAuth": []
                     }
                 ],
                 "description": "API for admin to get all available order statuses",
@@ -1595,6 +1681,11 @@
         },
         "/admin/orders/{shop_order_id}/items": {
             "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "API for user to get all order items of a specific order",
                 "tags": [
                     "Admin Orders"
@@ -1648,7 +1739,7 @@
             "put": {
                 "security": [
                     {
-                        "ApiKeyAuth": []
+                        "BearerAuth": []
                     }
                 ],
                 "description": "API for admin to change maximum price or block or unblock the payment method",
@@ -1683,7 +1774,7 @@
             "get": {
                 "security": [
                     {
-                        "ApiKeyAuth": []
+                        "BearerAuth": []
                     }
                 ],
                 "description": "API for admin to get all payment methods",
@@ -1712,7 +1803,7 @@
             "get": {
                 "security": [
                     {
-                        "ApiKeyAuth": []
+                        "BearerAuth": []
                     }
                 ],
                 "description": "API for admin to get all products",
@@ -1751,6 +1842,11 @@
                 }
             },
             "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "API for admin to update a product",
                 "consumes": [
                     "application/json"
@@ -1802,6 +1898,11 @@
                 }
             },
             "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "API for admin to add a new product",
                 "produces": [
                     "application/json"
@@ -1872,6 +1973,11 @@
         },
         "/admin/products/{product_id}/items": {
             "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "API for admin to get all product items for a specific product",
                 "consumes": [
                     "application/json"
@@ -1909,6 +2015,11 @@
                 }
             },
             "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "API for admin to add a product item for a specific product(should select at least one variation option from each variations)",
                 "consumes": [
                     "application/json"
@@ -1986,7 +2097,12 @@
         },
         "/admin/sales": {
             "get": {
-                "description": "API fro admin to get all sales report for a specific period in csv form",
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "API for admin to get all sales report for a specific period in csv form",
                 "tags": [
                     "Admin Sales"
                 ],
@@ -2042,6 +2158,11 @@
         },
         "/admin/stocks": {
             "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "API for admin to get all stocks",
                 "tags": [
                     "Admin Stock"
@@ -2084,6 +2205,11 @@
                 }
             },
             "patch": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "API for admin to update stock details",
                 "tags": [
                     "Admin Stock"
@@ -2125,6 +2251,11 @@
         },
         "/admin/users": {
             "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "API for admin to get all user details",
                 "tags": [
                     "Admin User"
@@ -2169,6 +2300,11 @@
         },
         "/admin/users/block": {
             "patch": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "tags": [
                     "Admin User"
                 ],
@@ -2203,11 +2339,6 @@
         },
         "/auth/google-auth": {
             "get": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
                 "description": "API for user to load google login page",
                 "tags": [
                     "User Authentication"
@@ -2226,11 +2357,6 @@
         },
         "/auth/google-auth/callback": {
             "post": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
                 "description": "API for google to callback after authentication",
                 "tags": [
                     "User Authentication"
@@ -2255,11 +2381,6 @@
         },
         "/auth/google-auth/initialize": {
             "get": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
                 "description": "API for user to initialize google auth",
                 "tags": [
                     "User Authentication"
@@ -2341,11 +2462,6 @@
         },
         "/auth/sign-in": {
             "post": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
                 "description": "API for user to login with email | phone | user_name with password",
                 "tags": [
                     "User Authentication"
@@ -2411,11 +2527,6 @@
         },
         "/auth/sign-in/otp/send": {
             "post": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
                 "description": "API for user to send otp for login enter email | phone | user_name : otp will send to user registered number",
                 "tags": [
                     "User Authentication"
@@ -2469,11 +2580,6 @@
         },
         "/auth/sign-in/otp/verify": {
             "post": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
                 "description": "API for user to verify otp",
                 "tags": [
                     "User Authentication"
@@ -2539,11 +2645,6 @@
         },
         "/auth/sign-up": {
             "post": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
                 "description": "API for user to register a new account",
                 "tags": [
                     "User Authentication"
@@ -2603,11 +2704,6 @@
         },
         "/auth/sign-up/verify": {
             "post": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
                 "description": "API for user to verify otp on sign up",
                 "tags": [
                     "User Authentication"
@@ -2675,7 +2771,7 @@
             "get": {
                 "security": [
                     {
-                        "ApiKeyAuth": []
+                        "BearerAuth": []
                     }
                 ],
                 "description": "API for user to get all cart items",
@@ -2708,7 +2804,7 @@
             "put": {
                 "security": [
                     {
-                        "ApiKeyAuth": []
+                        "BearerAuth": []
                     }
                 ],
                 "description": "API for user to update cart item quantity (minimum qty is 1)",
@@ -2754,7 +2850,7 @@
             "patch": {
                 "security": [
                     {
-                        "ApiKeyAuth": []
+                        "BearerAuth": []
                     }
                 ],
                 "description": "API for user to apply a coupon on cart",
@@ -2794,7 +2890,7 @@
             "get": {
                 "security": [
                     {
-                        "ApiKeyAuth": []
+                        "BearerAuth": []
                     }
                 ],
                 "description": "API for user to render payment select page",
@@ -2823,7 +2919,7 @@
             "post": {
                 "security": [
                     {
-                        "ApiKeyAuth": []
+                        "BearerAuth": []
                     }
                 ],
                 "description": "API for user save an order",
@@ -2879,7 +2975,7 @@
             "post": {
                 "security": [
                     {
-                        "ApiKeyAuth": []
+                        "BearerAuth": []
                     }
                 ],
                 "description": "API for user to place order for cash on delivery",
@@ -2916,6 +3012,9 @@
         "/carts/place-order/razorpay-checkout": {
             "post": {
                 "security": [
+                    {
+                        "BearerAuth": []
+                    },
                     {
                         "ApiKeyAuth": []
                     }
@@ -2955,7 +3054,7 @@
             "post": {
                 "security": [
                     {
-                        "ApiKeyAuth": []
+                        "BearerAuth": []
                     }
                 ],
                 "description": "API for razorpay to callback backend for payment verification",
@@ -3019,7 +3118,7 @@
             "post": {
                 "security": [
                     {
-                        "ApiKeyAuth": []
+                        "BearerAuth": []
                     }
                 ],
                 "description": "API for user to create stripe payment",
@@ -3057,7 +3156,7 @@
             "post": {
                 "security": [
                     {
-                        "ApiKeyAuth": []
+                        "BearerAuth": []
                     }
                 ],
                 "description": "API for user to callback backend after stripe payment for verification",
@@ -3108,7 +3207,7 @@
             "post": {
                 "security": [
                     {
-                        "ApiKeyAuth": []
+                        "BearerAuth": []
                     }
                 ],
                 "description": "API for user to add a product item to cart",
@@ -3156,7 +3255,7 @@
             "delete": {
                 "security": [
                     {
-                        "ApiKeyAuth": []
+                        "BearerAuth": []
                     }
                 ],
                 "description": "API for user to remove a product item from cart",
@@ -3204,6 +3303,11 @@
         },
         "/orders": {
             "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "API to get order for user user orders",
                 "tags": [
                     "User Orders"
@@ -3248,6 +3352,11 @@
         },
         "/orders/return": {
             "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "API for user to request a return for delivered order",
                 "tags": [
                     "User Orders"
@@ -3283,6 +3392,11 @@
         },
         "/orders/{shop_order_id}/cancel": {
             "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Api for user to cancel a order",
                 "tags": [
                     "User Orders"
@@ -3322,6 +3436,11 @@
         },
         "/orders/{shop_order_id}/items": {
             "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "API for user to get all order items of a specific order",
                 "tags": [
                     "User Orders"
@@ -3369,7 +3488,7 @@
             "get": {
                 "security": [
                     {
-                        "ApiKeyAuth": []
+                        "BearerAuth": []
                     }
                 ],
                 "description": "API for user to get all payment methods",
@@ -3398,7 +3517,7 @@
             "get": {
                 "security": [
                     {
-                        "ApiKeyAuth": []
+                        "BearerAuth": []
                     }
                 ],
                 "description": "API for user to get all products",
@@ -3439,6 +3558,11 @@
         },
         "/products/{product_id}/items": {
             "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "API for user to get all product items for a specific product",
                 "consumes": [
                     "application/json"
@@ -4128,8 +4252,11 @@
         }
     },
     "securityDefinitions": {
-        "BasicAuth": {
-            "type": "basic"
+        "BearerAuth": {
+            "description": "Add prefix of Bearer before  token Ex: \"Bearer token\"",
+            "type": "apiKey",
+            "name": "Authorization",
+            "in": "header"
         }
     }
 }

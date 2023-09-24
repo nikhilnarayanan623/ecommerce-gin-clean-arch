@@ -13,25 +13,25 @@ import (
 )
 
 // UserGoogleAuthLoginPage godoc
-// @Summary To load google login page (User)
-// @Description API for user to load google login page
-// @Security ApiKeyAuth
-// @Id UserGoogleAuthLoginPage
-// @Tags User Authentication
-// @Router /auth/google-auth [get]
-// @Success 200 {object} response.Response{} "Successfully google login page loaded"
+//
+//	@Summary		To load google login page (User)
+//	@Description	API for user to load google login page
+//	@Id				UserGoogleAuthLoginPage
+//	@Tags			User Authentication
+//	@Router			/auth/google-auth [get]
+//	@Success		200	{object}	response.Response{}	"Successfully google login page loaded"
 func (c *AuthHandler) UserGoogleAuthLoginPage(ctx *gin.Context) {
 
 	ctx.HTML(200, "goauth.html", nil)
 }
 
 // UserGoogleAuthInitialize godoc
-// @Summary Initialize google auth (User)
-// @Description API for user to initialize google auth
-// @Security ApiKeyAuth
-// @Id UserGoogleAuthInitialize
-// @Tags User Authentication
-// @Router /auth/google-auth/initialize [get]
+//
+//	@Summary		Initialize google auth (User)
+//	@Description	API for user to initialize google auth
+//	@Id				UserGoogleAuthInitialize
+//	@Tags			User Authentication
+//	@Router			/auth/google-auth/initialize [get]
 func (c *AuthHandler) UserGoogleAuthInitialize(ctx *gin.Context) {
 
 	// setup the google provider
@@ -49,14 +49,14 @@ func (c *AuthHandler) UserGoogleAuthInitialize(ctx *gin.Context) {
 }
 
 // UserGoogleAuthCallBack godoc
-// @Summary Google auth callback (User)
-// @Description API for google to callback after authentication
-// @Security ApiKeyAuth
-// @Id UserGoogleAuthCallBack
-// @Tags User Authentication
-// @Router /auth/google-auth/callback [post]
-// @Success 200 {object} response.Response{} "Successfully logged in with google"
-// @Failure 500 {object} response.Response{} "Failed Login with google"
+//
+//	@Summary		Google auth callback (User)
+//	@Description	API for google to callback after authentication
+//	@Id				UserGoogleAuthCallBack
+//	@Tags			User Authentication
+//	@Router			/auth/google-auth/callback [post]
+//	@Success		200	{object}	response.Response{}	"Successfully logged in with google"
+//	@Failure		500	{object}	response.Response{}	"Failed Login with google"
 func (c *AuthHandler) UserGoogleAuthCallBack(ctx *gin.Context) {
 
 	googleUser, err := gothic.CompleteUserAuth(ctx.Writer, ctx.Request)
