@@ -13,15 +13,15 @@ import (
 )
 
 // StripPaymentCheckout godoc
-// @Summary Stripe checkout (User)
-// @Description API for user to create stripe payment
-// @Security ApiKeyAuth
-// @Tags User Payment
-// @Id StripPaymentCheckout
-// @Param shop_order_id formData string true "Shop Order ID"
-// @Router /carts/place-order/stripe-checkout [post]
-// @Success 200 {object} response.Response{} "successfully stripe payment order created"
-// @Failure 500 {object} response.Response{} "Failed to create stripe order"
+//	@Summary		Stripe checkout (User)
+//	@Security		BearerAuth
+//	@Description	API for user to create stripe payment
+//	@Tags			User Payment
+//	@Id				StripPaymentCheckout
+//	@Param			shop_order_id	formData	string	true	"Shop Order ID"
+//	@Router			/carts/place-order/stripe-checkout [post]
+//	@Success		200	{object}	response.Response{}	"successfully stripe payment order created"
+//	@Failure		500	{object}	response.Response{}	"Failed to create stripe order"
 func (c *paymentHandler) StripPaymentCheckout(ctx *gin.Context) {
 
 	shopOrderID, err := request.GetFormValuesAsUint(ctx, "shop_order_id")
@@ -47,17 +47,17 @@ func (c *paymentHandler) StripPaymentCheckout(ctx *gin.Context) {
 }
 
 // StripePaymentVeify godoc
-// @Summary Stripe verify (User)
-// @Description API for user to callback backend after stripe payment for verification
-// @Security ApiKeyAuth
-// @Tags User Payment
-// @Id StripePaymentVeify
-// @Param stripe_payment_id formData string true "Stripe payment ID"
-// @Param shop_order_id formData string true "Shop Order ID"
-// @Router /carts/place-order/stripe-verify [post]
-// @Success 200 {object} response.Response{} "Successfully stripe payment verified"
-// @Failure 402 {object} response.Response{}  "Payment not approved"
-// @Failure 500 {object} response.Response{}  "Failed to Approve order"
+//	@Summary		Stripe verify (User)
+//	@Security		BearerAuth
+//	@Description	API for user to callback backend after stripe payment for verification
+//	@Tags			User Payment
+//	@Id				StripePaymentVeify
+//	@Param			stripe_payment_id	formData	string	true	"Stripe payment ID"
+//	@Param			shop_order_id		formData	string	true	"Shop Order ID"
+//	@Router			/carts/place-order/stripe-verify [post]
+//	@Success		200	{object}	response.Response{}	"Successfully stripe payment verified"
+//	@Failure		402	{object}	response.Response{}	"Payment not approved"
+//	@Failure		500	{object}	response.Response{}	"Failed to Approve order"
 func (c *paymentHandler) StripePaymentVeify(ctx *gin.Context) {
 
 	shopOrderID, err1 := request.GetFormValuesAsUint(ctx, "shop_order_id")

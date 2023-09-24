@@ -53,16 +53,18 @@ func (a *adminHandler) AdminSignUp(ctx *gin.Context) {
 }
 
 // GetAllUsers godoc
-// @Summary Get all users
-// @Description API for admin to get all user details
-// @Id GetAllUsers
-// @Tags Admin User
-// @Param page_number query int false "Page Number"
-// @Param count query int false "Count"
-// @Router /admin/users [get]
-// @Success 200 {object} response.Response{} "Successfully got all users"
-// @Success 204 {object} response.Response{} "No users found"
-// @Failure 500 {object} response.Response{} "Failed to find all users"
+//
+//	@Summary		Get all users
+//	@Security		BearerAuth
+//	@Description	API for admin to get all user details
+//	@Id				GetAllUsers
+//	@Tags			Admin User
+//	@Param			page_number	query	int	false	"Page Number"
+//	@Param			count		query	int	false	"Count"
+//	@Router			/admin/users [get]
+//	@Success		200	{object}	response.Response{}	"Successfully got all users"
+//	@Success		204	{object}	response.Response{}	"No users found"
+//	@Failure		500	{object}	response.Response{}	"Failed to find all users"
 func (a *adminHandler) GetAllUsers(ctx *gin.Context) {
 
 	pagination := request.GetPagination(ctx)
@@ -82,13 +84,15 @@ func (a *adminHandler) GetAllUsers(ctx *gin.Context) {
 }
 
 // BlockUser godoc
-// @summary api for admin to block or unblock user
-// @id BlockUser
-// @tags Admin User
-// @Param input body request.BlockUser{} true "inputs"
-// @Router /admin/users/block [patch]
-// @Success 200 {object} response.Response{} "Successfully changed block status of user"
-// @Failure 400 {object} response.Response{} "invalid input"
+//
+//	@summary 	api for admin to block or unblock user
+//	@Security	BearerAuth
+//	@id			BlockUser
+//	@tags		Admin User
+//	@Param		input	body	request.BlockUser{}	true	"inputs"
+//	@Router		/admin/users/block [patch]
+//	@Success	200	{object}	response.Response{}	"Successfully changed block status of user"
+//	@Failure	400	{object}	response.Response{}	"invalid input"
 func (a *adminHandler) BlockUser(ctx *gin.Context) {
 
 	var body request.BlockUser
@@ -108,18 +112,20 @@ func (a *adminHandler) BlockUser(ctx *gin.Context) {
 }
 
 // GetFullSalesReport godoc
-// @Summary Get full sales report (Admin)
-// @Description API fro admin to get all sales report for a specific period in csv form
-// @id GetFullSalesReport
-// @tags Admin Sales
-// @Param start_date query string false "Sales report starting date"
-// @Param end_date query string false "Sales report ending date"
-// @Param page_number query int false "Page Number"
-// @Param count query int false "Count"
-// @Router /admin/sales [get]
-// @Success 200 {object} response.Response{} "ecommerce_sales_report.csv"
-// @Success 204 {object} response.Response{} "No sales report found"
-// @Failure 500 {object} response.Response{} "failed to get sales report"
+//
+//	@Summary		Get full sales report (Admin)
+//	@Security		BearerAuth
+//	@Description	API for admin to get all sales report for a specific period in csv form
+//	@id				GetFullSalesReport
+//	@tags			Admin Sales
+//	@Param			start_date	query	string	false	"Sales report starting date"
+//	@Param			end_date	query	string	false	"Sales report ending date"
+//	@Param			page_number	query	int		false	"Page Number"
+//	@Param			count		query	int		false	"Count"
+//	@Router			/admin/sales [get]
+//	@Success		200	{object}	response.Response{}	"ecommerce_sales_report.csv"
+//	@Success		204	{object}	response.Response{}	"No sales report found"
+//	@Failure		500	{object}	response.Response{}	"failed to get sales report"
 func (c *adminHandler) GetFullSalesReport(ctx *gin.Context) {
 
 	// time

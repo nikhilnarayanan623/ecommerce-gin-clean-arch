@@ -21,16 +21,17 @@ func NewStockHandler(stockUseCase usecaseInterface.StockUseCase) interfaces.Stoc
 }
 
 // GetAllStocks godoc
-// @Summary Get all stocks (Admin)
-// @Description API for admin to get all stocks
-// @Id GetAllStocks
-// @Tags Admin Stock
-// @Param page_number query int false "Page Number"
-// @Param count query int false "Count"
-// @Router /admin/stocks [get]
-// @Success 200 {object} response.Response{} "Successfully found all stocks"
-// @Success 204 {object} response.Response{} "No stocks found"
-// @Failure 500 {object} response.Response{} "Failed to Get all stocks"
+//	@Summary		Get all stocks (Admin)
+//	@Security		BearerAuth
+//	@Description	API for admin to get all stocks
+//	@Id				GetAllStocks
+//	@Tags			Admin Stock
+//	@Param			page_number	query	int	false	"Page Number"
+//	@Param			count		query	int	false	"Count"
+//	@Router			/admin/stocks [get]
+//	@Success		200	{object}	response.Response{}	"Successfully found all stocks"
+//	@Success		204	{object}	response.Response{}	"No stocks found"
+//	@Failure		500	{object}	response.Response{}	"Failed to Get all stocks"
 func (c *stockHandler) GetAllStocks(ctx *gin.Context) {
 
 	pagination := request.GetPagination(ctx)
@@ -51,15 +52,16 @@ func (c *stockHandler) GetAllStocks(ctx *gin.Context) {
 }
 
 // UpdateStock godoc
-// @Summary Update stocks (Admin)
-// @Description API for admin to update stock details
-// @Id UpdateStock
-// @Tags Admin Stock
-// @Param input body request.UpdateStock{} true "Update stock details"
-// @Router /admin/stocks [patch]
-// @Success 200 {object} response.Response{} "Successfully updated sock"
-// @Failure 400 {object} response.Response{} "Failed to bind input"
-// @Failure 500 {object} response.Response{} "Failed to update stock"
+//	@Summary		Update stocks (Admin)
+//	@Security		BearerAuth
+//	@Description	API for admin to update stock details
+//	@Id				UpdateStock
+//	@Tags			Admin Stock
+//	@Param			input	body	request.UpdateStock{}	true	"Update stock details"
+//	@Router			/admin/stocks [patch]
+//	@Success		200	{object}	response.Response{}	"Successfully updated sock"
+//	@Failure		400	{object}	response.Response{}	"Failed to bind input"
+//	@Failure		500	{object}	response.Response{}	"Failed to update stock"
 func (c *stockHandler) UpdateStock(ctx *gin.Context) {
 
 	var body request.UpdateStock

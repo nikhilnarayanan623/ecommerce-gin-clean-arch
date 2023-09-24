@@ -26,18 +26,18 @@ func NewProductHandler(productUsecase usecaseInterface.ProductUseCase) interface
 }
 
 // GetAllCategories godoc
-// @Summary Get all categories (Admin)
-// @Description API for admin to get all categories and their subcategories
-// @Security ApiKeyAuth
-// @Tags Admin Category
-// @ID GetAllCategories
-// @Accept json
-// @Produce json
-// @Param page_number query int false "Page number"
-// @Param count query int false "Count"
-// @Router /admin/categories [get]
-// @Success 200 {object} response.Response{} "Successfully retrieved all categories"
-// @Failure 500 {object} response.Response{} "Failed to retrieve categories"
+//	@Summary		Get all categories (Admin)
+//	@Security		BearerAuth
+//	@Description	API for admin to get all categories and their subcategories
+//	@Tags			Admin Category
+//	@ID				GetAllCategories
+//	@Accept			json
+//	@Produce		json
+//	@Param			page_number	query	int	false	"Page number"
+//	@Param			count		query	int	false	"Count"
+//	@Router			/admin/categories [get]
+//	@Success		200	{object}	response.Response{}	"Successfully retrieved all categories"
+//	@Failure		500	{object}	response.Response{}	"Failed to retrieve categories"
 func (p *ProductHandler) GetAllCategories(ctx *gin.Context) {
 
 	pagination := request.GetPagination(ctx)
@@ -58,19 +58,19 @@ func (p *ProductHandler) GetAllCategories(ctx *gin.Context) {
 }
 
 // SaveCategory godoc
-// @Summary Add a new category (Admin)
-// @Description
-// @Security ApiKeyAuth
-// @Tags Admin Category
-// @ID SaveCategory
-// @Accept json
-// @Produce json
-// @Param input body request.Category{} true "Category details"
-// @Router /admin/categories [post]
-// @Success 201 {object} response.Response{} "Successfully added category"
-// @Failure 400 {object} response.Response{} "Invalid input"
-// @Failure 409 {object} response.Response{} "Category already exist"
-// @Failure 409 {object} response.Response{} "Failed to save category"
+//	@Summary		Add a new category (Admin)
+//	@Security		BearerAuth
+//	@Description	API for Admin to save new category
+//	@Tags			Admin Category
+//	@ID				SaveCategory
+//	@Accept			json
+//	@Produce		json
+//	@Param			input	body	request.Category{}	true	"Category details"
+//	@Router			/admin/categories [post]
+//	@Success		201	{object}	response.Response{}	"Successfully added category"
+//	@Failure		400	{object}	response.Response{}	"Invalid input"
+//	@Failure		409	{object}	response.Response{}	"Category already exist"
+//	@Failure		409	{object}	response.Response{}	"Failed to save category"
 func (p *ProductHandler) SaveCategory(ctx *gin.Context) {
 
 	var body request.Category
@@ -97,19 +97,19 @@ func (p *ProductHandler) SaveCategory(ctx *gin.Context) {
 }
 
 // SaveSubCategory godoc
-// @Summary Add a new subcategory (Admin)
-// @Description API for admin to add a new sub category for a existing category
-// @Security ApiKeyAuth
-// @Tags Admin Category
-// @ID SaveSubCategory
-// @Accept json
-// @Produce json
-// @Param input body request.SubCategory{} true "Subcategory details"
-// @Router /admin/categories/sub-categories [post]
-// @Success 201 {object} response.Response{} "Successfully added subcategory"
-// @Failure 400 {object} response.Response{} "Invalid input"
-// @Failure 409 {object} response.Response{} "Sub category already exist"
-// @Failure 500 {object} response.Response{} "Failed to add subcategory"
+//	@Summary		Add a new subcategory (Admin)
+//	@Security		BearerAuth
+//	@Description	API for admin to add a new sub category for a existing category
+//	@Tags			Admin Category
+//	@ID				SaveSubCategory
+//	@Accept			json
+//	@Produce		json
+//	@Param			input	body	request.SubCategory{}	true	"Subcategory details"
+//	@Router			/admin/categories/sub-categories [post]
+//	@Success		201	{object}	response.Response{}	"Successfully added subcategory"
+//	@Failure		400	{object}	response.Response{}	"Invalid input"
+//	@Failure		409	{object}	response.Response{}	"Sub category already exist"
+//	@Failure		500	{object}	response.Response{}	"Failed to add subcategory"
 func (p *ProductHandler) SaveSubCategory(ctx *gin.Context) {
 
 	var body request.SubCategory
@@ -135,19 +135,19 @@ func (p *ProductHandler) SaveSubCategory(ctx *gin.Context) {
 }
 
 // SaveVariation godoc
-// @Summary Add new variations (Admin)
-// @Description API for admin to add new variations for a category
-// @Security ApiKeyAuth
-// @Tags Admin Category
-// @ID SaveVariation
-// @Accept json
-// @Produce json
-// @Param category_id path int true "Category ID"
-// @Param input body request.Variation{} true "Variation details"
-// @Router /admin/categories/{category_id}/variations [post]
-// @Success 201 {object} response.Response{} "Successfully added variations"
-// @Failure 400 {object} response.Response{} "Invalid input"
-// @Failure 500 {object} response.Response{} "Failed to add variation"
+//	@Summary		Add new variations (Admin)
+//	@Security		BearerAuth
+//	@Description	API for admin to add new variations for a category
+//	@Tags			Admin Category
+//	@ID				SaveVariation
+//	@Accept			json
+//	@Produce		json
+//	@Param			category_id	path	int					true	"Category ID"
+//	@Param			input		body	request.Variation{}	true	"Variation details"
+//	@Router			/admin/categories/{category_id}/variations [post]
+//	@Success		201	{object}	response.Response{}	"Successfully added variations"
+//	@Failure		400	{object}	response.Response{}	"Invalid input"
+//	@Failure		500	{object}	response.Response{}	"Failed to add variation"
 func (p *ProductHandler) SaveVariation(ctx *gin.Context) {
 
 	categoryID, err := request.GetParamAsUint(ctx, "category_id")
@@ -178,20 +178,20 @@ func (p *ProductHandler) SaveVariation(ctx *gin.Context) {
 }
 
 // SaveVariationOption godoc
-// @Summary Add new variation options (Admin)
-// @Description API for admin to add variation options for a variation
-// @Security ApiKeyAuth
-// @Tags Admin Category
-// @ID SaveVariationOption
-// @Accept json
-// @Produce json
-// @Param category_id path int true "Category ID"
-// @Param variation_id path int true "Variation ID"
-// @Param input body request.VariationOption{} true "Variation option details"
-// @Router /admin/categories/{category_id}/variations/{variation_id}/options [post]
-// @Success 201 {object} response.Response{} "Successfully added variation options"
-// @Failure 400 {object} response.Response{} "Invalid input"
-// @Failure 500 {object} response.Response{} "Failed to add variation options"
+//	@Summary		Add new variation options (Admin)
+//	@Security		BearerAuth
+//	@Description	API for admin to add variation options for a variation
+//	@Tags			Admin Category
+//	@ID				SaveVariationOption
+//	@Accept			json
+//	@Produce		json
+//	@Param			category_id		path	int							true	"Category ID"
+//	@Param			variation_id	path	int							true	"Variation ID"
+//	@Param			input			body	request.VariationOption{}	true	"Variation option details"
+//	@Router			/admin/categories/{category_id}/variations/{variation_id}/options [post]
+//	@Success		201	{object}	response.Response{}	"Successfully added variation options"
+//	@Failure		400	{object}	response.Response{}	"Invalid input"
+//	@Failure		500	{object}	response.Response{}	"Failed to add variation options"
 func (p *ProductHandler) SaveVariationOption(ctx *gin.Context) {
 
 	variationID, err := request.GetParamAsUint(ctx, "variation_id")
@@ -220,18 +220,18 @@ func (p *ProductHandler) SaveVariationOption(ctx *gin.Context) {
 }
 
 // GetAllVariations godoc
-// @Summary Get all variations (Admin)
-// @Description API for admin to get all variation and its values of a category
-// @Security ApiKeyAuth
-// @Tags Admin Category
-// @ID GetAllVariations
-// @Accept json
-// @Produce json
-// @Param category_id path int true "Category ID"
-// @Router /admin/categories/{category_id}/variations [get]
-// @Success 200 {object} response.Response{} "Successfully retrieved all variations and its values"
-// @Failure 400 {object} response.Response{} "Invalid input"
-// @Failure 500 {object} response.Response{} "Failed to Get variations and its values"
+//	@Summary		Get all variations (Admin)
+//	@Security		BearerAuth
+//	@Description	API for admin to get all variation and its values of a category
+//	@Tags			Admin Category
+//	@ID				GetAllVariations
+//	@Accept			json
+//	@Produce		json
+//	@Param			category_id	path	int	true	"Category ID"
+//	@Router			/admin/categories/{category_id}/variations [get]
+//	@Success		200	{object}	response.Response{}	"Successfully retrieved all variations and its values"
+//	@Failure		400	{object}	response.Response{}	"Invalid input"
+//	@Failure		500	{object}	response.Response{}	"Failed to Get variations and its values"
 func (c *ProductHandler) GetAllVariations(ctx *gin.Context) {
 
 	categoryID, err := request.GetParamAsUint(ctx, "category_id")
@@ -255,20 +255,21 @@ func (c *ProductHandler) GetAllVariations(ctx *gin.Context) {
 }
 
 // SaveProduct godoc
-// @Summary Add a new product (Admin)
-// @Description API for admin to add a new product
-// @ID SaveProduct
-// @Tags Admin Products
-// @Produce json
-// @Param name formData string true "Product Name"
-// @Param description formData string true "Product Description"
-// @Param category_id formData int true "Category Id"
-// @Param price formData int true "Product Price"
-// @Param image formData file true "Product Description"
-// @Success 200 {object} response.Response{} "successfully product added"
-// @Router /admin/products [post]
-// @Failure 400 {object} response.Response{} "invalid input"
-// @Failure 409 {object} response.Response{} "Product name already exist"
+//	@Summary		Add a new product (Admin)
+//	@Security		BearerAuth
+//	@Description	API for admin to add a new product
+//	@ID				SaveProduct
+//	@Tags			Admin Products
+//	@Produce		json
+//	@Param			name		formData	string				true	"Product Name"
+//	@Param			description	formData	string				true	"Product Description"
+//	@Param			category_id	formData	int					true	"Category Id"
+//	@Param			price		formData	int					true	"Product Price"
+//	@Param			image		formData	file				true	"Product Description"
+//	@Success		200			{object}	response.Response{}	"successfully product added"
+//	@Router			/admin/products [post]
+//	@Failure		400	{object}	response.Response{}	"invalid input"
+//	@Failure		409	{object}	response.Response{}	"Product name already exist"
 func (p *ProductHandler) SaveProduct(ctx *gin.Context) {
 
 	name, err1 := request.GetFormValuesAsString(ctx, "name")
@@ -307,31 +308,31 @@ func (p *ProductHandler) SaveProduct(ctx *gin.Context) {
 }
 
 // GetAllProductsAdmin godoc
-// @Summary Get all products (Admin)
-// @Description API for admin to get all products
-// @ID GetAllProductsAdmin
-// @Tags Admin Products
-// @Security ApiKeyAuth
-// @Param page_number query int false "Page Number"
-// @Param count query int false "Count"
-// @Router /admin/products [get]
-// @Success 200 {object} response.Response{} "Successfully found all products"
-// @Failure 500 {object} response.Response{} "Failed to Get all products"
+//	@Summary		Get all products (Admin)
+//	@Security		BearerAuth
+//	@Description	API for admin to get all products
+//	@ID				GetAllProductsAdmin
+//	@Tags			Admin Products
+//	@Param			page_number	query	int	false	"Page Number"
+//	@Param			count		query	int	false	"Count"
+//	@Router			/admin/products [get]
+//	@Success		200	{object}	response.Response{}	"Successfully found all products"
+//	@Failure		500	{object}	response.Response{}	"Failed to Get all products"
 func (p *ProductHandler) GetAllProductsAdmin() func(ctx *gin.Context) {
 	return p.getAllProducts()
 }
 
 // GetAllProductsUser godoc
-// @Summary Get all products (User)
-// @Description API for user to get all products
-// @ID GetAllProductsUser
-// @Tags User Products
-// @Security ApiKeyAuth
-// @Param page_number query int false "Page Number"
-// @Param count query int false "Count"
-// @Router /products [get]
-// @Success 200 {object} response.Response{} "Successfully found all products"
-// @Failure 500 {object} response.Response{} "Failed to get all products"
+//	@Summary		Get all products (User)
+//	@Security		BearerAuth
+//	@Description	API for user to get all products
+//	@ID				GetAllProductsUser
+//	@Tags			User Products
+//	@Param			page_number	query	int	false	"Page Number"
+//	@Param			count		query	int	false	"Count"
+//	@Router			/products [get]
+//	@Success		200	{object}	response.Response{}	"Successfully found all products"
+//	@Failure		500	{object}	response.Response{}	"Failed to get all products"
 func (p *ProductHandler) GetAllProductsUser() func(ctx *gin.Context) {
 	return p.getAllProducts()
 }
@@ -361,18 +362,19 @@ func (p *ProductHandler) getAllProducts() func(ctx *gin.Context) {
 }
 
 // UpdateProduct godoc
-// @Summary Update a product (Admin)
-// @Description API for admin to update a product
-// @ID UpdateProduct
-// @Tags Admin Products
-// @Accept json
-// @Produce json
-// @Param input body request.UpdateProduct{} true "Product update input"
-// @Router /admin/products [put]
-// @Success 200 {object} response.Response{} "successfully product updated"
-// @Failure 400 {object} response.Response{} "invalid input"
-// @Failure 409 {object} response.Response{} "Failed to update product"
-// @Failure 500 {object} response.Response{} "Product name already exist for another product"
+//	@Summary		Update a product (Admin)
+//	@Security		BearerAuth
+//	@Description	API for admin to update a product
+//	@ID				UpdateProduct
+//	@Tags			Admin Products
+//	@Accept			json
+//	@Produce		json
+//	@Param			input	body	request.UpdateProduct{}	true	"Product update input"
+//	@Router			/admin/products [put]
+//	@Success		200	{object}	response.Response{}	"successfully product updated"
+//	@Failure		400	{object}	response.Response{}	"invalid input"
+//	@Failure		409	{object}	response.Response{}	"Failed to update product"
+//	@Failure		500	{object}	response.Response{}	"Product name already exist for another product"
 func (c *ProductHandler) UpdateProduct(ctx *gin.Context) {
 
 	var body request.UpdateProduct
@@ -401,6 +403,7 @@ func (c *ProductHandler) UpdateProduct(ctx *gin.Context) {
 // SaveProductItem godoc
 //
 //	@Summary		Add a product item (Admin)
+//	@Security		BearerAuth
 //	@Description	API for admin to add a product item for a specific product(should select at least one variation option from each variations)
 //	@ID				SaveProductItem
 //	@Tags			Admin Products
@@ -466,33 +469,35 @@ func (p *ProductHandler) SaveProductItem(ctx *gin.Context) {
 }
 
 // GetAllProductItemsAdmin godoc
-// @Summary Get all product items (Admin)
-// @Description API for admin to get all product items for a specific product
-// @ID GetAllProductItemsAdmin
-// @Tags Admin Products
-// @Accept json
-// @Produce json
-// @Param product_id path int true "Product ID"
-// @Router /admin/products/{product_id}/items [get]
-// @Success 200 {object} response.Response{} "Successfully get all product items"
-// @Failure 400 {object} response.Response{} "Invalid input"
-// @Failure 400 {object} response.Response{} "Failed to get all product items"
+//	@Summary		Get all product items (Admin)
+//	@Security		BearerAuth
+//	@Description	API for admin to get all product items for a specific product
+//	@ID				GetAllProductItemsAdmin
+//	@Tags			Admin Products
+//	@Accept			json
+//	@Produce		json
+//	@Param			product_id	path	int	true	"Product ID"
+//	@Router			/admin/products/{product_id}/items [get]
+//	@Success		200	{object}	response.Response{}	"Successfully get all product items"
+//	@Failure		400	{object}	response.Response{}	"Invalid input"
+//	@Failure		400	{object}	response.Response{}	"Failed to get all product items"
 func (p *ProductHandler) GetAllProductItemsAdmin() func(ctx *gin.Context) {
 	return p.getAllProductItems()
 }
 
 // GetAllProductItemsUser godoc
-// @Summary Get all product items (User)
-// @Description API for user to get all product items for a specific product
-// @ID GetAllProductItemsUser
-// @Tags User Products
-// @Accept json
-// @Produce json
-// @Param product_id path int true "Product ID"
-// @Router /products/{product_id}/items [get]
-// @Success 200 {object} response.Response{} "Successfully get all product items"
-// @Failure 400 {object} response.Response{} "Invalid input"
-// @Failure 400 {object} response.Response{} "Failed to get all product items"
+//	@Summary		Get all product items (User)
+//	@Security		BearerAuth
+//	@Description	API for user to get all product items for a specific product
+//	@ID				GetAllProductItemsUser
+//	@Tags			User Products
+//	@Accept			json
+//	@Produce		json
+//	@Param			product_id	path	int	true	"Product ID"
+//	@Router			/products/{product_id}/items [get]
+//	@Success		200	{object}	response.Response{}	"Successfully get all product items"
+//	@Failure		400	{object}	response.Response{}	"Invalid input"
+//	@Failure		400	{object}	response.Response{}	"Failed to get all product items"
 func (p *ProductHandler) GetAllProductItemsUser() func(ctx *gin.Context) {
 	return p.getAllProductItems()
 }

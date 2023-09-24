@@ -16,18 +16,21 @@ type ServerHTTP struct {
 	Engine *gin.Engine
 }
 
-// @title E-commerce Application Backend API
-// @description Backend API built with Golang using Clean Code architecture. \nGithub: [https://github.com/nikhilnarayanan623/ecommerce-gin-clean-arch].
+//	@title						E-commerce Application Backend API
+//	@description				Backend API built with Golang using Clean Code architecture. \nGithub: [https://github.com/nikhilnarayanan623/ecommerce-gin-clean-arch].
 //
-// @contact.name For API Support
-// @contact.email nikhilnarayanan623@gmail.com
+//	@contact.name				For API Support
+//	@contact.email				nikhilnarayanan623@gmail.com
 //
-// @license.name MIT
-// @license.url https://opensource.org/licenses/MIT
+//	@license.name				MIT
+//	@license.url				https://opensource.org/licenses/MIT
 //
-// @BasePath /api
-//
-// @securityDefinitions.basic BasicAuth
+//	@BasePath					/api
+//	@SecurityDefinitions.apikey	BearerAuth
+//	@Name						Authorization
+//	@In							header
+//	@Description				Add prefix of Bearer before  token Ex: "Bearer token"
+//	@Query.collection.format	multi
 func NewServerHTTP(authHandler handlerInterface.AuthHandler, middleware middleware.Middleware,
 	adminHandler handlerInterface.AdminHandler, userHandler handlerInterface.UserHandler,
 	cartHandler handlerInterface.CartHandler, paymentHandler handlerInterface.PaymentHandler,
@@ -53,8 +56,7 @@ func NewServerHTTP(authHandler handlerInterface.AuthHandler, middleware middlewa
 	// no handler
 	engine.NoRoute(func(ctx *gin.Context) {
 		ctx.JSON(http.StatusNotFound, gin.H{
-			"StatusCode": 404,
-			"msg":        "invalid url",
+			"message": "invalid url go to /swagger/index.html for api documentation",
 		})
 	})
 

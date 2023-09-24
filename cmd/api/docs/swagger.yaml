@@ -483,7 +483,7 @@ paths:
           schema:
             $ref: '#/definitions/response.Response'
       security:
-      - ApiKeyAuth: []
+      - BearerAuth: []
       summary: Get User Profile (User)
       tags:
       - User Profile
@@ -511,7 +511,7 @@ paths:
           schema:
             $ref: '#/definitions/response.Response'
       security:
-      - ApiKeyAuth: []
+      - BearerAuth: []
       summary: Edit profile (User)
       tags:
       - User Profile
@@ -529,7 +529,7 @@ paths:
           schema:
             $ref: '#/definitions/response.Response'
       security:
-      - ApiKeyAuth: []
+      - BearerAuth: []
       summary: Get all addresses (User)
       tags:
       - User Profile
@@ -557,7 +557,7 @@ paths:
           schema:
             $ref: '#/definitions/response.Response'
       security:
-      - ApiKeyAuth: []
+      - BearerAuth: []
       summary: Add a new address (User)
       tags:
       - User Profile
@@ -581,7 +581,7 @@ paths:
           schema:
             $ref: '#/definitions/response.Response'
       security:
-      - ApiKeyAuth: []
+      - BearerAuth: []
       summary: Update address (User)
       tags:
       - User Profile
@@ -600,7 +600,7 @@ paths:
         type: integer
       responses:
         "200":
-          description: Successfully found all coupons for user
+          description: "Successfully\tfound\tall\tcoupons\tfor\tuser"
           schema:
             $ref: '#/definitions/response.Response'
         "500":
@@ -608,7 +608,7 @@ paths:
           schema:
             $ref: '#/definitions/response.Response'
       security:
-      - ApiKeyAuth: []
+      - BearerAuth: []
       summary: Get all user coupons (User)
       tags:
       - User Profile
@@ -625,6 +625,8 @@ paths:
           description: Failed to retrieve user wallet
           schema:
             $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
       summary: Get user wallet  (User)
       tags:
       - User Profile
@@ -645,6 +647,8 @@ paths:
           description: Failed to retrieve user wallet transactions
           schema:
             $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
       summary: Get user wallet  (User)
       tags:
       - User Profile
@@ -657,7 +661,7 @@ paths:
         "500":
           description: Failed to retrieve product items from the wish list
       security:
-      - ApiKeyAuth: []
+      - BearerAuth: []
       summary: Get whish list product items (User)
       tags:
       - User Profile
@@ -680,7 +684,7 @@ paths:
           schema:
             $ref: '#/definitions/response.Response'
       security:
-      - ApiKeyAuth: []
+      - BearerAuth: []
       summary: Remove from whish list (User)
       tags:
       - User Profile
@@ -710,7 +714,7 @@ paths:
           schema:
             $ref: '#/definitions/response.Response'
       security:
-      - ApiKeyAuth: []
+      - BearerAuth: []
       summary: Add to whish list (User)
       tags:
       - User Profile
@@ -796,8 +800,6 @@ paths:
           description: Failed to login
           schema:
             $ref: '#/definitions/response.Response'
-      security:
-      - ApiKeyAuth: []
       summary: Login with password (Admin)
       tags:
       - Admin Authentication
@@ -828,13 +830,14 @@ paths:
           schema:
             $ref: '#/definitions/response.Response'
       security:
-      - ApiKeyAuth: []
+      - BearerAuth: []
       summary: Get all categories (Admin)
       tags:
       - Admin Category
     post:
       consumes:
       - application/json
+      description: API for Admin to save new category
       operationId: SaveCategory
       parameters:
       - description: Category details
@@ -859,7 +862,7 @@ paths:
           schema:
             $ref: '#/definitions/response.Response'
       security:
-      - ApiKeyAuth: []
+      - BearerAuth: []
       summary: Add a new category (Admin)
       tags:
       - Admin Category
@@ -891,7 +894,7 @@ paths:
           schema:
             $ref: '#/definitions/response.Response'
       security:
-      - ApiKeyAuth: []
+      - BearerAuth: []
       summary: Get all variations (Admin)
       tags:
       - Admin Category
@@ -928,7 +931,7 @@ paths:
           schema:
             $ref: '#/definitions/response.Response'
       security:
-      - ApiKeyAuth: []
+      - BearerAuth: []
       summary: Add new variations (Admin)
       tags:
       - Admin Category
@@ -971,7 +974,7 @@ paths:
           schema:
             $ref: '#/definitions/response.Response'
       security:
-      - ApiKeyAuth: []
+      - BearerAuth: []
       summary: Add new variation options (Admin)
       tags:
       - Admin Category
@@ -1008,7 +1011,7 @@ paths:
           schema:
             $ref: '#/definitions/response.Response'
       security:
-      - ApiKeyAuth: []
+      - BearerAuth: []
       summary: Add a new subcategory (Admin)
       tags:
       - Admin Category
@@ -1035,7 +1038,7 @@ paths:
           schema:
             $ref: '#/definitions/response.Response'
       security:
-      - ApiKeyAuth: []
+      - BearerAuth: []
       summary: Get all coupons (Admin)
       tags:
       - Admin Coupon
@@ -1059,7 +1062,7 @@ paths:
           schema:
             $ref: '#/definitions/response.Response'
       security:
-      - ApiKeyAuth: []
+      - BearerAuth: []
       summary: Add coupons (Admin)
       tags:
       - Admin Coupon
@@ -1083,7 +1086,7 @@ paths:
           schema:
             $ref: '#/definitions/response.Response'
       security:
-      - ApiKeyAuth: []
+      - BearerAuth: []
       summary: Update Coupon (Admin)
       tags:
       - Admin Coupon
@@ -1102,13 +1105,15 @@ paths:
         type: integer
       responses:
         "200":
-          description: Successfully found all offers
+          description: "Successfully\tfound\tall\toffers"
           schema:
             $ref: '#/definitions/response.Response'
         "500":
           description: Failed to get all offers
           schema:
             $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
       summary: Get all offers (Admin)
       tags:
       - Admin Offers
@@ -1135,6 +1140,8 @@ paths:
           description: Offer already exist
           schema:
             $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
       summary: Add offer (Admin)
       tags:
       - Admin Offers
@@ -1157,6 +1164,8 @@ paths:
           description: invalid input
           schema:
             $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
       summary: Remove offer (Admin)
       tags:
       - Admin Offers
@@ -1182,6 +1191,8 @@ paths:
           description: failed to get offers_category
           schema:
             $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
       summary: Get all category offers (Admin)
       tags:
       - Admin Offers
@@ -1204,6 +1215,8 @@ paths:
           description: invalid input
           schema:
             $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
       summary: Change product offer (Admin)
       tags:
       - Admin Offers
@@ -1226,6 +1239,8 @@ paths:
           description: invalid input
           schema:
             $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
       summary: Add category offer (Admin)
       tags:
       - Admin Offers
@@ -1248,6 +1263,8 @@ paths:
           description: invalid input
           schema:
             $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
       summary: Remove category offer (Admin)
       tags:
       - Admin Offers
@@ -1273,6 +1290,8 @@ paths:
           description: failed to get offer_products
           schema:
             $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
       summary: Get all product offers (Admin)
       tags:
       - Admin Offers
@@ -1295,6 +1314,8 @@ paths:
           description: invalid input
           schema:
             $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
       summary: Change product offer (Admin)
       tags:
       - Admin Offers
@@ -1317,6 +1338,8 @@ paths:
           description: invalid input
           schema:
             $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
       summary: Add product offer (Admin)
       tags:
       - Admin Offers
@@ -1339,6 +1362,8 @@ paths:
           description: invalid input on params
           schema:
             $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
       summary: Remove product offer (Admin)
       tags:
       - Admin Offers
@@ -1362,6 +1387,8 @@ paths:
           description: invalid input
           schema:
             $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
       summary: Change order status (Admin)
       tags:
       - Admin Orders
@@ -1396,6 +1423,8 @@ paths:
           description: Failed to find order items
           schema:
             $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
       summary: Get all order items (Admin)
       tags:
       - Admin Orders
@@ -1425,6 +1454,8 @@ paths:
           description: Failed to find all shop orders
           schema:
             $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
       summary: Get all orders (Admin)
       tags:
       - Admin Orders
@@ -1450,6 +1481,8 @@ paths:
           description: Failed to find all order returns
           schema:
             $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
       summary: Get all order returns (Admin)
       tags:
       - Admin Orders
@@ -1475,6 +1508,8 @@ paths:
           description: Failed to find all pending order return requests
           schema:
             $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
       summary: Get all pending returns (Admin)
       tags:
       - Admin Orders
@@ -1497,6 +1532,8 @@ paths:
           description: invalid input
           schema:
             $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
       summary: Change return request status (Admin)
       tags:
       - Admin Orders
@@ -1518,7 +1555,7 @@ paths:
           schema:
             $ref: '#/definitions/response.Response'
       security:
-      - ApiKeyAuth: []
+      - BearerAuth: []
       summary: Get all order statuses (Admin)
       tags:
       - Admin Orders
@@ -1541,7 +1578,7 @@ paths:
           schema:
             $ref: '#/definitions/response.Response'
       security:
-      - ApiKeyAuth: []
+      - BearerAuth: []
       summary: Update payment method (Admin)
       tags:
       - Admin Payment
@@ -1559,7 +1596,7 @@ paths:
           schema:
             $ref: '#/definitions/response.Response'
       security:
-      - ApiKeyAuth: []
+      - BearerAuth: []
       summary: Get payment methods (Admin)
       tags:
       - Admin Payment
@@ -1586,7 +1623,7 @@ paths:
           schema:
             $ref: '#/definitions/response.Response'
       security:
-      - ApiKeyAuth: []
+      - BearerAuth: []
       summary: Get all products (Admin)
       tags:
       - Admin Products
@@ -1634,6 +1671,8 @@ paths:
           description: Product name already exist
           schema:
             $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
       summary: Add a new product (Admin)
       tags:
       - Admin Products
@@ -1668,6 +1707,8 @@ paths:
           description: Product name already exist for another product
           schema:
             $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
       summary: Update a product (Admin)
       tags:
       - Admin Products
@@ -1694,6 +1735,8 @@ paths:
           description: Failed to get all product items
           schema:
             $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
       summary: Get all product items (Admin)
       tags:
       - Admin Products
@@ -1747,12 +1790,14 @@ paths:
           description: Product have already this configured product items exist
           schema:
             $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
       summary: Add a product item (Admin)
       tags:
       - Admin Products
   /admin/sales:
     get:
-      description: API fro admin to get all sales report for a specific period in
+      description: API for admin to get all sales report for a specific period in
         csv form
       operationId: GetFullSalesReport
       parameters:
@@ -1785,6 +1830,8 @@ paths:
           description: failed to get sales report
           schema:
             $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
       summary: Get full sales report (Admin)
       tags:
       - Admin Sales
@@ -1814,6 +1861,8 @@ paths:
           description: Failed to Get all stocks
           schema:
             $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
       summary: Get all stocks (Admin)
       tags:
       - Admin Stock
@@ -1840,6 +1889,8 @@ paths:
           description: Failed to update stock
           schema:
             $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
       summary: Update stocks (Admin)
       tags:
       - Admin Stock
@@ -1869,6 +1920,8 @@ paths:
           description: Failed to find all users
           schema:
             $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
       summary: Get all users
       tags:
       - Admin User
@@ -1891,6 +1944,8 @@ paths:
           description: invalid input
           schema:
             $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
       summary: api for admin to block or unblock user
       tags:
       - Admin User
@@ -1903,8 +1958,6 @@ paths:
           description: Successfully google login page loaded
           schema:
             $ref: '#/definitions/response.Response'
-      security:
-      - ApiKeyAuth: []
       summary: To load google login page (User)
       tags:
       - User Authentication
@@ -1921,8 +1974,6 @@ paths:
           description: Failed Login with google
           schema:
             $ref: '#/definitions/response.Response'
-      security:
-      - ApiKeyAuth: []
       summary: Google auth callback (User)
       tags:
       - User Authentication
@@ -1931,8 +1982,6 @@ paths:
       description: API for user to initialize google auth
       operationId: UserGoogleAuthInitialize
       responses: {}
-      security:
-      - ApiKeyAuth: []
       summary: Initialize google auth (User)
       tags:
       - User Authentication
@@ -2018,8 +2067,6 @@ paths:
           description: Failed to login
           schema:
             $ref: '#/definitions/response.Response'
-      security:
-      - ApiKeyAuth: []
       summary: Login with password (User)
       tags:
       - User Authentication
@@ -2056,8 +2103,6 @@ paths:
           description: Failed to send otp
           schema:
             $ref: '#/definitions/response.Response'
-      security:
-      - ApiKeyAuth: []
       summary: Login with Otp send (User)
       tags:
       - User Authentication
@@ -2098,8 +2143,6 @@ paths:
           description: Failed to verify otp
           schema:
             $ref: '#/definitions/response.Response'
-      security:
-      - ApiKeyAuth: []
       summary: Login with Otp verify (User)
       tags:
       - User Authentication
@@ -2136,8 +2179,6 @@ paths:
           description: Failed to signup
           schema:
             $ref: '#/definitions/response.Response'
-      security:
-      - ApiKeyAuth: []
       summary: Signup (User)
       tags:
       - User Authentication
@@ -2178,8 +2219,6 @@ paths:
           description: Failed to verify otp
           schema:
             $ref: '#/definitions/response.Response'
-      security:
-      - ApiKeyAuth: []
       summary: UserSingUp verify OTP  (User)
       tags:
       - User Authentication
@@ -2201,7 +2240,7 @@ paths:
           schema:
             $ref: '#/definitions/response.Response'
       security:
-      - ApiKeyAuth: []
+      - BearerAuth: []
       summary: Get cart Items (User)
       tags:
       - User Cart
@@ -2229,7 +2268,7 @@ paths:
           schema:
             $ref: '#/definitions/response.Response'
       security:
-      - ApiKeyAuth: []
+      - BearerAuth: []
       summary: Change Cart Qty (User)
       tags:
       - User Cart
@@ -2261,7 +2300,7 @@ paths:
           schema:
             $ref: '#/definitions/response.Response'
       security:
-      - ApiKeyAuth: []
+      - BearerAuth: []
       summary: Remove product item from cart (User)
       tags:
       - User Cart
@@ -2292,7 +2331,7 @@ paths:
           schema:
             $ref: '#/definitions/response.Response'
       security:
-      - ApiKeyAuth: []
+      - BearerAuth: []
       summary: Add product item to cart (User)
       tags:
       - User Cart
@@ -2317,7 +2356,7 @@ paths:
           schema:
             $ref: '#/definitions/response.Response'
       security:
-      - ApiKeyAuth: []
+      - BearerAuth: []
       summary: Apply coupon
       tags:
       - User Cart
@@ -2335,7 +2374,7 @@ paths:
           schema:
             $ref: '#/definitions/response.Response'
       security:
-      - ApiKeyAuth: []
+      - BearerAuth: []
       summary: Render Payment Page (User)
       tags:
       - User Payment
@@ -2371,7 +2410,7 @@ paths:
           schema:
             $ref: '#/definitions/response.Response'
       security:
-      - ApiKeyAuth: []
+      - BearerAuth: []
       summary: Save Order (User)
       tags:
       - User Orders
@@ -2395,7 +2434,7 @@ paths:
           schema:
             $ref: '#/definitions/response.Response'
       security:
-      - ApiKeyAuth: []
+      - BearerAuth: []
       summary: Place order  for COD (User)
       tags:
       - User Payment
@@ -2419,6 +2458,7 @@ paths:
           schema:
             $ref: '#/definitions/response.Response'
       security:
+      - BearerAuth: []
       - ApiKeyAuth: []
       summary: Razorpay checkout (User)
       tags:
@@ -2461,7 +2501,7 @@ paths:
           schema:
             $ref: '#/definitions/response.Response'
       security:
-      - ApiKeyAuth: []
+      - BearerAuth: []
       summary: Razorpay verify (User)
       tags:
       - User Payment
@@ -2485,7 +2525,7 @@ paths:
           schema:
             $ref: '#/definitions/response.Response'
       security:
-      - ApiKeyAuth: []
+      - BearerAuth: []
       summary: Stripe checkout (User)
       tags:
       - User Payment
@@ -2518,7 +2558,7 @@ paths:
           schema:
             $ref: '#/definitions/response.Response'
       security:
-      - ApiKeyAuth: []
+      - BearerAuth: []
       summary: Stripe verify (User)
       tags:
       - User Payment
@@ -2548,6 +2588,8 @@ paths:
           description: Failed to retrieve all user orders
           schema:
             $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
       summary: Get user orders (User)
       tags:
       - User Orders
@@ -2574,6 +2616,8 @@ paths:
           description: Failed to cancel order
           schema:
             $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
       summary: Cancel order (User)
       tags:
       - User Orders
@@ -2604,6 +2648,8 @@ paths:
           description: Failed to find order items
           schema:
             $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
       summary: Get all order items (User)
       tags:
       - User Orders
@@ -2627,6 +2673,8 @@ paths:
           description: invalid input
           schema:
             $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
       summary: Return request (User)
       tags:
       - User Orders
@@ -2644,7 +2692,7 @@ paths:
           schema:
             $ref: '#/definitions/response.Response'
       security:
-      - ApiKeyAuth: []
+      - BearerAuth: []
       summary: Get payment methods (User)
       tags:
       - User Payment
@@ -2671,7 +2719,7 @@ paths:
           schema:
             $ref: '#/definitions/response.Response'
       security:
-      - ApiKeyAuth: []
+      - BearerAuth: []
       summary: Get all products (User)
       tags:
       - User Products
@@ -2698,10 +2746,15 @@ paths:
           description: Failed to get all product items
           schema:
             $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
       summary: Get all product items (User)
       tags:
       - User Products
 securityDefinitions:
-  BasicAuth:
-    type: basic
+  BearerAuth:
+    description: 'Add prefix of Bearer before  token Ex: "Bearer token"'
+    in: header
+    name: Authorization
+    type: apiKey
 swagger: "2.0"

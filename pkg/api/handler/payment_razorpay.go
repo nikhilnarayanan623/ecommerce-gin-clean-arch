@@ -13,15 +13,16 @@ import (
 )
 
 // RazorpayCheckout godoc
-// @Summary Razorpay checkout (User)
-// @Description API for user to create stripe payment
-// @Security ApiKeyAuth
-// @Tags User Payment
-// @Id RazorpayCheckout
-// @Param shop_order_id formData string true "Shop Order ID"
-// @Router /carts/place-order/razorpay-checkout [post]
-// @Success 200 {object} response.Response{} "successfully razorpay payment order created"
-// @Failure 500 {object} response.Response{}  "Failed to make razorpay order"
+//	@Summary		Razorpay checkout (User)
+//	@Security		BearerAuth
+//	@Description	API for user to create stripe payment
+//	@Security		ApiKeyAuth
+//	@Tags			User Payment
+//	@Id				RazorpayCheckout
+//	@Param			shop_order_id	formData	string	true	"Shop Order ID"
+//	@Router			/carts/place-order/razorpay-checkout [post]
+//	@Success		200	{object}	response.Response{}	"successfully razorpay payment order created"
+//	@Failure		500	{object}	response.Response{}	"Failed to make razorpay order"
 func (c *paymentHandler) RazorpayCheckout(ctx *gin.Context) {
 
 	shopOrderID, err := request.GetFormValuesAsUint(ctx, "shop_order_id")
@@ -48,19 +49,19 @@ func (c *paymentHandler) RazorpayCheckout(ctx *gin.Context) {
 }
 
 // RazorpayVerify godoc
-// @Summary Razorpay verify (User)
-// @Description API for razorpay to callback backend for payment verification
-// @security ApiKeyAuth
-// @tags User Payment
-// @id RazorpayVerify
-// @Param razorpay_order_id formData string true "Razorpay payment id"
-// @Param razorpay_payment_id formData string true "Razorpay payment id"
-// @Param razorpay_signature formData string false "Razorpay signature"
-// @Param shop_order_id formData string true "Shop Order ID"
-// @Router /carts/place-order/razorpay-verify [post]
-// @Success 200 {object} response.Response{} "Successfully razorpay payment verified"
-// @Failure 402 {object} response.Response{}  "Payment not approved"
-// @Failure 500 {object} response.Response{}  "Failed to Approve order"
+//	@Summary		Razorpay verify (User)
+//	@Security		BearerAuth
+//	@Description	API for razorpay to callback backend for payment verification
+//	@tags			User Payment
+//	@id				RazorpayVerify
+//	@Param			razorpay_order_id	formData	string	true	"Razorpay payment id"
+//	@Param			razorpay_payment_id	formData	string	true	"Razorpay payment id"
+//	@Param			razorpay_signature	formData	string	false	"Razorpay signature"
+//	@Param			shop_order_id		formData	string	true	"Shop Order ID"
+//	@Router			/carts/place-order/razorpay-verify [post]
+//	@Success		200	{object}	response.Response{}	"Successfully razorpay payment verified"
+//	@Failure		402	{object}	response.Response{}	"Payment not approved"
+//	@Failure		500	{object}	response.Response{}	"Failed to Approve order"
 func (c *paymentHandler) RazorpayVerify(ctx *gin.Context) {
 
 	userID := utils.GetUserIdFromContext(ctx)
