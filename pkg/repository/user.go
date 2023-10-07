@@ -69,7 +69,7 @@ func (c *userDatabase) SaveUser(ctx context.Context, user domain.User) (userID u
 
 	createdAt := time.Now()
 	err = c.DB.Raw(query, user.UserName, user.FirstName, user.LastName,
-		user.Age, user.Email, user.Phone, user.Password, user.GoogleImage, createdAt).Scan(&user).Error
+		user.Age, user.Email, user.Phone, user.Password, user.GoogleImage, createdAt).Scan(&userID).Error
 
 	return userID, err
 }
