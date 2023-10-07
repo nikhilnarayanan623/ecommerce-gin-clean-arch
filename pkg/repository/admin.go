@@ -88,4 +88,3 @@ func (c *adminDatabase) FindStockBySKU(ctx context.Context, sku string) (stock r
 
 	return stock, err
 }
-
