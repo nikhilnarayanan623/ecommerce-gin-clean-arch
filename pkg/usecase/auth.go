@@ -179,6 +179,12 @@ func (c *authUseCase) LoginOtpVerify(ctx context.Context, otpVerifyDetails reque
 		return 0, ErrInvalidOtp
 	}
 
+	if err := c.userRepo.UpdateVerified(ctx, otpSession.UserID); err != nil {
+
+		return 0, utils.PrependMessageToError(err, "failed to update user verified in db")
+
+	}
+
 	return otpSession.UserID, nil
 }
 
