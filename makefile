@@ -13,11 +13,12 @@ ${BINARY_DIR}:
 	mkdir -p $(BINARY_DIR)
 
 build: ${BINARY_DIR} ## Compile the code, build Executable File
-#	$(GOCMD) build -o $(BINARY_DIR) -v ./cmd/api
-	GOARCH=amd64 $(GOCMD) build -v -o $(BINARY_DIR)/api-linux-amd64 ./cmd/api/main.go
+	$(GOCMD) build -o $(BINARY_DIR) -v ./cmd/api
+# 	GOARCH=amd64 $(GOCMD) build -o $(BINARY_DIR)/api-linux-amd64 -v ./cmd/api/main.go
 
 build-run: build ## run project build file if not exist build it
-	./$(BINARY_DIR)/api-linux-amd64
+#	./$(BINARY_DIR)/api-linux-amd64
+	./$(BINARY_DIR)/api
 
 run: ## Start application
 	$(GOCMD) run ./cmd/api/main.go

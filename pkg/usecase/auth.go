@@ -179,12 +179,6 @@ func (c *authUseCase) LoginOtpVerify(ctx context.Context, otpVerifyDetails reque
 		return 0, ErrInvalidOtp
 	}
 
-	if err := c.userRepo.UpdateVerified(ctx, otpSession.UserID); err != nil {
-
-		return 0, utils.PrependMessageToError(err, "failed to update user verified in db")
-
-	}
-
 	return otpSession.UserID, nil
 }
 
@@ -378,7 +372,7 @@ func (c *authUseCase) SingUpOtpVerify(ctx context.Context,
 		return 0, ErrInvalidOtp
 	}
 
-	err = c.userRepo.UpdateVerified(ctx, otpSession.ID)
+	err = c.userRepo.UpdateVerified(ctx, otpSession.UserID)
 	if err != nil {
 		return 0, utils.PrependMessageToError(err, "failed to update user verified on database")
 	}
