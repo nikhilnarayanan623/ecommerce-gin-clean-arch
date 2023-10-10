@@ -63,6 +63,9 @@ func InitializeApi(cfg config.Config) (*http.ServerHTTP, error) {
 	stockRepository := repository.NewStockRepository(gormDB)
 	stockUseCase := usecase.NewStockUseCase(stockRepository)
 	stockHandler := handler.NewStockHandler(stockUseCase)
-	serverHTTP := http.NewServerHTTP(authHandler, middlewareMiddleware, adminHandler, userHandler, cartHandler, paymentHandler, productHandler, orderHandler, couponHandler, offerHandler, stockHandler)
+	brandRepository := repository.NewBrandDatabaseRepository(gormDB)
+	brandUseCase := usecase.NewBrandUseCase(brandRepository)
+	brandHandler := handler.NewBrandHandler(brandUseCase)
+	serverHTTP := http.NewServerHTTP(authHandler, middlewareMiddleware, adminHandler, userHandler, cartHandler, paymentHandler, productHandler, orderHandler, couponHandler, offerHandler, stockHandler, brandHandler)
 	return serverHTTP, nil
 }

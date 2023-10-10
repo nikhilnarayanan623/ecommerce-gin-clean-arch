@@ -10,7 +10,7 @@ func AdminRoutes(api *gin.RouterGroup, authHandler handlerInterface.AuthHandler,
 	adminHandler handlerInterface.AdminHandler, productHandler handlerInterface.ProductHandler,
 	paymentHandler handlerInterface.PaymentHandler, orderHandler handlerInterface.OrderHandler,
 	couponHandler handlerInterface.CouponHandler, offerHandler handlerInterface.OfferHandler,
-	stockHandler handlerInterface.StockHandler,
+	stockHandler handlerInterface.StockHandler, branHandler handlerInterface.BrandHandler,
 
 ) {
 
@@ -57,6 +57,16 @@ func AdminRoutes(api *gin.RouterGroup, authHandler handlerInterface.AuthHandler,
 			}
 
 		}
+		// brand
+		brand := api.Group("/brands")
+		{
+			brand.POST("", branHandler.Save)
+			brand.GET("", branHandler.FindAll)
+			brand.GET("/:brand_id", branHandler.FindOne)
+			brand.PUT("/:brand_id", branHandler.Update)
+			brand.DELETE("/:brand_id", branHandler.Delete)
+		}
+
 		// product
 		product := api.Group("/products")
 		{

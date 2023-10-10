@@ -38,6 +38,7 @@ func InitializeApi(cfg config.Config) (*http.ServerHTTP, error) {
 		repository.NewCouponRepository,
 		repository.NewOfferRepository,
 		repository.NewStockRepository,
+		repository.NewBrandDatabaseRepository,
 
 		//usecase
 		usecase.NewAuthUseCase,
@@ -50,6 +51,7 @@ func InitializeApi(cfg config.Config) (*http.ServerHTTP, error) {
 		usecase.NewCouponUseCase,
 		usecase.NewOfferUseCase,
 		usecase.NewStockUseCase,
+		usecase.NewBrandUseCase,
 		// handler
 		handler.NewAuthHandler,
 		handler.NewAdminHandler,
@@ -61,6 +63,7 @@ func InitializeApi(cfg config.Config) (*http.ServerHTTP, error) {
 		handler.NewCouponHandler,
 		handler.NewOfferHandler,
 		handler.NewStockHandler,
+		handler.NewBrandHandler,
 
 		http.NewServerHTTP,
 	)

@@ -14,6 +14,8 @@ type Product struct {
 	Description      string    `json:"description" `
 	CategoryName     string    `json:"category_name"`
 	MainCategoryName string    `json:"main_category_name"`
+	BrandID          uint      `json:"brand_id"`
+	BrandName        string    `json:"brand_name"`
 	Image            string    `json:"image"`
 	CreatedAt        time.Time `json:"created_at"`
 	UpdatedAt        time.Time `json:"updated_at"`
@@ -55,6 +57,8 @@ type ProductItems struct {
 	QtyInStock       uint                    `json:"qty_in_stock"`
 	CategoryName     string                  `json:"category_name"`
 	MainCategoryName string                  `json:"main_category_name"`
+	BrandID          uint                    `json:"brand_id"`
+	BrandName        string                  `json:"brand_name"`
 	VariationValues  []ProductVariationValue `json:"variation_values" gorm:"-"`
 	Images           []string                `json:"images" gorm:"-"`
 }
