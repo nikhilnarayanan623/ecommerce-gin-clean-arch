@@ -45,6 +45,15 @@ definitions:
     required:
     - user_id
     type: object
+  request.Brand:
+    properties:
+      category_name:
+        maxLength: 25
+        minLength: 3
+        type: string
+    required:
+    - category_name
+    type: object
   request.Category:
     properties:
       category_name:
@@ -803,6 +812,157 @@ paths:
       summary: Login with password (Admin)
       tags:
       - Admin Authentication
+  /admin/brands:
+    get:
+      description: API for admin to find all brands
+      operationId: FindAllBrands
+      parameters:
+      - description: Page number
+        in: query
+        name: page_number
+        type: integer
+      - description: Count
+        in: query
+        name: count
+        type: integer
+      responses:
+        "200":
+          description: successfully found all brands
+          schema:
+            $ref: '#/definitions/response.Response'
+        "204":
+          description: there is no brands to show
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: failed to find brand
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      summary: Find All Brand
+      tags:
+      - Admin Brand
+    post:
+      description: API for admin to save new brand
+      operationId: SaveBrand
+      parameters:
+      - description: Input Field
+        in: body
+        name: inputs
+        required: true
+        schema:
+          $ref: '#/definitions/request.Brand'
+      responses:
+        "200":
+          description: successfully brand created
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: invalid input
+          schema:
+            $ref: '#/definitions/response.Response'
+        "409":
+          description: brand name already exist
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: failed to create brand
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      summary: Save Brand
+      tags:
+      - Admin Brand
+  /admin/brands/{brand_id}:
+    delete:
+      description: API for admin to delete brand
+      operationId: DeleteBrand
+      parameters:
+      - description: Brand ID
+        in: path
+        name: brand_id
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: successfully brand deleted
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: invalid input
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: failed to delete brand
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      summary: Save Brand
+      tags:
+      - Admin Brand
+    get:
+      description: API for admin to find one brand
+      operationId: FindOneBrand
+      parameters:
+      - description: Brand ID
+        in: path
+        name: brand_id
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: successfully brand found
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: invalid input
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: failed to find brand
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      summary: Find One Brand
+      tags:
+      - Admin Brand
+    put:
+      description: API for admin to update brand
+      operationId: UpdateBrand
+      parameters:
+      - description: Brand ID
+        in: path
+        name: brand_id
+        required: true
+        type: integer
+      - description: Input Field
+        in: body
+        name: inputs
+        required: true
+        schema:
+          $ref: '#/definitions/request.Brand'
+      responses:
+        "200":
+          description: successfully brand updated
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: invalid input
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: failed to update brand
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      summary: Save Brand
+      tags:
+      - Admin Brand
   /admin/categories:
     get:
       consumes:
@@ -1644,6 +1804,11 @@ paths:
       - description: Category Id
         in: formData
         name: category_id
+        required: true
+        type: integer
+      - description: Brand Id
+        in: formData
+        name: brand_id
         required: true
         type: integer
       - description: Product Price

@@ -192,6 +192,7 @@ func (c *productUseCase) SaveProduct(ctx context.Context, product request.Produc
 		Name:        product.Name,
 		Description: product.Description,
 		CategoryID:  product.CategoryID,
+		BrandID:     product.BrandID,
 		Price:       product.Price,
 		Image:       uploadID,
 	})

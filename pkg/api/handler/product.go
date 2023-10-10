@@ -26,6 +26,7 @@ func NewProductHandler(productUsecase usecaseInterface.ProductUseCase) interface
 }
 
 // GetAllCategories godoc
+//
 //	@Summary		Get all categories (Admin)
 //	@Security		BearerAuth
 //	@Description	API for admin to get all categories and their subcategories
@@ -58,6 +59,7 @@ func (p *ProductHandler) GetAllCategories(ctx *gin.Context) {
 }
 
 // SaveCategory godoc
+//
 //	@Summary		Add a new category (Admin)
 //	@Security		BearerAuth
 //	@Description	API for Admin to save new category
@@ -97,6 +99,7 @@ func (p *ProductHandler) SaveCategory(ctx *gin.Context) {
 }
 
 // SaveSubCategory godoc
+//
 //	@Summary		Add a new subcategory (Admin)
 //	@Security		BearerAuth
 //	@Description	API for admin to add a new sub category for a existing category
@@ -135,6 +138,7 @@ func (p *ProductHandler) SaveSubCategory(ctx *gin.Context) {
 }
 
 // SaveVariation godoc
+//
 //	@Summary		Add new variations (Admin)
 //	@Security		BearerAuth
 //	@Description	API for admin to add new variations for a category
@@ -178,6 +182,7 @@ func (p *ProductHandler) SaveVariation(ctx *gin.Context) {
 }
 
 // SaveVariationOption godoc
+//
 //	@Summary		Add new variation options (Admin)
 //	@Security		BearerAuth
 //	@Description	API for admin to add variation options for a variation
@@ -220,6 +225,7 @@ func (p *ProductHandler) SaveVariationOption(ctx *gin.Context) {
 }
 
 // GetAllVariations godoc
+//
 //	@Summary		Get all variations (Admin)
 //	@Security		BearerAuth
 //	@Description	API for admin to get all variation and its values of a category
@@ -255,6 +261,7 @@ func (c *ProductHandler) GetAllVariations(ctx *gin.Context) {
 }
 
 // SaveProduct godoc
+//
 //	@Summary		Add a new product (Admin)
 //	@Security		BearerAuth
 //	@Description	API for admin to add a new product
@@ -264,6 +271,7 @@ func (c *ProductHandler) GetAllVariations(ctx *gin.Context) {
 //	@Param			name		formData	string				true	"Product Name"
 //	@Param			description	formData	string				true	"Product Description"
 //	@Param			category_id	formData	int					true	"Category Id"
+//	@Param			brand_id	formData	int					true	"Brand Id"
 //	@Param			price		formData	int					true	"Product Price"
 //	@Param			image		formData	file				true	"Product Description"
 //	@Success		200			{object}	response.Response{}	"successfully product added"
@@ -276,10 +284,11 @@ func (p *ProductHandler) SaveProduct(ctx *gin.Context) {
 	description, err2 := request.GetFormValuesAsString(ctx, "description")
 	categoryID, err3 := request.GetFormValuesAsUint(ctx, "category_id")
 	price, err4 := request.GetFormValuesAsUint(ctx, "price")
+	brandID, err5 := request.GetFormValuesAsUint(ctx, "brand_id")
 
-	fileHeader, err5 := ctx.FormFile("image")
+	fileHeader, err6 := ctx.FormFile("image")
 
-	err := errors.Join(err1, err2, err3, err4, err5)
+	err := errors.Join(err1, err2, err3, err4, err5, err6)
 
 	if err != nil {
 		response.ErrorResponse(ctx, http.StatusBadRequest, BindFormValueMessage, err, nil)
@@ -290,9 +299,11 @@ func (p *ProductHandler) SaveProduct(ctx *gin.Context) {
 		Name:            name,
 		Description:     description,
 		CategoryID:      categoryID,
+		BrandID:         brandID,
 		Price:           price,
 		ImageFileHeader: fileHeader,
 	}
+
 	err = p.productUseCase.SaveProduct(ctx, product)
 
 	if err != nil {
@@ -308,6 +319,7 @@ func (p *ProductHandler) SaveProduct(ctx *gin.Context) {
 }
 
 // GetAllProductsAdmin godoc
+//
 //	@Summary		Get all products (Admin)
 //	@Security		BearerAuth
 //	@Description	API for admin to get all products
@@ -323,6 +335,7 @@ func (p *ProductHandler) GetAllProductsAdmin() func(ctx *gin.Context) {
 }
 
 // GetAllProductsUser godoc
+//
 //	@Summary		Get all products (User)
 //	@Security		BearerAuth
 //	@Description	API for user to get all products
@@ -362,6 +375,7 @@ func (p *ProductHandler) getAllProducts() func(ctx *gin.Context) {
 }
 
 // UpdateProduct godoc
+//
 //	@Summary		Update a product (Admin)
 //	@Security		BearerAuth
 //	@Description	API for admin to update a product
@@ -469,6 +483,7 @@ func (p *ProductHandler) SaveProductItem(ctx *gin.Context) {
 }
 
 // GetAllProductItemsAdmin godoc
+//
 //	@Summary		Get all product items (Admin)
 //	@Security		BearerAuth
 //	@Description	API for admin to get all product items for a specific product
@@ -486,6 +501,7 @@ func (p *ProductHandler) GetAllProductItemsAdmin() func(ctx *gin.Context) {
 }
 
 // GetAllProductItemsUser godoc
+//
 //	@Summary		Get all product items (User)
 //	@Security		BearerAuth
 //	@Description	API for user to get all product items for a specific product

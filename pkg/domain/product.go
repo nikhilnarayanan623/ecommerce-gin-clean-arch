@@ -9,6 +9,8 @@ type Product struct {
 	Description   string    `json:"description" gorm:"not null" binding:"required,min=10,max=100"`
 	CategoryID    uint      `json:"category_id" binding:"omitempty,numeric"`
 	Category      Category  `json:"-"`
+	BrandID       uint      `gorm:"not null"`
+	Brand         Brand     `json:"-"`
 	Price         uint      `json:"price" gorm:"not null" binding:"required,numeric"`
 	DiscountPrice uint      `json:"discount_price"`
 	Image         string    `json:"image" gorm:"not null"`
@@ -35,6 +37,11 @@ type Category struct {
 	CategoryID uint      `json:"category_id"`
 	Category   *Category `json:"-"`
 	Name       string    `json:"category_name" gorm:"not null" binding:"required,min=1,max=30"`
+}
+
+type Brand struct {
+	ID   uint   `json:"id" gorm:"primaryKey;not null"`
+	Name string `json:"brand_name" gorm:"unique;not null"`
 }
 
 // variation means size color etc..

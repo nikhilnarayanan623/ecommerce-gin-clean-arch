@@ -186,11 +186,11 @@ func (c *productDatabase) IsProductNameExist(ctx context.Context, productName st
 // to add a new product in database
 func (c *productDatabase) SaveProduct(ctx context.Context, product domain.Product) error {
 
-	query := `INSERT INTO products (name, description, category_id, price, image, created_at) 
-	VALUES($1, $2, $3, $4, $5, $6)`
+	query := `INSERT INTO products (name, description, category_id, brand_id, price, image, created_at) 
+	VALUES($1, $2, $3, $4, $5, $6, $7)`
 
 	createdAt := time.Now()
-	err := c.DB.Exec(query, product.Name, product.Description, product.CategoryID,
+	err := c.DB.Exec(query, product.Name, product.Description, product.CategoryID, product.BrandID,
 		product.Price, product.Image, createdAt).Error
 
 	return err
@@ -200,13 +200,13 @@ func (c *productDatabase) SaveProduct(ctx context.Context, product domain.Produc
 func (c *productDatabase) UpdateProduct(ctx context.Context, product domain.Product) error {
 
 	query := `UPDATE products SET name = $1, description = $2, category_id = $3, 
-	price = $4, image = $5, updated_at = $6 
-	WHERE id = $7`
+	price = $4, image = $5, brand_id = $6 updated_at = $7 
+	WHERE id = $8`
 
 	updatedAt := time.Now()
 
 	err := c.DB.Exec(query, product.Name, product.Description, product.CategoryID,
-		product.Price, product.Image, updatedAt, product.ID).Error
+		product.Price, product.Image, product.BrandID, updatedAt, product.ID).Error
 
 	return err
 }
@@ -219,11 +219,12 @@ func (c *productDatabase) FindAllProducts(ctx context.Context, pagination reques
 
 	query := `SELECT p.id, p.name, p.description, p.price, p.discount_price, 
 	p.image, p.image, p.category_id, sc.name AS category_name, 
-	mc.name AS main_category_name, 
+	mc.name AS main_category_name, p.brand_id, b.name AS brand_name,
 	p.created_at, p.updated_at 
 	FROM products p 
 	INNER JOIN categories sc ON p.category_id = sc.id 
 	INNER JOIN categories mc ON sc.category_id = mc.id 
+	INNER JOIN brands b ON b.id = p.brand_id 
 	ORDER BY created_at DESC LIMIT $1 OFFSET $2`
 
 	err = c.DB.Raw(query, limit, offset).Scan(&products).Error
@@ -292,11 +293,12 @@ func (c *productDatabase) FindAllProductItems(ctx context.Context,
 
 	query := `SELECT p.name, pi.id,  pi.product_id, pi.price, pi.discount_price, 
 	pi.qty_in_stock, pi.sku, p.category_id, sc.name AS category_name, 
-	mc.name AS main_category_name
+	mc.name AS main_category_name  p.brand_id, b.name AS brand_name 
 	FROM product_items pi 
 	INNER JOIN products p ON p.id = pi.product_id 
 	INNER JOIN categories sc ON p.category_id = sc.id 
 	INNER JOIN categories mc ON sc.category_id = mc.id 
+	INNER JOIN brands b ON b.id = p.brand_id 
 	AND pi.product_id = $1`
 
 	err = c.DB.Raw(query, productID).Scan(&productItems).Error

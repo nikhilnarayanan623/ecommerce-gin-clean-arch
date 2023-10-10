@@ -66,4 +66,7 @@ var (
 	ErrBlockedPayment          = errors.New("selected payment is blocked by admin")
 	ErrPaymentAmountReachedMax = errors.New("order total price reached payment method maximum amount")
 	ErrPaymentNotApproved      = errors.New("payment not approved")
+
+	// brand
+	ErrBrandAlreadyExist = errors.New("brand name already exist")
 )
