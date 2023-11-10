@@ -293,7 +293,7 @@ func (c *productDatabase) FindAllProductItems(ctx context.Context,
 
 	query := `SELECT p.name, pi.id,  pi.product_id, pi.price, pi.discount_price, 
 	pi.qty_in_stock, pi.sku, p.category_id, sc.name AS category_name, 
-	mc.name AS main_category_name  p.brand_id, b.name AS brand_name 
+	mc.name AS main_category_name, p.brand_id, b.name AS brand_name 
 	FROM product_items pi 
 	INNER JOIN products p ON p.id = pi.product_id 
 	INNER JOIN categories sc ON p.category_id = sc.id 
