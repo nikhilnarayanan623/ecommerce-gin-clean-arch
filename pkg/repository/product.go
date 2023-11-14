@@ -200,7 +200,7 @@ func (c *productDatabase) SaveProduct(ctx context.Context, product domain.Produc
 func (c *productDatabase) UpdateProduct(ctx context.Context, product domain.Product) error {
 
 	query := `UPDATE products SET name = $1, description = $2, category_id = $3, 
-	price = $4, image = $5, brand_id = $6 updated_at = $7 
+	price = $4, image = $5, brand_id = $6, updated_at = $7 
 	WHERE id = $8`
 
 	updatedAt := time.Now()
