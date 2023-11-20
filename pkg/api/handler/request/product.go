@@ -16,6 +16,7 @@ type UpdateProduct struct {
 	Name        string `json:"product_name" binding:"required,min=3,max=50"`
 	Description string `json:"description" binding:"required,min=10,max=100"`
 	CategoryID  uint   `json:"category_id" binding:"required"`
+	BrandID     uint   `json:"brand_id" binding:"required"`
 	Price       uint   `json:"price" binding:"required,numeric"`
 	Image       string `json:"image"`
 }
